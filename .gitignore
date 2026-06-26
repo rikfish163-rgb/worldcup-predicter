@@ -10,11 +10,7 @@ notebooks_priv
 !wc_analysis/data/**
 
 *.py[cod]
-
-# C extensions
 *.so
-
-# Packages
 *.egg
 *.egg-info
 dist
@@ -29,13 +25,13 @@ develop-eggs
 lib
 lib64
 __pycache__
-
-# Installer logs
 pip-log.txt
 
-# Unit test / coverage reports
+# Tests / coverage
 .coverage
 .tox
+.pytest_cache/
+htmlcov/
 
 # Translations
 *.mo
@@ -47,6 +43,12 @@ pip-log.txt
 docs/_build/
 docs/modules/generated/
 
+# Local venv and tool caches
+.venv/
+.venv-*/
+.env
+.env.local
+
 # Hidden files
 .*
 
@@ -54,11 +56,11 @@ docs/modules/generated/
 !.gitignore
 !.dvc
 !.github
+!.pre-commit-config.yaml
+!.readthedocs.yml
 
-# deepwork session state
+# deepwork / claude / codex session state
 .slim/deepwork/
-
-# Tooling state (not part of the project)
 .omx/
 .slim/
 .claude/
@@ -66,14 +68,13 @@ docs/modules/generated/
 .deepcode/
 .codex/
 .worktrees/
-.omx/
 analysis/
+
+# Big / generated artifacts
 pickle
-
-# CSDN blog reference (off-topic)
-SoccerData*.html
-
-# CSDN blog reference (off-topic)
 SoccerData*.html*
-downloaded_files/
 SoccerData终极指南*
+downloaded_files/
+
+# Local relay temp
+/tmp/
