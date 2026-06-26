@@ -1,0 +1,1272 @@
+[
+  {
+    "fixture": {
+      "match_id": 2040247,
+      "match_num": "周日037",
+      "home_cn": "西班牙",
+      "away_cn": "沙特阿拉伯",
+      "home_fbref": "Spain",
+      "away_fbref": "Saudi Arabia",
+      "home_elo": "Spain",
+      "away_elo": "Saudi_Arabia",
+      "kickoff_bj": "2026-06-22 00:00",
+      "venue": "Atlanta Stadium, Atlanta",
+      "lat": 33.7554,
+      "lon": -84.4008,
+      "kickoff_local_date": "2026-06-21",
+      "kickoff_local_hour": 12
+    },
+    "match": "西班牙 vs 沙特阿拉伯",
+    "market": {
+      "match": "西班牙 vs 沙特阿拉伯",
+      "home": "西班牙",
+      "away": "沙特阿拉伯",
+      "home_en": "SPA",
+      "away_en": "SAR",
+      "home_rank": "[H组3]",
+      "away_rank": "[H组2]",
+      "match_date": "2026-06-22",
+      "match_time": "00:00:00",
+      "match_num": "周日037",
+      "hhad": {
+        "handicap": "-2.00",
+        "odds": {
+          "home": 1.61,
+          "draw": 4.55,
+          "away": 3.46
+        },
+        "prob": {
+          "home": 0.5497030283772883,
+          "draw": 0.19451030234888667,
+          "away": 0.255786669273825
+        }
+      },
+      "ttg": {
+        "odds": {
+          "0": 34.0,
+          "1": 9.5,
+          "2": 5.2,
+          "3": 4.0,
+          "4": 3.95,
+          "5": 5.4,
+          "6": 8.25,
+          "7": 8.5
+        },
+        "prob": {
+          "0": 0.023450775927014,
+          "1": 0.08392909279141852,
+          "2": 0.15333199644586076,
+          "3": 0.199331595379619,
+          "4": 0.2018547801312597,
+          "5": 0.14765303361453258,
+          "6": 0.09664562200223951,
+          "7": 0.093803103708056
+        }
+      },
+      "crs_top": {
+        "3-0": 5.5,
+        "2-0": 6.1,
+        "4-0": 6.85,
+        "3-1": 8.7,
+        "1-0": 9.7,
+        "2-1": 10.0,
+        "5-0": 10.0,
+        "4-1": 11.5
+      },
+      "match_id": 2040247
+    },
+    "home_profile": {
+      "team": "Spain",
+      "data_quality": "ok",
+      "matches_used": 6,
+      "recent_sequence": "DWDDWD",
+      "goals_for": 1.26,
+      "goals_against": 0.529,
+      "avg_possession": 73.5,
+      "npxg_proxy_for": 3.517,
+      "npxg_proxy_against": 1.433,
+      "shooting_rows_used": 6,
+      "last_played": "2026-06-15",
+      "rest_days": 7,
+      "next_fixtures": [
+        {
+          "date": "2026-06-21",
+          "opponent": "Saudi Arabia",
+          "result": null
+        },
+        {
+          "date": "2026-06-26",
+          "opponent": "Uruguay",
+          "result": null
+        }
+      ]
+    },
+    "away_profile": {
+      "team": "Saudi Arabia",
+      "data_quality": "ok",
+      "matches_used": 6,
+      "recent_sequence": "LLLWDD",
+      "goals_for": 1.04,
+      "goals_against": 0.995,
+      "avg_possession": 33.0,
+      "npxg_proxy_for": 1.18,
+      "npxg_proxy_against": 4.19,
+      "shooting_rows_used": 6,
+      "last_played": "2026-06-15",
+      "rest_days": 7,
+      "next_fixtures": [
+        {
+          "date": "2026-06-21",
+          "opponent": "Spain",
+          "result": null
+        },
+        {
+          "date": "2026-06-26",
+          "opponent": "Cape Verde",
+          "result": null
+        }
+      ]
+    },
+    "elo": {
+      "home": {
+        "team_file": "Spain",
+        "elo": 2129.0,
+        "last_date": "2026-06-15",
+        "last_codes": [
+          "CV",
+          "ES"
+        ],
+        "n_matches": 783
+      },
+      "away": {
+        "team_file": "Saudi_Arabia",
+        "elo": 1598.0,
+        "last_date": "2026-06-15",
+        "last_codes": [
+          "SA",
+          "UY"
+        ],
+        "n_matches": 840
+      },
+      "diff": 531.0
+    },
+    "lambdas": {
+      "elo_home_lam": 2.229,
+      "elo_away_lam": 0.321,
+      "prior_home_lam": 2.05,
+      "prior_away_lam": 0.5,
+      "posterior_home_lam": 2.284,
+      "posterior_away_lam": 0.585,
+      "calibration_reasons": [
+        "Yamal 可首发但分钟受控：提升上半场爆点，同时压低全场大胜上限。",
+        "沙特核心仍以低位防守和反击为主，若早失球，防守折损更大。",
+        "用体彩总进球分布做总量校准：市场均值约3.82球。"
+      ],
+      "availability_confidence": "medium"
+    },
+    "prior": {
+      "wld": {
+        "home": 0.7353159703209928,
+        "draw": 0.1907738413535748,
+        "away": 0.07391018832543263
+      },
+      "handicap": {
+        "home": 0.2547841701740012,
+        "draw": 0.22788538297074282,
+        "away": 0.5173304468552561
+      },
+      "totals": {
+        "0": 0.08290721457609396,
+        "1": 0.18955799319470568,
+        "2": 0.25873845980871907,
+        "3": 0.21584481317187626,
+        "4": 0.1376010683970711,
+        "5": 0.07017654488250626,
+        "6": 0.02982503157506516,
+        "7": 0.01534887439396256
+      },
+      "top_scores": [
+        {
+          "score": "2-0",
+          "prob": 0.1641156708695407
+        },
+        {
+          "score": "1-0",
+          "prob": 0.15530946413995558
+        },
+        {
+          "score": "3-0",
+          "prob": 0.11214570842751945
+        },
+        {
+          "score": "1-1",
+          "prob": 0.0848598103032747
+        },
+        {
+          "score": "0-0",
+          "prob": 0.08290721457609396
+        },
+        {
+          "score": "2-1",
+          "prob": 0.08205783543477035
+        },
+        {
+          "score": "4-0",
+          "prob": 0.05747467556910371
+        },
+        {
+          "score": "3-1",
+          "prob": 0.056072854213759724
+        }
+      ]
+    },
+    "posterior": {
+      "wld": {
+        "home": 0.7545272051472993,
+        "draw": 0.17121695574553766,
+        "away": 0.07425583910716321
+      },
+      "handicap": {
+        "home": 0.2949620417728874,
+        "draw": 0.22615803060801482,
+        "away": 0.4788799276190978
+      },
+      "totals": {
+        "0": 0.06134314729390203,
+        "1": 0.1538259457017739,
+        "2": 0.2382780710682958,
+        "3": 0.2235192752870564,
+        "4": 0.1603192001996412,
+        "5": 0.0919911570745541,
+        "6": 0.04398710494114928,
+        "7": 0.026736098433627304
+      },
+      "top_scores": [
+        {
+          "score": "2-0",
+          "prob": 0.14812787403779715
+        },
+        {
+          "score": "1-0",
+          "prob": 0.12515637973648902
+        },
+        {
+          "score": "3-0",
+          "prob": 0.11277468810077618
+        },
+        {
+          "score": "2-1",
+          "prob": 0.08665480631211131
+        },
+        {
+          "score": "1-1",
+          "prob": 0.08043265734749386
+        },
+        {
+          "score": "3-1",
+          "prob": 0.06597319253895406
+        },
+        {
+          "score": "4-0",
+          "prob": 0.0643943469055432
+        },
+        {
+          "score": "0-0",
+          "prob": 0.06134314729390203
+        }
+      ]
+    },
+    "edges": {
+      "had": null,
+      "hhad": {
+        "home": -0.254740986604401,
+        "draw": 0.03164772825912815,
+        "away": 0.22309325834527283
+      }
+    },
+    "weather": {
+      "source": "open-meteo",
+      "error": "<urlopen error _ssl.c:1015: The handshake operation timed out>",
+      "temperature_c": [],
+      "precip_probability": [],
+      "wind_kmh": []
+    },
+    "blog_method_notes": [
+      "本地博客强调 SoccerData 的多源统一、缓存和 FBref/ClubElo/Understat/Sofascore 分工；本次复用其多源思路，但国家队 Elo 改走 eloratings.net。",
+      "FBref 当前缓存有赛程和射门表，npxG 只能做代理，不等同 Opta/StatsBomb 真 xG。",
+      "体彩 API 可实时给出 had/hhad/ttg/crs，用于第二步市场校准和价值检查。"
+    ],
+    "risk_flags": [
+      "体彩未开标准胜平负，胜面只能用让球/比分/总进球交叉验证。"
+    ]
+  },
+  {
+    "fixture": {
+      "match_id": 2040248,
+      "match_num": "周日038",
+      "home_cn": "比利时",
+      "away_cn": "伊朗",
+      "home_fbref": "Belgium",
+      "away_fbref": "IR Iran",
+      "home_elo": "Belgium",
+      "away_elo": "Iran",
+      "kickoff_bj": "2026-06-22 03:00",
+      "venue": "Los Angeles Stadium, Los Angeles",
+      "lat": 33.9535,
+      "lon": -118.3392,
+      "kickoff_local_date": "2026-06-21",
+      "kickoff_local_hour": 12
+    },
+    "match": "比利时 vs 伊朗",
+    "market": {
+      "match": "比利时 vs 伊朗",
+      "home": "比利时",
+      "away": "伊朗",
+      "home_en": "BEG",
+      "away_en": "IRA",
+      "home_rank": "[G组3]",
+      "away_rank": "[G组2]",
+      "match_date": "2026-06-22",
+      "match_time": "03:00:00",
+      "match_num": "周日038",
+      "had": {
+        "odds": {
+          "home": 1.28,
+          "draw": 4.61,
+          "away": 7.6
+        },
+        "prob": {
+          "home": 0.6915254772544253,
+          "draw": 0.19200707394482955,
+          "away": 0.11646744880074529
+        }
+      },
+      "hhad": {
+        "handicap": "-1.00",
+        "odds": {
+          "home": 1.92,
+          "draw": 3.72,
+          "away": 2.94
+        },
+        "prob": {
+          "home": 0.46100151745068285,
+          "draw": 0.23793626707132015,
+          "away": 0.30106221547799694
+        }
+      },
+      "ttg": {
+        "odds": {
+          "0": 13.0,
+          "1": 5.4,
+          "2": 3.65,
+          "3": 3.4,
+          "4": 4.9,
+          "5": 9.0,
+          "6": 15.0,
+          "7": 24.0
+        },
+        "prob": {
+          "0": 0.06135564189912529,
+          "1": 0.14770802679419048,
+          "2": 0.21852694375030923,
+          "3": 0.23459510137900846,
+          "4": 0.16278027442625073,
+          "5": 0.08862481607651429,
+          "6": 0.05317488964590858,
+          "7": 0.03323430602869286
+        }
+      },
+      "crs_top": {
+        "1-0": 6.5,
+        "2-0": 6.5,
+        "2-1": 6.5,
+        "1-1": 8.0,
+        "3-0": 8.5,
+        "3-1": 8.75,
+        "0-0": 13.0,
+        "4-0": 17.0
+      },
+      "match_id": 2040248
+    },
+    "home_profile": {
+      "team": "Belgium",
+      "data_quality": "ok",
+      "matches_used": 6,
+      "recent_sequence": "WWDWWD",
+      "goals_for": 2.833,
+      "goals_against": 0.622,
+      "avg_possession": 67.5,
+      "npxg_proxy_for": 2.937,
+      "npxg_proxy_against": 1.126,
+      "shooting_rows_used": 6,
+      "last_played": "2026-06-15",
+      "rest_days": 7,
+      "next_fixtures": [
+        {
+          "date": "2026-06-21",
+          "opponent": "IR Iran",
+          "result": null
+        },
+        {
+          "date": "2026-06-26",
+          "opponent": "New Zealand",
+          "result": null
+        }
+      ]
+    },
+    "away_profile": {
+      "team": "IR Iran",
+      "data_quality": "ok",
+      "matches_used": 6,
+      "recent_sequence": "DLWWWD",
+      "goals_for": 2.115,
+      "goals_against": 1.033,
+      "avg_possession": 56.5,
+      "npxg_proxy_for": 2.519,
+      "npxg_proxy_against": 1.674,
+      "shooting_rows_used": 6,
+      "last_played": "2026-06-15",
+      "rest_days": 7,
+      "next_fixtures": [
+        {
+          "date": "2026-06-21",
+          "opponent": "Belgium",
+          "result": null
+        },
+        {
+          "date": "2026-06-26",
+          "opponent": "Egypt",
+          "result": null
+        }
+      ]
+    },
+    "elo": {
+      "home": {
+        "team_file": "Belgium",
+        "elo": 1879.0,
+        "last_date": "2026-06-15",
+        "last_codes": [
+          "BE",
+          "EG"
+        ],
+        "n_matches": 879
+      },
+      "away": {
+        "team_file": "Iran",
+        "elo": 1756.0,
+        "last_date": "2026-06-15",
+        "last_codes": [
+          "IR",
+          "NZ"
+        ],
+        "n_matches": 671
+      },
+      "diff": 123.0
+    },
+    "lambdas": {
+      "elo_home_lam": 1.573,
+      "elo_away_lam": 0.977,
+      "prior_home_lam": 1.494,
+      "prior_away_lam": 1.056,
+      "posterior_home_lam": 1.487,
+      "posterior_away_lam": 1.096,
+      "calibration_reasons": [
+        "Doku 因病缺阵，右路推进和一对一爆点明显下调。",
+        "伊朗组织性强，市场对平/小比分保护更充分。",
+        "用体彩总进球分布做总量校准：市场均值约2.95球。"
+      ],
+      "availability_confidence": "medium"
+    },
+    "prior": {
+      "wld": {
+        "home": 0.46559966471563624,
+        "draw": 0.2740576070149815,
+        "away": 0.2603427282693822
+      },
+      "handicap": {
+        "home": 0.23666789656483755,
+        "draw": 0.2289317681507987,
+        "away": 0.5344003352843637
+      },
+      "totals": {
+        "0": 0.0854753123460791,
+        "1": 0.18433113221842684,
+        "2": 0.2612616981142009,
+        "3": 0.2157897451279579,
+        "4": 0.13756596251907321,
+        "5": 0.07015864088472733,
+        "6": 0.029817422376009112,
+        "7": 0.015600086413525588
+      },
+      "top_scores": [
+        {
+          "score": "1-1",
+          "prob": 0.13058157186783648
+        },
+        {
+          "score": "1-0",
+          "prob": 0.10926594078249212
+        },
+        {
+          "score": "2-1",
+          "prob": 0.09202305111818289
+        },
+        {
+          "score": "2-0",
+          "prob": 0.08714304083161258
+        },
+        {
+          "score": "0-0",
+          "prob": 0.0854753123460791
+        },
+        {
+          "score": "0-1",
+          "prob": 0.07506519143593471
+        },
+        {
+          "score": "1-2",
+          "prob": 0.06504440560963931
+        },
+        {
+          "score": "2-2",
+          "prob": 0.048588170990400574
+        }
+      ]
+    },
+    "posterior": {
+      "wld": {
+        "home": 0.45441559115580965,
+        "draw": 0.2736898701166769,
+        "away": 0.2718945387275135
+      },
+      "handicap": {
+        "home": 0.22938347088906777,
+        "draw": 0.225032120266742,
+        "away": 0.5455844088441905
+      },
+      "totals": {
+        "0": 0.08293674446071242,
+        "1": 0.18036831463248476,
+        "2": 0.25941539091103666,
+        "3": 0.21699594196879268,
+        "4": 0.1401251295263479,
+        "5": 0.07238864191331133,
+        "6": 0.031163310343680528,
+        "7": 0.016606526243633783
+      },
+      "top_scores": [
+        {
+          "score": "1-1",
+          "prob": 0.13051397951890178
+        },
+        {
+          "score": "1-0",
+          "prob": 0.10495401823589966
+        },
+        {
+          "score": "2-1",
+          "prob": 0.09154447525689006
+        },
+        {
+          "score": "2-0",
+          "prob": 0.08352598107380481
+        },
+        {
+          "score": "0-0",
+          "prob": 0.08293674446071242
+        },
+        {
+          "score": "0-1",
+          "prob": 0.0754142963965851
+        },
+        {
+          "score": "1-2",
+          "prob": 0.06747326488335678
+        },
+        {
+          "score": "2-2",
+          "prob": 0.05016637244077578
+        }
+      ]
+    },
+    "edges": {
+      "had": {
+        "home": -0.2371098860986156,
+        "draw": 0.08168279617184734,
+        "away": 0.15542708992676824
+      },
+      "hhad": {
+        "home": -0.23161804656161508,
+        "draw": -0.01290414680457816,
+        "away": 0.24452219336619352
+      }
+    },
+    "weather": {
+      "source": "open-meteo",
+      "kickoff_local": "2026-06-21 12:00",
+      "temperature_c": [
+        22.2,
+        22.1,
+        22.1
+      ],
+      "humidity": [
+        66,
+        65,
+        66
+      ],
+      "precip_probability": [
+        0,
+        0,
+        0
+      ],
+      "precip_mm": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "wind_kmh": [
+        15.2,
+        15.5,
+        16.3
+      ]
+    },
+    "blog_method_notes": [
+      "本地博客强调 SoccerData 的多源统一、缓存和 FBref/ClubElo/Understat/Sofascore 分工；本次复用其多源思路，但国家队 Elo 改走 eloratings.net。",
+      "FBref 当前缓存有赛程和射门表，npxG 只能做代理，不等同 Opta/StatsBomb 真 xG。",
+      "体彩 API 可实时给出 had/hhad/ttg/crs，用于第二步市场校准和价值检查。"
+    ],
+    "risk_flags": []
+  },
+  {
+    "fixture": {
+      "match_id": 2040249,
+      "match_num": "周日039",
+      "home_cn": "乌拉圭",
+      "away_cn": "佛得角",
+      "home_fbref": "Uruguay",
+      "away_fbref": "Cape Verde",
+      "home_elo": "Uruguay",
+      "away_elo": "Cape_Verde",
+      "kickoff_bj": "2026-06-22 06:00",
+      "venue": "Miami Stadium, Miami",
+      "lat": 25.958,
+      "lon": -80.2389,
+      "kickoff_local_date": "2026-06-21",
+      "kickoff_local_hour": 18
+    },
+    "match": "乌拉圭 vs 佛得角",
+    "market": {
+      "match": "乌拉圭 vs 佛得角",
+      "home": "乌拉圭",
+      "away": "佛得角",
+      "home_en": "URU",
+      "away_en": "CVI",
+      "home_rank": "[H组1]",
+      "away_rank": "[H组4]",
+      "match_date": "2026-06-22",
+      "match_time": "06:00:00",
+      "match_num": "周日039",
+      "had": {
+        "odds": {
+          "home": 1.3,
+          "draw": 4.05,
+          "away": 8.8
+        },
+        "prob": {
+          "home": 0.6808673225714011,
+          "draw": 0.21855000477600536,
+          "away": 0.10058267265259337
+        }
+      },
+      "hhad": {
+        "handicap": "-1.00",
+        "odds": {
+          "home": 2.1,
+          "draw": 3.3,
+          "away": 2.86
+        },
+        "prob": {
+          "home": 0.4218289085545723,
+          "draw": 0.26843657817109146,
+          "away": 0.3097345132743363
+        }
+      },
+      "ttg": {
+        "odds": {
+          "0": 8.5,
+          "1": 3.75,
+          "2": 3.05,
+          "3": 4.0,
+          "4": 6.8,
+          "5": 13.5,
+          "6": 25.0,
+          "7": 32.0
+        },
+        "prob": {
+          "0": 0.09377514455489065,
+          "1": 0.2125569943244188,
+          "2": 0.2613405667923182,
+          "3": 0.19927218217914264,
+          "4": 0.11721893069361332,
+          "5": 0.059043609534560774,
+          "6": 0.03188354914866282,
+          "7": 0.02490902277239283
+        }
+      },
+      "crs_top": {
+        "1-0": 4.95,
+        "2-0": 5.0,
+        "1-1": 7.3,
+        "2-1": 7.4,
+        "3-0": 7.6,
+        "0-0": 8.5,
+        "3-1": 12.0,
+        "0-1": 15.0
+      },
+      "match_id": 2040249
+    },
+    "home_profile": {
+      "team": "Uruguay",
+      "data_quality": "ok",
+      "matches_used": 6,
+      "recent_sequence": "WWDDDD",
+      "goals_for": 0.882,
+      "goals_against": 0.494,
+      "avg_possession": 60.0,
+      "npxg_proxy_for": 0.882,
+      "npxg_proxy_against": 0.494,
+      "shooting_rows_used": 0,
+      "last_played": "2026-06-15",
+      "rest_days": 7,
+      "next_fixtures": [
+        {
+          "date": "2026-06-21",
+          "opponent": "Cape Verde",
+          "result": null
+        },
+        {
+          "date": "2026-06-26",
+          "opponent": "Spain",
+          "result": null
+        }
+      ]
+    },
+    "away_profile": {
+      "team": "Cape Verde",
+      "data_quality": "ok",
+      "matches_used": 6,
+      "recent_sequence": "WDWWWD",
+      "goals_for": 1.898,
+      "goals_against": 0.262,
+      "avg_possession": 26.0,
+      "npxg_proxy_for": 0.65,
+      "npxg_proxy_against": 3.5,
+      "shooting_rows_used": 6,
+      "last_played": "2026-06-15",
+      "rest_days": 7,
+      "next_fixtures": [
+        {
+          "date": "2026-06-21",
+          "opponent": "Uruguay",
+          "result": null
+        },
+        {
+          "date": "2026-06-26",
+          "opponent": "Saudi Arabia",
+          "result": null
+        }
+      ]
+    },
+    "elo": {
+      "home": {
+        "team_file": "Uruguay",
+        "elo": 1870.0,
+        "last_date": "2026-06-15",
+        "last_codes": [
+          "SA",
+          "UY"
+        ],
+        "n_matches": 1020
+      },
+      "away": {
+        "team_file": "Cape_Verde",
+        "elo": 1606.0,
+        "last_date": "2026-06-15",
+        "last_codes": [
+          "CV",
+          "ES"
+        ],
+        "n_matches": 254
+      },
+      "diff": 264.0
+    },
+    "lambdas": {
+      "elo_home_lam": 1.876,
+      "elo_away_lam": 0.674,
+      "prior_home_lam": 1.92,
+      "prior_away_lam": 0.63,
+      "posterior_home_lam": 1.793,
+      "posterior_away_lam": 0.602,
+      "calibration_reasons": [
+        "Araujo 和 De Arrascaeta 缺阵，分别削弱防线稳定和中路创造。",
+        "佛得角抗压和定位球路径是冷门脚本，但持续进攻创造力有限。",
+        "用体彩总进球分布做总量校准：市场均值约2.48球。"
+      ],
+      "availability_confidence": "medium"
+    },
+    "prior": {
+      "wld": {
+        "home": 0.6755889478993641,
+        "draw": 0.21660544890296,
+        "away": 0.10780560319767593
+      },
+      "handicap": {
+        "home": 0.4203866931986638,
+        "draw": 0.2552022547007002,
+        "away": 0.32441105210063587
+      },
+      "totals": {
+        "0": 0.08376330369087336,
+        "1": 0.18780768295616293,
+        "2": 0.2595756819597127,
+        "3": 0.21582165269054054,
+        "4": 0.13758630359021956,
+        "5": 0.07016901483101198,
+        "6": 0.029821831303180096,
+        "7": 0.01545452897829889
+      },
+      "top_scores": [
+        {
+          "score": "1-0",
+          "prob": 0.14427540571279612
+        },
+        {
+          "score": "2-0",
+          "prob": 0.14394553053864506
+        },
+        {
+          "score": "1-1",
+          "prob": 0.10013210968094498
+        },
+        {
+          "score": "3-0",
+          "prob": 0.09212513954473284
+        },
+        {
+          "score": "2-1",
+          "prob": 0.09068568423934639
+        },
+        {
+          "score": "0-0",
+          "prob": 0.08376330369087336
+        },
+        {
+          "score": "3-1",
+          "prob": 0.058038837913181686
+        },
+        {
+          "score": "4-0",
+          "prob": 0.044220066981471746
+        }
+      ]
+    },
+    "posterior": {
+      "wld": {
+        "home": 0.6558322781172448,
+        "draw": 0.23138215415765884,
+        "away": 0.11278556772509668
+      },
+      "handicap": {
+        "home": 0.39263221434689,
+        "draw": 0.26320006377035454,
+        "away": 0.3441677218827555
+      },
+      "totals": {
+        "0": 0.09708766282521591,
+        "1": 0.20657133252360182,
+        "2": 0.2674175301294985,
+        "3": 0.20877396191265618,
+        "4": 0.12500340969520288,
+        "5": 0.059876633244002164,
+        "6": 0.023900756103230867,
+        "7": 0.011368713566591693
+      },
+      "top_scores": [
+        {
+          "score": "1-0",
+          "prob": 0.15758478684033037
+        },
+        {
+          "score": "2-0",
+          "prob": 0.14656882744984456
+        },
+        {
+          "score": "1-1",
+          "prob": 0.10432626901538741
+        },
+        {
+          "score": "0-0",
+          "prob": 0.09708766282521591
+        },
+        {
+          "score": "2-1",
+          "prob": 0.08823443412480644
+        },
+        {
+          "score": "3-0",
+          "prob": 0.08759930253919043
+        },
+        {
+          "score": "3-1",
+          "prob": 0.052734780128592645
+        },
+        {
+          "score": "0-1",
+          "prob": 0.04898654568327145
+        }
+      ]
+    },
+    "edges": {
+      "had": {
+        "home": -0.025035044454156385,
+        "draw": 0.012832149381653474,
+        "away": 0.012202895072503314
+      },
+      "hhad": {
+        "home": -0.029196694207682283,
+        "draw": -0.0052365144007369135,
+        "away": 0.0344332086084192
+      }
+    },
+    "weather": {
+      "source": "open-meteo",
+      "error": "<urlopen error _ssl.c:1015: The handshake operation timed out>",
+      "temperature_c": [],
+      "precip_probability": [],
+      "wind_kmh": []
+    },
+    "blog_method_notes": [
+      "本地博客强调 SoccerData 的多源统一、缓存和 FBref/ClubElo/Understat/Sofascore 分工；本次复用其多源思路，但国家队 Elo 改走 eloratings.net。",
+      "FBref 当前缓存有赛程和射门表，npxG 只能做代理，不等同 Opta/StatsBomb 真 xG。",
+      "体彩 API 可实时给出 had/hhad/ttg/crs，用于第二步市场校准和价值检查。"
+    ],
+    "risk_flags": [
+      "射门样本不足，npxG代理权重应下调。"
+    ]
+  },
+  {
+    "fixture": {
+      "match_id": 2040250,
+      "match_num": "周日040",
+      "home_cn": "新西兰",
+      "away_cn": "埃及",
+      "home_fbref": "New Zealand",
+      "away_fbref": "Egypt",
+      "home_elo": "New_Zealand",
+      "away_elo": "Egypt",
+      "kickoff_bj": "2026-06-22 09:00",
+      "venue": "BC Place, Vancouver",
+      "lat": 49.2768,
+      "lon": -123.1119,
+      "kickoff_local_date": "2026-06-21",
+      "kickoff_local_hour": 18
+    },
+    "match": "新西兰 vs 埃及",
+    "market": {
+      "match": "新西兰 vs 埃及",
+      "home": "新西兰",
+      "away": "埃及",
+      "home_en": "NZD",
+      "away_en": "EGY",
+      "home_rank": "[G组1]",
+      "away_rank": "[G组4]",
+      "match_date": "2026-06-22",
+      "match_time": "09:00:00",
+      "match_num": "周日040",
+      "had": {
+        "odds": {
+          "home": 6.0,
+          "draw": 3.87,
+          "away": 1.42
+        },
+        "prob": {
+          "home": 0.14758536231650524,
+          "draw": 0.22881451521938795,
+          "away": 0.6236001224641067
+        }
+      },
+      "hhad": {
+        "handicap": "+1.00",
+        "odds": {
+          "home": 2.46,
+          "draw": 3.3,
+          "away": 2.38
+        },
+        "prob": {
+          "home": 0.3598328660179229,
+          "draw": 0.26823904557699707,
+          "away": 0.37192808840508
+        }
+      },
+      "ttg": {
+        "odds": {
+          "0": 10.0,
+          "1": 4.3,
+          "2": 3.2,
+          "3": 3.6,
+          "4": 6.0,
+          "5": 12.0,
+          "6": 21.0,
+          "7": 30.0
+        },
+        "prob": {
+          "0": 0.07975828147253985,
+          "1": 0.18548437551753455,
+          "2": 0.24924462960168706,
+          "3": 0.22155078186816626,
+          "4": 0.13293046912089976,
+          "5": 0.06646523456044988,
+          "6": 0.037980134034542784,
+          "7": 0.02658609382417995
+        }
+      },
+      "crs_top": {
+        "0-1": 5.75,
+        "0-2": 5.8,
+        "1-2": 6.75,
+        "1-1": 6.8,
+        "0-0": 10.0,
+        "0-3": 10.5,
+        "1-3": 12.0,
+        "1-0": 14.0
+      },
+      "match_id": 2040250
+    },
+    "home_profile": {
+      "team": "New Zealand",
+      "data_quality": "ok",
+      "matches_used": 6,
+      "recent_sequence": "WWWLLD",
+      "goals_for": 2.13,
+      "goals_against": 1.559,
+      "avg_possession": 52.0,
+      "npxg_proxy_for": 2.82,
+      "npxg_proxy_against": 2.11,
+      "shooting_rows_used": 6,
+      "last_played": "2026-06-15",
+      "rest_days": 7,
+      "next_fixtures": [
+        {
+          "date": "2026-06-21",
+          "opponent": "Egypt",
+          "result": null
+        },
+        {
+          "date": "2026-06-26",
+          "opponent": "Belgium",
+          "result": null
+        }
+      ]
+    },
+    "away_profile": {
+      "team": "Egypt",
+      "data_quality": "ok",
+      "matches_used": 6,
+      "recent_sequence": "WWDWLD",
+      "goals_for": 1.141,
+      "goals_against": 0.794,
+      "avg_possession": 46.0,
+      "npxg_proxy_for": 1.67,
+      "npxg_proxy_against": 1.74,
+      "shooting_rows_used": 6,
+      "last_played": "2026-06-15",
+      "rest_days": 7,
+      "next_fixtures": [
+        {
+          "date": "2026-06-21",
+          "opponent": "New Zealand",
+          "result": null
+        },
+        {
+          "date": "2026-06-26",
+          "opponent": "IR Iran",
+          "result": null
+        }
+      ]
+    },
+    "elo": {
+      "home": {
+        "team_file": "New_Zealand",
+        "elo": 1578.0,
+        "last_date": "2026-06-15",
+        "last_codes": [
+          "IR",
+          "NZ"
+        ],
+        "n_matches": 442
+      },
+      "away": {
+        "team_file": "Egypt",
+        "elo": 1711.0,
+        "last_date": "2026-06-15",
+        "last_codes": [
+          "BE",
+          "EG"
+        ],
+        "n_matches": 886
+      },
+      "diff": -133.0
+    },
+    "lambdas": {
+      "elo_home_lam": 0.954,
+      "elo_away_lam": 1.596,
+      "prior_home_lam": 1.186,
+      "prior_away_lam": 1.364,
+      "posterior_home_lam": 1.185,
+      "posterior_away_lam": 1.391,
+      "calibration_reasons": [
+        "Garbett 退出名单削弱新西兰中场创造，但 Wood/Just 的高球和定位球路径仍需要保留。",
+        "埃及进攻核心质量更高，胜面强于新西兰，但客让一球市场已明显压价。",
+        "用体彩总进球分布做总量校准：市场均值约2.64球。"
+      ],
+      "availability_confidence": "medium"
+    },
+    "prior": {
+      "wld": {
+        "home": 0.31759665595121683,
+        "draw": 0.28081487617086875,
+        "away": 0.4015884678779145
+      },
+      "handicap": {
+        "home": 0.5984115321220859,
+        "draw": 0.21169872819799804,
+        "away": 0.1898897396799164
+      },
+      "totals": {
+        "0": 0.08566196613710635,
+        "1": 0.18395394687677685,
+        "2": 0.2614464332664833,
+        "3": 0.21578738986839704,
+        "4": 0.13756446104110312,
+        "5": 0.0701578751309626,
+        "6": 0.029817096930659103,
+        "7": 0.015610830748511677
+      },
+      "top_scores": [
+        {
+          "score": "1-1",
+          "prob": 0.13389417867844325
+        },
+        {
+          "score": "0-1",
+          "prob": 0.0989263649206825
+        },
+        {
+          "score": "1-2",
+          "prob": 0.08614700930065877
+        },
+        {
+          "score": "0-0",
+          "prob": 0.08566196613710635
+        },
+        {
+          "score": "1-0",
+          "prob": 0.08502758195609433
+        },
+        {
+          "score": "2-1",
+          "prob": 0.07490495090218569
+        },
+        {
+          "score": "0-2",
+          "prob": 0.072636601433945
+        },
+        {
+          "score": "2-0",
+          "prob": 0.054915653154095086
+        }
+      ]
+    },
+    "posterior": {
+      "wld": {
+        "home": 0.31227664378400055,
+        "draw": 0.27871564525066733,
+        "away": 0.4090077109653324
+      },
+      "handicap": {
+        "home": 0.5909922890346677,
+        "draw": 0.2130594129781416,
+        "away": 0.19594829798719055
+      },
+      "totals": {
+        "0": 0.08360346278709913,
+        "1": 0.18093158648323593,
+        "2": 0.2599465745519116,
+        "3": 0.21674664245968278,
+        "4": 0.13958483774403574,
+        "5": 0.0719141084057272,
+        "6": 0.030875123875525545,
+        "7": 0.01639766369278205
+      },
+      "top_scores": [
+        {
+          "score": "1-1",
+          "prob": 0.13292828407528895
+        },
+        {
+          "score": "0-1",
+          "prob": 0.09830195293172193
+        },
+        {
+          "score": "1-2",
+          "prob": 0.08721851091921082
+        },
+        {
+          "score": "0-0",
+          "prob": 0.08360346278709913
+        },
+        {
+          "score": "1-0",
+          "prob": 0.08262963355151401
+        },
+        {
+          "score": "2-1",
+          "prob": 0.07430189463642332
+        },
+        {
+          "score": "0-2",
+          "prob": 0.07360211891916524
+        },
+        {
+          "score": "2-0",
+          "prob": 0.05341617155745745
+        }
+      ]
+    },
+    "edges": {
+      "had": {
+        "home": 0.16469128146749532,
+        "draw": 0.049901130031279384,
+        "away": -0.21459241149877428
+      },
+      "hhad": {
+        "home": 0.2311594230167448,
+        "draw": -0.05517963259885547,
+        "away": -0.17597979041788947
+      }
+    },
+    "weather": {
+      "source": "open-meteo",
+      "error": "<urlopen error _ssl.c:1015: The handshake operation timed out>",
+      "temperature_c": [],
+      "precip_probability": [],
+      "wind_kmh": []
+    },
+    "blog_method_notes": [
+      "本地博客强调 SoccerData 的多源统一、缓存和 FBref/ClubElo/Understat/Sofascore 分工；本次复用其多源思路，但国家队 Elo 改走 eloratings.net。",
+      "FBref 当前缓存有赛程和射门表，npxG 只能做代理，不等同 Opta/StatsBomb 真 xG。",
+      "体彩 API 可实时给出 had/hhad/ttg/crs，用于第二步市场校准和价值检查。"
+    ],
+    "risk_flags": []
+  }
+]

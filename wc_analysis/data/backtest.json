@@ -1,0 +1,16 @@
+{
+  "n_matches": 598,
+  "had": {
+    "elo_simple_brier": 0.44427,
+    "dixon_coles_brier": 0.43157,
+    "improvement": 0.0127
+  },
+  "hhad": {
+    "handicap_line": -1.0,
+    "elo_simple_brier": 0.48345,
+    "dixon_coles_brier": 0.48345,
+    "improvement": 0.0,
+    "elo_accuracy": 0.6589,
+    "dixon_coles_accuracy": 0.6589
+  }
+}

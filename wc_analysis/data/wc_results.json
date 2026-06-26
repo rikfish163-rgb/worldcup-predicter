@@ -1,0 +1,21 @@
+{
+  "_comment": "WC 2026 已完成的比赛 (用于实时积分计算)。每条记录: home, away, home_goals, away_goals, date",
+  "results": [
+    {"date": "2026-06-11", "home": "Mexico", "away": "South Africa", "home_goals": 2, "away_goals": 0, "group": "A"},
+    {"date": "2026-06-11", "home": "South Korea", "away": "Czech Republic", "home_goals": 2, "away_goals": 1, "group": "A"},
+    {"date": "2026-06-18", "home": "Mexico", "away": "South Korea", "home_goals": 1, "away_goals": 0, "group": "A"},
+    {"date": "2026-06-24", "home": "Czech Republic", "away": "Mexico", "home_goals": 0, "away_goals": 3, "group": "A"},
+    {"date": "2026-06-11", "home": "Switzerland", "away": "Canada", "home_goals": 0, "away_goals": 1, "group": "B"},
+    {"date": "2026-06-15", "home": "Bosnia and Herzegovina", "away": "Qatar", "home_goals": 2, "away_goals": 0, "group": "B"},
+    {"date": "2026-06-20", "home": "Switzerland", "away": "Bosnia and Herzegovina", "home_goals": 1, "away_goals": 1, "group": "B"},
+    {"date": "2026-06-25", "home": "Canada", "away": "Qatar", "home_goals": 3, "away_goals": 0, "group": "B"},
+    {"date": "2026-06-12", "home": "Brazil", "away": "Morocco", "home_goals": 2, "away_goals": 0, "group": "C"},
+    {"date": "2026-06-16", "home": "Scotland", "away": "Haiti", "home_goals": 1, "away_goals": 0, "group": "C"},
+    {"date": "2026-06-22", "home": "Brazil", "away": "Scotland", "home_goals": 2, "away_goals": 0, "group": "C"},
+    {"date": "2026-06-25", "home": "Morocco", "away": "Haiti", "home_goals": 3, "away_goals": 1, "group": "C"},
+    {"date": "2026-06-13", "home": "United States", "away": "Australia", "home_goals": 1, "away_goals": 0, "group": "D"},
+    {"date": "2026-06-17", "home": "Paraguay", "away": "Turkey", "home_goals": 0, "away_goals": 1, "group": "D"},
+    {"date": "2026-06-23", "home": "United States", "away": "Paraguay", "home_goals": 2, "away_goals": 1, "group": "D"},
+    {"date": "2026-06-26", "home": "Australia", "away": "Turkey", "home_goals": null, "away_goals": null, "group": "D", "scheduled": true}
+  ]
+}

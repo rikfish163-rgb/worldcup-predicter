@@ -1,0 +1,60 @@
+{
+  "n": 4,
+  "top1_accuracy": 0.75,
+  "top2_accuracy": 1.0,
+  "avg_brier": 0.25287126841476776,
+  "matches": [
+    {
+      "match": "Portugal vs Uzbekistan",
+      "score": "5-0",
+      "date": "2026-06-23",
+      "actual": "H",
+      "pred": "H",
+      "p_home": 0.7115276475869582,
+      "p_draw": 0.22122734509056707,
+      "p_away": 0.06724500732247478,
+      "top1_hit": true,
+      "top2_hit": true,
+      "brier": 0.06833986366616736
+    },
+    {
+      "match": "Colombia vs DR Congo",
+      "score": "1-0",
+      "date": "2026-06-23",
+      "actual": "H",
+      "pred": "H",
+      "p_home": 0.757882719288707,
+      "p_draw": 0.19560612999044624,
+      "p_away": 0.04651115072084676,
+      "top1_hit": true,
+      "top2_hit": true,
+      "brier": 0.04952291142512387
+    },
+    {
+      "match": "England vs Ghana",
+      "score": "0-0",
+      "date": "2026-06-23",
+      "actual": "D",
+      "pred": "H",
+      "p_home": 0.8457756638724919,
+      "p_draw": 0.13415100930245366,
+      "p_away": 0.020073326825054468,
+      "top1_hit": false,
+      "top2_hit": true,
+      "brier": 0.7327169433703699
+    },
+    {
+      "match": "Panama vs Croatia",
+      "score": "0-1",
+      "date": "2026-06-23",
+      "actual": "A",
+      "pred": "A",
+      "p_home": 0.14443259565029604,
+      "p_draw": 0.30891330504334935,
+      "p_away": 0.5466540993063546,
+      "top1_hit": true,
+      "top2_hit": true,
+      "brier": 0.16090535519740998
+    }
+  ]
+}

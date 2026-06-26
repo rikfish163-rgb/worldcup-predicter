@@ -1,0 +1,8 @@
+{
+  "rho": -0.2,
+  "avg_goals": 2.5,
+  "home_adv": 0.4,
+  "cv_brier": 0.45024,
+  "n_train": 2286,
+  "method": "5-fold CV grid search on 2020-2026 international matches"
+}

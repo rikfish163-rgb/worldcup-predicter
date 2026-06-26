@@ -1,0 +1,112 @@
+exclude: |
+  (?x)^(
+      \.history/.*|       # Exclude history files
+      .*cache.*/.*|       # Exclude cache directories
+      .*venv.*/.*|        # Exclude virtual environment directories
+  )$
+fail_fast: false
+# default_language_version:
+  # python: python3.9
+default_install_hook_types:
+  - pre-commit
+  - commit-msg
+repos:
+  # ---------------------------------------------------------------------------- #
+  #                              🔄 Pre-Commit Hooks                             #
+  # ---------------------------------------------------------------------------- #
+
+  # --------------------------- 🔍 Code Quality Tools -------------------------- #
+
+  ### Python Tools ###
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.12.5
+    hooks:
+      - id: ruff-format
+        name: "🐍 python · Format with Ruff"
+      - id: ruff
+        name: "🐍 python · Lint and perform safe auto-fixes with Ruff"
+        args: [--fix]
+
+  - repo: https://github.com/abravalheri/validate-pyproject
+    rev: v0.24.1
+    hooks:
+      - id: validate-pyproject
+        name: "🐍 python · Validate pyproject.toml"
+        additional_dependencies: ["validate-pyproject-schema-store[all]"]
+
+  - repo: https://github.com/asottile/pyupgrade
+    rev: v3.20.0
+    hooks:
+    -   id: pyupgrade
+        name: "🐍 python · Upgrade syntax"
+
+  ### Notebooks ###
+  - repo: https://github.com/nbQA-dev/nbQA
+    rev: 1.9.1
+    hooks:
+      - id: nbqa
+        entry: nbqa mdformat
+        name: "📓 notebook · Format markdown cells"
+        args: ["--nbqa-md"]
+        types: [jupyter]
+        additional_dependencies:
+          - mdformat
+          - mdformat-gfm
+          - mdformat-ruff
+          - mdformat-frontmatter
+          - ruff
+
+  ### Additional File Types ###
+  - repo: https://github.com/pre-commit/mirrors-prettier
+    rev: v4.0.0-alpha.8
+    hooks:
+      - id: prettier
+        name: "✨ misc-files · Format misc files"
+        types_or: [yaml]
+        additional_dependencies:
+          - prettier@3.4.2
+
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v5.0.0
+    hooks:
+      - id: check-toml
+        name: "⚙️  toml · Check pyproject.toml"
+        entry: check-toml
+        types: [toml]
+      - id: check-yaml
+        name: "⚙️  yaml · Check YAML files"
+        entry: check-yaml
+        types: [yaml]
+
+  # ----------------------------- ⚡️ uv Build Tools ---------------------------- #
+  # This helps ensure cross-compatibility with people who don't wish to use uv
+  - repo: https://github.com/astral-sh/uv-pre-commit
+    # uv version.
+    rev: 0.8.3
+    hooks:
+      - id: uv-sync
+        name: "⚡️ uv · Sync dependencies with uv"
+      - id: uv-lock
+        name: "⚡️ uv · Update dependency lockfile"
+      - id: uv-export
+        name: "⚡️ uv · Export dev dependencies to requirements.txt"
+        args: ["--no-hashes", "--output-file=requirements.txt"]
+      - id: uv-export
+        name: "⚡️ uv · Export docs requirements"
+        args: ["--no-hashes", "--only-group=docs", "--output-file=docs/requirements.txt"]
+
+  # ---------------------------- 📁 Filesystem Tools --------------------------- #
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v5.0.0
+    hooks:
+      - id: check-added-large-files
+        name: "🌳 git · Block large file commits"
+        args: ["--maxkb=10000"]
+      - id: end-of-file-fixer
+        name: 📝 files · Fix end of files
+        entry: end-of-file-fixer
+        types: [text]
+      - id: trailing-whitespace
+        name: 📝 files · Trim trailing whitespace
+        entry: trailing-whitespace-fixer
+        types: [text]

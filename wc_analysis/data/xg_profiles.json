@@ -1,0 +1,196 @@
+{
+  "法国": {
+    "attack_xg90": 0.621,
+    "creative_xa90": 0.291,
+    "players_found": 5,
+    "players_missing": []
+  },
+  "葡萄牙": {
+    "attack_xg90": 0.226,
+    "creative_xa90": 0.264,
+    "players_found": 5,
+    "players_missing": []
+  },
+  "英格兰": {
+    "attack_xg90": 0.334,
+    "creative_xa90": 0.274,
+    "players_found": 5,
+    "players_missing": []
+  },
+  "巴西": {
+    "attack_xg90": 0.262,
+    "creative_xa90": 0.343,
+    "players_found": 5,
+    "players_missing": []
+  },
+  "克罗地亚": {
+    "attack_xg90": 0.082,
+    "creative_xa90": 0.149,
+    "players_found": 3,
+    "players_missing": [
+      "Lovro Majer",
+      "Igor Matanovic"
+    ]
+  },
+  "哥伦比亚": {
+    "attack_xg90": 0.636,
+    "creative_xa90": 0.134,
+    "players_found": 2,
+    "players_missing": [
+      "Jhon Arias",
+      "James Rodriguez",
+      "Luis Sinisterra"
+    ]
+  },
+  "摩洛哥": {
+    "attack_xg90": 0.298,
+    "creative_xa90": 0.27,
+    "players_found": 2,
+    "players_missing": [
+      "Hakim Ziyech",
+      "Youssef En-Nesyri",
+      "Azzedine Ounahi"
+    ]
+  },
+  "瑞士": {
+    "attack_xg90": 0.327,
+    "creative_xa90": 0.152,
+    "players_found": 4,
+    "players_missing": [
+      "Xherdan Shaqiri"
+    ]
+  },
+  "韩国": {
+    "attack_xg90": 0.207,
+    "creative_xa90": 0.238,
+    "players_found": 4,
+    "players_missing": [
+      "Bae Jun-Ho"
+    ]
+  },
+  "墨西哥": {
+    "attack_xg90": 0.431,
+    "creative_xa90": 0.145,
+    "players_found": 3,
+    "players_missing": [
+      "Hirving Lozano",
+      "Diego Lainez"
+    ]
+  },
+  "挪威": {
+    "attack_xg90": 0.436,
+    "creative_xa90": 0.157,
+    "players_found": 4,
+    "players_missing": [
+      "Oscar Bobb"
+    ]
+  },
+  "加拿大": {
+    "attack_xg90": 0.218,
+    "creative_xa90": 0.138,
+    "players_found": 4,
+    "players_missing": [
+      "Tajon Buchanan"
+    ]
+  },
+  "苏格兰": {
+    "attack_xg90": 0.152,
+    "creative_xa90": 0.117,
+    "players_found": 5,
+    "players_missing": []
+  },
+  "捷克": {
+    "attack_xg90": 0.49,
+    "creative_xa90": 0.091,
+    "players_found": 2,
+    "players_missing": [
+      "Antonin Barak",
+      "Mojmir Chytil",
+      "Vaclav Cerny"
+    ]
+  },
+  "波黑": {
+    "attack_xg90": 0.402,
+    "creative_xa90": 0.124,
+    "players_found": 2,
+    "players_missing": [
+      "Edin Dzeko",
+      "Rade Krunic",
+      "Benjamin Tahirovic"
+    ]
+  },
+  "约旦": {
+    "attack_xg90": null,
+    "creative_xa90": null,
+    "players_found": 0,
+    "players_missing": [
+      "Mousa Al-Taamari",
+      "Yazan Al-Naimat"
+    ]
+  },
+  "阿尔及利亚": {
+    "attack_xg90": 0.246,
+    "creative_xa90": 0.236,
+    "players_found": 3,
+    "players_missing": [
+      "Riyad Mahrez",
+      "Adam Ounas"
+    ]
+  },
+  "乌兹别克斯坦": {
+    "attack_xg90": 0.245,
+    "creative_xa90": 0.092,
+    "players_found": 2,
+    "players_missing": []
+  },
+  "加纳": {
+    "attack_xg90": 0.247,
+    "creative_xa90": 0.127,
+    "players_found": 5,
+    "players_missing": []
+  },
+  "巴拿马": {
+    "attack_xg90": null,
+    "creative_xa90": null,
+    "players_found": 0,
+    "players_missing": [
+      "Adalberto Carrasquilla"
+    ]
+  },
+  "刚果金": {
+    "attack_xg90": 0.634,
+    "creative_xa90": 0.105,
+    "players_found": 1,
+    "players_missing": [
+      "Chancel Mbemba",
+      "Fiston Mayele",
+      "Arthur Masuaku",
+      "Samuel Moutoussamy"
+    ]
+  },
+  "卡塔尔": {
+    "attack_xg90": null,
+    "creative_xa90": null,
+    "players_found": 0,
+    "players_missing": [
+      "(no players listed)"
+    ]
+  },
+  "海地": {
+    "attack_xg90": null,
+    "creative_xa90": null,
+    "players_found": 0,
+    "players_missing": [
+      "Frantzdy Pierrot",
+      "Derrick Etienne"
+    ]
+  },
+  "南非": {
+    "attack_xg90": null,
+    "creative_xa90": null,
+    "players_found": 0,
+    "players_missing": [
+      "Percy Tau"
+    ]
+  }
+}

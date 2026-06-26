@@ -1,0 +1,18 @@
+{
+  "荷兰vs瑞典": {
+    "error": "<urlopen error _ssl.c:1015: The handshake operation timed out>",
+    "stadium": "NRG/Reliant 休斯顿·可开合顶+空调"
+  },
+  "德国vs科特迪瓦": {
+    "error": "<urlopen error _ssl.c:1015: The handshake operation timed out>",
+    "stadium": "BMO Field 多伦多·露天"
+  },
+  "厄瓜多尔vs库拉索": {
+    "error": "<urlopen error _ssl.c:1015: The handshake operation timed out>",
+    "stadium": "Arrowhead 堪萨斯城·露天"
+  },
+  "突尼斯vs日本": {
+    "error": "<urlopen error _ssl.c:1015: The handshake operation timed out>",
+    "stadium": "BBVA 蒙特雷·露天"
+  }
+}

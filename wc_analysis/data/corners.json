@@ -1,0 +1,33 @@
+{
+  "_说明": "角球/定位球能力数据(手动维护)。corners_per_game=场均角球数, corners_to_goals=角球转化率(每个角球产生进球的概率)。系统用这些数据给 λ 加成 0-0.15。",
+  "德国": {
+    "corners_per_game": 6.8,
+    "corners_to_goals": 0.12,
+    "set_piece_quality": "excellent",
+    "reasons": ["定位球战术成熟", "克罗斯传中精准", "中卫争顶优势明显"]
+  },
+  "英格兰": {
+    "corners_per_game": 6.2,
+    "corners_to_goals": 0.10,
+    "set_piece_quality": "very_good",
+    "reasons": ["凯恩/马奎尔头球威胁", "特里皮尔开球精准", "定位球战术清晰"]
+  },
+  "荷兰": {
+    "corners_per_game": 5.9,
+    "corners_to_goals": 0.11,
+    "set_piece_quality": "very_good",
+    "reasons": ["范迪克制空优势", "定位球战术多变", "身高优势明显"]
+  },
+  "巴西": {
+    "corners_per_game": 5.5,
+    "corners_to_goals": 0.08,
+    "set_piece_quality": "good",
+    "reasons": ["更依赖运动战", "定位球转化一般", "技术流为主"]
+  },
+  "阿根廷": {
+    "corners_per_game": 5.3,
+    "corners_to_goals": 0.09,
+    "set_piece_quality": "good",
+    "reasons": ["梅西任意球威胁", "角球转化中规中矩", "身高劣势明显"]
+  }
+}

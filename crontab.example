@@ -1,0 +1,25 @@
+# Daily self-evolving loop crontab
+# Add with: crontab -e
+# Format: min hour day month weekday command
+
+# 环境准备
+SHELL=/bin/bash
+PATH=/home/hetaisheng/miniconda3/envs/rl_env/bin:/home/hetaisheng/.local/bin:/usr/local/bin:/usr/bin:/bin
+CONDA_PREFIX=/home/hetaisheng/miniconda3/envs/rl_env
+HOME=/home/hetaisheng
+
+# 每 8 小时：抓取最新数据 + 生成预测 + 推送 VPS
+# 0 8,16 * * *  → 每天 8:00 和 16:00
+0 8,16 * * * cd /home/hetaisheng/soccerdata && /home/hetaisheng/miniconda3/envs/rl_env/bin/python wc_analysis/self_evolving_loop.py --skip-serve >> /home/hetaisheng/soccerdata/wc_analysis/data/loop.log 2>&1
+
+# 比赛日（6/11-7/19 世界杯期间）：每 2 小时滚动
+0 */2 * 6,7 * cd /home/hetaisheng/soccerdata && /home/hetaisheng/miniconda3/envs/rl_env/bin/python wc_analysis/self_evolving_loop.py --skip-serve >> /home/hetaisheng/soccerdata/wc_analysis/data/loop.log 2>&1
+
+# 每天 23:00：抓取当日比赛结果 + 重训模型
+0 23 * * * cd /home/hetaisheng/soccerdata && /home/hetaisheng/miniconda3/envs/rl_env/bin/python -c "from wc_analysis.match_results import reconcile_predictions; import json; print(json.dumps(reconcile_predictions(), indent=2, ensure_ascii=False))" >> /home/hetaisheng/soccerdata/wc_analysis/data/reconcile.log 2>&1
+
+# 每周日凌晨 3:00：GPU 完整重训（包含 ensemble + NN + xG）
+0 3 * * 0 cd /home/hetaisheng/soccerdata && /home/hetaisheng/miniconda3/envs/rl_env/bin/python wc_analysis/train_rl_env.py --epochs 500 >> /home/hetaisheng/soccerdata/wc_analysis/data/train.log 2>&1
+
+# 每月 1 号：完整重训 + 部署到 VPS
+0 4 1 * * bash /home/hetaisheng/soccerdata/deploy_vps.sh >> /home/hetaisheng/soccerdata/wc_analysis/data/deploy.log 2>&1

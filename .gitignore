@@ -1,0 +1,79 @@
+# Upstream soccerdata folders (large scraper caches, re-creatable)
+data/
+logs/
+config/
+notebooks/data
+notebooks_priv
+
+# BUT keep our wc_analysis/data/ (trained models, scraped odds, group composition)
+!wc_analysis/data/
+!wc_analysis/data/**
+
+*.py[cod]
+
+# C extensions
+*.so
+
+# Packages
+*.egg
+*.egg-info
+dist
+build
+eggs
+parts
+bin
+var
+sdist
+develop-eggs
+.installed.cfg
+lib
+lib64
+__pycache__
+
+# Installer logs
+pip-log.txt
+
+# Unit test / coverage reports
+.coverage
+.tox
+
+# Translations
+*.mo
+
+# Data
+.ipynb_checkpoints
+
+# Sphinx documentation
+docs/_build/
+docs/modules/generated/
+
+# Hidden files
+.*
+
+# ...except these
+!.gitignore
+!.dvc
+!.github
+
+# deepwork session state
+.slim/deepwork/
+
+# Tooling state (not part of the project)
+.omx/
+.slim/
+.claude/
+.deepwork/
+.deepcode/
+.codex/
+.worktrees/
+.omx/
+analysis/
+pickle
+
+# CSDN blog reference (off-topic)
+SoccerData*.html
+
+# CSDN blog reference (off-topic)
+SoccerData*.html*
+downloaded_files/
+SoccerData终极指南*

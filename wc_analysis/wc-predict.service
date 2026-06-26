@@ -1,0 +1,16 @@
+[Unit]
+Description=WC Analysis Predict Server
+After=network.target
+
+[Service]
+Type=simple
+User=ubuntu
+WorkingDirectory=/home/ubuntu/soccerdata
+ExecStart=/home/ubuntu/soccerdata/.venv/bin/python /home/ubuntu/soccerdata/wc_analysis/predict.py --serve
+Restart=always
+RestartSec=5
+StandardOutput=append:/home/ubuntu/soccerdata/logs/serve.log
+StandardError=append:/home/ubuntu/soccerdata/logs/serve.log
+
+[Install]
+WantedBy=multi-user.target

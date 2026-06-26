@@ -1,0 +1,130 @@
+{
+  "荷兰": {
+    "trend": 0.044,
+    "volatility": 0.5,
+    "streak": 0,
+    "momentum": -0.043,
+    "possession_stability": 0.5,
+    "adjustment_factor": 0.9975,
+    "components": {
+      "trend": 0.0016,
+      "momentum": -0.001,
+      "streak": 0.0,
+      "volatility": -0.009,
+      "stability": 0.006,
+      "total": -0.0025
+    }
+  },
+  "瑞典": {
+    "trend": 0.114,
+    "volatility": 0.5,
+    "streak": 1,
+    "momentum": -0.443,
+    "possession_stability": 0.364,
+    "adjustment_factor": 0.9948,
+    "components": {
+      "trend": 0.0041,
+      "momentum": -0.0106,
+      "streak": 0.006,
+      "volatility": -0.009,
+      "stability": 0.0044,
+      "total": -0.0052
+    }
+  },
+  "德国": {
+    "trend": 0.152,
+    "volatility": 0.5,
+    "streak": 10,
+    "momentum": -0.163,
+    "possession_stability": 0.5,
+    "adjustment_factor": 1.0286,
+    "components": {
+      "trend": 0.0055,
+      "momentum": -0.0039,
+      "streak": 0.03,
+      "volatility": -0.009,
+      "stability": 0.006,
+      "total": 0.0286
+    }
+  },
+  "科特迪瓦": {
+    "trend": 0.394,
+    "volatility": 0.5,
+    "streak": 6,
+    "momentum": 0.49,
+    "possession_stability": 0.5,
+    "adjustment_factor": 1.0529,
+    "components": {
+      "trend": 0.0142,
+      "momentum": 0.0118,
+      "streak": 0.03,
+      "volatility": -0.009,
+      "stability": 0.006,
+      "total": 0.0529
+    }
+  },
+  "厄瓜多尔": {
+    "trend": -0.366,
+    "volatility": 0.5,
+    "streak": -1,
+    "momentum": -0.61,
+    "possession_stability": 0.5,
+    "adjustment_factor": 0.9632,
+    "components": {
+      "trend": -0.0132,
+      "momentum": -0.0146,
+      "streak": -0.006,
+      "volatility": -0.009,
+      "stability": 0.006,
+      "total": -0.0368
+    }
+  },
+  "库拉索": {
+    "trend": 0.056,
+    "volatility": 0.5,
+    "streak": -1,
+    "momentum": 0.36,
+    "possession_stability": 0.5,
+    "adjustment_factor": 1.0017,
+    "components": {
+      "trend": 0.002,
+      "momentum": 0.0086,
+      "streak": -0.006,
+      "volatility": -0.009,
+      "stability": 0.006,
+      "total": 0.0017
+    }
+  },
+  "突尼斯": {
+    "trend": -0.36,
+    "volatility": 0.5,
+    "streak": -3,
+    "momentum": -0.783,
+    "possession_stability": 0.5,
+    "adjustment_factor": 0.9472,
+    "components": {
+      "trend": -0.013,
+      "momentum": -0.0188,
+      "streak": -0.018,
+      "volatility": -0.009,
+      "stability": 0.006,
+      "total": -0.0528
+    }
+  },
+  "日本": {
+    "trend": 0.16,
+    "volatility": 0.5,
+    "streak": 0,
+    "momentum": 0.15,
+    "possession_stability": 0.5,
+    "adjustment_factor": 1.0064,
+    "components": {
+      "trend": 0.0058,
+      "momentum": 0.0036,
+      "streak": 0.0,
+      "volatility": -0.009,
+      "stability": 0.006,
+      "total": 0.0064
+    }
+  }
+}

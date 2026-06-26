@@ -1,0 +1,970 @@
+{
+  "荷兰": [
+    {
+      "date": "2025-06-07 00:00:00",
+      "venue": "Away",
+      "result": "W",
+      "opponent": "Finland",
+      "Poss": 60.0
+    },
+    {
+      "date": "2025-06-10 00:00:00",
+      "venue": "Home",
+      "result": "W",
+      "opponent": "Malta",
+      "Poss": 65.0
+    },
+    {
+      "date": "2025-09-04 00:00:00",
+      "venue": "Home",
+      "result": "D",
+      "opponent": "Poland",
+      "Poss": 74.0
+    },
+    {
+      "date": "2025-09-07 00:00:00",
+      "venue": "Away",
+      "result": "W",
+      "opponent": "Lithuania",
+      "Poss": 73.0
+    },
+    {
+      "date": "2025-10-09 00:00:00",
+      "venue": "Away",
+      "result": "W",
+      "opponent": "Malta",
+      "Poss": 63.0
+    },
+    {
+      "date": "2025-10-12 00:00:00",
+      "venue": "Home",
+      "result": "W",
+      "opponent": "Finland",
+      "Poss": 69.0
+    },
+    {
+      "date": "2025-11-14 00:00:00",
+      "venue": "Away",
+      "result": "D",
+      "opponent": "Poland",
+      "Poss": 60.0
+    },
+    {
+      "date": "2025-11-17 00:00:00",
+      "venue": "Home",
+      "result": "W",
+      "opponent": "Lithuania",
+      "Poss": 69.0
+    },
+    {
+      "date": "2026-03-27 00:00:00",
+      "venue": "Home",
+      "result": "W",
+      "opponent": "Norway",
+      "Poss": null
+    },
+    {
+      "date": "2026-03-31 00:00:00",
+      "venue": "Home",
+      "result": "D",
+      "opponent": "Ecuador",
+      "Poss": null
+    },
+    {
+      "date": "2026-06-03 00:00:00",
+      "venue": "Home",
+      "result": "L",
+      "opponent": "Algeria",
+      "Poss": null
+    },
+    {
+      "date": "2026-06-08 00:00:00",
+      "venue": "Neutral",
+      "result": "W",
+      "opponent": "Uzbekistan",
+      "Poss": null
+    },
+    {
+      "date": "2026-06-14 00:00:00",
+      "venue": "Neutral",
+      "result": "D",
+      "opponent": "Japan",
+      "Poss": 60.0
+    },
+    {
+      "date": "2026-06-20 00:00:00",
+      "venue": "Neutral",
+      "result": null,
+      "opponent": "Sweden",
+      "Poss": null
+    },
+    {
+      "date": "2026-06-25 00:00:00",
+      "venue": "Neutral",
+      "result": null,
+      "opponent": "Tunisia",
+      "Poss": null
+    }
+  ],
+  "瑞典": [
+    {
+      "date": "2025-09-05 00:00:00",
+      "venue": "Away",
+      "result": "D",
+      "opponent": "Slovenia",
+      "Poss": 59.0
+    },
+    {
+      "date": "2025-09-08 00:00:00",
+      "venue": "Away",
+      "result": "L",
+      "opponent": "Kosovo",
+      "Poss": 69.0
+    },
+    {
+      "date": "2025-10-10 00:00:00",
+      "venue": "Home",
+      "result": "L",
+      "opponent": "Switzerland",
+      "Poss": 41.0
+    },
+    {
+      "date": "2025-10-13 00:00:00",
+      "venue": "Home",
+      "result": "L",
+      "opponent": "Kosovo",
+      "Poss": 68.0
+    },
+    {
+      "date": "2025-11-15 00:00:00",
+      "venue": "Away",
+      "result": "L",
+      "opponent": "Switzerland",
+      "Poss": 41.0
+    },
+    {
+      "date": "2025-11-18 00:00:00",
+      "venue": "Home",
+      "result": "D",
+      "opponent": "Slovenia",
+      "Poss": 61.0
+    },
+    {
+      "date": "2026-03-26 00:00:00",
+      "venue": "Neutral",
+      "result": "W",
+      "opponent": "Ukraine",
+      "Poss": 32.0
+    },
+    {
+      "date": "2026-03-31 00:00:00",
+      "venue": "Home",
+      "result": "W",
+      "opponent": "Poland",
+      "Poss": 33.0
+    },
+    {
+      "date": "2026-06-01 00:00:00",
+      "venue": "Away",
+      "result": "L",
+      "opponent": "Norway",
+      "Poss": null
+    },
+    {
+      "date": "2026-06-04 00:00:00",
+      "venue": "Home",
+      "result": "D",
+      "opponent": "Greece",
+      "Poss": null
+    },
+    {
+      "date": "2026-06-14 00:00:00",
+      "venue": "Neutral",
+      "result": "W",
+      "opponent": "Tunisia",
+      "Poss": 49.0
+    },
+    {
+      "date": "2026-06-20 00:00:00",
+      "venue": "Neutral",
+      "result": null,
+      "opponent": "Netherlands",
+      "Poss": null
+    },
+    {
+      "date": "2026-06-25 00:00:00",
+      "venue": "Neutral",
+      "result": null,
+      "opponent": "Japan",
+      "Poss": null
+    }
+  ],
+  "德国": [
+    {
+      "date": "2025-09-04 00:00:00",
+      "venue": "Away",
+      "result": "L",
+      "opponent": "Slovakia",
+      "Poss": 70.0
+    },
+    {
+      "date": "2025-09-07 00:00:00",
+      "venue": "Home",
+      "result": "W",
+      "opponent": "Northern Ireland",
+      "Poss": 80.0
+    },
+    {
+      "date": "2025-10-10 00:00:00",
+      "venue": "Home",
+      "result": "W",
+      "opponent": "Luxembourg",
+      "Poss": 84.0
+    },
+    {
+      "date": "2025-10-13 00:00:00",
+      "venue": "Away",
+      "result": "W",
+      "opponent": "Northern Ireland",
+      "Poss": 68.0
+    },
+    {
+      "date": "2025-11-14 00:00:00",
+      "venue": "Away",
+      "result": "W",
+      "opponent": "Luxembourg",
+      "Poss": 65.0
+    },
+    {
+      "date": "2025-11-17 00:00:00",
+      "venue": "Home",
+      "result": "W",
+      "opponent": "Slovakia",
+      "Poss": 72.0
+    },
+    {
+      "date": "2026-03-27 00:00:00",
+      "venue": "Away",
+      "result": "W",
+      "opponent": "Switzerland",
+      "Poss": null
+    },
+    {
+      "date": "2026-03-30 00:00:00",
+      "venue": "Home",
+      "result": "W",
+      "opponent": "Ghana",
+      "Poss": null
+    },
+    {
+      "date": "2026-05-31 00:00:00",
+      "venue": "Home",
+      "result": "W",
+      "opponent": "Finland",
+      "Poss": null
+    },
+    {
+      "date": "2026-06-06 00:00:00",
+      "venue": "Away",
+      "result": "W",
+      "opponent": "United States",
+      "Poss": null
+    },
+    {
+      "date": "2026-06-14 00:00:00",
+      "venue": "Neutral",
+      "result": "W",
+      "opponent": "Curaçao",
+      "Poss": 65.0
+    },
+    {
+      "date": "2026-06-20 00:00:00",
+      "venue": "Neutral",
+      "result": null,
+      "opponent": "Côte d'Ivoire",
+      "Poss": null
+    },
+    {
+      "date": "2026-06-25 00:00:00",
+      "venue": "Neutral",
+      "result": null,
+      "opponent": "Ecuador",
+      "Poss": null
+    }
+  ],
+  "科特迪瓦": [
+    {
+      "date": "2023-11-17 00:00:00",
+      "venue": "Home",
+      "result": "W",
+      "opponent": "Seychelles",
+      "Poss": null
+    },
+    {
+      "date": "2023-11-20 00:00:00",
+      "venue": "Neutral",
+      "result": "W",
+      "opponent": "Gambia",
+      "Poss": null
+    },
+    {
+      "date": "2024-06-07 00:00:00",
+      "venue": "Home",
+      "result": "W",
+      "opponent": "Gabon",
+      "Poss": null
+    },
+    {
+      "date": "2024-06-11 00:00:00",
+      "venue": "Neutral",
+      "result": "D",
+      "opponent": "Kenya",
+      "Poss": null
+    },
+    {
+      "date": "2025-03-21 00:00:00",
+      "venue": "Neutral",
+      "result": "W",
+      "opponent": "Burundi",
+      "Poss": null
+    },
+    {
+      "date": "2025-03-24 00:00:00",
+      "venue": "Home",
+      "result": "W",
+      "opponent": "Gambia",
+      "Poss": null
+    },
+    {
+      "date": "2025-09-05 00:00:00",
+      "venue": "Home",
+      "result": "W",
+      "opponent": "Burundi",
+      "Poss": null
+    },
+    {
+      "date": "2025-09-09 00:00:00",
+      "venue": "Away",
+      "result": "D",
+      "opponent": "Gabon",
+      "Poss": null
+    },
+    {
+      "date": "2025-10-10 00:00:00",
+      "venue": "Neutral",
+      "result": "W",
+      "opponent": "Seychelles",
+      "Poss": null
+    },
+    {
+      "date": "2025-10-14 00:00:00",
+      "venue": "Home",
+      "result": "W",
+      "opponent": "Kenya",
+      "Poss": null
+    },
+    {
+      "date": "2026-03-28 00:00:00",
+      "venue": "Neutral",
+      "result": "W",
+      "opponent": "Korea Republic",
+      "Poss": null
+    },
+    {
+      "date": "2026-03-31 00:00:00",
+      "venue": "Neutral",
+      "result": "W",
+      "opponent": "Scotland",
+      "Poss": null
+    },
+    {
+      "date": "2026-06-04 00:00:00",
+      "venue": "Away",
+      "result": "W",
+      "opponent": "France",
+      "Poss": null
+    },
+    {
+      "date": "2026-06-14 00:00:00",
+      "venue": "Neutral",
+      "result": "W",
+      "opponent": "Ecuador",
+      "Poss": 48.0
+    },
+    {
+      "date": "2026-06-20 00:00:00",
+      "venue": "Neutral",
+      "result": null,
+      "opponent": "Germany",
+      "Poss": null
+    },
+    {
+      "date": "2026-06-25 00:00:00",
+      "venue": "Neutral",
+      "result": null,
+      "opponent": "Curaçao",
+      "Poss": null
+    }
+  ],
+  "厄瓜多尔": [
+    {
+      "date": "2023-09-07 00:00:00",
+      "venue": "Away",
+      "result": "L",
+      "opponent": "Argentina",
+      "Poss": 29.0
+    },
+    {
+      "date": "2023-09-12 00:00:00",
+      "venue": "Home",
+      "result": "W",
+      "opponent": "Uruguay",
+      "Poss": 50.0
+    },
+    {
+      "date": "2023-10-12 00:00:00",
+      "venue": "Away",
+      "result": "W",
+      "opponent": "Bolivia",
+      "Poss": 46.0
+    },
+    {
+      "date": "2023-10-17 00:00:00",
+      "venue": "Home",
+      "result": "D",
+      "opponent": "Colombia",
+      "Poss": 54.0
+    },
+    {
+      "date": "2023-11-16 00:00:00",
+      "venue": "Away",
+      "result": "D",
+      "opponent": "Venezuela",
+      "Poss": 50.0
+    },
+    {
+      "date": "2023-11-21 00:00:00",
+      "venue": "Home",
+      "result": "W",
+      "opponent": "Chile",
+      "Poss": 53.0
+    },
+    {
+      "date": "2024-09-06 00:00:00",
+      "venue": "Away",
+      "result": "L",
+      "opponent": "Brazil",
+      "Poss": 43.0
+    },
+    {
+      "date": "2024-09-10 00:00:00",
+      "venue": "Home",
+      "result": "W",
+      "opponent": "Peru",
+      "Poss": 69.0
+    },
+    {
+      "date": "2024-10-10 00:00:00",
+      "venue": "Home",
+      "result": "D",
+      "opponent": "Paraguay",
+      "Poss": 77.0
+    },
+    {
+      "date": "2024-10-15 00:00:00",
+      "venue": "Away",
+      "result": "D",
+      "opponent": "Uruguay",
+      "Poss": 45.0
+    },
+    {
+      "date": "2024-11-14 00:00:00",
+      "venue": "Home",
+      "result": "W",
+      "opponent": "Bolivia",
+      "Poss": 79.0
+    },
+    {
+      "date": "2024-11-19 00:00:00",
+      "venue": "Away",
+      "result": "W",
+      "opponent": "Colombia",
+      "Poss": 33.0
+    },
+    {
+      "date": "2025-03-21 00:00:00",
+      "venue": "Home",
+      "result": "W",
+      "opponent": "Venezuela",
+      "Poss": 71.0
+    },
+    {
+      "date": "2025-03-25 00:00:00",
+      "venue": "Away",
+      "result": "D",
+      "opponent": "Chile",
+      "Poss": 40.0
+    },
+    {
+      "date": "2025-06-05 00:00:00",
+      "venue": "Home",
+      "result": "D",
+      "opponent": "Brazil",
+      "Poss": 52.0
+    },
+    {
+      "date": "2025-06-10 00:00:00",
+      "venue": "Away",
+      "result": "D",
+      "opponent": "Peru",
+      "Poss": 47.0
+    },
+    {
+      "date": "2025-09-04 00:00:00",
+      "venue": "Away",
+      "result": "D",
+      "opponent": "Paraguay",
+      "Poss": 63.0
+    },
+    {
+      "date": "2025-09-09 00:00:00",
+      "venue": "Home",
+      "result": "W",
+      "opponent": "Argentina",
+      "Poss": 43.0
+    },
+    {
+      "date": "2026-03-27 00:00:00",
+      "venue": "Neutral",
+      "result": "D",
+      "opponent": "Morocco",
+      "Poss": null
+    },
+    {
+      "date": "2026-03-31 00:00:00",
+      "venue": "Away",
+      "result": "D",
+      "opponent": "Netherlands",
+      "Poss": null
+    },
+    {
+      "date": "2026-05-30 00:00:00",
+      "venue": "Neutral",
+      "result": "W",
+      "opponent": "Saudi Arabia",
+      "Poss": null
+    },
+    {
+      "date": "2026-06-07 00:00:00",
+      "venue": "Neutral",
+      "result": "W",
+      "opponent": "Guatemala",
+      "Poss": null
+    },
+    {
+      "date": "2026-06-14 00:00:00",
+      "venue": "Neutral",
+      "result": "L",
+      "opponent": "Côte d'Ivoire",
+      "Poss": 52.0
+    },
+    {
+      "date": "2026-06-20 00:00:00",
+      "venue": "Neutral",
+      "result": null,
+      "opponent": "Curaçao",
+      "Poss": null
+    },
+    {
+      "date": "2026-06-25 00:00:00",
+      "venue": "Neutral",
+      "result": null,
+      "opponent": "Germany",
+      "Poss": null
+    }
+  ],
+  "库拉索": [
+    {
+      "date": "2024-06-06 00:00:00",
+      "venue": "Home",
+      "result": "W",
+      "opponent": "Barbados",
+      "Poss": null
+    },
+    {
+      "date": "2024-06-08 00:00:00",
+      "venue": "Away",
+      "result": "W",
+      "opponent": "Aruba",
+      "Poss": null
+    },
+    {
+      "date": "2025-06-06 00:00:00",
+      "venue": "Home",
+      "result": "W",
+      "opponent": "St. Lucia",
+      "Poss": null
+    },
+    {
+      "date": "2025-06-11 00:00:00",
+      "venue": "Away",
+      "result": "W",
+      "opponent": "Haiti",
+      "Poss": null
+    },
+    {
+      "date": "2025-09-05 00:00:00",
+      "venue": "Away",
+      "result": "D",
+      "opponent": "Trin & Tobago",
+      "Poss": null
+    },
+    {
+      "date": "2025-09-09 00:00:00",
+      "venue": "Home",
+      "result": "W",
+      "opponent": "Bermuda",
+      "Poss": null
+    },
+    {
+      "date": "2025-10-10 00:00:00",
+      "venue": "Home",
+      "result": "W",
+      "opponent": "Jamaica",
+      "Poss": null
+    },
+    {
+      "date": "2025-10-14 00:00:00",
+      "venue": "Home",
+      "result": "D",
+      "opponent": "Trin & Tobago",
+      "Poss": null
+    },
+    {
+      "date": "2025-11-13 00:00:00",
+      "venue": "Away",
+      "result": "W",
+      "opponent": "Bermuda",
+      "Poss": null
+    },
+    {
+      "date": "2025-11-18 00:00:00",
+      "venue": "Away",
+      "result": "D",
+      "opponent": "Jamaica",
+      "Poss": null
+    },
+    {
+      "date": "2026-05-30 00:00:00",
+      "venue": "Away",
+      "result": "L",
+      "opponent": "Scotland",
+      "Poss": null
+    },
+    {
+      "date": "2026-06-06 00:00:00",
+      "venue": "Home",
+      "result": "W",
+      "opponent": "Aruba",
+      "Poss": null
+    },
+    {
+      "date": "2026-06-14 00:00:00",
+      "venue": "Neutral",
+      "result": "L",
+      "opponent": "Germany",
+      "Poss": 35.0
+    },
+    {
+      "date": "2026-06-20 00:00:00",
+      "venue": "Neutral",
+      "result": null,
+      "opponent": "Ecuador",
+      "Poss": null
+    },
+    {
+      "date": "2026-06-25 00:00:00",
+      "venue": "Neutral",
+      "result": null,
+      "opponent": "Côte d'Ivoire",
+      "Poss": null
+    }
+  ],
+  "突尼斯": [
+    {
+      "date": "2023-11-17 00:00:00",
+      "venue": "Home",
+      "result": "W",
+      "opponent": "São Tomé",
+      "Poss": null
+    },
+    {
+      "date": "2023-11-21 00:00:00",
+      "venue": "Away",
+      "result": "W",
+      "opponent": "Malawi",
+      "Poss": null
+    },
+    {
+      "date": "2024-06-05 00:00:00",
+      "venue": "Home",
+      "result": "W",
+      "opponent": "Equ. Guinea",
+      "Poss": null
+    },
+    {
+      "date": "2024-06-09 00:00:00",
+      "venue": "Neutral",
+      "result": "D",
+      "opponent": "Namibia",
+      "Poss": null
+    },
+    {
+      "date": "2025-03-19 00:00:00",
+      "venue": "Away",
+      "result": "W",
+      "opponent": "Liberia",
+      "Poss": null
+    },
+    {
+      "date": "2025-03-24 00:00:00",
+      "venue": "Home",
+      "result": "W",
+      "opponent": "Malawi",
+      "Poss": null
+    },
+    {
+      "date": "2025-09-04 00:00:00",
+      "venue": "Home",
+      "result": "W",
+      "opponent": "Liberia",
+      "Poss": null
+    },
+    {
+      "date": "2025-09-08 00:00:00",
+      "venue": "Away",
+      "result": "W",
+      "opponent": "Equ. Guinea",
+      "Poss": null
+    },
+    {
+      "date": "2025-10-10 00:00:00",
+      "venue": "Neutral",
+      "result": "W",
+      "opponent": "São Tomé",
+      "Poss": null
+    },
+    {
+      "date": "2025-10-13 00:00:00",
+      "venue": "Home",
+      "result": "W",
+      "opponent": "Namibia",
+      "Poss": null
+    },
+    {
+      "date": "2026-03-28 00:00:00",
+      "venue": "Neutral",
+      "result": "W",
+      "opponent": "Haiti",
+      "Poss": null
+    },
+    {
+      "date": "2026-03-31 00:00:00",
+      "venue": "Away",
+      "result": "D",
+      "opponent": "Canada",
+      "Poss": null
+    },
+    {
+      "date": "2026-06-01 00:00:00",
+      "venue": "Away",
+      "result": "L",
+      "opponent": "Austria",
+      "Poss": null
+    },
+    {
+      "date": "2026-06-06 00:00:00",
+      "venue": "Away",
+      "result": "L",
+      "opponent": "Belgium",
+      "Poss": null
+    },
+    {
+      "date": "2026-06-14 00:00:00",
+      "venue": "Neutral",
+      "result": "L",
+      "opponent": "Sweden",
+      "Poss": 51.0
+    },
+    {
+      "date": "2026-06-20 00:00:00",
+      "venue": "Neutral",
+      "result": null,
+      "opponent": "Japan",
+      "Poss": null
+    },
+    {
+      "date": "2026-06-25 00:00:00",
+      "venue": "Neutral",
+      "result": null,
+      "opponent": "Netherlands",
+      "Poss": null
+    }
+  ],
+  "日本": [
+    {
+      "date": "2023-11-16 00:00:00",
+      "venue": "Home",
+      "result": "W",
+      "opponent": "Myanmar",
+      "Poss": null
+    },
+    {
+      "date": "2023-11-21 00:00:00",
+      "venue": "Away",
+      "result": "W",
+      "opponent": "Syria",
+      "Poss": null
+    },
+    {
+      "date": "2024-03-21 00:00:00",
+      "venue": "Home",
+      "result": "W",
+      "opponent": "Korea DPR",
+      "Poss": null
+    },
+    {
+      "date": "2024-03-26 00:00:00",
+      "venue": "Away",
+      "result": "W",
+      "opponent": "Korea DPR",
+      "Poss": null
+    },
+    {
+      "date": "2024-06-06 00:00:00",
+      "venue": "Away",
+      "result": "W",
+      "opponent": "Myanmar",
+      "Poss": null
+    },
+    {
+      "date": "2024-06-11 00:00:00",
+      "venue": "Home",
+      "result": "W",
+      "opponent": "Syria",
+      "Poss": null
+    },
+    {
+      "date": "2024-09-05 00:00:00",
+      "venue": "Home",
+      "result": "W",
+      "opponent": "China PR",
+      "Poss": 77.0
+    },
+    {
+      "date": "2024-09-10 00:00:00",
+      "venue": "Away",
+      "result": "W",
+      "opponent": "Bahrain",
+      "Poss": 76.0
+    },
+    {
+      "date": "2024-10-10 00:00:00",
+      "venue": "Away",
+      "result": "W",
+      "opponent": "Saudi Arabia",
+      "Poss": 43.0
+    },
+    {
+      "date": "2024-10-15 00:00:00",
+      "venue": "Home",
+      "result": "D",
+      "opponent": "Australia",
+      "Poss": 65.0
+    },
+    {
+      "date": "2024-11-15 00:00:00",
+      "venue": "Away",
+      "result": "W",
+      "opponent": "Indonesia",
+      "Poss": 66.0
+    },
+    {
+      "date": "2024-11-19 00:00:00",
+      "venue": "Away",
+      "result": "W",
+      "opponent": "China PR",
+      "Poss": 68.0
+    },
+    {
+      "date": "2025-03-20 00:00:00",
+      "venue": "Home",
+      "result": "W",
+      "opponent": "Bahrain",
+      "Poss": 61.0
+    },
+    {
+      "date": "2025-03-25 00:00:00",
+      "venue": "Home",
+      "result": "D",
+      "opponent": "Saudi Arabia",
+      "Poss": 78.0
+    },
+    {
+      "date": "2025-06-05 00:00:00",
+      "venue": "Away",
+      "result": "L",
+      "opponent": "Australia",
+      "Poss": 69.0
+    },
+    {
+      "date": "2025-06-10 00:00:00",
+      "venue": "Home",
+      "result": "W",
+      "opponent": "Indonesia",
+      "Poss": 71.0
+    },
+    {
+      "date": "2026-03-28 00:00:00",
+      "venue": "Away",
+      "result": "W",
+      "opponent": "Scotland",
+      "Poss": null
+    },
+    {
+      "date": "2026-03-31 00:00:00",
+      "venue": "Away",
+      "result": "W",
+      "opponent": "England",
+      "Poss": null
+    },
+    {
+      "date": "2026-05-31 00:00:00",
+      "venue": "Home",
+      "result": "W",
+      "opponent": "Iceland",
+      "Poss": null
+    },
+    {
+      "date": "2026-06-14 00:00:00",
+      "venue": "Neutral",
+      "result": "D",
+      "opponent": "Netherlands",
+      "Poss": 40.0
+    },
+    {
+      "date": "2026-06-20 00:00:00",
+      "venue": "Neutral",
+      "result": null,
+      "opponent": "Tunisia",
+      "Poss": null
+    },
+    {
+      "date": "2026-06-25 00:00:00",
+      "venue": "Neutral",
+      "result": null,
+      "opponent": "Sweden",
+      "Poss": null
+    }
+  ]
+}

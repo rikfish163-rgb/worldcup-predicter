@@ -1,0 +1,10 @@
+{
+  "荷兰": {
+    "lambda_factor": 0.95,
+    "reason": "德容(Frenkie de Jong)出场存疑,膝伤;Timber 脑震荡缺阵"
+  },
+  "科特迪瓦": {
+    "lambda_factor": 0.97,
+    "reason": "Wahi 状态存疑(心理问题)"
+  }
+}

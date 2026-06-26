@@ -1,0 +1,39 @@
+{
+  "_说明": "磨合度/经验因子(手动维护)。lambda_factor<1=惩罚进攻,>1=加成。系统会自动计算可量化的部分(场次/一致性/Elo趋势),这里只录入不可自动化的定性判断。",
+  "库拉索": {
+    "lambda_factor": 0.90,
+    "reasons": ["首次世界杯正赛", "球员分散多国联赛", "主教练大赛经验不足"],
+    "coach_tenure_months": 18,
+    "first_world_cup": true
+  },
+  "佛得角": {
+    "lambda_factor": 0.88,
+    "reasons": ["首次世界杯", "球员多在葡萄牙低级别联赛", "国家队集训时间有限"],
+    "coach_tenure_months": 24,
+    "first_world_cup": true
+  },
+  "海地": {
+    "lambda_factor": 0.88,
+    "reasons": ["首次世界杯", "球员分散法甲/MLS", "国内基础设施差限制集训"],
+    "coach_tenure_months": 12,
+    "first_world_cup": true
+  },
+  "卡塔尔": {
+    "lambda_factor": 0.92,
+    "reasons": ["Elo近2年暴跌-202", "2022世界杯东道主惨败阴影", "新主教练执教<1年"],
+    "coach_tenure_months": 8,
+    "first_world_cup": false
+  },
+  "波黑": {
+    "lambda_factor": 0.93,
+    "reasons": ["多民族阵容语言沟通问题", "球员分散多国联赛", "缺乏大赛经验"],
+    "coach_tenure_months": 15,
+    "first_world_cup": false
+  },
+  "南非": {
+    "lambda_factor": 0.92,
+    "reasons": ["核心球员多在国内联赛(水平低)", "大赛经验不足", "Elo处于低位"],
+    "coach_tenure_months": 36,
+    "first_world_cup": false
+  }
+}

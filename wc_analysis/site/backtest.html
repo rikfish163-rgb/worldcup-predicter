@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>回测仪表盘 — 世界杯预测系统</title>
+<style>
+:root {
+  --bg: #0d1117; --card: #161b22; --border: #30363d;
+  --text: #c9d1d9; --muted: #8b949e; --accent: #58a6ff;
+  --green: #3fb950; --red: #f85149; --yellow: #d29922;
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { background: var(--bg); color: var(--text); font-family: -apple-system, sans-serif; padding: 20px; }
+h1 { color: var(--accent); margin-bottom: 20px; font-size: 1.5em; }
+h2 { color: var(--text); margin: 20px 0 10px; font-size: 1.2em; border-bottom: 1px solid var(--border); padding-bottom: 5px; }
+.grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 20px; }
+.card { background: var(--card); border: 1px solid var(--border); border-radius: 8px; padding: 15px; }
+.card .label { color: var(--muted); font-size: 0.85em; margin-bottom: 5px; }
+.card .value { font-size: 1.8em; font-weight: bold; }
+.card .value.good { color: var(--green); }
+.card .value.bad { color: var(--red); }
+.card .value.warn { color: var(--yellow); }
+table { width: 100%; border-collapse: collapse; margin: 10px 0; }
+th, td { padding: 8px 12px; text-align: left; border-bottom: 1px solid var(--border); }
+th { color: var(--muted); font-size: 0.85em; text-transform: uppercase; }
+.badge { padding: 2px 8px; border-radius: 12px; font-size: 0.8em; }
+.badge.H { background: var(--green); color: #000; }
+.badge.D { background: var(--yellow); color: #000; }
+.badge.A { background: var(--red); color: #000; }
+nav { margin-bottom: 20px; }
+nav a { color: var(--accent); text-decoration: none; margin-right: 15px; }
+nav a:hover { text-decoration: underline; }
+.bar { height: 20px; border-radius: 4px; display: flex; overflow: hidden; margin: 5px 0; }
+.bar .h { background: var(--green); }
+.bar .d { background: var(--yellow); }
+.bar .a { background: var(--red); }
+.meta { color: var(--muted); font-size: 0.85em; margin-top: 10px; }
+</style>
+</head>
+<body>
+<h1>回测仪表盘 — 世界杯预测系统 v2</h1>
+<nav>
+  <a href="index.html">← 返回预测页</a>
+  <a href="backtest.html">回测仪表盘</a>
+</nav>
+
+<div id="dashboard">
+  <div class="card" style="text-align:center; padding:40px;">
+    <div class="label">加载中...</div>
+  </div>
+</div>
+
+<script>
+async function loadResults() {
+  try {
+    const resp = await fetch('data/backtest_v2_results.json');
+    const data = await resp.json();
+    renderDashboard(data);
+  } catch (e) {
+    document.getElementById('dashboard').innerHTML =
+      '<div class="card"><p style="color:var(--red)">无法加载回测结果。请先运行回测。</p><p class="meta">' + e.message + '</p></div>';
+  }
+}
+
+function renderDashboard(data) {
+  const wf = data.walk_forward_10fold || {};
+  const wc = data.worldcup_tournament_aware || {};
+
+  const html = `
+    <h2>Walk-Forward 回测 (10 折, 1990-2024)</h2>
+    <div class="grid">
+      <div class="card">
+        <div class="label">测试比赛数</div>
+        <div class="value">${(wf.n_matches || 0).toLocaleString()}</div>
+      </div>
+      <div class="card">
+        <div class="label">Brier Score</div>
+        <div class="value ${wf.brier < 0.5 ? 'good' : 'warn'}">${(wf.brier || 0).toFixed(4)}</div>
+      </div>
+      <div class="card">
+        <div class="label">Top-3 命中率</div>
+        <div class="value good">${((wf.top3_hit_rate || 0) * 100).toFixed(1)}%</div>
+      </div>
+      <div class="card">
+        <div class="label">准确率 (Top-1)</div>
+        <div class="value ${wf.accuracy > 0.5 ? 'good' : 'warn'}">${((wf.accuracy || 0) * 100).toFixed(1)}%</div>
+      </div>
+      <div class="card">
+        <div class="label">平局召回率</div>
+        <div class="value warn">${((wf.draw_recall || 0) * 100).toFixed(1)}%</div>
+      </div>
+      <div class="card">
+        <div class="label">RPS</div>
+        <div class="value">${(wf.rps || 0).toFixed(4)}</div>
+      </div>
+    </div>
+
+    <h2>世界杯专项回测 (赛事感知分割)</h2>
+    <div class="grid">
+      <div class="card">
+        <div class="label">世界杯比赛数</div>
+        <div class="value">${(wc.n_matches || 0).toLocaleString()}</div>
+      </div>
+      <div class="card">
+        <div class="label">Brier Score</div>
+        <div class="value ${wc.brier < 0.5 ? 'good' : 'warn'}">${(wc.brier || 0).toFixed(4)}</div>
+      </div>
+      <div class="card">
+        <div class="label">Top-3 命中率</div>
+        <div class="value good">${((wc.top3_hit_rate || 0) * 100).toFixed(1)}%</div>
+      </div>
+      <div class="card">
+        <div class="label">准确率 (Top-1)</div>
+        <div class="value ${wc.accuracy > 0.5 ? 'good' : 'warn'}">${((wc.accuracy || 0) * 100).toFixed(1)}%</div>
+      </div>
+      <div class="card">
+        <div class="label">平局召回率</div>
+        <div class="value warn">${((wc.draw_recall || 0) * 100).toFixed(1)}%</div>
+      </div>
+    </div>
+
+    <h2>对比：旧版 vs 新版</h2>
+    <table>
+      <tr><th>版本</th><th>比赛数</th><th>球队数</th><th>Brier</th><th>说明</th></tr>
+      <tr>
+        <td>旧版 (v1)</td>
+        <td>598</td>
+        <td>9 (选择偏差)</td>
+        <td>0.4316</td>
+        <td>仅顶级球队，Elo 更易预测</td>
+      </tr>
+      <tr>
+        <td>新版 walk-forward</td>
+        <td>${(wf.n_matches || 0).toLocaleString()}</td>
+        <td>327 (全部)</td>
+        <td>${(wf.brier || 0).toFixed(4)}</td>
+        <td>全量国际赛，无选择偏差</td>
+      </tr>
+      <tr>
+        <td>新版世界杯</td>
+        <td>${(wc.n_matches || 0).toLocaleString()}</td>
+        <td>全部 WC 球队</td>
+        <td>${(wc.brier || 0).toFixed(4)}</td>
+        <td>赛事感知分割</td>
+      </tr>
+    </table>
+
+    <h2>说明</h2>
+    <div class="meta">
+      <p>• <strong>Brier Score</strong>：概率校准指标，越低越好（0=完美，0.67=随机猜测 1X2）</p>
+      <p>• <strong>Top-3 命中率</strong>：实际结果在 top-2 预测中的比例（top-3=全部，故用 top-2）</p>
+      <p>• <strong>准确率 (Top-1)</strong>：最高概率类别命中实际结果的比例</p>
+      <p>• <strong>平局召回率</strong>：实际平局中被正确预测为平局的比例（平局最难预测）</p>
+      <p>• 平局 boost 规则：当 P(draw)≥0.25 且 |P(主)-P(客)|≤0.12 时预测平局</p>
+      <p>• Brier Score 是更可靠的指标——校准好比分类准确更重要</p>
+    </div>
+  `;
+  document.getElementById('dashboard').innerHTML = html;
+}
+
+loadResults();
+</script>
+</body>
+</html>

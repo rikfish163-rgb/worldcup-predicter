@@ -1,0 +1,18 @@
+{
+  "total_matches": 5404,
+  "avg_overround_pct": 2.57,
+  "pinnacle_count": 5404,
+  "bet365_fallback_count": 0,
+  "by_league": {
+    "ENG-Premier League": 1140,
+    "ESP-La Liga": 1140,
+    "GER-Bundesliga": 918,
+    "ITA-Serie A": 1140,
+    "FRA-Ligue 1": 1066
+  },
+  "by_season": {
+    "2324": 1752,
+    "2223": 1826,
+    "2122": 1826
+  }
+}

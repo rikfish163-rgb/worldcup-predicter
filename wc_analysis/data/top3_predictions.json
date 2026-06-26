@@ -1,0 +1,1802 @@
+[
+  {
+    "home": "ECU",
+    "away": "GER",
+    "date": "2026-06-26",
+    "time": "04:00:00",
+    "league": "世界杯",
+    "handicap_line": 1.0,
+    "elo_diff": 0.0,
+    "p_home": 0.462,
+    "p_draw": 0.221,
+    "p_away": 0.317,
+    "top_1x2": [
+      {
+        "outcome": "主胜",
+        "probability": 0.5292599025478144,
+        "code": "H"
+      },
+      {
+        "outcome": "平局",
+        "probability": 0.2774572644619295,
+        "code": "D"
+      },
+      {
+        "outcome": "客胜",
+        "probability": 0.19328283299025603,
+        "code": "A"
+      }
+    ],
+    "top_scores": [
+      {
+        "score": "1-1",
+        "probability": 0.14186932606916497,
+        "goals": [
+          1,
+          1
+        ]
+      },
+      {
+        "score": "1-0",
+        "probability": 0.10773932149982558,
+        "goals": [
+          1,
+          0
+        ]
+      },
+      {
+        "score": "0-0",
+        "probability": 0.10575167946870351,
+        "goals": [
+          0,
+          0
+        ]
+      },
+      {
+        "score": "2-0",
+        "probability": 0.10511804227703926,
+        "goals": [
+          2,
+          0
+        ]
+      },
+      {
+        "score": "2-1",
+        "probability": 0.09458915641926616,
+        "goals": [
+          2,
+          1
+        ]
+      },
+      {
+        "score": "3-0",
+        "probability": 0.056068649757777346,
+        "goals": [
+          3,
+          0
+        ]
+      }
+    ],
+    "handicap": {
+      "line": 1.0,
+      "home_cover": 0.40049981479088775,
+      "push": 0.22795764703687824,
+      "away_cover": 0.5995001852091123,
+      "top_outcomes": [
+        {
+          "outcome": "客队 -1.00 赢",
+          "probability": 0.4855213616906732
+        },
+        {
+          "outcome": "主队 +1.00 赢",
+          "probability": 0.2865209912724486
+        },
+        {
+          "outcome": "走盘(+1.00)",
+          "probability": 0.22795764703687824
+        }
+      ]
+    },
+    "model": "comprehensive_v1"
+  },
+  {
+    "home": "CUR",
+    "away": "CIV",
+    "date": "2026-06-26",
+    "time": "04:00:00",
+    "league": "世界杯",
+    "handicap_line": 2.0,
+    "elo_diff": 0.0,
+    "p_home": 0.462,
+    "p_draw": 0.221,
+    "p_away": 0.317,
+    "top_1x2": [
+      {
+        "outcome": "主胜",
+        "probability": 0.5292599025478144,
+        "code": "H"
+      },
+      {
+        "outcome": "平局",
+        "probability": 0.2774572644619295,
+        "code": "D"
+      },
+      {
+        "outcome": "客胜",
+        "probability": 0.19328283299025603,
+        "code": "A"
+      }
+    ],
+    "top_scores": [
+      {
+        "score": "1-1",
+        "probability": 0.14186932606916497,
+        "goals": [
+          1,
+          1
+        ]
+      },
+      {
+        "score": "1-0",
+        "probability": 0.10773932149982558,
+        "goals": [
+          1,
+          0
+        ]
+      },
+      {
+        "score": "0-0",
+        "probability": 0.10575167946870351,
+        "goals": [
+          0,
+          0
+        ]
+      },
+      {
+        "score": "2-0",
+        "probability": 0.10511804227703926,
+        "goals": [
+          2,
+          0
+        ]
+      },
+      {
+        "score": "2-1",
+        "probability": 0.09458915641926616,
+        "goals": [
+          2,
+          1
+        ]
+      },
+      {
+        "score": "3-0",
+        "probability": 0.056068649757777346,
+        "goals": [
+          3,
+          0
+        ]
+      }
+    ],
+    "handicap": {
+      "line": 2.0,
+      "home_cover": 0.2037321850231632,
+      "push": 0.1655776124985708,
+      "away_cover": 0.7962678149768367,
+      "top_outcomes": [
+        {
+          "outcome": "客队 -2.00 赢",
+          "probability": 0.7134790087275513
+        },
+        {
+          "outcome": "走盘(+2.00)",
+          "probability": 0.1655776124985708
+        },
+        {
+          "outcome": "主队 +2.00 赢",
+          "probability": 0.12094337877387781
+        }
+      ]
+    },
+    "model": "comprehensive_v1"
+  },
+  {
+    "home": "TUN",
+    "away": "NET",
+    "date": "2026-06-26",
+    "time": "07:00:00",
+    "league": "世界杯",
+    "handicap_line": 2.0,
+    "elo_diff": 0.0,
+    "p_home": 0.462,
+    "p_draw": 0.221,
+    "p_away": 0.317,
+    "top_1x2": [
+      {
+        "outcome": "主胜",
+        "probability": 0.5292599025478144,
+        "code": "H"
+      },
+      {
+        "outcome": "平局",
+        "probability": 0.2774572644619295,
+        "code": "D"
+      },
+      {
+        "outcome": "客胜",
+        "probability": 0.19328283299025603,
+        "code": "A"
+      }
+    ],
+    "top_scores": [
+      {
+        "score": "1-1",
+        "probability": 0.14186932606916497,
+        "goals": [
+          1,
+          1
+        ]
+      },
+      {
+        "score": "1-0",
+        "probability": 0.10773932149982558,
+        "goals": [
+          1,
+          0
+        ]
+      },
+      {
+        "score": "0-0",
+        "probability": 0.10575167946870351,
+        "goals": [
+          0,
+          0
+        ]
+      },
+      {
+        "score": "2-0",
+        "probability": 0.10511804227703926,
+        "goals": [
+          2,
+          0
+        ]
+      },
+      {
+        "score": "2-1",
+        "probability": 0.09458915641926616,
+        "goals": [
+          2,
+          1
+        ]
+      },
+      {
+        "score": "3-0",
+        "probability": 0.056068649757777346,
+        "goals": [
+          3,
+          0
+        ]
+      }
+    ],
+    "handicap": {
+      "line": 2.0,
+      "home_cover": 0.2037321850231632,
+      "push": 0.1655776124985708,
+      "away_cover": 0.7962678149768367,
+      "top_outcomes": [
+        {
+          "outcome": "客队 -2.00 赢",
+          "probability": 0.7134790087275513
+        },
+        {
+          "outcome": "走盘(+2.00)",
+          "probability": 0.1655776124985708
+        },
+        {
+          "outcome": "主队 +2.00 赢",
+          "probability": 0.12094337877387781
+        }
+      ]
+    },
+    "model": "comprehensive_v1"
+  },
+  {
+    "home": "JPN",
+    "away": "SWE",
+    "date": "2026-06-26",
+    "time": "07:00:00",
+    "league": "世界杯",
+    "handicap_line": -1.0,
+    "elo_diff": 0.0,
+    "p_home": 0.462,
+    "p_draw": 0.221,
+    "p_away": 0.317,
+    "top_1x2": [
+      {
+        "outcome": "主胜",
+        "probability": 0.5292599025478144,
+        "code": "H"
+      },
+      {
+        "outcome": "平局",
+        "probability": 0.2774572644619295,
+        "code": "D"
+      },
+      {
+        "outcome": "客胜",
+        "probability": 0.19328283299025603,
+        "code": "A"
+      }
+    ],
+    "top_scores": [
+      {
+        "score": "1-1",
+        "probability": 0.14186932606916497,
+        "goals": [
+          1,
+          1
+        ]
+      },
+      {
+        "score": "1-0",
+        "probability": 0.10773932149982558,
+        "goals": [
+          1,
+          0
+        ]
+      },
+      {
+        "score": "0-0",
+        "probability": 0.10575167946870351,
+        "goals": [
+          0,
+          0
+        ]
+      },
+      {
+        "score": "2-0",
+        "probability": 0.10511804227703926,
+        "goals": [
+          2,
+          0
+        ]
+      },
+      {
+        "score": "2-1",
+        "probability": 0.09458915641926616,
+        "goals": [
+          2,
+          1
+        ]
+      },
+      {
+        "score": "3-0",
+        "probability": 0.056068649757777346,
+        "goals": [
+          3,
+          0
+        ]
+      }
+    ],
+    "handicap": {
+      "line": -1.0,
+      "home_cover": 0.8710360117383349,
+      "push": 0.11784161511473042,
+      "away_cover": 0.12896398826166494,
+      "top_outcomes": [
+        {
+          "outcome": "主队 -1.00 赢",
+          "probability": 0.8121152041809697
+        },
+        {
+          "outcome": "走盘(-1.00)",
+          "probability": 0.11784161511473042
+        },
+        {
+          "outcome": "客队 +1.00 赢",
+          "probability": 0.07004318070429973
+        }
+      ]
+    },
+    "model": "comprehensive_v1"
+  },
+  {
+    "home": "PGY",
+    "away": "AUA",
+    "date": "2026-06-26",
+    "time": "10:00:00",
+    "league": "世界杯",
+    "handicap_line": -1.0,
+    "elo_diff": 0.0,
+    "p_home": 0.462,
+    "p_draw": 0.221,
+    "p_away": 0.317,
+    "top_1x2": [
+      {
+        "outcome": "主胜",
+        "probability": 0.5292599025478144,
+        "code": "H"
+      },
+      {
+        "outcome": "平局",
+        "probability": 0.2774572644619295,
+        "code": "D"
+      },
+      {
+        "outcome": "客胜",
+        "probability": 0.19328283299025603,
+        "code": "A"
+      }
+    ],
+    "top_scores": [
+      {
+        "score": "1-1",
+        "probability": 0.14186932606916497,
+        "goals": [
+          1,
+          1
+        ]
+      },
+      {
+        "score": "1-0",
+        "probability": 0.10773932149982558,
+        "goals": [
+          1,
+          0
+        ]
+      },
+      {
+        "score": "0-0",
+        "probability": 0.10575167946870351,
+        "goals": [
+          0,
+          0
+        ]
+      },
+      {
+        "score": "2-0",
+        "probability": 0.10511804227703926,
+        "goals": [
+          2,
+          0
+        ]
+      },
+      {
+        "score": "2-1",
+        "probability": 0.09458915641926616,
+        "goals": [
+          2,
+          1
+        ]
+      },
+      {
+        "score": "3-0",
+        "probability": 0.056068649757777346,
+        "goals": [
+          3,
+          0
+        ]
+      }
+    ],
+    "handicap": {
+      "line": -1.0,
+      "home_cover": 0.8710360117383349,
+      "push": 0.11784161511473042,
+      "away_cover": 0.12896398826166494,
+      "top_outcomes": [
+        {
+          "outcome": "主队 -1.00 赢",
+          "probability": 0.8121152041809697
+        },
+        {
+          "outcome": "走盘(-1.00)",
+          "probability": 0.11784161511473042
+        },
+        {
+          "outcome": "客队 +1.00 赢",
+          "probability": 0.07004318070429973
+        }
+      ]
+    },
+    "model": "comprehensive_v1"
+  },
+  {
+    "home": "TUR",
+    "away": "USA",
+    "date": "2026-06-26",
+    "time": "10:00:00",
+    "league": "世界杯",
+    "handicap_line": 1.0,
+    "elo_diff": 0.0,
+    "p_home": 0.462,
+    "p_draw": 0.221,
+    "p_away": 0.317,
+    "top_1x2": [
+      {
+        "outcome": "主胜",
+        "probability": 0.5292599025478144,
+        "code": "H"
+      },
+      {
+        "outcome": "平局",
+        "probability": 0.2774572644619295,
+        "code": "D"
+      },
+      {
+        "outcome": "客胜",
+        "probability": 0.19328283299025603,
+        "code": "A"
+      }
+    ],
+    "top_scores": [
+      {
+        "score": "1-1",
+        "probability": 0.14186932606916497,
+        "goals": [
+          1,
+          1
+        ]
+      },
+      {
+        "score": "1-0",
+        "probability": 0.10773932149982558,
+        "goals": [
+          1,
+          0
+        ]
+      },
+      {
+        "score": "0-0",
+        "probability": 0.10575167946870351,
+        "goals": [
+          0,
+          0
+        ]
+      },
+      {
+        "score": "2-0",
+        "probability": 0.10511804227703926,
+        "goals": [
+          2,
+          0
+        ]
+      },
+      {
+        "score": "2-1",
+        "probability": 0.09458915641926616,
+        "goals": [
+          2,
+          1
+        ]
+      },
+      {
+        "score": "3-0",
+        "probability": 0.056068649757777346,
+        "goals": [
+          3,
+          0
+        ]
+      }
+    ],
+    "handicap": {
+      "line": 1.0,
+      "home_cover": 0.40049981479088775,
+      "push": 0.22795764703687824,
+      "away_cover": 0.5995001852091123,
+      "top_outcomes": [
+        {
+          "outcome": "客队 -1.00 赢",
+          "probability": 0.4855213616906732
+        },
+        {
+          "outcome": "主队 +1.00 赢",
+          "probability": 0.2865209912724486
+        },
+        {
+          "outcome": "走盘(+1.00)",
+          "probability": 0.22795764703687824
+        }
+      ]
+    },
+    "model": "comprehensive_v1"
+  },
+  {
+    "home": "NOW",
+    "away": "FRA",
+    "date": "2026-06-27",
+    "time": "03:00:00",
+    "league": "世界杯",
+    "handicap_line": 1.0,
+    "elo_diff": 0.0,
+    "p_home": 0.462,
+    "p_draw": 0.221,
+    "p_away": 0.317,
+    "top_1x2": [
+      {
+        "outcome": "主胜",
+        "probability": 0.5292599025478144,
+        "code": "H"
+      },
+      {
+        "outcome": "平局",
+        "probability": 0.2774572644619295,
+        "code": "D"
+      },
+      {
+        "outcome": "客胜",
+        "probability": 0.19328283299025603,
+        "code": "A"
+      }
+    ],
+    "top_scores": [
+      {
+        "score": "1-1",
+        "probability": 0.14186932606916497,
+        "goals": [
+          1,
+          1
+        ]
+      },
+      {
+        "score": "1-0",
+        "probability": 0.10773932149982558,
+        "goals": [
+          1,
+          0
+        ]
+      },
+      {
+        "score": "0-0",
+        "probability": 0.10575167946870351,
+        "goals": [
+          0,
+          0
+        ]
+      },
+      {
+        "score": "2-0",
+        "probability": 0.10511804227703926,
+        "goals": [
+          2,
+          0
+        ]
+      },
+      {
+        "score": "2-1",
+        "probability": 0.09458915641926616,
+        "goals": [
+          2,
+          1
+        ]
+      },
+      {
+        "score": "3-0",
+        "probability": 0.056068649757777346,
+        "goals": [
+          3,
+          0
+        ]
+      }
+    ],
+    "handicap": {
+      "line": 1.0,
+      "home_cover": 0.40049981479088775,
+      "push": 0.22795764703687824,
+      "away_cover": 0.5995001852091123,
+      "top_outcomes": [
+        {
+          "outcome": "客队 -1.00 赢",
+          "probability": 0.4855213616906732
+        },
+        {
+          "outcome": "主队 +1.00 赢",
+          "probability": 0.2865209912724486
+        },
+        {
+          "outcome": "走盘(+1.00)",
+          "probability": 0.22795764703687824
+        }
+      ]
+    },
+    "model": "comprehensive_v1"
+  },
+  {
+    "home": "SEN",
+    "away": "IRQ",
+    "date": "2026-06-27",
+    "time": "03:00:00",
+    "league": "世界杯",
+    "handicap_line": -2.0,
+    "elo_diff": 0.0,
+    "p_home": 0.462,
+    "p_draw": 0.221,
+    "p_away": 0.317,
+    "top_1x2": [
+      {
+        "outcome": "主胜",
+        "probability": 0.5292599025478144,
+        "code": "H"
+      },
+      {
+        "outcome": "平局",
+        "probability": 0.2774572644619295,
+        "code": "D"
+      },
+      {
+        "outcome": "客胜",
+        "probability": 0.19328283299025603,
+        "code": "A"
+      }
+    ],
+    "top_scores": [
+      {
+        "score": "1-1",
+        "probability": 0.14186932606916497,
+        "goals": [
+          1,
+          1
+        ]
+      },
+      {
+        "score": "1-0",
+        "probability": 0.10773932149982558,
+        "goals": [
+          1,
+          0
+        ]
+      },
+      {
+        "score": "0-0",
+        "probability": 0.10575167946870351,
+        "goals": [
+          0,
+          0
+        ]
+      },
+      {
+        "score": "2-0",
+        "probability": 0.10511804227703926,
+        "goals": [
+          2,
+          0
+        ]
+      },
+      {
+        "score": "2-1",
+        "probability": 0.09458915641926616,
+        "goals": [
+          2,
+          1
+        ]
+      },
+      {
+        "score": "3-0",
+        "probability": 0.056068649757777346,
+        "goals": [
+          3,
+          0
+        ]
+      }
+    ],
+    "handicap": {
+      "line": -2.0,
+      "home_cover": 0.9561369385471127,
+      "push": 0.052360238502824695,
+      "away_cover": 0.043863061452887396,
+      "top_outcomes": [
+        {
+          "outcome": "主队 -2.00 赢",
+          "probability": 0.9299568192957003
+        },
+        {
+          "outcome": "走盘(-2.00)",
+          "probability": 0.052360238502824695
+        },
+        {
+          "outcome": "客队 +2.00 赢",
+          "probability": 0.01768294220147505
+        }
+      ]
+    },
+    "model": "comprehensive_v1"
+  },
+  {
+    "home": "CVI",
+    "away": "SAR",
+    "date": "2026-06-27",
+    "time": "08:00:00",
+    "league": "世界杯",
+    "handicap_line": -1.0,
+    "elo_diff": 0.0,
+    "p_home": 0.462,
+    "p_draw": 0.221,
+    "p_away": 0.317,
+    "top_1x2": [
+      {
+        "outcome": "主胜",
+        "probability": 0.5292599025478144,
+        "code": "H"
+      },
+      {
+        "outcome": "平局",
+        "probability": 0.2774572644619295,
+        "code": "D"
+      },
+      {
+        "outcome": "客胜",
+        "probability": 0.19328283299025603,
+        "code": "A"
+      }
+    ],
+    "top_scores": [
+      {
+        "score": "1-1",
+        "probability": 0.14186932606916497,
+        "goals": [
+          1,
+          1
+        ]
+      },
+      {
+        "score": "1-0",
+        "probability": 0.10773932149982558,
+        "goals": [
+          1,
+          0
+        ]
+      },
+      {
+        "score": "0-0",
+        "probability": 0.10575167946870351,
+        "goals": [
+          0,
+          0
+        ]
+      },
+      {
+        "score": "2-0",
+        "probability": 0.10511804227703926,
+        "goals": [
+          2,
+          0
+        ]
+      },
+      {
+        "score": "2-1",
+        "probability": 0.09458915641926616,
+        "goals": [
+          2,
+          1
+        ]
+      },
+      {
+        "score": "3-0",
+        "probability": 0.056068649757777346,
+        "goals": [
+          3,
+          0
+        ]
+      }
+    ],
+    "handicap": {
+      "line": -1.0,
+      "home_cover": 0.8710360117383349,
+      "push": 0.11784161511473042,
+      "away_cover": 0.12896398826166494,
+      "top_outcomes": [
+        {
+          "outcome": "主队 -1.00 赢",
+          "probability": 0.8121152041809697
+        },
+        {
+          "outcome": "走盘(-1.00)",
+          "probability": 0.11784161511473042
+        },
+        {
+          "outcome": "客队 +1.00 赢",
+          "probability": 0.07004318070429973
+        }
+      ]
+    },
+    "model": "comprehensive_v1"
+  },
+  {
+    "home": "URU",
+    "away": "SPA",
+    "date": "2026-06-27",
+    "time": "08:00:00",
+    "league": "世界杯",
+    "handicap_line": 1.0,
+    "elo_diff": 0.0,
+    "p_home": 0.462,
+    "p_draw": 0.221,
+    "p_away": 0.317,
+    "top_1x2": [
+      {
+        "outcome": "主胜",
+        "probability": 0.5292599025478144,
+        "code": "H"
+      },
+      {
+        "outcome": "平局",
+        "probability": 0.2774572644619295,
+        "code": "D"
+      },
+      {
+        "outcome": "客胜",
+        "probability": 0.19328283299025603,
+        "code": "A"
+      }
+    ],
+    "top_scores": [
+      {
+        "score": "1-1",
+        "probability": 0.14186932606916497,
+        "goals": [
+          1,
+          1
+        ]
+      },
+      {
+        "score": "1-0",
+        "probability": 0.10773932149982558,
+        "goals": [
+          1,
+          0
+        ]
+      },
+      {
+        "score": "0-0",
+        "probability": 0.10575167946870351,
+        "goals": [
+          0,
+          0
+        ]
+      },
+      {
+        "score": "2-0",
+        "probability": 0.10511804227703926,
+        "goals": [
+          2,
+          0
+        ]
+      },
+      {
+        "score": "2-1",
+        "probability": 0.09458915641926616,
+        "goals": [
+          2,
+          1
+        ]
+      },
+      {
+        "score": "3-0",
+        "probability": 0.056068649757777346,
+        "goals": [
+          3,
+          0
+        ]
+      }
+    ],
+    "handicap": {
+      "line": 1.0,
+      "home_cover": 0.40049981479088775,
+      "push": 0.22795764703687824,
+      "away_cover": 0.5995001852091123,
+      "top_outcomes": [
+        {
+          "outcome": "客队 -1.00 赢",
+          "probability": 0.4855213616906732
+        },
+        {
+          "outcome": "主队 +1.00 赢",
+          "probability": 0.2865209912724486
+        },
+        {
+          "outcome": "走盘(+1.00)",
+          "probability": 0.22795764703687824
+        }
+      ]
+    },
+    "model": "comprehensive_v1"
+  },
+  {
+    "home": "EGY",
+    "away": "IRA",
+    "date": "2026-06-27",
+    "time": "11:00:00",
+    "league": "世界杯",
+    "handicap_line": -1.0,
+    "elo_diff": 0.0,
+    "p_home": 0.462,
+    "p_draw": 0.221,
+    "p_away": 0.317,
+    "top_1x2": [
+      {
+        "outcome": "主胜",
+        "probability": 0.5292599025478144,
+        "code": "H"
+      },
+      {
+        "outcome": "平局",
+        "probability": 0.2774572644619295,
+        "code": "D"
+      },
+      {
+        "outcome": "客胜",
+        "probability": 0.19328283299025603,
+        "code": "A"
+      }
+    ],
+    "top_scores": [
+      {
+        "score": "1-1",
+        "probability": 0.14186932606916497,
+        "goals": [
+          1,
+          1
+        ]
+      },
+      {
+        "score": "1-0",
+        "probability": 0.10773932149982558,
+        "goals": [
+          1,
+          0
+        ]
+      },
+      {
+        "score": "0-0",
+        "probability": 0.10575167946870351,
+        "goals": [
+          0,
+          0
+        ]
+      },
+      {
+        "score": "2-0",
+        "probability": 0.10511804227703926,
+        "goals": [
+          2,
+          0
+        ]
+      },
+      {
+        "score": "2-1",
+        "probability": 0.09458915641926616,
+        "goals": [
+          2,
+          1
+        ]
+      },
+      {
+        "score": "3-0",
+        "probability": 0.056068649757777346,
+        "goals": [
+          3,
+          0
+        ]
+      }
+    ],
+    "handicap": {
+      "line": -1.0,
+      "home_cover": 0.8710360117383349,
+      "push": 0.11784161511473042,
+      "away_cover": 0.12896398826166494,
+      "top_outcomes": [
+        {
+          "outcome": "主队 -1.00 赢",
+          "probability": 0.8121152041809697
+        },
+        {
+          "outcome": "走盘(-1.00)",
+          "probability": 0.11784161511473042
+        },
+        {
+          "outcome": "客队 +1.00 赢",
+          "probability": 0.07004318070429973
+        }
+      ]
+    },
+    "model": "comprehensive_v1"
+  },
+  {
+    "home": "NZD",
+    "away": "BEG",
+    "date": "2026-06-27",
+    "time": "11:00:00",
+    "league": "世界杯",
+    "handicap_line": 2.0,
+    "elo_diff": 0.0,
+    "p_home": 0.462,
+    "p_draw": 0.221,
+    "p_away": 0.317,
+    "top_1x2": [
+      {
+        "outcome": "主胜",
+        "probability": 0.5292599025478144,
+        "code": "H"
+      },
+      {
+        "outcome": "平局",
+        "probability": 0.2774572644619295,
+        "code": "D"
+      },
+      {
+        "outcome": "客胜",
+        "probability": 0.19328283299025603,
+        "code": "A"
+      }
+    ],
+    "top_scores": [
+      {
+        "score": "1-1",
+        "probability": 0.14186932606916497,
+        "goals": [
+          1,
+          1
+        ]
+      },
+      {
+        "score": "1-0",
+        "probability": 0.10773932149982558,
+        "goals": [
+          1,
+          0
+        ]
+      },
+      {
+        "score": "0-0",
+        "probability": 0.10575167946870351,
+        "goals": [
+          0,
+          0
+        ]
+      },
+      {
+        "score": "2-0",
+        "probability": 0.10511804227703926,
+        "goals": [
+          2,
+          0
+        ]
+      },
+      {
+        "score": "2-1",
+        "probability": 0.09458915641926616,
+        "goals": [
+          2,
+          1
+        ]
+      },
+      {
+        "score": "3-0",
+        "probability": 0.056068649757777346,
+        "goals": [
+          3,
+          0
+        ]
+      }
+    ],
+    "handicap": {
+      "line": 2.0,
+      "home_cover": 0.2037321850231632,
+      "push": 0.1655776124985708,
+      "away_cover": 0.7962678149768367,
+      "top_outcomes": [
+        {
+          "outcome": "客队 -2.00 赢",
+          "probability": 0.7134790087275513
+        },
+        {
+          "outcome": "走盘(+2.00)",
+          "probability": 0.1655776124985708
+        },
+        {
+          "outcome": "主队 +2.00 赢",
+          "probability": 0.12094337877387781
+        }
+      ]
+    },
+    "model": "comprehensive_v1"
+  },
+  {
+    "home": "CRO",
+    "away": "GHA",
+    "date": "2026-06-28",
+    "time": "05:00:00",
+    "league": "世界杯",
+    "handicap_line": -1.0,
+    "elo_diff": 0.0,
+    "p_home": 0.462,
+    "p_draw": 0.221,
+    "p_away": 0.317,
+    "top_1x2": [
+      {
+        "outcome": "主胜",
+        "probability": 0.5292599025478144,
+        "code": "H"
+      },
+      {
+        "outcome": "平局",
+        "probability": 0.2774572644619295,
+        "code": "D"
+      },
+      {
+        "outcome": "客胜",
+        "probability": 0.19328283299025603,
+        "code": "A"
+      }
+    ],
+    "top_scores": [
+      {
+        "score": "1-1",
+        "probability": 0.14186932606916497,
+        "goals": [
+          1,
+          1
+        ]
+      },
+      {
+        "score": "1-0",
+        "probability": 0.10773932149982558,
+        "goals": [
+          1,
+          0
+        ]
+      },
+      {
+        "score": "0-0",
+        "probability": 0.10575167946870351,
+        "goals": [
+          0,
+          0
+        ]
+      },
+      {
+        "score": "2-0",
+        "probability": 0.10511804227703926,
+        "goals": [
+          2,
+          0
+        ]
+      },
+      {
+        "score": "2-1",
+        "probability": 0.09458915641926616,
+        "goals": [
+          2,
+          1
+        ]
+      },
+      {
+        "score": "3-0",
+        "probability": 0.056068649757777346,
+        "goals": [
+          3,
+          0
+        ]
+      }
+    ],
+    "handicap": {
+      "line": -1.0,
+      "home_cover": 0.8710360117383349,
+      "push": 0.11784161511473042,
+      "away_cover": 0.12896398826166494,
+      "top_outcomes": [
+        {
+          "outcome": "主队 -1.00 赢",
+          "probability": 0.8121152041809697
+        },
+        {
+          "outcome": "走盘(-1.00)",
+          "probability": 0.11784161511473042
+        },
+        {
+          "outcome": "客队 +1.00 赢",
+          "probability": 0.07004318070429973
+        }
+      ]
+    },
+    "model": "comprehensive_v1"
+  },
+  {
+    "home": "PAM",
+    "away": "ENG",
+    "date": "2026-06-28",
+    "time": "05:00:00",
+    "league": "世界杯",
+    "handicap_line": 2.0,
+    "elo_diff": 0.0,
+    "p_home": 0.462,
+    "p_draw": 0.221,
+    "p_away": 0.317,
+    "top_1x2": [
+      {
+        "outcome": "主胜",
+        "probability": 0.5292599025478144,
+        "code": "H"
+      },
+      {
+        "outcome": "平局",
+        "probability": 0.2774572644619295,
+        "code": "D"
+      },
+      {
+        "outcome": "客胜",
+        "probability": 0.19328283299025603,
+        "code": "A"
+      }
+    ],
+    "top_scores": [
+      {
+        "score": "1-1",
+        "probability": 0.14186932606916497,
+        "goals": [
+          1,
+          1
+        ]
+      },
+      {
+        "score": "1-0",
+        "probability": 0.10773932149982558,
+        "goals": [
+          1,
+          0
+        ]
+      },
+      {
+        "score": "0-0",
+        "probability": 0.10575167946870351,
+        "goals": [
+          0,
+          0
+        ]
+      },
+      {
+        "score": "2-0",
+        "probability": 0.10511804227703926,
+        "goals": [
+          2,
+          0
+        ]
+      },
+      {
+        "score": "2-1",
+        "probability": 0.09458915641926616,
+        "goals": [
+          2,
+          1
+        ]
+      },
+      {
+        "score": "3-0",
+        "probability": 0.056068649757777346,
+        "goals": [
+          3,
+          0
+        ]
+      }
+    ],
+    "handicap": {
+      "line": 2.0,
+      "home_cover": 0.2037321850231632,
+      "push": 0.1655776124985708,
+      "away_cover": 0.7962678149768367,
+      "top_outcomes": [
+        {
+          "outcome": "客队 -2.00 赢",
+          "probability": 0.7134790087275513
+        },
+        {
+          "outcome": "走盘(+2.00)",
+          "probability": 0.1655776124985708
+        },
+        {
+          "outcome": "主队 +2.00 赢",
+          "probability": 0.12094337877387781
+        }
+      ]
+    },
+    "model": "comprehensive_v1"
+  },
+  {
+    "home": "COM",
+    "away": "POG",
+    "date": "2026-06-28",
+    "time": "07:30:00",
+    "league": "世界杯",
+    "handicap_line": 1.0,
+    "elo_diff": 0.0,
+    "p_home": 0.462,
+    "p_draw": 0.221,
+    "p_away": 0.317,
+    "top_1x2": [
+      {
+        "outcome": "主胜",
+        "probability": 0.5292599025478144,
+        "code": "H"
+      },
+      {
+        "outcome": "平局",
+        "probability": 0.2774572644619295,
+        "code": "D"
+      },
+      {
+        "outcome": "客胜",
+        "probability": 0.19328283299025603,
+        "code": "A"
+      }
+    ],
+    "top_scores": [
+      {
+        "score": "1-1",
+        "probability": 0.14186932606916497,
+        "goals": [
+          1,
+          1
+        ]
+      },
+      {
+        "score": "1-0",
+        "probability": 0.10773932149982558,
+        "goals": [
+          1,
+          0
+        ]
+      },
+      {
+        "score": "0-0",
+        "probability": 0.10575167946870351,
+        "goals": [
+          0,
+          0
+        ]
+      },
+      {
+        "score": "2-0",
+        "probability": 0.10511804227703926,
+        "goals": [
+          2,
+          0
+        ]
+      },
+      {
+        "score": "2-1",
+        "probability": 0.09458915641926616,
+        "goals": [
+          2,
+          1
+        ]
+      },
+      {
+        "score": "3-0",
+        "probability": 0.056068649757777346,
+        "goals": [
+          3,
+          0
+        ]
+      }
+    ],
+    "handicap": {
+      "line": 1.0,
+      "home_cover": 0.40049981479088775,
+      "push": 0.22795764703687824,
+      "away_cover": 0.5995001852091123,
+      "top_outcomes": [
+        {
+          "outcome": "客队 -1.00 赢",
+          "probability": 0.4855213616906732
+        },
+        {
+          "outcome": "主队 +1.00 赢",
+          "probability": 0.2865209912724486
+        },
+        {
+          "outcome": "走盘(+1.00)",
+          "probability": 0.22795764703687824
+        }
+      ]
+    },
+    "model": "comprehensive_v1"
+  },
+  {
+    "home": "COD",
+    "away": "UZB",
+    "date": "2026-06-28",
+    "time": "07:30:00",
+    "league": "世界杯",
+    "handicap_line": -1.0,
+    "elo_diff": 0.0,
+    "p_home": 0.462,
+    "p_draw": 0.221,
+    "p_away": 0.317,
+    "top_1x2": [
+      {
+        "outcome": "主胜",
+        "probability": 0.5292599025478144,
+        "code": "H"
+      },
+      {
+        "outcome": "平局",
+        "probability": 0.2774572644619295,
+        "code": "D"
+      },
+      {
+        "outcome": "客胜",
+        "probability": 0.19328283299025603,
+        "code": "A"
+      }
+    ],
+    "top_scores": [
+      {
+        "score": "1-1",
+        "probability": 0.14186932606916497,
+        "goals": [
+          1,
+          1
+        ]
+      },
+      {
+        "score": "1-0",
+        "probability": 0.10773932149982558,
+        "goals": [
+          1,
+          0
+        ]
+      },
+      {
+        "score": "0-0",
+        "probability": 0.10575167946870351,
+        "goals": [
+          0,
+          0
+        ]
+      },
+      {
+        "score": "2-0",
+        "probability": 0.10511804227703926,
+        "goals": [
+          2,
+          0
+        ]
+      },
+      {
+        "score": "2-1",
+        "probability": 0.09458915641926616,
+        "goals": [
+          2,
+          1
+        ]
+      },
+      {
+        "score": "3-0",
+        "probability": 0.056068649757777346,
+        "goals": [
+          3,
+          0
+        ]
+      }
+    ],
+    "handicap": {
+      "line": -1.0,
+      "home_cover": 0.8710360117383349,
+      "push": 0.11784161511473042,
+      "away_cover": 0.12896398826166494,
+      "top_outcomes": [
+        {
+          "outcome": "主队 -1.00 赢",
+          "probability": 0.8121152041809697
+        },
+        {
+          "outcome": "走盘(-1.00)",
+          "probability": 0.11784161511473042
+        },
+        {
+          "outcome": "客队 +1.00 赢",
+          "probability": 0.07004318070429973
+        }
+      ]
+    },
+    "model": "comprehensive_v1"
+  },
+  {
+    "home": "ALG",
+    "away": "AUS",
+    "date": "2026-06-28",
+    "time": "10:00:00",
+    "league": "世界杯",
+    "handicap_line": 1.0,
+    "elo_diff": 0.0,
+    "p_home": 0.462,
+    "p_draw": 0.221,
+    "p_away": 0.317,
+    "top_1x2": [
+      {
+        "outcome": "主胜",
+        "probability": 0.5292599025478144,
+        "code": "H"
+      },
+      {
+        "outcome": "平局",
+        "probability": 0.2774572644619295,
+        "code": "D"
+      },
+      {
+        "outcome": "客胜",
+        "probability": 0.19328283299025603,
+        "code": "A"
+      }
+    ],
+    "top_scores": [
+      {
+        "score": "1-1",
+        "probability": 0.14186932606916497,
+        "goals": [
+          1,
+          1
+        ]
+      },
+      {
+        "score": "1-0",
+        "probability": 0.10773932149982558,
+        "goals": [
+          1,
+          0
+        ]
+      },
+      {
+        "score": "0-0",
+        "probability": 0.10575167946870351,
+        "goals": [
+          0,
+          0
+        ]
+      },
+      {
+        "score": "2-0",
+        "probability": 0.10511804227703926,
+        "goals": [
+          2,
+          0
+        ]
+      },
+      {
+        "score": "2-1",
+        "probability": 0.09458915641926616,
+        "goals": [
+          2,
+          1
+        ]
+      },
+      {
+        "score": "3-0",
+        "probability": 0.056068649757777346,
+        "goals": [
+          3,
+          0
+        ]
+      }
+    ],
+    "handicap": {
+      "line": 1.0,
+      "home_cover": 0.40049981479088775,
+      "push": 0.22795764703687824,
+      "away_cover": 0.5995001852091123,
+      "top_outcomes": [
+        {
+          "outcome": "客队 -1.00 赢",
+          "probability": 0.4855213616906732
+        },
+        {
+          "outcome": "主队 +1.00 赢",
+          "probability": 0.2865209912724486
+        },
+        {
+          "outcome": "走盘(+1.00)",
+          "probability": 0.22795764703687824
+        }
+      ]
+    },
+    "model": "comprehensive_v1"
+  },
+  {
+    "home": "JOR",
+    "away": "ARG",
+    "date": "2026-06-28",
+    "time": "10:00:00",
+    "league": "世界杯",
+    "handicap_line": 2.0,
+    "elo_diff": 0.0,
+    "p_home": 0.462,
+    "p_draw": 0.221,
+    "p_away": 0.317,
+    "top_1x2": [
+      {
+        "outcome": "主胜",
+        "probability": 0.5292599025478144,
+        "code": "H"
+      },
+      {
+        "outcome": "平局",
+        "probability": 0.2774572644619295,
+        "code": "D"
+      },
+      {
+        "outcome": "客胜",
+        "probability": 0.19328283299025603,
+        "code": "A"
+      }
+    ],
+    "top_scores": [
+      {
+        "score": "1-1",
+        "probability": 0.14186932606916497,
+        "goals": [
+          1,
+          1
+        ]
+      },
+      {
+        "score": "1-0",
+        "probability": 0.10773932149982558,
+        "goals": [
+          1,
+          0
+        ]
+      },
+      {
+        "score": "0-0",
+        "probability": 0.10575167946870351,
+        "goals": [
+          0,
+          0
+        ]
+      },
+      {
+        "score": "2-0",
+        "probability": 0.10511804227703926,
+        "goals": [
+          2,
+          0
+        ]
+      },
+      {
+        "score": "2-1",
+        "probability": 0.09458915641926616,
+        "goals": [
+          2,
+          1
+        ]
+      },
+      {
+        "score": "3-0",
+        "probability": 0.056068649757777346,
+        "goals": [
+          3,
+          0
+        ]
+      }
+    ],
+    "handicap": {
+      "line": 2.0,
+      "home_cover": 0.2037321850231632,
+      "push": 0.1655776124985708,
+      "away_cover": 0.7962678149768367,
+      "top_outcomes": [
+        {
+          "outcome": "客队 -2.00 赢",
+          "probability": 0.7134790087275513
+        },
+        {
+          "outcome": "走盘(+2.00)",
+          "probability": 0.1655776124985708
+        },
+        {
+          "outcome": "主队 +2.00 赢",
+          "probability": 0.12094337877387781
+        }
+      ]
+    },
+    "model": "comprehensive_v1"
+  }
+]

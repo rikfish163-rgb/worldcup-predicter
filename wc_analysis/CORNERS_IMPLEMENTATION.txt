@@ -1,0 +1,190 @@
+#!/usr/bin/env python3
+"""
+角球/定位球能力特征 - 实现总结
+
+## 1. 实现概述
+
+在 predict.py 中新增 `get_corner_boost()` 函数,按优先级提供角球能力加成:
+1. **corners.json 手动数据** (优先级最高)
+2. **Elo 等级估算** (fallback)
+
+加成范围: 0-0.15,直接乘到 λ 上(如 λ × (1 + boost))
+
+## 2. 代码修改
+
+### 2.1 添加配置文件路径
+```python
+CORNERS_FILE = DATA_DIR / "corners.json"
+```
+
+### 2.2 实现 get_corner_boost() 函数
+```python
+def get_corner_boost(team: str) -> float:
+    # 1. 优先读 corners.json
+    if CORNERS_FILE.exists():
+        corners_data = json.loads(...)
+        if team in corners_data:
+            cpg = corners_per_game  # 场均角球数
+            ctg = corners_to_goals   # 角球转化率
+            # 综合评分: cpg/7 × 0.5 + ctg/0.12 × 0.5, 上限 0.15
+            score = (min(cpg/7, 1) * 0.5 + min(ctg/0.12, 1) * 0.5) * 0.15
+            return score
+
+    # 2. fallback: 用 Elo 估算
+    elo = get_elo(team)
+    if elo >= 2000:
+        boost = 0.12
+    elif elo >= 1500:
+        boost = (elo - 1500) / 500 * 0.12
+    else:
+        boost = 0.0
+    return min(boost, 0.15)
+```
+
+### 2.3 集成到 get_adjustments()
+```python
+def get_adjustments(home: str, away: str) -> tuple[float, float, list[str]]:
+    adj_h, adj_a = 1.0, 1.0
+    notes = []
+
+    # 角球/定位球能力加成
+    corner_boost_h = get_corner_boost(home)
+    corner_boost_a = get_corner_boost(away)
+    if corner_boost_h > 0.02:
+        adj_h *= (1.0 + corner_boost_h)
+        notes.append(f"{home}定位球能力强(λ×{1+corner_boost_h:.3f})")
+    if corner_boost_a > 0.02:
+        adj_a *= (1.0 + corner_boost_a)
+        notes.append(f"{away}定位球能力强(λ×{1+corner_boost_a:.3f})")
+
+    # ... 原有的风格相克、磨合度、伤病、天气调整继续执行
+```
+
+## 3. corners.json 数据模板
+
+文件位置: `wc_analysis/data/corners.json`
+
+```json
+{
+  "_说明": "角球/定位球能力数据(手动维护)...",
+  "德国": {
+    "corners_per_game": 6.8,
+    "corners_to_goals": 0.12,
+    "set_piece_quality": "excellent",
+    "reasons": ["定位球战术成熟", "克罗斯传中精准", "中卫争顶优势明显"]
+  },
+  "英格兰": {
+    "corners_per_game": 6.2,
+    "corners_to_goals": 0.10,
+    "set_piece_quality": "very_good",
+    "reasons": ["凯恩/马奎尔头球威胁", "特里皮尔开球精准"]
+  },
+  "荷兰": {
+    "corners_per_game": 5.9,
+    "corners_to_goals": 0.11,
+    "set_piece_quality": "very_good",
+    "reasons": ["范迪克制空优势", "定位球战术多变"]
+  },
+  "巴西": {
+    "corners_per_game": 5.5,
+    "corners_to_goals": 0.08,
+    "set_piece_quality": "good",
+    "reasons": ["更依赖运动战", "技术流为主"]
+  },
+  "阿根廷": {
+    "corners_per_game": 5.3,
+    "corners_to_goals": 0.09,
+    "set_piece_quality": "good",
+    "reasons": ["梅西任意球威胁", "身高劣势明显"]
+  }
+}
+```
+
+## 4. 测试结果
+
+### 4.1 手动数据测试
+```
+德国       → λ加成: 0.148 (λ × 1.148)
+英格兰     → λ加成: 0.129 (λ × 1.129)
+荷兰       → λ加成: 0.132 (λ × 1.132)
+巴西       → λ加成: 0.109 (λ × 1.109)
+阿根廷     → λ加成: 0.113 (λ × 1.113)
+```
+
+### 4.2 Elo fallback 测试
+```
+法国       → λ加成: 0.120 (λ × 1.120)
+西班牙     → λ加成: 0.120 (λ × 1.120)
+葡萄牙     → λ加成: 0.112 (λ × 1.112)
+日本       → λ加成: 0.102 (λ × 1.102)
+突尼斯     → λ加成: 0.017 (λ × 1.017)
+```
+
+### 4.3 集成测试
+```
+对阵: 德国 vs 日本
+主队调整因子: 1.148  ← 德国定位球能力强
+客队调整因子: 1.102  ← 日本定位球能力强(Elo估算)
+```
+
+## 5. 使用说明
+
+### 5.1 更新 corners.json
+手动添加队伍数据(如从 FBref 爬取):
+```json
+"法国": {
+  "corners_per_game": 6.5,
+  "corners_to_goals": 0.11,
+  "set_piece_quality": "excellent",
+  "reasons": ["格列兹曼传中精准", "吉鲁头球抢点强"]
+}
+```
+
+### 5.2 自动运行
+`predict.py` 会自动:
+1. 读取 corners.json
+2. 不存在数据时用 Elo fallback
+3. 在预测注释中显示调整原因
+
+### 5.3 HTML 输出示例
+```
+德国 vs 日本
+...
+调整说明:
+  - 德国定位球能力强(λ×1.148)
+  - 日本定位球能力强(λ×1.102)
+```
+
+## 6. 数据源扩展建议
+
+### FBref 角球数据爬取(未来可实现)
+```python
+def fetch_fbref_corners(team: str) -> dict:
+    # 从 FBref 抓取角球数据
+    # https://fbref.com/en/squads/{team_id}/...
+    ...
+```
+
+### 手动维护优先级
+1. 世界杯/洲际赛: 手动维护(赛制特殊,样本小)
+2. 联赛数据: 可自动爬取 FBref
+
+## 7. 文件清单
+
+- `wc_analysis/predict.py`: 主预测引擎(已修改)
+- `wc_analysis/data/corners.json`: 角球能力数据(新建)
+- `wc_analysis/test_corners.py`: 单元测试(新建)
+
+## 8. 影响范围
+
+- ✅ 不影响现有功能(向后兼容)
+- ✅ corners.json 不存在时自动 fallback Elo
+- ✅ 调整说明会显示在 HTML 输出
+- ✅ 加成阈值 0.02 避免微小差异干扰
+
+## 9. 性能影响
+
+- JSON 读取缓存在函数内(每次预测仅读一次)
+- Elo fallback 复用已有 get_elo() 缓存
+- 计算复杂度: O(1)
+```
