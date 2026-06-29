@@ -14,11 +14,13 @@ m = fetch_sporttery()
 print(f'抓到 {len(m)} 场')
 " 2>&1 | sed "s/^/[$(TS)] /"
 
-# 2. 推送最新盘口到 VPS
+# 2. 推送最新盘口到 VPS (含进化参数, 若存在则一并同步)
+SCP_FILES="wc_analysis/data/odds_parsed.json"
+[ -f wc_analysis/data/params_override.json ] && SCP_FILES="$SCP_FILES wc_analysis/data/params_override.json"
 if scp -i ~/.ssh/id_rsa -o BatchMode=yes -o ConnectTimeout=15 \
-     wc_analysis/data/odds_parsed.json \
-     ubuntu@170.106.198.250:~/soccerdata/wc_analysis/data/odds_parsed.json 2>/dev/null; then
-  echo "[$(TS)] ✓ 盘口已推送VPS"
+     $SCP_FILES \
+     ubuntu@170.106.198.250:~/soccerdata/wc_analysis/data/ 2>/dev/null; then
+  echo "[$(TS)] ✓ 盘口+参数已推送VPS"
 else
   echo "[$(TS)] ✗ 推送失败(VPS不可达或免密未配)"
   exit 1
