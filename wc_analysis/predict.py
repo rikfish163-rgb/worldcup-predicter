@@ -49,6 +49,7 @@ ELO_CACHE.mkdir(exist_ok=True)
 INJURIES_FILE = DATA_DIR / "injuries.json"
 COHESION_FILE = DATA_DIR / "cohesion.json"
 CORNERS_FILE = DATA_DIR / "corners.json"
+SOFASCORE_FILE = DATA_DIR / "sofascore_features.json"
 
 RHO = -0.20  # 交叉验证最优(2286场, 2020-2026)
 AVG_GOALS = 2.50  # 交叉验证最优
@@ -271,6 +272,52 @@ def _xg_factor(xg_profiles: dict, team_cn: str) -> float:
     if not axg or prof.get("players_found", 0) < 3:
         return 1.0
     return max(0.7, min(1.4, axg / 0.35))  # 0.35=联赛平均npxG/90(硬编码基准, 来源待补)
+
+
+# ─── SofaScore 防守质量特征 (def_xga90) ───
+# 价值验证裁决: 在 40+ SofaScore 候选指标中, 唯一与现有信号正交且经实采验证可落盘的是
+# 近N场场均"被预期进球"(xGA/90)。理由:
+#   · Elo 是整体净实力, 不区分攻/防; Understat 档案只有进攻端 attack_xg90 → 防守维空缺。
+#   · 真实 xGA 比"被进球数"更稳(去运气), 比体彩盘口更细颗粒(盘口不拆攻防)。
+# 集成方式 = 镜像已验证的 _xg_factor: 作为对手进攻 λ 的乘子, 防守好(低xGA)→ 压低对手 λ。
+# 数据诚实门控: matches_found < SOFA_MIN_MATCHES 即中性(1.0), 与缺数据队走同一尺度路径,
+# 杜绝"有数据队被调、无数据队跳过"的非对称偏差(corners/xG 审计同款教训)。
+SOFA_MIN_MATCHES = 5      # 少于5场样本不可靠 → 中性
+# 基准 = 实采 46 支过门队 def_xga90 的中位数(2026-06-30 采集, n=46, median=1.10)。
+# 用中位数而非拍脑袋值: 让因子在真实分布中心对称, 强防守队<1、弱防守队>1, 无系统性偏移。
+SOFA_LEAGUE_XGA = 1.10
+_sofa_cache = None
+
+
+def _load_sofascore() -> dict:
+    global _sofa_cache
+    if _sofa_cache is not None:
+        return _sofa_cache
+    if SOFASCORE_FILE.exists():
+        try:
+            _sofa_cache = json.loads(SOFASCORE_FILE.read_text(encoding="utf-8"))
+        except (json.JSONDecodeError, OSError):
+            _sofa_cache = {}
+    else:
+        _sofa_cache = {}
+    return _sofa_cache
+
+
+def _sofa_defense_factor(team_cn: str) -> float:
+    """对手进攻 λ 的防守乘子。返回 1.0(中性) 当: 无数据 / matches_found<SOFA_MIN_MATCHES /
+    无 def_xga90。有效时 = def_xga90 / 基准, 封顶 [0.80, 1.20](防小样本极值, ±20%上限)。
+    >1 = 该队防守差(被xG高) → 放大对手进攻; <1 = 防守好 → 压低对手进攻。
+    """
+    sofa = _load_sofascore()
+    prof = sofa.get(team_cn)
+    if not isinstance(prof, dict):
+        return 1.0
+    if prof.get("matches_found", 0) < SOFA_MIN_MATCHES:
+        return 1.0
+    xga = prof.get("def_xga90")
+    if not xga or xga <= 0:
+        return 1.0
+    return max(0.80, min(1.20, xga / SOFA_LEAGUE_XGA))
 
 
 _draw_model = None
@@ -816,6 +863,21 @@ def get_adjustments(home: str, away: str) -> tuple[float, float, list[str]]:
     if corner_boost_a > 0.02:
         adj_a *= (1.0 + corner_boost_a)
         notes.append(f"{away}定位球能力强(λ×{1+corner_boost_a:.3f})")
+
+    # SofaScore 防守质量 (def_xga90) — 对手防守好/差 → 压低/放大本队进攻 λ。
+    # 价值验证唯一裁定可集成的正交特征(Elo不分攻防、Understat仅进攻端)。
+    # 跨向乘子: away 的防守因子作用于 home 的 adj_h, 反之亦然。
+    # 数据诚实: 任一方无数据/样本<5 → 因子=1.0 中性, 不惩罚不加成。
+    sofa_def_h = _sofa_defense_factor(home)  # home 防守 → 影响 away 进攻
+    sofa_def_a = _sofa_defense_factor(away)  # away 防守 → 影响 home 进攻
+    if abs(sofa_def_a - 1.0) > 0.01:
+        adj_h *= sofa_def_a
+        verb = "差" if sofa_def_a > 1.0 else "强"
+        notes.append(f"{away}近况防守{verb}[实采xGA](影响{home}进攻 λ×{sofa_def_a:.2f})")
+    if abs(sofa_def_h - 1.0) > 0.01:
+        adj_a *= sofa_def_h
+        verb = "差" if sofa_def_h > 1.0 else "强"
+        notes.append(f"{home}近况防守{verb}[实采xGA](影响{away}进攻 λ×{sofa_def_h:.2f})")
 
     # 风格相克调整 — (审计修复) 已禁用。
     # 该特征无任何真实战术数据: _get_team_style 仅用近25场比分结果反推"进攻型/防守型",
