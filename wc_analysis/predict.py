@@ -490,19 +490,23 @@ def weighted_goals_rate(team_cn: str, days_back: int = 365) -> tuple[float, floa
 
 
 _motivation_cache = None
+_motivation_mtime = 0
 def _load_motivation() -> dict:
-    """加载战意系数 (实时积分/出线情况 → 期望进球调整系数)。"""
-    global _motivation_cache
-    if _motivation_cache is not None:
-        return _motivation_cache
+    """加载战意系数 (实时积分/出线情况 → 期望进球调整系数)。
+    每次检查文件 mtime, 如果 standings.json 更新了就重新加载。"""
+    global _motivation_cache, _motivation_mtime
     f = DATA_DIR / "standings.json"
-    if f.exists():
-        try:
-            d = json.loads(f.read_text(encoding="utf-8"))
-            _motivation_cache = d.get("motivation", {})
-        except Exception:
-            _motivation_cache = {}
-    else:
+    if not f.exists():
+        _motivation_cache = {}
+        return _motivation_cache
+    mtime = f.stat().st_mtime
+    if _motivation_cache is not None and mtime == _motivation_mtime:
+        return _motivation_cache  # 缓存有效
+    try:
+        d = json.loads(f.read_text(encoding="utf-8"))
+        _motivation_cache = d.get("motivation", {})
+        _motivation_mtime = mtime
+    except Exception:
         _motivation_cache = {}
     return _motivation_cache
 

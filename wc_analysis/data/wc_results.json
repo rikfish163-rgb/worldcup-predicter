@@ -1,21 +1,575 @@
 {
-  "_comment": "WC 2026 已完成的比赛 (用于实时积分计算)。每条记录: home, away, home_goals, away_goals, date",
+  "_comment": "WC 2026 已完成比赛 (Wikipedia 抓取)",
   "results": [
-    {"date": "2026-06-11", "home": "Mexico", "away": "South Africa", "home_goals": 2, "away_goals": 0, "group": "A"},
-    {"date": "2026-06-11", "home": "South Korea", "away": "Czech Republic", "home_goals": 2, "away_goals": 1, "group": "A"},
-    {"date": "2026-06-18", "home": "Mexico", "away": "South Korea", "home_goals": 1, "away_goals": 0, "group": "A"},
-    {"date": "2026-06-24", "home": "Czech Republic", "away": "Mexico", "home_goals": 0, "away_goals": 3, "group": "A"},
-    {"date": "2026-06-11", "home": "Switzerland", "away": "Canada", "home_goals": 0, "away_goals": 1, "group": "B"},
-    {"date": "2026-06-15", "home": "Bosnia and Herzegovina", "away": "Qatar", "home_goals": 2, "away_goals": 0, "group": "B"},
-    {"date": "2026-06-20", "home": "Switzerland", "away": "Bosnia and Herzegovina", "home_goals": 1, "away_goals": 1, "group": "B"},
-    {"date": "2026-06-25", "home": "Canada", "away": "Qatar", "home_goals": 3, "away_goals": 0, "group": "B"},
-    {"date": "2026-06-12", "home": "Brazil", "away": "Morocco", "home_goals": 2, "away_goals": 0, "group": "C"},
-    {"date": "2026-06-16", "home": "Scotland", "away": "Haiti", "home_goals": 1, "away_goals": 0, "group": "C"},
-    {"date": "2026-06-22", "home": "Brazil", "away": "Scotland", "home_goals": 2, "away_goals": 0, "group": "C"},
-    {"date": "2026-06-25", "home": "Morocco", "away": "Haiti", "home_goals": 3, "away_goals": 1, "group": "C"},
-    {"date": "2026-06-13", "home": "United States", "away": "Australia", "home_goals": 1, "away_goals": 0, "group": "D"},
-    {"date": "2026-06-17", "home": "Paraguay", "away": "Turkey", "home_goals": 0, "away_goals": 1, "group": "D"},
-    {"date": "2026-06-23", "home": "United States", "away": "Paraguay", "home_goals": 2, "away_goals": 1, "group": "D"},
-    {"date": "2026-06-26", "home": "Australia", "away": "Turkey", "home_goals": null, "away_goals": null, "group": "D", "scheduled": true}
+    {
+      "date": "2026-06-11",
+      "home": "Mexico",
+      "away": "South Africa",
+      "home_goals": 2,
+      "away_goals": 0,
+      "group": "A"
+    },
+    {
+      "date": "2026-06-11",
+      "home": "South Korea",
+      "away": "Czech Republic",
+      "home_goals": 2,
+      "away_goals": 1,
+      "group": "A"
+    },
+    {
+      "date": "2026-06-18",
+      "home": "Czech Republic",
+      "away": "South Africa",
+      "home_goals": 1,
+      "away_goals": 1,
+      "group": "A"
+    },
+    {
+      "date": "2026-06-18",
+      "home": "Mexico",
+      "away": "South Korea",
+      "home_goals": 1,
+      "away_goals": 0,
+      "group": "A"
+    },
+    {
+      "date": "2026-06-24",
+      "home": "Czech Republic",
+      "away": "Mexico",
+      "home_goals": 0,
+      "away_goals": 3,
+      "group": "A"
+    },
+    {
+      "date": "2026-06-24",
+      "home": "South Africa",
+      "away": "South Korea",
+      "home_goals": 1,
+      "away_goals": 0,
+      "group": "A"
+    },
+    {
+      "date": "2026-06-12",
+      "home": "Canada",
+      "away": "Bosnia and Herzegovina",
+      "home_goals": 1,
+      "away_goals": 1,
+      "group": "B"
+    },
+    {
+      "date": "2026-06-13",
+      "home": "Qatar",
+      "away": "Switzerland",
+      "home_goals": 1,
+      "away_goals": 1,
+      "group": "B"
+    },
+    {
+      "date": "2026-06-18",
+      "home": "Switzerland",
+      "away": "Bosnia and Herzegovina",
+      "home_goals": 4,
+      "away_goals": 1,
+      "group": "B"
+    },
+    {
+      "date": "2026-06-18",
+      "home": "Canada",
+      "away": "Qatar",
+      "home_goals": 6,
+      "away_goals": 0,
+      "group": "B"
+    },
+    {
+      "date": "2026-06-24",
+      "home": "Switzerland",
+      "away": "Canada",
+      "home_goals": 2,
+      "away_goals": 1,
+      "group": "B"
+    },
+    {
+      "date": "2026-06-24",
+      "home": "Bosnia and Herzegovina",
+      "away": "Qatar",
+      "home_goals": 3,
+      "away_goals": 1,
+      "group": "B"
+    },
+    {
+      "date": "2026-06-13",
+      "home": "Brazil",
+      "away": "Morocco",
+      "home_goals": 1,
+      "away_goals": 1,
+      "group": "C"
+    },
+    {
+      "date": "2026-06-13",
+      "home": "Haiti",
+      "away": "Scotland",
+      "home_goals": 0,
+      "away_goals": 1,
+      "group": "C"
+    },
+    {
+      "date": "2026-06-19",
+      "home": "Scotland",
+      "away": "Morocco",
+      "home_goals": 0,
+      "away_goals": 1,
+      "group": "C"
+    },
+    {
+      "date": "2026-06-19",
+      "home": "Brazil",
+      "away": "Haiti",
+      "home_goals": 3,
+      "away_goals": 0,
+      "group": "C"
+    },
+    {
+      "date": "2026-06-24",
+      "home": "Scotland",
+      "away": "Brazil",
+      "home_goals": 0,
+      "away_goals": 3,
+      "group": "C"
+    },
+    {
+      "date": "2026-06-24",
+      "home": "Morocco",
+      "away": "Haiti",
+      "home_goals": 4,
+      "away_goals": 2,
+      "group": "C"
+    },
+    {
+      "date": "2026-06-12",
+      "home": "United States",
+      "away": "Paraguay",
+      "home_goals": 4,
+      "away_goals": 1,
+      "group": "D"
+    },
+    {
+      "date": "2026-06-13",
+      "home": "Australia",
+      "away": "Turkey",
+      "home_goals": 2,
+      "away_goals": 0,
+      "group": "D"
+    },
+    {
+      "date": "2026-06-19",
+      "home": "United States",
+      "away": "Australia",
+      "home_goals": 2,
+      "away_goals": 0,
+      "group": "D"
+    },
+    {
+      "date": "2026-06-19",
+      "home": "Turkey",
+      "away": "Paraguay",
+      "home_goals": 0,
+      "away_goals": 1,
+      "group": "D"
+    },
+    {
+      "date": "2026-06-25",
+      "home": "Turkey",
+      "away": "United States",
+      "home_goals": 3,
+      "away_goals": 2,
+      "group": "D"
+    },
+    {
+      "date": "2026-06-25",
+      "home": "Paraguay",
+      "away": "Australia",
+      "home_goals": 0,
+      "away_goals": 0,
+      "group": "D"
+    },
+    {
+      "date": "2026-06-14",
+      "home": "Germany",
+      "away": "Curaçao",
+      "home_goals": 7,
+      "away_goals": 1,
+      "group": "E"
+    },
+    {
+      "date": "2026-06-14",
+      "home": "Ivory Coast",
+      "away": "Ecuador",
+      "home_goals": 1,
+      "away_goals": 0,
+      "group": "E"
+    },
+    {
+      "date": "2026-06-20",
+      "home": "Germany",
+      "away": "Ivory Coast",
+      "home_goals": 2,
+      "away_goals": 1,
+      "group": "E"
+    },
+    {
+      "date": "2026-06-20",
+      "home": "Ecuador",
+      "away": "Curaçao",
+      "home_goals": 0,
+      "away_goals": 0,
+      "group": "E"
+    },
+    {
+      "date": "2026-06-25",
+      "home": "Curaçao",
+      "away": "Ivory Coast",
+      "home_goals": 0,
+      "away_goals": 2,
+      "group": "E"
+    },
+    {
+      "date": "2026-06-25",
+      "home": "Ecuador",
+      "away": "Germany",
+      "home_goals": 2,
+      "away_goals": 1,
+      "group": "E"
+    },
+    {
+      "date": "2026-06-14",
+      "home": "Netherlands",
+      "away": "Japan",
+      "home_goals": 2,
+      "away_goals": 2,
+      "group": "F"
+    },
+    {
+      "date": "2026-06-14",
+      "home": "Sweden",
+      "away": "Tunisia",
+      "home_goals": 5,
+      "away_goals": 1,
+      "group": "F"
+    },
+    {
+      "date": "2026-06-20",
+      "home": "Netherlands",
+      "away": "Sweden",
+      "home_goals": 5,
+      "away_goals": 1,
+      "group": "F"
+    },
+    {
+      "date": "2026-06-20",
+      "home": "Tunisia",
+      "away": "Japan",
+      "home_goals": 0,
+      "away_goals": 4,
+      "group": "F"
+    },
+    {
+      "date": "2026-06-25",
+      "home": "Japan",
+      "away": "Sweden",
+      "home_goals": 1,
+      "away_goals": 1,
+      "group": "F"
+    },
+    {
+      "date": "2026-06-25",
+      "home": "Tunisia",
+      "away": "Netherlands",
+      "home_goals": 1,
+      "away_goals": 3,
+      "group": "F"
+    },
+    {
+      "date": "2026-06-15",
+      "home": "Belgium",
+      "away": "Egypt",
+      "home_goals": 1,
+      "away_goals": 1,
+      "group": "G"
+    },
+    {
+      "date": "2026-06-15",
+      "home": "Iran",
+      "away": "New Zealand",
+      "home_goals": 2,
+      "away_goals": 2,
+      "group": "G"
+    },
+    {
+      "date": "2026-06-21",
+      "home": "Belgium",
+      "away": "Iran",
+      "home_goals": 0,
+      "away_goals": 0,
+      "group": "G"
+    },
+    {
+      "date": "2026-06-21",
+      "home": "New Zealand",
+      "away": "Egypt",
+      "home_goals": 1,
+      "away_goals": 3,
+      "group": "G"
+    },
+    {
+      "date": "2026-06-26",
+      "home": "Egypt",
+      "away": "Iran",
+      "home_goals": 1,
+      "away_goals": 1,
+      "group": "G"
+    },
+    {
+      "date": "2026-06-26",
+      "home": "New Zealand",
+      "away": "Belgium",
+      "home_goals": 1,
+      "away_goals": 5,
+      "group": "G"
+    },
+    {
+      "date": "2026-06-15",
+      "home": "Spain",
+      "away": "Cape Verde",
+      "home_goals": 0,
+      "away_goals": 0,
+      "group": "H"
+    },
+    {
+      "date": "2026-06-15",
+      "home": "Saudi Arabia",
+      "away": "Uruguay",
+      "home_goals": 1,
+      "away_goals": 1,
+      "group": "H"
+    },
+    {
+      "date": "2026-06-21",
+      "home": "Spain",
+      "away": "Saudi Arabia",
+      "home_goals": 4,
+      "away_goals": 0,
+      "group": "H"
+    },
+    {
+      "date": "2026-06-21",
+      "home": "Uruguay",
+      "away": "Cape Verde",
+      "home_goals": 2,
+      "away_goals": 2,
+      "group": "H"
+    },
+    {
+      "date": "2026-06-26",
+      "home": "Cape Verde",
+      "away": "Saudi Arabia",
+      "home_goals": 0,
+      "away_goals": 0,
+      "group": "H"
+    },
+    {
+      "date": "2026-06-26",
+      "home": "Uruguay",
+      "away": "Spain",
+      "home_goals": 0,
+      "away_goals": 1,
+      "group": "H"
+    },
+    {
+      "date": "2026-06-16",
+      "home": "France",
+      "away": "Senegal",
+      "home_goals": 3,
+      "away_goals": 1,
+      "group": "I"
+    },
+    {
+      "date": "2026-06-16",
+      "home": "Iraq",
+      "away": "Norway",
+      "home_goals": 1,
+      "away_goals": 4,
+      "group": "I"
+    },
+    {
+      "date": "2026-06-22",
+      "home": "France",
+      "away": "Iraq",
+      "home_goals": 3,
+      "away_goals": 0,
+      "group": "I"
+    },
+    {
+      "date": "2026-06-22",
+      "home": "Norway",
+      "away": "Senegal",
+      "home_goals": 3,
+      "away_goals": 2,
+      "group": "I"
+    },
+    {
+      "date": "2026-06-26",
+      "home": "Norway",
+      "away": "France",
+      "home_goals": 1,
+      "away_goals": 4,
+      "group": "I"
+    },
+    {
+      "date": "2026-06-26",
+      "home": "Senegal",
+      "away": "Iraq",
+      "home_goals": 5,
+      "away_goals": 0,
+      "group": "I"
+    },
+    {
+      "date": "2026-06-16",
+      "home": "Argentina",
+      "away": "Algeria",
+      "home_goals": 3,
+      "away_goals": 0,
+      "group": "J"
+    },
+    {
+      "date": "2026-06-16",
+      "home": "Austria",
+      "away": "Jordan",
+      "home_goals": 3,
+      "away_goals": 1,
+      "group": "J"
+    },
+    {
+      "date": "2026-06-22",
+      "home": "Argentina",
+      "away": "Austria",
+      "home_goals": 2,
+      "away_goals": 0,
+      "group": "J"
+    },
+    {
+      "date": "2026-06-22",
+      "home": "Jordan",
+      "away": "Algeria",
+      "home_goals": 1,
+      "away_goals": 2,
+      "group": "J"
+    },
+    {
+      "date": "2026-06-17",
+      "home": "Portugal",
+      "away": "DR Congo",
+      "home_goals": 1,
+      "away_goals": 1,
+      "group": "K"
+    },
+    {
+      "date": "2026-06-17",
+      "home": "Uzbekistan",
+      "away": "Colombia",
+      "home_goals": 1,
+      "away_goals": 3,
+      "group": "K"
+    },
+    {
+      "date": "2026-06-23",
+      "home": "Portugal",
+      "away": "Uzbekistan",
+      "home_goals": 5,
+      "away_goals": 0,
+      "group": "K"
+    },
+    {
+      "date": "2026-06-23",
+      "home": "Colombia",
+      "away": "DR Congo",
+      "home_goals": 1,
+      "away_goals": 0,
+      "group": "K"
+    },
+    {
+      "date": "2026-06-17",
+      "home": "England",
+      "away": "Croatia",
+      "home_goals": 4,
+      "away_goals": 2,
+      "group": "L"
+    },
+    {
+      "date": "2026-06-17",
+      "home": "Ghana",
+      "away": "Panama",
+      "home_goals": 1,
+      "away_goals": 0,
+      "group": "L"
+    },
+    {
+      "date": "2026-06-23",
+      "home": "England",
+      "away": "Ghana",
+      "home_goals": 0,
+      "away_goals": 0,
+      "group": "L"
+    },
+    {
+      "date": "2026-06-23",
+      "home": "Panama",
+      "away": "Croatia",
+      "home_goals": 0,
+      "away_goals": 1,
+      "group": "L"
+    },
+    {
+      "date": "2026-06-27",
+      "home": "Algeria",
+      "away": "Austria",
+      "home_goals": 3,
+      "away_goals": 3
+    },
+    {
+      "date": "2026-06-27",
+      "home": "Jordan",
+      "away": "Argentina",
+      "home_goals": 1,
+      "away_goals": 3
+    },
+    {
+      "date": "2026-06-27",
+      "home": "Colombia",
+      "away": "Portugal",
+      "home_goals": 0,
+      "away_goals": 0
+    },
+    {
+      "date": "2026-06-27",
+      "home": "DR Congo",
+      "away": "Uzbekistan",
+      "home_goals": 3,
+      "away_goals": 1
+    },
+    {
+      "date": "2026-06-27",
+      "home": "Panama",
+      "away": "England",
+      "home_goals": 0,
+      "away_goals": 2
+    },
+    {
+      "date": "2026-06-27",
+      "home": "Croatia",
+      "away": "Ghana",
+      "home_goals": 2,
+      "away_goals": 1
+    }
   ]
 }

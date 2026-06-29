@@ -1,0 +1,16 @@
+{
+  "rho": -0.12,
+  "avg_goals": 2.5,
+  "home_adv": 0.4729,
+  "evolved_by": "evolve_groupstage.py",
+  "evolved_at": "2026-06-29T21:25:38",
+  "sample_n": 18,
+  "low_confidence": false,
+  "market_weight_hint": "保持 (让球盘 0.70 / 常规盘 0.60)",
+  "decisions": [
+    "平局被高估 +11.1% -> 减小|RHO|: -0.200->-0.120",
+    "强队被低估 -13.4% (n=12) -> 模型对强队偏保守, 市场权重可微降",
+    "主胜被低估 -12.1% -> 升 HOME_ADV: 0.400->0.473",
+    "AVG_GOALS 维持 2.50"
+  ]
+}
