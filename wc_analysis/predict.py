@@ -258,6 +258,21 @@ def _load_xg_profiles() -> dict:
     return _xg_cache
 
 
+def _xg_factor(xg_profiles: dict, team_cn: str) -> float:
+    """xG 进攻质量乘子(审计修复)。
+    返回 1.0(中性, 不改变 λ)当: 无档案 / 无 attack_xg90 / players_found<3(样本不可靠,
+    如刚果金1人、卡塔尔0人)。这样缺失/不可靠队与有效队走同一尺度路径, 消除原"缺失队跳过
+    整块、有效队被cap钳到-4.5%"的非对称偏差。有效时按 attack_xg90/0.35 缩放并封顶[0.7,1.4]。
+    """
+    prof = xg_profiles.get(team_cn)
+    if not prof:
+        return 1.0
+    axg = prof.get("attack_xg90")
+    if not axg or prof.get("players_found", 0) < 3:
+        return 1.0
+    return max(0.7, min(1.4, axg / 0.35))  # 0.35=联赛平均npxG/90(硬编码基准, 来源待补)
+
+
 _draw_model = None
 def _predict_draw_prob(elo_h: float, elo_a: float, home_cn: str = None, away_cn: str = None) -> float | None:
     """用训练好的逻辑回归预测平局概率(v2: 8特征含风格+交锋)。"""
@@ -372,15 +387,23 @@ def _get_h2h_draw_rate(home_cn: str, away_cn: str) -> float:
     return sum(h2h) / len(h2h)
 
 
-def _get_cohesion_factor(team_cn: str) -> float:
-    """综合磨合度因子: 自动量化 + 手动录入。返回 λ 乘数。"""
+def _get_cohesion_factor(team_cn: str, knockout: bool = False) -> float:
+    """综合磨合度因子: 自动量化 + 手动录入。返回 λ 乘数。
+
+    (审计修复) 淘汰赛阶段(knockout=True)跳过 first_world_cup=true 的手动惩罚:
+    这些队已踢满3场小组赛, "首次世界杯/集训不足/未磨合"前提已被证伪, 继续惩罚等于
+    对刚证明前提错误的球队双重扣分。改为穿透到下方自动量化逻辑(随新赛果自适应)。
+    """
     factor = 1.0
 
     # 手动定性因子(优先级最高,人工判断)
     if COHESION_FILE.exists():
         coh = json.loads(COHESION_FILE.read_text(encoding="utf-8"))
         if team_cn in coh:
-            return coh[team_cn].get("lambda_factor", 1.0)
+            entry = coh[team_cn]
+            # 淘汰赛阶段忽略"首次世界杯"前提的磨合惩罚, 穿透到自动量化
+            if not (knockout and entry.get("first_world_cup")):
+                return entry.get("lambda_factor", 1.0)
 
     # 自动量化: 基于近期比赛数和一致性
     entry = TEAM_DB.get(team_cn)
@@ -489,6 +512,56 @@ def weighted_goals_rate(team_cn: str, days_back: int = 365) -> tuple[float, floa
     return (weighted_scored / total_weight, weighted_conceded / total_weight)
 
 
+# 小组赛专有战意标签 — 这些状态在淘汰赛(单场淘汰人人必拼)毫无意义,
+# 一旦阶段进入淘汰赛必须忽略, 否则会用过时的小组赛系数污染 λ。
+_GROUP_STAGE_STATUSES = {
+    "qualified_top2", "fighting_3rd", "eliminated", "near_qualified",
+}
+
+
+def _is_knockout_stage() -> bool:
+    """判定当前是否已进入淘汰赛阶段(硬保护)。
+    依据: (1) standings.json 显式写了 stage; (2) wc_results 完成场次 >= 72(48队×3÷2,
+    小组赛全部打完); (3) 当前 predictions.json 已生成淘汰赛对阵。任一成立即判定 knockout。
+    淘汰赛阶段下小组赛战意逻辑(出线/已淘汰/已晋级轮换)全部失效。"""
+    # (1) standings.json 显式 stage
+    f = DATA_DIR / "standings.json"
+    if f.exists():
+        try:
+            d = json.loads(f.read_text(encoding="utf-8"))
+            if str(d.get("stage", "")).lower() == "knockout":
+                return True
+        except Exception:
+            pass
+    # (2) 小组赛 72 场全部完成
+    rf = DATA_DIR / "wc_results.json"
+    if rf.exists():
+        try:
+            r = json.loads(rf.read_text(encoding="utf-8"))
+            results = r.get("results", r) if isinstance(r, dict) else r
+            if isinstance(results, list) and len(results) >= 72:
+                return True
+        except Exception:
+            pass
+    return False
+
+
+def _injuries_is_fresh() -> bool:
+    """injuries.json 是否仍然时效新鲜(审计修复)。
+    手动 injuries.json 无 as_of 字段, 以文件 mtime 对比 standings.json(随赛果更新)的
+    mtime: 若伤情文件早于最新赛果同步, 视为过时停用, 避免旧伤情污染 λ。"""
+    inj = INJURIES_FILE
+    st = DATA_DIR / "standings.json"
+    if not inj.exists():
+        return False
+    if not st.exists():
+        return True  # 无参照, 保守保留
+    try:
+        return inj.stat().st_mtime >= st.stat().st_mtime
+    except OSError:
+        return True
+
+
 _motivation_cache = None
 _motivation_mtime = 0
 def _load_motivation() -> dict:
@@ -512,15 +585,25 @@ def _load_motivation() -> dict:
 
 
 def _get_team_motivation(team_en: str) -> tuple[float, str]:
-    """根据球队英文名取战意系数和状态。返回 (motivation_factor, status_label)。"""
+    """根据球队英文名取战意系数和状态。返回 (motivation_factor, status_label)。
+
+    (审计修复) 淘汰赛阶段硬保护: 小组赛排名战意(出线/已淘汰/已晋级轮换)在单场淘汰
+    赛制下无意义, 且 standings.json 仍挂着过时的小组赛状态。淘汰赛阶段一律返回 1.0,
+    彻底关闭小组赛战意逻辑, 杜绝残留数据污染 λ。
+    """
     if not team_en:
         return 1.0, "unknown"
+    if _is_knockout_stage():
+        return 1.0, "knockout"
     m = _load_motivation()
     info = m.get(team_en)
     if not info:
         return 1.0, "unknown"
-    factor = float(info.get("motivation", 1.0))
     status = info.get("status", "fighting")
+    # 防御: 即便 key 命中, 若是小组赛专有标签也强制中性(双保险, 阶段判定之外再兜底)
+    if status in _GROUP_STAGE_STATUSES:
+        return 1.0, "knockout"
+    factor = float(info.get("motivation", 1.0))
     label_map = {
         "qualified_top2": "已出线(轮换)",
         "near_qualified": "接近出线",
@@ -560,25 +643,21 @@ def predict_match(elo_h: float, elo_a: float, adj_h: float = 1.0, adj_a: float =
         wgr_h = weighted_goals_rate(home_cn)
         if wgr_h is not None:
             hist_lam_h = wgr_h[0]
-            lam_h = 0.60 * lam_h + 0.25 * hist_lam_h
+            # (审计修复 BUG-1) Elo/历史权重归一: 原 0.60+0.25=0.85 会静默把 λ 缩小15%,
+            # 且 xG 块乘的是已缩水值无法补回。除以 0.85 复原尺度, 权重和=1.0。
+            lam_h = (0.60 * lam_h + 0.25 * hist_lam_h) / 0.85
             # xG 档案进攻质量微调
-            if home_cn in xg_profiles and xg_profiles[home_cn].get("attack_xg90"):
-                xg_factor = xg_profiles[home_cn]["attack_xg90"] / 0.35  # 0.35=联赛平均npxG/90
-                xg_factor = max(0.7, min(1.4, xg_factor))  # 封顶避免极端
-                lam_h = 0.85 * lam_h + 0.15 * (lam_h * xg_factor)
-        else:
-            lam_h = 0.70 * lam_h + 0.30 * lam_h  # 无历史数据不变
+            # (审计修复 BUG-2 + 门控) 仅当样本足够(players_found>=3)且有 attack_xg90 时启用;
+            # 否则中性(xg_factor=1.0, 不改变 λ), 使缺失队与有效队走同一尺度, 消除非对称偏差。
+            xg_factor = _xg_factor(xg_profiles, home_cn)
+            lam_h = 0.85 * lam_h + 0.15 * (lam_h * xg_factor)
     if away_cn:
         wgr_a = weighted_goals_rate(away_cn)
         if wgr_a is not None:
             hist_lam_a = wgr_a[0]
-            lam_a = 0.60 * lam_a + 0.25 * hist_lam_a
-            if away_cn in xg_profiles and xg_profiles[away_cn].get("attack_xg90"):
-                xg_factor = xg_profiles[away_cn]["attack_xg90"] / 0.35
-                xg_factor = max(0.7, min(1.4, xg_factor))
-                lam_a = 0.85 * lam_a + 0.15 * (lam_a * xg_factor)
-        else:
-            lam_a = 0.70 * lam_a + 0.30 * lam_a
+            lam_a = (0.60 * lam_a + 0.25 * hist_lam_a) / 0.85
+            xg_factor = _xg_factor(xg_profiles, away_cn)
+            lam_a = 0.85 * lam_a + 0.15 * (lam_a * xg_factor)
 
     lam_h = max(lam_h, 0.25)
     lam_a = max(lam_a, 0.25)
@@ -700,39 +779,27 @@ def get_corner_boost(team: str) -> float:
     Returns:
         λ 加成(0-0.15),直接乘到 λ 上(如 λ × (1 + boost))
     """
-    # 1. 优先读 corners.json
+    # 仅对 corners.json 中有真实定位球数据的队伍加成。
+    # (审计修复) 删除原 Elo fallback: 用整体实力Elo冒充定位球能力是编造特征
+    # (强队≠定位球强队, 二者无统计关联), 且会给90%无数据队伍最高15%无依据加成。
+    # 无 corners.json 数据 → 返回 0.0 (不加成)。
     if CORNERS_FILE.exists():
         try:
             corners_data = json.loads(CORNERS_FILE.read_text(encoding="utf-8"))
             if team in corners_data:
                 entry = corners_data[team]
                 cpg = entry.get("corners_per_game", 0)  # 场均角球数
-                ctg = entry.get("corners_to_goals", 0)  # 角球转化率
+                ctg = entry.get("corners_to_goals", 0)  # 角球转化率(口径存疑, 见 corners.json)
 
-                # 综合评分: 场均角球数反映控制力,转化率反映效率
-                # 欧洲顶级队伍: cpg ~6-7, ctg ~0.10-0.12
-                # 归一化: cpg/7 × 0.5 + ctg/0.12 × 0.5, 上限 0.15
-                score = (min(cpg / 7.0, 1.0) * 0.5 + min(ctg / 0.12, 1.0) * 0.5) * 0.15
+                # 综合评分: 场均角球数反映控制力,转化率反映效率。
+                # 归一化基准用固定值(cpg/8, ctg/0.15)而非写死天花板队,
+                # 避免数据集中最强的队被人为顶到 min 上限(原 cpg/7、ctg/0.12 让德国撞顶)。
+                score = (min(cpg / 8.0, 1.0) * 0.5 + min(ctg / 0.15, 1.0) * 0.5) * 0.15
                 return round(score, 3)
         except (json.JSONDecodeError, KeyError, TypeError):
             pass
 
-    # 2. fallback: 用 Elo 估算
-    elo = get_elo(team)
-    if elo is None:
-        return 0.0
-
-    # Elo -> 角球能力映射
-    # 假设: Elo 2000+ → 0.12, Elo 1800 → 0.06, Elo 1500 → 0.0
-    # 线性映射: boost = max(0, (elo - 1500) / 500 * 0.12)
-    if elo >= 2000:
-        boost = 0.12
-    elif elo >= 1500:
-        boost = (elo - 1500) / 500 * 0.12
-    else:
-        boost = 0.0
-
-    return round(min(boost, 0.15), 3)
+    return 0.0
 
 
 def get_adjustments(home: str, away: str) -> tuple[float, float, list[str]]:
@@ -750,26 +817,18 @@ def get_adjustments(home: str, away: str) -> tuple[float, float, list[str]]:
         adj_a *= (1.0 + corner_boost_a)
         notes.append(f"{away}定位球能力强(λ×{1+corner_boost_a:.3f})")
 
-    # 风格相克调整
-    h_style = _get_team_style(home)
-    a_style = _get_team_style(away)
-    if h_style and a_style:
-        # 进攻型 vs 防守型: 进攻方λ打折(被克制), 防守方λ不变
-        h_is_attacker = h_style["attack"] > 1.8 and h_style["tempo"] > 2.8
-        a_is_attacker = a_style["attack"] > 1.8 and a_style["tempo"] > 2.8
-        h_is_defensive = a_style["low_block"] > 0.65 and a_style["attack"] < 1.6
-        a_is_defensive = h_style["low_block"] > 0.65 and h_style["attack"] < 1.6
-
-        if h_is_attacker and h_is_defensive:
-            adj_h *= 0.88
-            notes.append(f"风格相克: {home}进攻被{away}防反克制(λ×0.88)")
-        elif a_is_attacker and a_is_defensive:
-            adj_a *= 0.88
-            notes.append(f"风格相克: {away}进攻被{home}防反克制(λ×0.88)")
+    # 风格相克调整 — (审计修复) 已禁用。
+    # 该特征无任何真实战术数据: _get_team_style 仅用近25场比分结果反推"进攻型/防守型",
+    # 混入友谊赛/各洲预选, 指标反映赛程强度而非风格; 分类逻辑自相矛盾(强攻击队被判为防守队);
+    # 0.88 系数与 1.8/2.8/0.65 阈值均为无回测依据的拍脑袋值。带来噪声而非信号, 故移除。
+    # 如需恢复: 必须先用 backtest_v2 消融实验标定系数, 并改用真实 xG/控球/压迫数据。
 
     # 磨合度/经验因子 (自动量化 + 手动定性)
+    # (审计修复) 淘汰赛阶段跳过"首次世界杯未磨合"等小组赛前提的手动惩罚:
+    # 被罚队已踢满3场小组赛, "未磨合"前提被证伪; 让程序穿透到自动量化逻辑。
+    knockout = _is_knockout_stage()
     for team, adj_key in [(home, "adj_h"), (away, "adj_a")]:
-        cohesion_factor = _get_cohesion_factor(team)
+        cohesion_factor = _get_cohesion_factor(team, knockout=knockout)
         if cohesion_factor != 1.0:
             if adj_key == "adj_h":
                 adj_h *= cohesion_factor
@@ -779,7 +838,10 @@ def get_adjustments(home: str, away: str) -> tuple[float, float, list[str]]:
                 notes.append(f"{team}磨合度低(λ×{cohesion_factor:.2f})")
 
     # 伤病 (从 injuries.json 读取)
-    if INJURIES_FILE.exists():
+    # (审计修复) 时效门控: injuries.json 为手动维护且无 as_of 字段。若其 mtime 早于
+    # standings.json(最新赛果同步时间), 视为过时数据并停用 — 防止小组赛结束前的旧伤情
+    # (如"德容存疑"但其实已康复首发)继续以最高优先级污染 λ。
+    if INJURIES_FILE.exists() and _injuries_is_fresh():
         inj = json.loads(INJURIES_FILE.read_text(encoding="utf-8"))
         for team, adj_key in [(home, "adj_h"), (away, "adj_a")]:
             if team in inj:
@@ -1653,7 +1715,7 @@ footer.page-footer {{
 {"".join(cards_html)}
 
 <footer class="page-footer">
-  Elo锚定双泊松 · Dixon-Coles τ (ρ={RHO}) · 平局逻辑回归(8特征) · 风格相克 · 磨合度 · xG档案 · 角球能力<br>
+  Elo锚定双泊松 · Dixon-Coles τ (ρ={RHO}) · 平局逻辑回归(8特征) · 磨合度 · xG档案 · 定位球(仅限有真实角球数据的队)<br>
   让球盘对数池校准 (市场70% + 模型30%) · 数据: sporttery.cn · eloratings.net · open-meteo<br>
   仅供研究参考，不构成投注建议
 </footer>
