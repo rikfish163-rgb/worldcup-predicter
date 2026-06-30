@@ -1173,6 +1173,17 @@ def _mot_color(motivation: float) -> str:
 
 def render_html(predictions: list[dict]) -> str:
     gen_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    # 记分牌数据: 当前进化参数 + 最近回测命中率 + 版本号(predictions.json mtime, 供前端轮询)
+    _pf = DATA_DIR / "predictions.json"
+    page_version = int(_pf.stat().st_mtime) if _pf.exists() else 0
+    _hit_pct = ""
+    if _PARAMS_OVERRIDE.exists():
+        try:
+            _ov = __import__("json").loads(_PARAMS_OVERRIDE.read_text(encoding="utf-8"))
+            if _ov.get("hit_rate") is not None:
+                _hit_pct = f"{_ov['hit_rate']*100:.0f}%"
+        except Exception:
+            pass
     # 数据来源/新鲜度
     fresh = DATA_DIR / "odds_parsed_fresh.json"
     if fresh.exists():
@@ -1189,7 +1200,7 @@ def render_html(predictions: list[dict]) -> str:
         else:
             data_source = "未知"
     cards_html = []
-    for p in predictions:
+    for _card_i, p in enumerate(predictions):
         # ═══ 主显示: 让球盘后验概率 ═══
         ph = p["hhad_posterior"]["h"]
         pd_ = p["hhad_posterior"]["d"]
@@ -1348,7 +1359,7 @@ def render_html(predictions: list[dict]) -> str:
     </div>'''
 
         # 主让球盘 (HHAD) - 总是显示
-        card = f'''<article class="match">
+        card = f'''<article class="match" style="--i:{_card_i}">
   <header>
     <div class="matchup">
       <span class="team home">{p["home"]}</span>
@@ -1368,9 +1379,9 @@ def render_html(predictions: list[dict]) -> str:
 
   <div class="prob-visual">
     <div class="bar-container">
-      <div class="bar bar-h" style="width:{bar_h}%"><span>{ph:.0%}</span></div>
-      <div class="bar bar-d" style="width:{bar_d}%"><span>{pd_:.0%}</span></div>
-      <div class="bar bar-a" style="width:{bar_a}%"><span>{pa:.0%}</span></div>
+      <div class="bar bar-h" style="--w:{bar_h}%"><span>{ph:.0%}</span></div>
+      <div class="bar bar-d" style="--w:{bar_d}%"><span>{pd_:.0%}</span></div>
+      <div class="bar bar-a" style="--w:{bar_a}%"><span>{pa:.0%}</span></div>
     </div>
     <div class="bar-labels"><span>主让胜</span><span>平局</span><span>客让胜</span></div>
   </div>
@@ -1437,11 +1448,21 @@ body {{
   background: var(--bg);
   color: var(--text-1);
   line-height: 1.5;
-  padding: 40px 20px;
-  max-width: 720px;
+  padding: 28px 36px 60px;
+  max-width: 1680px;
   margin: 0 auto;
   position: relative;
   z-index: 1;
+}}
+@keyframes cardIn {{ from {{ opacity:0; transform:translateY(18px) }} to {{ opacity:1; transform:none }} }}
+@keyframes barGrow {{ from {{ width:0 }} to {{ width:var(--w) }} }}
+@keyframes dotPulse {{ 0%,100% {{ opacity:1; box-shadow:0 0 0 0 var(--green) }} 50% {{ opacity:.55; box-shadow:0 0 0 5px transparent }} }}
+@keyframes toastIn {{ from {{ opacity:0; transform:translate(-50%,-16px) }} to {{ opacity:1; transform:translate(-50%,0) }} }}
+.match-grid {{
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(440px, 1fr));
+  gap: 20px;
+  align-items: start;
 }}
 body::before {{
   content: '';
@@ -1461,20 +1482,61 @@ body::after {{
   pointer-events: none;
 }}
 header.page-header {{
-  margin-bottom: 40px;
-  padding-bottom: 24px;
-  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 16px;
+  margin-bottom: 28px;
+  padding: 18px 22px;
+  background: var(--surface);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+}}
+header.page-header .brand {{
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
 }}
 header.page-header h1 {{
-  font-size: 1.1em;
-  font-weight: 600;
-  letter-spacing: -0.02em;
-  margin-bottom: 4px;
+  font-size: 1.35em;
+  font-weight: 700;
+  letter-spacing: -0.03em;
 }}
 header.page-header .tagline {{
-  font-size: .8em;
+  font-size: .72em;
   color: var(--text-3);
 }}
+.scoreboard {{
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}}
+.sb-badge {{
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--mono);
+  font-size: .72em;
+  font-weight: 500;
+  padding: 5px 11px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: var(--bg);
+  color: var(--text-2);
+  white-space: nowrap;
+}}
+.sb-badge.live {{ color: var(--green); border-color: var(--green); }}
+.sb-badge.live .dot {{
+  width: 7px; height: 7px; border-radius: 50%;
+  background: var(--green);
+  animation: dotPulse 1.6s ease-in-out infinite;
+}}
+.sb-badge.evo {{ color: var(--accent); border-color: var(--accent); }}
+.sb-badge.hit {{ color: var(--green); }}
 .controls {{
   display: flex;
   gap: 8px;
@@ -1508,12 +1570,17 @@ header.page-header .tagline {{
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
   border: 1px solid var(--border);
-  border-radius: var(--radius);
+  border-radius: 14px;
   padding: 24px;
-  margin-bottom: 16px;
-  transition: border-color .2s;
+  transition: transform .25s cubic-bezier(.4,0,.2,1), box-shadow .25s, border-color .2s;
+  animation: cardIn .5s ease both;
+  animation-delay: calc(var(--i, 0) * 0.06s);
 }}
-.match:hover {{ border-color: var(--text-3); }}
+.match:hover {{
+  transform: translateY(-4px);
+  box-shadow: 0 12px 36px rgba(0,0,0,.45);
+  border-color: var(--accent);
+}}
 
 .match header {{
   margin-bottom: 16px;
@@ -1582,14 +1649,16 @@ header.page-header .tagline {{
   justify-content: center;
   font-family: var(--mono);
   font-size: .75em;
-  font-weight: 500;
-  transition: width .4s ease;
-  min-width: 30px;
+  font-weight: 600;
+  width: var(--w);
+  min-width: 32px;
+  animation: barGrow .85s cubic-bezier(.4,0,.2,1) both;
+  animation-delay: calc(var(--i, 0) * 0.06s + 0.25s);
 }}
-.bar span {{ opacity: .9; }}
-.bar-h {{ background: var(--green-bg); color: var(--green); }}
-.bar-d {{ background: var(--amber-bg); color: var(--amber); }}
-.bar-a {{ background: var(--blue-bg); color: var(--blue); }}
+.bar span {{ opacity: .95; }}
+.bar-h {{ background: var(--green-bg); color: var(--green); box-shadow: inset 0 0 12px -4px var(--green); }}
+.bar-d {{ background: var(--amber-bg); color: var(--amber); box-shadow: inset 0 0 12px -4px var(--amber); }}
+.bar-a {{ background: var(--blue-bg); color: var(--blue); box-shadow: inset 0 0 12px -4px var(--blue); }}
 .bar-labels {{
   display: flex;
   justify-content: space-between;
@@ -1754,16 +1823,52 @@ footer.page-footer {{
   color: var(--text-3);
   line-height: 1.7;
 }}
-@media (max-width: 500px) {{
-  body {{ padding: 20px 12px; }}
+#toast {{
+  position: fixed;
+  top: 20px; left: 50%;
+  transform: translate(-50%, 0);
+  z-index: 100;
+  background: var(--green);
+  color: #08120b;
+  font-weight: 600;
+  font-size: .82em;
+  padding: 10px 20px;
+  border-radius: 999px;
+  box-shadow: 0 6px 24px rgba(0,0,0,.4);
+  animation: toastIn .4s ease both;
+  display: none;
+}}
+.fading {{ transition: opacity .5s ease; opacity: 0 !important; }}
+@media (max-width: 920px) {{
+  .match-grid {{ grid-template-columns: 1fr; }}
+}}
+@media (max-width: 680px) {{
+  body {{ padding: 16px 12px 40px; }}
+  header.page-header {{ padding: 14px 16px; }}
+  header.page-header h1 {{ font-size: 1.15em; }}
   .match {{ padding: 16px; }}
   .matchup {{ flex-wrap: wrap; gap: 6px; }}
+  .scoreboard {{ gap: 6px; }}
+  .sb-badge {{ font-size: .66em; padding: 4px 9px; }}
+}}
+@media (prefers-reduced-motion: reduce) {{
+  *, .match, .bar, .sb-badge .dot {{ animation: none !important; transition: none !important; }}
+  .bar {{ width: var(--w); }}
 }}
 </style>
 </head><body>
+<div id="toast">⟳ 盘口已更新</div>
 <header class="page-header">
-  <h1>让球盘预测 (Asian Handicap Forecast)</h1>
-  <p class="tagline">Dixon-Coles + 体彩让球盘校准 · {gen_time} · 数据: {data_source}</p>
+  <div class="brand">
+    <h1>⚽ 世界杯让球盘预测</h1>
+    <span class="tagline">Dixon-Coles · {gen_time}</span>
+  </div>
+  <div class="scoreboard">
+    <span class="sb-badge live"><span class="dot"></span>LIVE</span>
+    <span class="sb-badge evo" title="自进化的Dixon-Coles相关系数">进化 ρ={RHO}</span>
+    {f'<span class="sb-badge hit" title="最近小组赛回测命中率">命中 {_hit_pct}</span>' if _hit_pct else ''}
+    <span class="sb-badge" title="数据来源/新鲜度">{data_source}</span>
+  </div>
 </header>
 
 <div class="controls">
@@ -1774,7 +1879,9 @@ footer.page-footer {{
   <span id="status" class="status-msg"></span>
 </div>
 
+<div class="match-grid">
 {"".join(cards_html)}
+</div>
 
 <footer class="page-footer">
   Elo锚定双泊松 · Dixon-Coles τ (ρ={RHO}) · 平局逻辑回归(8特征) · 磨合度 · xG档案 · 定位球(仅限有真实角球数据的队)<br>
@@ -1782,7 +1889,31 @@ footer.page-footer {{
   仅供研究参考，不构成投注建议
 </footer>
 <script>
-  setTimeout(()=>location.reload(), 60000);
+  // 当前页面数据版本(predictions.json mtime). 轮询此值, 变化即有新盘口数据。
+  window.__VER__ = {page_version};
+  function smoothReload() {{
+    document.body.classList.add('fading');
+    setTimeout(() => location.reload(), 520);
+  }}
+  function showToast(msg) {{
+    const t = document.getElementById('toast');
+    if (!t) return;
+    t.textContent = msg;
+    t.style.display = 'block';
+  }}
+  // 自动轮询: 每60s问后端版本号, 变化则提示+平滑刷新。静态托管(无api)则静默。
+  setInterval(() => {{
+    fetch('api/version', {{cache: 'no-store'}})
+      .then(r => r.ok ? r.json() : null)
+      .then(d => {{
+        if (d && d.version && d.version !== window.__VER__) {{
+          showToast('⟳ 盘口已更新，正在刷新…');
+          setTimeout(smoothReload, 1400);
+        }}
+      }})
+      .catch(() => {{}});
+  }}, 60000);
+  // 手动"重新抓取": 触发后端实时重算
   function doRefresh() {{
     const btn = document.getElementById('fetchBtn');
     const st = document.getElementById('status');
@@ -1798,9 +1929,9 @@ footer.page-footer {{
       }})
       .then(() => {{
         const sec = ((Date.now()-t0)/1000).toFixed(1);
-        st.textContent = `完成 (${{sec}}s)，3秒后刷新页面...`;
+        st.textContent = `完成 (${{sec}}s)，刷新中…`;
         st.className = 'status-msg success';
-        setTimeout(()=>location.reload(), 3000);
+        setTimeout(smoothReload, 800);
       }})
       .catch(e => {{
         st.textContent = '失败: 需启动 --serve 模式';
@@ -2011,6 +2142,16 @@ class RefreshHandler(SimpleHTTPRequestHandler):
             self.end_headers()
             run_pipeline()
             self.wfile.write(b'{"ok":true}')
+        elif self.path == "/api/version":
+            # 轻量版本端点: 前端轮询此值, 变化即说明有新数据 -> 提示+平滑刷新
+            self.send_response(200)
+            self.send_header("Content-Type", "application/json")
+            self.send_header("Access-Control-Allow-Origin", "*")
+            self.send_header("Cache-Control", "no-store")
+            self.end_headers()
+            pf = DATA_DIR / "predictions.json"
+            ver = int(pf.stat().st_mtime) if pf.exists() else 0
+            self.wfile.write(json.dumps({"version": ver}).encode("utf-8"))
         elif self.path.startswith("/data/"):
             # Serve from wc_analysis/data directory
             rel = self.path[len("/data/"):]
@@ -2110,10 +2251,22 @@ def _auto_refresh_loop(interval: int = 600):
                 try:
                     from self_evolving_loop import step5_learn
                     step5_learn()
-                    last_retrain_date = now.date()
                     print(f"  ✅ 权重重训完成")
                 except Exception as e:
                     print(f"  ⚠ 权重重训失败: {e}")
+                # DC核心参数(RHO/HOME_ADV/AVG_GOALS)自进化: 配对真实结果诊断偏差→写params_override
+                try:
+                    from evolve_groupstage import run_evolution
+                    r = run_evolution(write=True)
+                    if r.get("written"):
+                        ep = r["evolved_params"]
+                        print(f"  🧬 DC参数进化(n={r['n']}, 命中{r['hit_rate']:.1%}): "
+                              f"RHO={ep['rho']} HOME_ADV={ep['home_adv']} AVG_GOALS={ep['avg_goals']}")
+                    else:
+                        print(f"  🧬 DC参数: {r.get('reason')}")
+                except Exception as e:
+                    print(f"  ⚠ DC参数进化失败: {e}")
+                last_retrain_date = now.date()
         except Exception as e:
             print(f"  ⚠ 自动刷新失败: {e}")
 

@@ -325,7 +325,8 @@ def evolve_params(diag: dict) -> dict:
     }
 
 
-def write_override(params: dict) -> None:
+def write_override(params: dict, hit_rate: float | None = None,
+                   brier_post: float | None = None) -> None:
     payload = {
         "rho": params["rho"],
         "avg_goals": params["avg_goals"],
@@ -337,12 +338,60 @@ def write_override(params: dict) -> None:
         "market_weight_hint": params["_market_weight_hint"],
         "decisions": params["_decisions"],
     }
+    if hit_rate is not None:
+        payload["hit_rate"] = round(hit_rate, 4)
+    if brier_post is not None:
+        payload["brier_post"] = round(brier_post, 4)
     PARAMS_OVERRIDE.write_text(
         json.dumps(payload, ensure_ascii=False, indent=2), encoding="utf-8")
 
 
 def _pct(x):
     return f"{x*100:.1f}%"
+
+
+# 自动进化最小写入样本门控: 低于此场次只诊断不写 override, 避免小样本漂移
+MIN_WRITE_N = 12
+
+
+def run_evolution(write: bool = True, min_write_n: int = MIN_WRITE_N) -> dict:
+    """无副作用(可选写)的自进化入口, 供 predict.py auto_refresh_loop 每日调用.
+
+    流程: 配对预测↔真实结果 → 诊断系统性偏差 → 有界调参 → (样本足够才)写 params_override.
+    幂等: evolve_params 基于硬编码原始基线 BASE_*, 不读已有 override, 反复调用不漂移.
+
+    返回 dict: {n, matched, diagnosis, evolved_params, written(bool), reason}
+    """
+    matched, unmatched = build_matched()
+    n = len(matched)
+    if n == 0:
+        return {"n": 0, "written": False, "reason": "无可诊断样本"}
+
+    diag = diagnose(matched)
+    evolved = evolve_params(diag)
+
+    written = False
+    reason = ""
+    if not write:
+        reason = "write=False, 仅诊断"
+    elif n < min_write_n:
+        reason = f"样本 {n} < {min_write_n}, 仅诊断不写 override (防小样本漂移)"
+    else:
+        write_override(evolved, hit_rate=diag["calib"]["hit_rate"],
+                       brier_post=diag["calib"]["brier_post"])
+        written = True
+        reason = f"样本 {n} >= {min_write_n}, 已写 {PARAMS_OVERRIDE.name}"
+
+    return {
+        "n": n,
+        "hit_rate": diag["calib"]["hit_rate"],
+        "brier_post": diag["calib"]["brier_post"],
+        "diagnosis": diag,
+        "evolved_params": {k: v for k, v in evolved.items() if not k.startswith("_")},
+        "decisions": evolved["_decisions"],
+        "written": written,
+        "reason": reason,
+    }
 
 
 def main() -> None:
