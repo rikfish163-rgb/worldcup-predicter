@@ -2622,14 +2622,16 @@ def _auto_refresh_loop(interval: int = 600):
                 probe = run_evolution(write=False)  # 先廉价探测,不落盘
                 n = probe.get("n", 0)
                 if n != last_evolution_n:
+                    prev_n = last_evolution_n  # 修复: 打印前先存旧值, 否则日志会显示"29→29"
                     r = run_evolution(write=True)  # 样本真的变了才重新写override
                     last_evolution_n = n
+                    tag = f"首次运行→{n}" if prev_n is None else f"样本{prev_n}→{n}"
                     if r.get("written"):
                         ep = r["evolved_params"]
-                        print(f"[{now:%Y-%m-%d %H:%M:%S}] 🧬 DC参数进化(样本{last_evolution_n}→{n}, "
+                        print(f"[{now:%Y-%m-%d %H:%M:%S}] 🧬 DC参数进化({tag}, "
                               f"命中{r['hit_rate']:.1%}): RHO={ep['rho']} HOME_ADV={ep['home_adv']} AVG_GOALS={ep['avg_goals']}")
                     else:
-                        print(f"[{now:%Y-%m-%d %H:%M:%S}] 🧬 DC参数样本变化(n={n})但: {r.get('reason')}")
+                        print(f"[{now:%Y-%m-%d %H:%M:%S}] 🧬 DC参数({tag})但: {r.get('reason')}")
                 # n未变时静默跳过, 不刷日志噪声
             except Exception as e:
                 print(f"  ⚠ DC参数进化检测失败: {e}")
