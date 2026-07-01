@@ -48,6 +48,7 @@ ELO_CACHE = DATA_DIR / "elo_cache"
 ELO_CACHE.mkdir(exist_ok=True)
 INJURIES_FILE = DATA_DIR / "injuries.json"
 COHESION_FILE = DATA_DIR / "cohesion.json"
+NEWS_FILE = DATA_DIR / "news_factors.json"
 CORNERS_FILE = DATA_DIR / "corners.json"
 SOFASCORE_FILE = DATA_DIR / "sofascore_features.json"
 
@@ -849,6 +850,29 @@ def get_corner_boost(team: str) -> float:
     return 0.0
 
 
+def get_news_notices(home_cn: str, away_cn: str, match_date: str) -> list[dict]:
+    """
+    只读场外因素新闻(不触发网络抓取, 抓取由独立的 fetch_news.py 定时任务完成).
+
+    不做概率量化, 仅作为面板 notice 提醒, 让人自行判断影响。
+    """
+    if not NEWS_FILE.exists():
+        return []
+    try:
+        news = json.loads(NEWS_FILE.read_text(encoding="utf-8"))
+    except json.JSONDecodeError:
+        return []
+    match_key = f"{match_date}_{home_cn}_{away_cn}"
+    block = news.get(match_key)
+    if not block:
+        return []
+    out = []
+    for side, side_cn in (("home", home_cn), ("away", away_cn)):
+        for item in block.get(side, []):
+            out.append({**item, "team": side_cn})
+    return out
+
+
 def get_adjustments(home: str, away: str) -> tuple[float, float, list[str]]:
     """返回 (adj_h, adj_a, notes)。adj 是 λ 的乘数(1.0=不变)。"""
     adj_h, adj_a = 1.0, 1.0
@@ -1251,6 +1275,21 @@ def render_html(predictions: list[dict]) -> str:
         if p.get("odds_movement"):
             notes_html += f'<div class="insight movement">{p["odds_movement"]}</div>'
 
+        # 场外因素新闻 notice(不量化概率, 仅提醒人工判断)
+        news_html = ""
+        for n in p.get("news_notices", []) or []:
+            title = n.get("title", "")
+            src = n.get("source", "")
+            link = n.get("link", "#")
+            news_html += (
+                f'<div class="news-notice">'
+                f'<span class="news-tag">{n.get("label","")}</span>'
+                f'<span class="news-team">{n.get("team","")}</span>'
+                f'<a href="{link}" target="_blank" rel="noopener" class="news-title">{title}</a>'
+                f'<span class="news-src">{src}</span>'
+                f'</div>'
+            )
+
         # 让球线显示
         try:
             hc_line_display = f"让{float(handicap_line):+.1f}球" if handicap_line else "让-1球"
@@ -1412,6 +1451,7 @@ def render_html(predictions: list[dict]) -> str:
     {scores_chips}
   </div>
   {notes_html}
+  {news_html}
 </article>'''
         cards_html.append(card)
 
@@ -1814,6 +1854,23 @@ header.page-header .tagline {{
   border-color: var(--red);
   color: var(--red);
 }}
+.news-notice {{
+  margin-top: 8px;
+  padding: 7px 12px;
+  background: var(--blue-bg);
+  border-left: 3px solid var(--blue);
+  border-radius: 0 var(--radius) var(--radius) 0;
+  font-size: .72em;
+  display: flex;
+  align-items: baseline;
+  gap: 7px;
+  flex-wrap: wrap;
+}}
+.news-tag {{ font-weight: 600; color: var(--blue); white-space: nowrap; }}
+.news-team {{ color: var(--text-3); font-family: var(--mono); font-size: .9em; white-space: nowrap; }}
+.news-title {{ color: var(--text-2); text-decoration: none; flex: 1; min-width: 160px; }}
+.news-title:hover {{ color: var(--accent); text-decoration: underline; }}
+.news-src {{ color: var(--text-3); font-size: .85em; white-space: nowrap; }}
 
 footer.page-footer {{
   margin-top: 40px;
@@ -1979,6 +2036,9 @@ def run_pipeline() -> list[dict]:
         adj_h, adj_a, adj_notes = get_adjustments(m["home"], m["away"])
         notes_parts.extend(adj_notes)
 
+        # 场外因素新闻(只读缓存, 不量化概率, 面板notice提醒)
+        news_notices = get_news_notices(m["home"], m["away"], m.get("date", ""))
+
         # 盘口变动检测 (针对让球盘)
         match_key = f"{m['home']}vs{m['away']}_{m.get('date','')}"
         odds_movement = None
@@ -2068,6 +2128,7 @@ def run_pipeline() -> list[dict]:
             "top_scores": pred["top_scores"],
             "odds_movement": odds_movement,
             "notes": "; ".join(notes_parts) if notes_parts else None,
+            "news_notices": news_notices,
         }
         # 体彩购买建议 (跨多玩法扫描)
         rec["recommendations"] = compute_recommendations(m, pred)
