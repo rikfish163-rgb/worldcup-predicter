@@ -25,7 +25,7 @@
 from __future__ import annotations
 import json, math, urllib.request, time, sys, os
 from pathlib import Path
-from datetime import datetime
+from datetime import datetime, timedelta
 from urllib.parse import quote
 from http.server import HTTPServer, SimpleHTTPRequestHandler
 import threading
@@ -1195,8 +1195,75 @@ def _mot_color(motivation: float) -> str:
     return "#c4bcb2"  # normal text
 
 
+_TREND_W, _TREND_H = 560, 96
+_TREND_PAD_L, _TREND_PAD_R = 4, 4
+
+
+def _render_trend_chart(points: list[dict]) -> str:
+    """
+    生成近12h概率趋势的可拖动SVG图。
+
+    x轴固定跨度12小时(不是"最早点到最晚点"), 这样比赛刚上架只有1-2个点时
+    图表右侧留白, 不会把稀疏数据拉伸成误导性的满幅曲线; 数据点随时间推进
+    自然从右侧长出来。
+
+    拖动交互由JS完成(见render_html的<script>): 鼠标/触摸移动时找最近的点,
+    移动竖线光标+更新读数框, 不重新请求数据(纯前端插值, 零成本)。
+    """
+    import json as _json
+    now = datetime.now()
+    window_start = now - timedelta(hours=12)
+
+    def x_of(t_iso: str) -> float:
+        t = datetime.fromisoformat(t_iso)
+        frac = (t - window_start).total_seconds() / (12 * 3600)
+        frac = max(0.0, min(1.0, frac))
+        return _TREND_PAD_L + frac * (_TREND_W - _TREND_PAD_L - _TREND_PAD_R)
+
+    def y_of(p: float) -> float:
+        return _TREND_H - 8 - p * (_TREND_H - 16)  # 8px上下留白
+
+    series = {"h": [], "d": [], "a": []}
+    for pt in points:
+        x = x_of(pt["t"])
+        for k in ("h", "d", "a"):
+            series[k].append(f"{x:.1f},{y_of(pt[k]):.1f}")
+
+    colors = {"h": "var(--green)", "d": "var(--amber)", "a": "var(--blue)"}
+    polylines = "".join(
+        f'<polyline points="{" ".join(series[k])}" fill="none" '
+        f'stroke="{colors[k]}" stroke-width="2" class="trend-line trend-{k}"/>'
+        for k in ("h", "d", "a")
+    )
+    # 数据点圆点(仅最后一个真实点高亮, 表示"当前")
+    last_dots = "".join(
+        f'<circle cx="{series[k][-1].split(",")[0]}" cy="{series[k][-1].split(",")[1]}" '
+        f'r="3" fill="{colors[k]}" class="trend-dot"/>'
+        for k in ("h", "d", "a")
+    )
+    points_json = _json.dumps([
+        {"t": pt["t"], "h": pt["h"], "d": pt["d"], "a": pt["a"], "x": round(x_of(pt["t"]), 1)}
+        for pt in points
+    ], ensure_ascii=False)
+
+    return f'''<div class="trend-wrap">
+    <div class="trend-hdr"><span>近12h让球盘概率走势</span><span class="trend-hint">拖动查看历史</span></div>
+    <svg class="trend-svg" viewBox="0 0 {_TREND_W} {_TREND_H}" preserveAspectRatio="none"
+         data-points='{points_json}'>
+      {polylines}
+      {last_dots}
+      <line class="trend-cursor" x1="0" y1="0" x2="0" y2="{_TREND_H}" style="display:none"/>
+    </svg>
+    <div class="trend-readout"></div>
+  </div>'''
+
+
 def render_html(predictions: list[dict]) -> str:
     gen_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    try:
+        from odds_trend import get_trend
+    except Exception:
+        get_trend = lambda *a, **k: []
     # 记分牌数据: 当前进化参数 + 最近回测命中率 + 版本号(predictions.json mtime, 供前端轮询)
     _pf = DATA_DIR / "predictions.json"
     page_version = int(_pf.stat().st_mtime) if _pf.exists() else 0
@@ -1234,6 +1301,18 @@ def render_html(predictions: list[dict]) -> str:
         bar_h = f"{ph*100:.1f}"
         bar_d = f"{pd_*100:.1f}"
         bar_a = f"{pa*100:.1f}"
+
+        # 近12h概率趋势图: 取历史采样点 + 追加当前值(确保曲线延伸到"现在"),
+        # 少于2个点(比赛刚上架, 还没积累趋势)则不渲染图表。
+        _trend_pts = get_trend(p["home"], p["away"], p.get("date", ""))
+        _now_pt = {"t": datetime.now().isoformat(timespec="seconds"),
+                   "h": round(ph, 4), "d": round(pd_, 4), "a": round(pa, 4)}
+        if not _trend_pts or _trend_pts[-1]["t"] != _now_pt["t"]:
+            _trend_pts = _trend_pts + [_now_pt]
+        if len(_trend_pts) >= 2:
+            trend_html = _render_trend_chart(_trend_pts)
+        else:
+            trend_html = '<div class="trend-empty">趋势积累中(每次刷新记一个点, 12小时后可看变化曲线)</div>'
 
         # 模型置信度: max(posterior) 越高越确信
         confidence = max(ph, pd_, pa)
@@ -1424,6 +1503,7 @@ def render_html(predictions: list[dict]) -> str:
     </div>
     <div class="bar-labels"><span>主让胜</span><span>平局</span><span>客让胜</span></div>
   </div>
+  {trend_html}
 
   <div class="data-grid">
     <div class="market-section primary">
@@ -1706,6 +1786,47 @@ header.page-header .tagline {{
   color: var(--text-3);
   margin-top: 4px;
   padding: 0 4px;
+}}
+
+.trend-wrap {{ margin: 14px 0 16px; }}
+.trend-hdr {{
+  display: flex;
+  justify-content: space-between;
+  font-size: .68em;
+  color: var(--text-3);
+  margin-bottom: 3px;
+}}
+.trend-hint {{ opacity: .7; }}
+.trend-svg {{
+  width: 100%;
+  height: 72px;
+  display: block;
+  cursor: crosshair;
+  touch-action: none;
+  background: color-mix(in srgb, var(--bg) 60%, transparent);
+  border-radius: 6px;
+}}
+.trend-line {{ opacity: .9; }}
+.trend-cursor {{ stroke: var(--text-3); stroke-width: 1; stroke-dasharray: 3 3; }}
+.trend-readout {{
+  font-family: var(--mono);
+  font-size: .7em;
+  color: var(--text-2);
+  min-height: 1.4em;
+  margin-top: 4px;
+  display: flex;
+  gap: 10px;
+}}
+.trend-readout .r-h {{ color: var(--green); }}
+.trend-readout .r-d {{ color: var(--amber); }}
+.trend-readout .r-a {{ color: var(--blue); }}
+.trend-readout .r-t {{ color: var(--text-3); }}
+.trend-empty {{
+  font-size: .68em;
+  color: var(--text-3);
+  padding: 10px 0;
+  text-align: center;
+  font-style: italic;
 }}
 
 .data-grid {{ margin-bottom: 12px; }}
@@ -1997,6 +2118,65 @@ footer.page-footer {{
         btn.style.opacity = '1';
       }});
   }}
+
+  // ── 趋势图拖动查看(纯前端插值, 数据已随HTML内嵌, 拖动不发请求) ──
+  function initTrendCharts() {{
+    document.querySelectorAll('.trend-svg').forEach(svg => {{
+      let pts;
+      try {{ pts = JSON.parse(svg.dataset.points || '[]'); }} catch (e) {{ return; }}
+      if (!pts.length) return;
+      const cursor = svg.querySelector('.trend-cursor');
+      const readout = svg.parentElement.querySelector('.trend-readout');
+      const vbW = 560;
+
+      function fmtTime(iso) {{
+        const d = new Date(iso);
+        return d.toLocaleString('zh-CN', {{month:'2-digit', day:'2-digit', hour:'2-digit', minute:'2-digit'}});
+      }}
+
+      function updateAt(clientX) {{
+        const rect = svg.getBoundingClientRect();
+        const relX = (clientX - rect.left) / rect.width * vbW;
+        // 找最近的两个点做线性插值, 让拖动手感连续而不是跳格
+        let lo = pts[0], hi = pts[pts.length - 1];
+        for (let i = 0; i < pts.length - 1; i++) {{
+          if (pts[i].x <= relX && pts[i+1].x >= relX) {{ lo = pts[i]; hi = pts[i+1]; break; }}
+        }}
+        const span = hi.x - lo.x;
+        const frac = span > 0 ? Math.max(0, Math.min(1, (relX - lo.x) / span)) : 0;
+        const h = lo.h + (hi.h - lo.h) * frac;
+        const d = lo.d + (hi.d - lo.d) * frac;
+        const a = lo.a + (hi.a - lo.a) * frac;
+        const t = frac < 0.5 ? lo.t : hi.t;
+
+        cursor.setAttribute('x1', relX); cursor.setAttribute('x2', relX);
+        cursor.style.display = 'block';
+        readout.innerHTML =
+          `<span class="r-t">${{fmtTime(t)}}</span>` +
+          `<span class="r-h">主${{(h*100).toFixed(0)}}%</span>` +
+          `<span class="r-d">平${{(d*100).toFixed(0)}}%</span>` +
+          `<span class="r-a">客${{(a*100).toFixed(0)}}%</span>`;
+      }}
+
+      function clear() {{
+        cursor.style.display = 'none';
+        const last = pts[pts.length - 1];
+        readout.innerHTML =
+          `<span class="r-t">最新 ${{fmtTime(last.t)}}</span>` +
+          `<span class="r-h">主${{(last.h*100).toFixed(0)}}%</span>` +
+          `<span class="r-d">平${{(last.d*100).toFixed(0)}}%</span>` +
+          `<span class="r-a">客${{(last.a*100).toFixed(0)}}%</span>`;
+      }}
+
+      svg.addEventListener('mousemove', e => updateAt(e.clientX));
+      svg.addEventListener('mouseleave', clear);
+      svg.addEventListener('touchstart', e => {{ updateAt(e.touches[0].clientX); }}, {{passive: true}});
+      svg.addEventListener('touchmove', e => {{ updateAt(e.touches[0].clientX); e.preventDefault(); }}, {{passive: false}});
+      svg.addEventListener('touchend', clear);
+      clear();  // 初始显示"最新"读数
+    }});
+  }}
+  initTrendCharts();
 </script>
 </body></html>'''
 
@@ -2136,8 +2316,14 @@ def run_pipeline() -> list[dict]:
 
     (DATA_DIR / "predictions.json").write_text(
         json.dumps(predictions, ensure_ascii=False, indent=2), encoding="utf-8")
-    # 追加到历史预测日志(供 backtest.py 对比真实结果用)
+    # 追加到历史预测日志(供 backtest.py 对比真实结果用, 每场比赛只留一条快照, 语义不可动)
     _append_prediction_log(predictions)
+    # 追加到趋势序列(独立文件, 每场比赛多个时间点, 供前端画近12h概率变化图)
+    try:
+        from odds_trend import record_snapshot
+        record_snapshot(predictions)
+    except Exception as e:
+        print(f"  ⚠ 趋势记录失败: {e}")
     html = render_html(predictions)
     (SITE_DIR / "index.html").write_text(html, encoding="utf-8")
     print(f"  ✅ {len(predictions)} 场预测 → site/index.html")

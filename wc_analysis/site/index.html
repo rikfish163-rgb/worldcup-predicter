@@ -251,6 +251,47 @@ header.page-header .tagline {
   padding: 0 4px;
 }
 
+.trend-wrap { margin: 14px 0 16px; }
+.trend-hdr {
+  display: flex;
+  justify-content: space-between;
+  font-size: .68em;
+  color: var(--text-3);
+  margin-bottom: 3px;
+}
+.trend-hint { opacity: .7; }
+.trend-svg {
+  width: 100%;
+  height: 72px;
+  display: block;
+  cursor: crosshair;
+  touch-action: none;
+  background: color-mix(in srgb, var(--bg) 60%, transparent);
+  border-radius: 6px;
+}
+.trend-line { opacity: .9; }
+.trend-cursor { stroke: var(--text-3); stroke-width: 1; stroke-dasharray: 3 3; }
+.trend-readout {
+  font-family: var(--mono);
+  font-size: .7em;
+  color: var(--text-2);
+  min-height: 1.4em;
+  margin-top: 4px;
+  display: flex;
+  gap: 10px;
+}
+.trend-readout .r-h { color: var(--green); }
+.trend-readout .r-d { color: var(--amber); }
+.trend-readout .r-a { color: var(--blue); }
+.trend-readout .r-t { color: var(--text-3); }
+.trend-empty {
+  font-size: .68em;
+  color: var(--text-3);
+  padding: 10px 0;
+  text-align: center;
+  font-style: italic;
+}
+
 .data-grid { margin-bottom: 12px; }
 .data-grid table {
   width: 100%;
@@ -461,7 +502,7 @@ footer.page-footer {
 <header class="page-header">
   <div class="brand">
     <h1>⚽ 世界杯让球盘预测</h1>
-    <span class="tagline">Dixon-Coles · 2026-07-01 14:08:12</span>
+    <span class="tagline">Dixon-Coles · 2026-07-01 15:12:36</span>
   </div>
   <div class="scoreboard">
     <span class="sb-badge live"><span class="dot"></span>LIVE</span>
@@ -506,6 +547,7 @@ footer.page-footer {
     </div>
     <div class="bar-labels"><span>主让胜</span><span>平局</span><span>客让胜</span></div>
   </div>
+  <div class="trend-empty">趋势积累中(每次刷新记一个点, 12小时后可看变化曲线)</div>
 
   <div class="data-grid">
     <div class="market-section primary">
@@ -552,7 +594,7 @@ footer.page-footer {
           <tr class="posterior-row"><td class="row-label">后验</td>
           <td class="num"><b>0%</b></td><td class="num"><b>0%</b></td><td class="num"><b>0%</b></td><td class="num"><b>0%</b></td><td class="num"><b>0%</b></td></tr>
           <tr><td class="row-label">赔率</td>
-          <td class="num">12.00</td><td class="num">4.75</td><td class="num">3.50</td><td class="num">3.70</td><td class="num">2.48</td></tr>
+          <td class="num">12.00</td><td class="num">4.80</td><td class="num">3.50</td><td class="num">3.50</td><td class="num">2.55</td></tr>
         </tbody>
       </table>
     </div>
@@ -593,6 +635,7 @@ footer.page-footer {
     </div>
     <div class="bar-labels"><span>主让胜</span><span>平局</span><span>客让胜</span></div>
   </div>
+  <div class="trend-empty">趋势积累中(每次刷新记一个点, 12小时后可看变化曲线)</div>
 
   <div class="data-grid">
     <div class="market-section primary">
@@ -639,7 +682,7 @@ footer.page-footer {
           <tr class="posterior-row"><td class="row-label">后验</td>
           <td class="num"><b>0%</b></td><td class="num"><b>0%</b></td><td class="num"><b>0%</b></td><td class="num"><b>0%</b></td><td class="num"><b>0%</b></td></tr>
           <tr><td class="row-label">赔率</td>
-          <td class="num">9.50</td><td class="num">4.60</td><td class="num">3.20</td><td class="num">3.75</td><td class="num">2.84</td></tr>
+          <td class="num">10.50</td><td class="num">4.85</td><td class="num">3.10</td><td class="num">3.60</td><td class="num">2.84</td></tr>
         </tbody>
       </table>
     </div>
@@ -692,6 +735,7 @@ footer.page-footer {
     </div>
     <div class="bar-labels"><span>主让胜</span><span>平局</span><span>客让胜</span></div>
   </div>
+  <div class="trend-empty">趋势积累中(每次刷新记一个点, 12小时后可看变化曲线)</div>
 
   <div class="data-grid">
     <div class="market-section primary">
@@ -738,7 +782,7 @@ footer.page-footer {
           <tr class="posterior-row"><td class="row-label">后验</td>
           <td class="num"><b>0%</b></td><td class="num"><b>0%</b></td><td class="num"><b>0%</b></td><td class="num"><b>0%</b></td><td class="num"><b>0%</b></td></tr>
           <tr><td class="row-label">赔率</td>
-          <td class="num">14.00</td><td class="num">5.50</td><td class="num">3.85</td><td class="num">3.45</td><td class="num">2.21</td></tr>
+          <td class="num">15.00</td><td class="num">5.75</td><td class="num">3.75</td><td class="num">3.35</td><td class="num">2.23</td></tr>
         </tbody>
       </table>
     </div>
@@ -791,6 +835,7 @@ footer.page-footer {
     </div>
     <div class="bar-labels"><span>主让胜</span><span>平局</span><span>客让胜</span></div>
   </div>
+  <div class="trend-empty">趋势积累中(每次刷新记一个点, 12小时后可看变化曲线)</div>
 
   <div class="data-grid">
     <div class="market-section primary">
@@ -890,6 +935,7 @@ footer.page-footer {
     </div>
     <div class="bar-labels"><span>主让胜</span><span>平局</span><span>客让胜</span></div>
   </div>
+  <div class="trend-empty">趋势积累中(每次刷新记一个点, 12小时后可看变化曲线)</div>
 
   <div class="data-grid">
     <div class="market-section primary">
@@ -977,6 +1023,7 @@ footer.page-footer {
     </div>
     <div class="bar-labels"><span>主让胜</span><span>平局</span><span>客让胜</span></div>
   </div>
+  <div class="trend-empty">趋势积累中(每次刷新记一个点, 12小时后可看变化曲线)</div>
 
   <div class="data-grid">
     <div class="market-section primary">
@@ -1076,6 +1123,7 @@ footer.page-footer {
     </div>
     <div class="bar-labels"><span>主让胜</span><span>平局</span><span>客让胜</span></div>
   </div>
+  <div class="trend-empty">趋势积累中(每次刷新记一个点, 12小时后可看变化曲线)</div>
 
   <div class="data-grid">
     <div class="market-section primary">
@@ -1152,7 +1200,7 @@ footer.page-footer {
     <span class="score-chip"><b>1-1</b> 13%</span><span class="score-chip"><b>1-0</b> 10%</span><span class="score-chip"><b>2-1</b> 10%</span><span class="score-chip"><b>2-0</b> 10%</span><span class="score-chip"><b>0-0</b> 8%</span>
   </div>
   <div class="insight">埃及近况防守差[实采xGA](影响澳大利亚进攻 λ×1.20); 澳大利亚近况防守强[实采xGA](影响埃及进攻 λ×0.99)</div>
-  <div class="news-notice"><span class="news-tag">🩹 伤停新闻(赛前确认)</span><span class="news-team">埃及</span><a href="https://news.google.com/rss/articles/CBMiywFBVV95cUxOeTlLTTBlODVpbTkzdl9qdUhCQmhZaEg0cW5fYkItZi10c284UHF0cFdsVlgzVkI0SEMycTBZY3c1R0p4cnZ6SzNhQmpLSFB6cTZFSnZzRFMxRmZqcTUyU3lXOUJOeXdvTmdZZW40dnlISVVya0dXZW9wUVhURjNtQmhVNWE4TWoyT1RSOUZxbEt1UVh4Ui04em1UTUlxTVY2blZ5bG5xVjZCdXg4eVkxd1pBLXhPeTU1VHFzY0pXUXdoUEV5WlNCdzJGVdIB0gFBVV95cUxOYzZodlcwSEV2WmRQbXJnckpuN3REYWpWRlVvU0dnal9QZEVnanIyQllkNTlCVVYtQnF5d09BLVl0R194bXlDazJvRFdFUExpM2JjTkkwQy1wY2g5c1dPZ2JKRHBOdk51dkcxUUJPMXVBRWxORnNsWWFpcS0tMmQ1NHZLU29oSXRoMnpycnN0Q3Z4YWhsNjBrZTVMZDZublFnalNpT3BFekJheENtRXg0Q0Y0VG11S3ItYTZVQVphYmhRR2FHVE5wOFRKWVhsVnF1RVE?oc=5" target="_blank" rel="noopener" class="news-title">FIFA World Cup 2026: Egypt’s Salah resumes training after hamstring scare - Sportstar</a><span class="news-src">Sportstar</span></div>
+  <div class="news-notice"><span class="news-tag">🩹 伤停新闻(赛前确认)</span><span class="news-team">澳大利亚</span><a href="https://news.google.com/rss/articles/CBMihwJBVV95cUxPbDY4cDBvaGs1VzQ2bTllaFo3Q3JSbFQxMEJZYmxnMVBJbXE0T2R3UzVaQ0l3bG5tMzRPbGNfVjhsZEdNU0ZvdjJyeU52OGlIMkdQRW9Kc2Z0MUNZSGMtREhvdmdlQzg4Z0tiVHNCUVFPNnpTcjM5SzRiNEN3S2czb3hOOHR2SkU1NXY2M0NmeThlUW1fUnVwWmFNOHVpdmZRMzNSbjJiemJPNER2WkVsTzVMd3RMVkhrR3pmTm9jd3VmVTdWODFVbVVkbzhDMUFHZUM5dGFhZTlINVBMYmdfSzZsR3Mxcy1hNzVGX1BmN1hPMHdFTU91M2twMXNGQklrbkpYcDZ5RQ?oc=5" target="_blank" rel="noopener" class="news-title">Officially.. FIFA announces that Mohannad Lasheen will miss the Egypt vs Australia match in the 2026 World Cup - صوت الإمارات</a><span class="news-src">صوت الإمارات</span></div><div class="news-notice"><span class="news-tag">🩹 伤停新闻(赛前确认)</span><span class="news-team">埃及</span><a href="https://news.google.com/rss/articles/CBMiywFBVV95cUxOeTlLTTBlODVpbTkzdl9qdUhCQmhZaEg0cW5fYkItZi10c284UHF0cFdsVlgzVkI0SEMycTBZY3c1R0p4cnZ6SzNhQmpLSFB6cTZFSnZzRFMxRmZqcTUyU3lXOUJOeXdvTmdZZW40dnlISVVya0dXZW9wUVhURjNtQmhVNWE4TWoyT1RSOUZxbEt1UVh4Ui04em1UTUlxTVY2blZ5bG5xVjZCdXg4eVkxd1pBLXhPeTU1VHFzY0pXUXdoUEV5WlNCdzJGVdIB0gFBVV95cUxOYzZodlcwSEV2WmRQbXJnckpuN3REYWpWRlVvU0dnal9QZEVnanIyQllkNTlCVVYtQnF5d09BLVl0R194bXlDazJvRFdFUExpM2JjTkkwQy1wY2g5c1dPZ2JKRHBOdk51dkcxUUJPMXVBRWxORnNsWWFpcS0tMmQ1NHZLU29oSXRoMnpycnN0Q3Z4YWhsNjBrZTVMZDZublFnalNpT3BFekJheENtRXg0Q0Y0VG11S3ItYTZVQVphYmhRR2FHVE5wOFRKWVhsVnF1RVE?oc=5" target="_blank" rel="noopener" class="news-title">FIFA World Cup 2026: Egypt’s Salah resumes training after hamstring scare - Sportstar</a><span class="news-src">Sportstar</span></div>
 </article><article class="match" style="--i:7">
   <header>
     <div class="matchup">
@@ -1179,6 +1227,7 @@ footer.page-footer {
     </div>
     <div class="bar-labels"><span>主让胜</span><span>平局</span><span>客让胜</span></div>
   </div>
+  <div class="trend-empty">趋势积累中(每次刷新记一个点, 12小时后可看变化曲线)</div>
 
   <div class="data-grid">
     <div class="market-section primary">
@@ -1250,6 +1299,7 @@ footer.page-footer {
     </div>
     <div class="bar-labels"><span>主让胜</span><span>平局</span><span>客让胜</span></div>
   </div>
+  <div class="trend-empty">趋势积累中(每次刷新记一个点, 12小时后可看变化曲线)</div>
 
   <div class="data-grid">
     <div class="market-section primary">
@@ -1333,7 +1383,7 @@ footer.page-footer {
 </footer>
 <script>
   // 当前页面数据版本(predictions.json mtime). 轮询此值, 变化即有新盘口数据。
-  window.__VER__ = 1782886092;
+  window.__VER__ = 1782889956;
   function smoothReload() {
     document.body.classList.add('fading');
     setTimeout(() => location.reload(), 520);
@@ -1383,5 +1433,64 @@ footer.page-footer {
         btn.style.opacity = '1';
       });
   }
+
+  // ── 趋势图拖动查看(纯前端插值, 数据已随HTML内嵌, 拖动不发请求) ──
+  function initTrendCharts() {
+    document.querySelectorAll('.trend-svg').forEach(svg => {
+      let pts;
+      try { pts = JSON.parse(svg.dataset.points || '[]'); } catch (e) { return; }
+      if (!pts.length) return;
+      const cursor = svg.querySelector('.trend-cursor');
+      const readout = svg.parentElement.querySelector('.trend-readout');
+      const vbW = 560;
+
+      function fmtTime(iso) {
+        const d = new Date(iso);
+        return d.toLocaleString('zh-CN', {month:'2-digit', day:'2-digit', hour:'2-digit', minute:'2-digit'});
+      }
+
+      function updateAt(clientX) {
+        const rect = svg.getBoundingClientRect();
+        const relX = (clientX - rect.left) / rect.width * vbW;
+        // 找最近的两个点做线性插值, 让拖动手感连续而不是跳格
+        let lo = pts[0], hi = pts[pts.length - 1];
+        for (let i = 0; i < pts.length - 1; i++) {
+          if (pts[i].x <= relX && pts[i+1].x >= relX) { lo = pts[i]; hi = pts[i+1]; break; }
+        }
+        const span = hi.x - lo.x;
+        const frac = span > 0 ? Math.max(0, Math.min(1, (relX - lo.x) / span)) : 0;
+        const h = lo.h + (hi.h - lo.h) * frac;
+        const d = lo.d + (hi.d - lo.d) * frac;
+        const a = lo.a + (hi.a - lo.a) * frac;
+        const t = frac < 0.5 ? lo.t : hi.t;
+
+        cursor.setAttribute('x1', relX); cursor.setAttribute('x2', relX);
+        cursor.style.display = 'block';
+        readout.innerHTML =
+          `<span class="r-t">${fmtTime(t)}</span>` +
+          `<span class="r-h">主${(h*100).toFixed(0)}%</span>` +
+          `<span class="r-d">平${(d*100).toFixed(0)}%</span>` +
+          `<span class="r-a">客${(a*100).toFixed(0)}%</span>`;
+      }
+
+      function clear() {
+        cursor.style.display = 'none';
+        const last = pts[pts.length - 1];
+        readout.innerHTML =
+          `<span class="r-t">最新 ${fmtTime(last.t)}</span>` +
+          `<span class="r-h">主${(last.h*100).toFixed(0)}%</span>` +
+          `<span class="r-d">平${(last.d*100).toFixed(0)}%</span>` +
+          `<span class="r-a">客${(last.a*100).toFixed(0)}%</span>`;
+      }
+
+      svg.addEventListener('mousemove', e => updateAt(e.clientX));
+      svg.addEventListener('mouseleave', clear);
+      svg.addEventListener('touchstart', e => { updateAt(e.touches[0].clientX); }, {passive: true});
+      svg.addEventListener('touchmove', e => { updateAt(e.touches[0].clientX); e.preventDefault(); }, {passive: false});
+      svg.addEventListener('touchend', clear);
+      clear();  // 初始显示"最新"读数
+    });
+  }
+  initTrendCharts();
 </script>
 </body></html>
