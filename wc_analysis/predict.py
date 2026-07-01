@@ -562,8 +562,17 @@ def weighted_goals_rate(team_cn: str, days_back: int = 365) -> tuple[float, floa
 
 # 小组赛专有战意标签 — 这些状态在淘汰赛(单场淘汰人人必拼)毫无意义,
 # 一旦阶段进入淘汰赛必须忽略, 否则会用过时的小组赛系数污染 λ。
+#
+# (修复2026-07-02: 白名单曾只列4个标签(qualified_top2/fighting_3rd/eliminated/
+#  near_qualified), 但 standings.json 里实际出现过 fighting_top2/must_win_3rd/
+#  fighting_3rd_top8 三个未被列入的标签(经查是历史上手动/脚本写入, standings.py
+#  当前版本反而不产出这几个) —— 白名单漏了它们, 一旦_is_knockout_stage()因数据
+#  不同步误判False, 这三个漏网标签会穿透到面板显示, 如"fighting_top2 1.05"。
+#  这是双重防御的第二层(第一层是_is_knockout_stage硬判定), 必须覆盖 standings.json
+#  历史上出现过的全部小组赛状态, 不能只跟着 standings.py 当前代码的4个硬编码值。)
 _GROUP_STAGE_STATUSES = {
     "qualified_top2", "fighting_3rd", "eliminated", "near_qualified",
+    "fighting_top2", "must_win_3rd", "fighting_3rd_top8",
 }
 
 
@@ -2589,15 +2598,43 @@ class RefreshHandler(SimpleHTTPRequestHandler):
 
 def _auto_refresh_loop(interval: int = 600):
     """后台定时刷新: 每 interval 秒重跑一次 pipeline, 保持页面数据新鲜.
-    Also runs daily retrain (fusion weights + reconciliation)."""
+    每轮同时检测能否重训模型参数(防空转: 样本数没变化就跳过, 不在噪声里空转)。
+
+    (2026-07-02改动: 此前DC参数进化硬编码"每天14点一次", 用户反馈"场外因素/盘口
+    随时在变, 不该一天只用一个结果"。改为每轮循环(默认10min)都检测: 若已配对
+    样本数(真实完赛场次)相比上次检测有变化, 才重新跑一次诊断+调参; 样本数不变
+    则说明没有新的真实结果可学, 强行按固定时钟重算只会让参数在同一批数据的
+    浮点误差里空转, 没有信息增益还浪费算力, 因此跳过。
+    权重重训(step5_learn, 拉取最新历史比赛CSV)仍保留每日一次, 因为它的输入源
+    (international_results.csv)本身就是按天更新的GitHub仓库, 更高频没有意义。)"""
     import datetime
     last_retrain_date = None
+    last_evolution_n = None
     while True:
         time.sleep(interval)
         try:
             run_pipeline()
-            # 每日北京时间 14 点触发权重重训
             now = datetime.datetime.now()
+
+            # DC核心参数(RHO/HOME_ADV/AVG_GOALS)自进化: 每轮都检测样本是否变化
+            try:
+                from evolve_groupstage import run_evolution
+                probe = run_evolution(write=False)  # 先廉价探测,不落盘
+                n = probe.get("n", 0)
+                if n != last_evolution_n:
+                    r = run_evolution(write=True)  # 样本真的变了才重新写override
+                    last_evolution_n = n
+                    if r.get("written"):
+                        ep = r["evolved_params"]
+                        print(f"[{now:%Y-%m-%d %H:%M:%S}] 🧬 DC参数进化(样本{last_evolution_n}→{n}, "
+                              f"命中{r['hit_rate']:.1%}): RHO={ep['rho']} HOME_ADV={ep['home_adv']} AVG_GOALS={ep['avg_goals']}")
+                    else:
+                        print(f"[{now:%Y-%m-%d %H:%M:%S}] 🧬 DC参数样本变化(n={n})但: {r.get('reason')}")
+                # n未变时静默跳过, 不刷日志噪声
+            except Exception as e:
+                print(f"  ⚠ DC参数进化检测失败: {e}")
+
+            # 权重重训(拉取历史CSV, 按天更新的数据源, 保留每日一次即可)
             if now.hour == 14 and (last_retrain_date is None or last_retrain_date != now.date()):
                 print(f"[{now:%Y-%m-%d %H:%M:%S}] 每日权重重训触发...")
                 try:
@@ -2606,18 +2643,6 @@ def _auto_refresh_loop(interval: int = 600):
                     print(f"  ✅ 权重重训完成")
                 except Exception as e:
                     print(f"  ⚠ 权重重训失败: {e}")
-                # DC核心参数(RHO/HOME_ADV/AVG_GOALS)自进化: 配对真实结果诊断偏差→写params_override
-                try:
-                    from evolve_groupstage import run_evolution
-                    r = run_evolution(write=True)
-                    if r.get("written"):
-                        ep = r["evolved_params"]
-                        print(f"  🧬 DC参数进化(n={r['n']}, 命中{r['hit_rate']:.1%}): "
-                              f"RHO={ep['rho']} HOME_ADV={ep['home_adv']} AVG_GOALS={ep['avg_goals']}")
-                    else:
-                        print(f"  🧬 DC参数: {r.get('reason')}")
-                except Exception as e:
-                    print(f"  ⚠ DC参数进化失败: {e}")
                 last_retrain_date = now.date()
         except Exception as e:
             print(f"  ⚠ 自动刷新失败: {e}")
