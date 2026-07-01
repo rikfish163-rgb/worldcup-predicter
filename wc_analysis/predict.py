@@ -1195,6 +1195,32 @@ def compute_recommendations(rec: dict, pred: dict) -> list[dict]:
 # 6. HTML 生成 (带刷新按钮 + 自动重载)
 # ═══════════════════════════════════════════════════════════════════
 
+def _pct3(*probs: float) -> list[int]:
+    """
+    把 n 个概率(和应为1.0)转成整数百分比, 保证总和恒等于100。
+
+    (修复2026-07-02: 用户报告"胜平负加起来概率大于1"。根因不是概率计算错误
+    ——排查确认 hc_prior/hhad_posterior/prior/had_posterior 等底层字段sum全部
+    精确=1.0000, 是渲染层用 {x:.0%} 对h/d/a各自独立四舍五入导致的: 例如
+    0.7852/0.1578/0.0570 独立round成79/16/6, 相加=101%。原始数字都对,
+    只是分别取整时产生的误差没有互相抵消。
+
+    用最大余数法(Largest Remainder Method)修复: 先都向下取整, 算出总共
+    "亏欠"的百分点数, 按小数部分从大到小补给对应的项, 数学上保证 sum(结果)
+    恒等于100, 且每一项的调整幅度不超过1个百分点(视觉上几乎不可察觉)。
+    """
+    n = len(probs)
+    scaled = [p * 100 for p in probs]
+    floors = [int(s) for s in scaled]
+    remainder = 100 - sum(floors)
+    # 按小数部分从大到小排序, 把亏欠的百分点分给最"该四舍五入向上"的项
+    order = sorted(range(n), key=lambda i: scaled[i] - floors[i], reverse=True)
+    result = floors[:]
+    for i in range(remainder):
+        result[order[i % n]] += 1
+    return result
+
+
 def _mot_color(motivation: float) -> str:
     """战意系数 → 颜色: 1.0=正常, <0.95=灰(轮换/淘汰), >1.05=绿(必拼)"""
     if motivation >= 1.05:
@@ -1373,10 +1399,13 @@ def render_html(predictions: list[dict]) -> str:
         pd_ = p["hhad_posterior"]["d"]
         pa = p["hhad_posterior"]["a"]
         handicap_line = p.get("handicap_line", "-1")
-        # 概率条比例(百分比宽度)
+        # 概率条比例(百分比宽度, 用原始浮点数, 不受下面整数归一影响)
         bar_h = f"{ph*100:.1f}"
         bar_d = f"{pd_*100:.1f}"
         bar_a = f"{pa*100:.1f}"
+        # 整数百分比文字显示: 用最大余数法保证三者相加恒=100(见_pct3注释)
+        pct_h, pct_d, pct_a = _pct3(ph, pd_, pa)
+        hc_prior_pct = _pct3(p["hc_prior"]["h"], p["hc_prior"]["d"], p["hc_prior"]["a"])
 
         # 近12h概率趋势图: 取历史采样点 + 追加当前值(确保曲线延伸到"现在"),
         # 少于2个点(比赛刚上架, 还没积累趋势)则不渲染图表。
@@ -1410,14 +1439,16 @@ def render_html(predictions: list[dict]) -> str:
         mkt_row = ""
         if p.get("hhad_market"):
             m = p["hhad_market"]
+            m_pct = _pct3(m.get("h", 0), m.get("d", 0), m.get("a", 0))
             mkt_row = f'''<tr><td class="row-label">市场</td>
-            <td class="num">{m["h"]:.0%}</td><td class="num">{m["d"]:.0%}</td><td class="num">{m["a"]:.0%}</td></tr>'''
+            <td class="num">{m_pct[0]}%</td><td class="num">{m_pct[1]}%</td><td class="num">{m_pct[2]}%</td></tr>'''
 
         # 常规盘胜率 (小字显示,仅供参考)
         had_ref = ""
         if p.get("had_posterior"):
             hp = p["had_posterior"]
-            had_ref = f'<div class="had-ref">常规盘参考: 主{hp["h"]:.0%} / 平{hp["d"]:.0%} / 客{hp["a"]:.0%}</div>'
+            _hr_pct = _pct3(hp["h"], hp["d"], hp["a"])
+            had_ref = f'<div class="had-ref">常规盘参考: 主{_hr_pct[0]}% / 平{_hr_pct[1]}% / 客{_hr_pct[2]}%</div>'
 
         # 热门比分
         scores = p.get("top_scores", [])[:5]
@@ -1458,6 +1489,9 @@ def render_html(predictions: list[dict]) -> str:
             hp = p["had_posterior"]
             ho = p["had_odds"]
             hm = p.get("had_market") or {}
+            prior_pct = _pct3(p["prior"]["h"], p["prior"]["d"], p["prior"]["a"])
+            hm_pct = _pct3(hm.get("h", 0), hm.get("d", 0), hm.get("a", 0))
+            hp_pct = _pct3(hp["h"], hp["d"], hp["a"])
             had_section = f'''
     <div class="market-section">
       <div class="market-title">胜平负 (HAD)</div>
@@ -1465,11 +1499,11 @@ def render_html(predictions: list[dict]) -> str:
         <thead><tr><th></th><th>主胜</th><th>平局</th><th>客胜</th></tr></thead>
         <tbody>
           <tr><td class="row-label">模型</td>
-          <td class="num">{p["prior"]["h"]:.0%}</td><td class="num">{p["prior"]["d"]:.0%}</td><td class="num">{p["prior"]["a"]:.0%}</td></tr>
+          <td class="num">{prior_pct[0]}%</td><td class="num">{prior_pct[1]}%</td><td class="num">{prior_pct[2]}%</td></tr>
           <tr><td class="row-label">市场</td>
-          <td class="num">{hm.get("h",0):.0%}</td><td class="num">{hm.get("d",0):.0%}</td><td class="num">{hm.get("a",0):.0%}</td></tr>
+          <td class="num">{hm_pct[0]}%</td><td class="num">{hm_pct[1]}%</td><td class="num">{hm_pct[2]}%</td></tr>
           <tr class="posterior-row"><td class="row-label">后验</td>
-          <td class="num"><b>{hp["h"]:.0%}</b></td><td class="num"><b>{hp["d"]:.0%}</b></td><td class="num"><b>{hp["a"]:.0%}</b></td></tr>
+          <td class="num"><b>{hp_pct[0]}%</b></td><td class="num"><b>{hp_pct[1]}%</b></td><td class="num"><b>{hp_pct[2]}%</b></td></tr>
           <tr><td class="row-label">赔率</td>
           <td class="num">{ho["h"]:.2f}</td><td class="num">{ho["d"]:.2f}</td><td class="num">{ho["a"]:.2f}</td></tr>
         </tbody>
@@ -1573,9 +1607,9 @@ def render_html(predictions: list[dict]) -> str:
 
   <div class="prob-visual">
     <div class="bar-container">
-      <div class="bar bar-h" style="--w:{bar_h}%"><span>{ph:.0%}</span></div>
-      <div class="bar bar-d" style="--w:{bar_d}%"><span>{pd_:.0%}</span></div>
-      <div class="bar bar-a" style="--w:{bar_a}%"><span>{pa:.0%}</span></div>
+      <div class="bar bar-h" style="--w:{bar_h}%"><span>{pct_h}%</span></div>
+      <div class="bar bar-d" style="--w:{bar_d}%"><span>{pct_d}%</span></div>
+      <div class="bar bar-a" style="--w:{bar_a}%"><span>{pct_a}%</span></div>
     </div>
     <div class="bar-labels"><span>主让胜</span><span>平局</span><span>客让胜</span></div>
   </div>
@@ -1588,10 +1622,10 @@ def render_html(predictions: list[dict]) -> str:
         <thead><tr><th></th><th>主让胜</th><th>平局</th><th>客让胜</th></tr></thead>
         <tbody>
           <tr><td class="row-label">模型</td>
-          <td class="num">{p["hc_prior"]["h"]:.0%}</td><td class="num">{p["hc_prior"]["d"]:.0%}</td><td class="num">{p["hc_prior"]["a"]:.0%}</td></tr>
+          <td class="num">{hc_prior_pct[0]}%</td><td class="num">{hc_prior_pct[1]}%</td><td class="num">{hc_prior_pct[2]}%</td></tr>
           {mkt_row}
           <tr class="posterior-row"><td class="row-label">后验</td>
-          <td class="num"><b>{ph:.0%}</b></td><td class="num"><b>{pd_:.0%}</b></td><td class="num"><b>{pa:.0%}</b></td></tr>
+          <td class="num"><b>{pct_h}%</b></td><td class="num"><b>{pct_d}%</b></td><td class="num"><b>{pct_a}%</b></td></tr>
         </tbody>
       </table>
     </div>
