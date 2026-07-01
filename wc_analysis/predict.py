@@ -1227,32 +1227,75 @@ def _render_trend_chart(points: list[dict]) -> str:
     for pt in points:
         x = x_of(pt["t"])
         for k in ("h", "d", "a"):
-            series[k].append(f"{x:.1f},{y_of(pt[k]):.1f}")
+            series[k].append((x, y_of(pt[k])))
 
-    colors = {"h": "var(--green)", "d": "var(--amber)", "a": "var(--blue)"}
-    polylines = "".join(
-        f'<polyline points="{" ".join(series[k])}" fill="none" '
-        f'stroke="{colors[k]}" stroke-width="2" class="trend-line trend-{k}"/>'
+    # 卡通配色: 高饱和荧光色, 在深色背景上要"跳出来"而不是融进去
+    colors = {"h": "#3ddc84", "d": "#ffd23d", "a": "#4fc3ff"}
+    glow_ids = {"h": "glowH", "d": "glowD", "a": "glowA"}
+
+    def _pts_str(k):
+        return " ".join(f"{x:.1f},{y:.1f}" for x, y in series[k])
+
+    # 面积填充(渐变到透明), 让曲线不再是"细线飘在黑洞里", 而是有体积感的色带
+    def _area_path(k):
+        pts = series[k]
+        top = " L ".join(f"{x:.1f},{y:.1f}" for x, y in pts)
+        return (f"M {pts[0][0]:.1f},{_TREND_H} L {top} "
+                f"L {pts[-1][0]:.1f},{_TREND_H} Z")
+
+    areas = "".join(
+        f'<path d="{_area_path(k)}" fill="url(#fill{k.upper()})" class="trend-area trend-area-{k}"/>'
         for k in ("h", "d", "a")
     )
-    # 数据点圆点(仅最后一个真实点高亮, 表示"当前")
-    last_dots = "".join(
-        f'<circle cx="{series[k][-1].split(",")[0]}" cy="{series[k][-1].split(",")[1]}" '
-        f'r="3" fill="{colors[k]}" class="trend-dot"/>'
+    # 曲线本体: 加发光滤镜+粗描边, 卡通描边质感(先画深色描边垫底,再叠亮色主线)
+    outlines = "".join(
+        f'<polyline points="{_pts_str(k)}" fill="none" stroke="#1a1512" '
+        f'stroke-width="5.5" stroke-linecap="round" stroke-linejoin="round" opacity="0.5"/>'
         for k in ("h", "d", "a")
+    )
+    polylines = "".join(
+        f'<polyline points="{_pts_str(k)}" fill="none" stroke="{colors[k]}" '
+        f'stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round" '
+        f'filter="url(#{glow_ids[k]})" class="trend-line trend-{k}"/>'
+        for k in ("h", "d", "a")
+    )
+    # 数据点圆点: 白心+彩色描边的"糖豆"造型, 最后一点加呼吸动画表示"实时"
+    def _dot(k, cx, cy, live=False):
+        cls = "trend-dot trend-dot-live" if live else "trend-dot"
+        r = 6 if live else 4.5
+        return (f'<circle cx="{cx:.1f}" cy="{cy:.1f}" r="{r}" fill="{colors[k]}" '
+                f'stroke="#fff" stroke-width="1.6" class="{cls}"/>')
+    all_dots = "".join(
+        _dot(k, *series[k][-1], live=True) for k in ("h", "d", "a")
     )
     points_json = _json.dumps([
         {"t": pt["t"], "h": pt["h"], "d": pt["d"], "a": pt["a"], "x": round(x_of(pt["t"]), 1)}
         for pt in points
     ], ensure_ascii=False)
 
+    defs = "".join(
+        f'''<linearGradient id="fill{k.upper()}" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stop-color="{colors[k]}" stop-opacity="0.45"/>
+          <stop offset="100%" stop-color="{colors[k]}" stop-opacity="0"/>
+        </linearGradient>
+        <filter id="{glow_ids[k]}" x="-50%" y="-50%" width="200%" height="200%">
+          <feGaussianBlur stdDeviation="2.2" result="blur"/>
+          <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+        </filter>'''
+        for k in ("h", "d", "a")
+    )
+
     return f'''<div class="trend-wrap">
-    <div class="trend-hdr"><span>近12h让球盘概率走势</span><span class="trend-hint">拖动查看历史</span></div>
+    <div class="trend-hdr"><span>✨ 近12h让球盘概率走势</span><span class="trend-hint">👆 拖动查看历史</span></div>
     <svg class="trend-svg" viewBox="0 0 {_TREND_W} {_TREND_H}" preserveAspectRatio="none"
          data-points='{points_json}'>
+      <defs>{defs}</defs>
+      {areas}
+      {outlines}
       {polylines}
-      {last_dots}
+      {all_dots}
       <line class="trend-cursor" x1="0" y1="0" x2="0" y2="{_TREND_H}" style="display:none"/>
+      <circle class="trend-cursor-dot" r="4" style="display:none"/>
     </svg>
     <div class="trend-readout"></div>
   </div>'''
@@ -1792,41 +1835,71 @@ header.page-header .tagline {{
 .trend-hdr {{
   display: flex;
   justify-content: space-between;
-  font-size: .68em;
-  color: var(--text-3);
-  margin-bottom: 3px;
+  align-items: baseline;
+  font-size: .72em;
+  font-weight: 600;
+  color: var(--text-2);
+  margin-bottom: 6px;
 }}
-.trend-hint {{ opacity: .7; }}
+.trend-hint {{
+  opacity: .85;
+  font-weight: 500;
+  color: var(--accent);
+  animation: trendHintBounce 1.8s ease-in-out infinite;
+}}
+@keyframes trendHintBounce {{ 0%,100% {{ transform: translateX(0); }} 50% {{ transform: translateX(3px); }} }}
 .trend-svg {{
   width: 100%;
-  height: 72px;
+  height: 88px;
   display: block;
   cursor: crosshair;
   touch-action: none;
-  background: color-mix(in srgb, var(--bg) 60%, transparent);
-  border-radius: 6px;
+  background:
+    radial-gradient(circle at 15% 20%, rgba(61,220,132,.10), transparent 55%),
+    radial-gradient(circle at 85% 75%, rgba(79,195,255,.10), transparent 55%),
+    linear-gradient(180deg, #23201c 0%, #17140f 100%);
+  border: 1.5px solid #3d3630;
+  border-radius: 12px;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.04), 0 3px 10px rgba(0,0,0,.35);
 }}
-.trend-line {{ opacity: .9; }}
-.trend-cursor {{ stroke: var(--text-3); stroke-width: 1; stroke-dasharray: 3 3; }}
+.trend-line {{ opacity: 1; }}
+.trend-area {{ opacity: .9; }}
+.trend-dot {{ filter: drop-shadow(0 0 3px rgba(0,0,0,.5)); }}
+.trend-dot-live {{ animation: trendPulse 1.4s ease-in-out infinite; }}
+@keyframes trendPulse {{
+  0%,100% {{ r: 5.5; opacity: 1; }}
+  50% {{ r: 7.5; opacity: .75; }}
+}}
+.trend-cursor {{ stroke: #ffd23d; stroke-width: 1.5; stroke-dasharray: 4 4; opacity: .85; }}
+.trend-cursor-dot {{ stroke: #fff; stroke-width: 2; filter: drop-shadow(0 0 5px rgba(255,210,61,.8)); }}
 .trend-readout {{
   font-family: var(--mono);
-  font-size: .7em;
+  font-size: .76em;
+  font-weight: 600;
   color: var(--text-2);
-  min-height: 1.4em;
-  margin-top: 4px;
+  min-height: 1.5em;
+  margin-top: 6px;
+  padding: 5px 10px;
+  background: #1c1917;
+  border: 1px solid #3d3630;
+  border-radius: 8px;
   display: flex;
-  gap: 10px;
+  gap: 12px;
+  align-items: center;
 }}
-.trend-readout .r-h {{ color: var(--green); }}
-.trend-readout .r-d {{ color: var(--amber); }}
-.trend-readout .r-a {{ color: var(--blue); }}
-.trend-readout .r-t {{ color: var(--text-3); }}
+.trend-readout .r-h {{ color: #3ddc84; text-shadow: 0 0 8px rgba(61,220,132,.5); }}
+.trend-readout .r-d {{ color: #ffd23d; text-shadow: 0 0 8px rgba(255,210,61,.5); }}
+.trend-readout .r-a {{ color: #4fc3ff; text-shadow: 0 0 8px rgba(79,195,255,.5); }}
+.trend-readout .r-t {{ color: var(--text-3); font-weight: 500; }}
 .trend-empty {{
-  font-size: .68em;
+  font-size: .72em;
   color: var(--text-3);
-  padding: 10px 0;
+  padding: 14px 10px;
   text-align: center;
   font-style: italic;
+  background: linear-gradient(180deg, #23201c 0%, #17140f 100%);
+  border: 1.5px dashed #3d3630;
+  border-radius: 12px;
 }}
 
 .data-grid {{ margin-bottom: 12px; }}
@@ -2126,8 +2199,10 @@ footer.page-footer {{
       try {{ pts = JSON.parse(svg.dataset.points || '[]'); }} catch (e) {{ return; }}
       if (!pts.length) return;
       const cursor = svg.querySelector('.trend-cursor');
+      const cursorDot = svg.querySelector('.trend-cursor-dot');
       const readout = svg.parentElement.querySelector('.trend-readout');
-      const vbW = 560;
+      const vbW = 560, vbH = 96;
+      function yOf(p) {{ return vbH - 8 - p * (vbH - 16); }}
 
       function fmtTime(iso) {{
         const d = new Date(iso);
@@ -2151,6 +2226,10 @@ footer.page-footer {{
 
         cursor.setAttribute('x1', relX); cursor.setAttribute('x2', relX);
         cursor.style.display = 'block';
+        cursorDot.setAttribute('cx', relX);
+        cursorDot.setAttribute('cy', yOf(h));
+        cursorDot.setAttribute('fill', '#ffd23d');
+        cursorDot.style.display = 'block';
         readout.innerHTML =
           `<span class="r-t">${{fmtTime(t)}}</span>` +
           `<span class="r-h">主${{(h*100).toFixed(0)}}%</span>` +
@@ -2160,6 +2239,7 @@ footer.page-footer {{
 
       function clear() {{
         cursor.style.display = 'none';
+        cursorDot.style.display = 'none';
         const last = pts[pts.length - 1];
         readout.innerHTML =
           `<span class="r-t">最新 ${{fmtTime(last.t)}}</span>` +

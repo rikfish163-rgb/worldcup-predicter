@@ -255,41 +255,71 @@ header.page-header .tagline {
 .trend-hdr {
   display: flex;
   justify-content: space-between;
-  font-size: .68em;
-  color: var(--text-3);
-  margin-bottom: 3px;
+  align-items: baseline;
+  font-size: .72em;
+  font-weight: 600;
+  color: var(--text-2);
+  margin-bottom: 6px;
 }
-.trend-hint { opacity: .7; }
+.trend-hint {
+  opacity: .85;
+  font-weight: 500;
+  color: var(--accent);
+  animation: trendHintBounce 1.8s ease-in-out infinite;
+}
+@keyframes trendHintBounce { 0%,100% { transform: translateX(0); } 50% { transform: translateX(3px); } }
 .trend-svg {
   width: 100%;
-  height: 72px;
+  height: 88px;
   display: block;
   cursor: crosshair;
   touch-action: none;
-  background: color-mix(in srgb, var(--bg) 60%, transparent);
-  border-radius: 6px;
+  background:
+    radial-gradient(circle at 15% 20%, rgba(61,220,132,.10), transparent 55%),
+    radial-gradient(circle at 85% 75%, rgba(79,195,255,.10), transparent 55%),
+    linear-gradient(180deg, #23201c 0%, #17140f 100%);
+  border: 1.5px solid #3d3630;
+  border-radius: 12px;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.04), 0 3px 10px rgba(0,0,0,.35);
 }
-.trend-line { opacity: .9; }
-.trend-cursor { stroke: var(--text-3); stroke-width: 1; stroke-dasharray: 3 3; }
+.trend-line { opacity: 1; }
+.trend-area { opacity: .9; }
+.trend-dot { filter: drop-shadow(0 0 3px rgba(0,0,0,.5)); }
+.trend-dot-live { animation: trendPulse 1.4s ease-in-out infinite; }
+@keyframes trendPulse {
+  0%,100% { r: 5.5; opacity: 1; }
+  50% { r: 7.5; opacity: .75; }
+}
+.trend-cursor { stroke: #ffd23d; stroke-width: 1.5; stroke-dasharray: 4 4; opacity: .85; }
+.trend-cursor-dot { stroke: #fff; stroke-width: 2; filter: drop-shadow(0 0 5px rgba(255,210,61,.8)); }
 .trend-readout {
   font-family: var(--mono);
-  font-size: .7em;
+  font-size: .76em;
+  font-weight: 600;
   color: var(--text-2);
-  min-height: 1.4em;
-  margin-top: 4px;
+  min-height: 1.5em;
+  margin-top: 6px;
+  padding: 5px 10px;
+  background: #1c1917;
+  border: 1px solid #3d3630;
+  border-radius: 8px;
   display: flex;
-  gap: 10px;
+  gap: 12px;
+  align-items: center;
 }
-.trend-readout .r-h { color: var(--green); }
-.trend-readout .r-d { color: var(--amber); }
-.trend-readout .r-a { color: var(--blue); }
-.trend-readout .r-t { color: var(--text-3); }
+.trend-readout .r-h { color: #3ddc84; text-shadow: 0 0 8px rgba(61,220,132,.5); }
+.trend-readout .r-d { color: #ffd23d; text-shadow: 0 0 8px rgba(255,210,61,.5); }
+.trend-readout .r-a { color: #4fc3ff; text-shadow: 0 0 8px rgba(79,195,255,.5); }
+.trend-readout .r-t { color: var(--text-3); font-weight: 500; }
 .trend-empty {
-  font-size: .68em;
+  font-size: .72em;
   color: var(--text-3);
-  padding: 10px 0;
+  padding: 14px 10px;
   text-align: center;
   font-style: italic;
+  background: linear-gradient(180deg, #23201c 0%, #17140f 100%);
+  border: 1.5px dashed #3d3630;
+  border-radius: 12px;
 }
 
 .data-grid { margin-bottom: 12px; }
@@ -502,7 +532,7 @@ footer.page-footer {
 <header class="page-header">
   <div class="brand">
     <h1>⚽ 世界杯让球盘预测</h1>
-    <span class="tagline">Dixon-Coles · 2026-07-01 15:12:36</span>
+    <span class="tagline">Dixon-Coles · 2026-07-01 15:20:26</span>
   </div>
   <div class="scoreboard">
     <span class="sb-badge live"><span class="dot"></span>LIVE</span>
@@ -577,7 +607,7 @@ footer.page-footer {
           <tr class="posterior-row"><td class="row-label">后验</td>
           <td class="num"><b>77%</b></td><td class="num"><b>16%</b></td><td class="num"><b>7%</b></td></tr>
           <tr><td class="row-label">赔率</td>
-          <td class="num">1.17</td><td class="num">5.22</td><td class="num">12.00</td></tr>
+          <td class="num">1.17</td><td class="num">5.13</td><td class="num">12.50</td></tr>
         </tbody>
       </table>
     </div>
@@ -608,7 +638,7 @@ footer.page-footer {
     <span class="score-chip"><b>2-0</b> 16%</span><span class="score-chip"><b>1-0</b> 13%</span><span class="score-chip"><b>3-0</b> 12%</span><span class="score-chip"><b>2-1</b> 8%</span><span class="score-chip"><b>1-1</b> 8%</span>
   </div>
   <div class="insight">英格兰定位球能力强(λ×1.108); 英格兰近况防守强[实采xGA](影响刚果(金)进攻 λ×0.80)</div>
-  <div class="news-notice"><span class="news-tag">🩹 伤停新闻(赛前确认)</span><span class="news-team">英格兰</span><a href="https://news.google.com/rss/articles/CBMijwFBVV95cUxPU0Y5VnBxZlRXTldyQ19IN0VpTWdnX20yWGtjUXpFaDdiLUVKNURpNmNHMzlNT25UenFkT3BCY1ZhSTBTQjZzZFFEcy1qVENEWG1hWEE2enYxZ0xReXp3Q3I2QUVDRmxtTnRIV1d5V1pNZnhmb3BBSkx4WDVRU3BHMEN4X3gxb05MTTdNRkFTUQ?oc=5" target="_blank" rel="noopener" class="news-title">England injury crisis as Tuchel confirms pair will miss DR Congo World Cup clash - the-sun.com</a><span class="news-src">the-sun.com</span></div><div class="news-notice"><span class="news-tag">🩹 伤停新闻(赛前确认)</span><span class="news-team">刚果(金)</span><a href="https://news.google.com/rss/articles/CBMijwFBVV95cUxPU0Y5VnBxZlRXTldyQ19IN0VpTWdnX20yWGtjUXpFaDdiLUVKNURpNmNHMzlNT25UenFkT3BCY1ZhSTBTQjZzZFFEcy1qVENEWG1hWEE2enYxZ0xReXp3Q3I2QUVDRmxtTnRIV1d5V1pNZnhmb3BBSkx4WDVRU3BHMEN4X3gxb05MTTdNRkFTUQ?oc=5" target="_blank" rel="noopener" class="news-title">England injury crisis as Tuchel confirms pair will miss DR Congo World Cup clash - the-sun.com</a><span class="news-src">the-sun.com</span></div>
+  
 </article><article class="match" style="--i:1">
   <header>
     <div class="matchup">
@@ -1272,7 +1302,7 @@ footer.page-footer {
     <span class="score-chip"><b>2-0</b> 13%</span><span class="score-chip"><b>3-0</b> 13%</span><span class="score-chip"><b>4-0</b> 9%</span><span class="score-chip"><b>1-0</b> 8%</span><span class="score-chip"><b>2-1</b> 8%</span>
   </div>
   <div class="insight">阿根廷定位球能力强(λ×1.095); 佛得角近况防守差[实采xGA](影响阿根廷进攻 λ×1.17); 阿根廷近况防守强[实采xGA](影响佛得角进攻 λ×0.80)</div>
-  <div class="news-notice"><span class="news-tag">😴 疲劳/舟车劳顿</span><span class="news-team">阿根廷</span><a href="https://news.google.com/rss/articles/CBMitAJBVV95cUxNdWxCVHNacVR4VmRleXhuZldHdTlmS2w3aFplZGpYTHNaNXVOUmQ0UzBMMkFnVERMY25lOU9aQ2c0UTBxalRWeVY1UEZ1RXJySUJaNmpUNUhIcTlLc2VFLWN6VlJhYUFISVJpS2hNZ3U2a1V6Z2xLU2hZUW9oc3M5QWpmNXBKa0RNWmdCbG56a1dfVjhjbE4wdkRmWkRhQ2I5Qnlia3p5eWxYTXE2Ri0ydFpYSFZaNE41S2JqMnItMktISDNKQURCbFRKcTkzZlZoNklXaGdiNjFSVl8tMWtaaThYcnlRR1dGSXlVeVVXUGRWYm5NWTBRS1MzLU16R0R4RFZXTEdJWHlDWVNOcnVCelZhNS1LQ21FNlByRHlzOHFLazZPYkd5TXNtRHlFd05McWFIUQ?oc=5" target="_blank" rel="noopener" class="news-title">Inter Miami coach Hoyos downplays Lionel Messi injury as 'fatigue' ahead of Argentina's 2026 World Cup preparations - MSN</a><span class="news-src">MSN</span></div><div class="news-notice"><span class="news-tag">🚩 争议/申诉</span><span class="news-team">阿根廷</span><a href="https://news.google.com/rss/articles/CBMikAFBVV95cUxONlBQVzNUZ1l4c2YxeXFiY2drRmIwM3AtMDRTZ1ZBSEwtdnAwOU5admpWUWY3MzFDVXY1a3NwSUhGV3RNX01KZVdiQ2V5a1pWdUoxZno0OTR5c3JvNkhLcUhjX3RKeTZDa0haSG5mTVUyTGNoc0VNVFZKUXdwSTRvOW9TdmhiZjlwcmxCMDJmejc?oc=5" target="_blank" rel="noopener" class="news-title">Cape Verde captain under investigation for alleged rape as team faces Argentina - Yahoo Sports</a><span class="news-src">Yahoo Sports</span></div><div class="news-notice"><span class="news-tag">🚩 争议/申诉</span><span class="news-team">佛得角</span><a href="https://news.google.com/rss/articles/CBMikAFBVV95cUxONlBQVzNUZ1l4c2YxeXFiY2drRmIwM3AtMDRTZ1ZBSEwtdnAwOU5admpWUWY3MzFDVXY1a3NwSUhGV3RNX01KZVdiQ2V5a1pWdUoxZno0OTR5c3JvNkhLcUhjX3RKeTZDa0haSG5mTVUyTGNoc0VNVFZKUXdwSTRvOW9TdmhiZjlwcmxCMDJmejc?oc=5" target="_blank" rel="noopener" class="news-title">Cape Verde captain under investigation for alleged rape as team faces Argentina - Yahoo Sports</a><span class="news-src">Yahoo Sports</span></div>
+  <div class="news-notice"><span class="news-tag">🚩 争议/申诉</span><span class="news-team">阿根廷</span><a href="https://news.google.com/rss/articles/CBMikAFBVV95cUxONlBQVzNUZ1l4c2YxeXFiY2drRmIwM3AtMDRTZ1ZBSEwtdnAwOU5admpWUWY3MzFDVXY1a3NwSUhGV3RNX01KZVdiQ2V5a1pWdUoxZno0OTR5c3JvNkhLcUhjX3RKeTZDa0haSG5mTVUyTGNoc0VNVFZKUXdwSTRvOW9TdmhiZjlwcmxCMDJmejc?oc=5" target="_blank" rel="noopener" class="news-title">Cape Verde captain under investigation for alleged rape as team faces Argentina - Yahoo Sports</a><span class="news-src">Yahoo Sports</span></div><div class="news-notice"><span class="news-tag">🚩 争议/申诉</span><span class="news-team">佛得角</span><a href="https://news.google.com/rss/articles/CBMikAFBVV95cUxONlBQVzNUZ1l4c2YxeXFiY2drRmIwM3AtMDRTZ1ZBSEwtdnAwOU5admpWUWY3MzFDVXY1a3NwSUhGV3RNX01KZVdiQ2V5a1pWdUoxZno0OTR5c3JvNkhLcUhjX3RKeTZDa0haSG5mTVUyTGNoc0VNVFZKUXdwSTRvOW9TdmhiZjlwcmxCMDJmejc?oc=5" target="_blank" rel="noopener" class="news-title">Cape Verde captain under investigation for alleged rape as team faces Argentina - Yahoo Sports</a><span class="news-src">Yahoo Sports</span></div>
 </article><article class="match" style="--i:8">
   <header>
     <div class="matchup">
@@ -1383,7 +1413,7 @@ footer.page-footer {
 </footer>
 <script>
   // 当前页面数据版本(predictions.json mtime). 轮询此值, 变化即有新盘口数据。
-  window.__VER__ = 1782889956;
+  window.__VER__ = 1782890426;
   function smoothReload() {
     document.body.classList.add('fading');
     setTimeout(() => location.reload(), 520);
@@ -1441,8 +1471,10 @@ footer.page-footer {
       try { pts = JSON.parse(svg.dataset.points || '[]'); } catch (e) { return; }
       if (!pts.length) return;
       const cursor = svg.querySelector('.trend-cursor');
+      const cursorDot = svg.querySelector('.trend-cursor-dot');
       const readout = svg.parentElement.querySelector('.trend-readout');
-      const vbW = 560;
+      const vbW = 560, vbH = 96;
+      function yOf(p) { return vbH - 8 - p * (vbH - 16); }
 
       function fmtTime(iso) {
         const d = new Date(iso);
@@ -1466,6 +1498,10 @@ footer.page-footer {
 
         cursor.setAttribute('x1', relX); cursor.setAttribute('x2', relX);
         cursor.style.display = 'block';
+        cursorDot.setAttribute('cx', relX);
+        cursorDot.setAttribute('cy', yOf(h));
+        cursorDot.setAttribute('fill', '#ffd23d');
+        cursorDot.style.display = 'block';
         readout.innerHTML =
           `<span class="r-t">${fmtTime(t)}</span>` +
           `<span class="r-h">主${(h*100).toFixed(0)}%</span>` +
@@ -1475,6 +1511,7 @@ footer.page-footer {
 
       function clear() {
         cursor.style.display = 'none';
+        cursorDot.style.display = 'none';
         const last = pts[pts.length - 1];
         readout.innerHTML =
           `<span class="r-t">最新 ${fmtTime(last.t)}</span>` +
