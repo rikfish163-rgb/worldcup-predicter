@@ -1220,8 +1220,26 @@ def _render_trend_chart(points: list[dict]) -> str:
         frac = max(0.0, min(1.0, frac))
         return _TREND_PAD_L + frac * (_TREND_W - _TREND_PAD_L - _TREND_PAD_R)
 
+    # Y轴自适应缩放: 让球盘融合权重70%给市场, 市场半天不开新盘时概率常常
+    # 只微幅漂移(<2%), 若Y轴固定按0-100%整幅画, 0.5%的变化只占96px高的
+    # 不到1px, 肉眼看就是一条死直线 —— 这才是"全是水平线"的真实原因,
+    # 不是没记录到变化, 是变化被画图的固定量程压没了。
+    # 修复: 按当前窗口内 h/d/a 三条线的真实min/max定Y轴范围, 并强制保留
+    # 至少 MIN_SPAN 的可视幅度(避免真正持平时反而因除零/过度放大出现抖动假象)。
+    all_vals = [pt[k] for pt in points for k in ("h", "d", "a")]
+    v_min, v_max = min(all_vals), max(all_vals)
+    MIN_SPAN = 0.06  # 至少按6个百分点的幅度画, 小于这个视觉上已算"持平"
+    span = max(v_max - v_min, MIN_SPAN)
+    mid = (v_max + v_min) / 2
+    y_lo = max(0.0, mid - span / 2)
+    y_hi = min(1.0, y_lo + span)
+    if y_hi - y_lo < span:  # 撞到0或1的边界, 反向补回来
+        y_lo = max(0.0, y_hi - span)
+
     def y_of(p: float) -> float:
-        return _TREND_H - 8 - p * (_TREND_H - 16)  # 8px上下留白
+        frac = (p - y_lo) / (y_hi - y_lo) if y_hi > y_lo else 0.5
+        frac = max(0.0, min(1.0, frac))
+        return _TREND_H - 10 - frac * (_TREND_H - 20)  # 10px上下留白(给范围标注留空间)
 
     series = {"h": [], "d": [], "a": []}
     for pt in points:
@@ -1285,6 +1303,11 @@ def _render_trend_chart(points: list[dict]) -> str:
         for k in ("h", "d", "a")
     )
 
+    # Y轴范围提示: 缩放后曲线看起来波动很大, 必须标注真实量程, 否则会
+    # 把"其实只变了0.5%"误读成"剧烈波动"——这跟修复"看不出变化"同等重要。
+    zoom_note = (f"纵轴 {y_lo*100:.0f}%~{y_hi*100:.0f}%" if span > MIN_SPAN + 1e-6
+                 else "纵轴 0%~100%(变化<6pt, 已按最小量程显示)")
+
     return f'''<div class="trend-wrap">
     <div class="trend-hdr"><span>✨ 近12h让球盘概率走势</span><span class="trend-hint">👆 拖动查看历史</span></div>
     <svg class="trend-svg" viewBox="0 0 {_TREND_W} {_TREND_H}" preserveAspectRatio="none"
@@ -1296,6 +1319,7 @@ def _render_trend_chart(points: list[dict]) -> str:
       {all_dots}
       <line class="trend-cursor" x1="0" y1="0" x2="0" y2="{_TREND_H}" style="display:none"/>
       <circle class="trend-cursor-dot" r="4" style="display:none"/>
+      <text x="{_TREND_W - 6}" y="12" text-anchor="end" class="trend-zoom-note">{zoom_note}</text>
     </svg>
     <div class="trend-readout"></div>
   </div>'''
@@ -1872,6 +1896,7 @@ header.page-header .tagline {{
 }}
 .trend-cursor {{ stroke: #ffd23d; stroke-width: 1.5; stroke-dasharray: 4 4; opacity: .85; }}
 .trend-cursor-dot {{ stroke: #fff; stroke-width: 2; filter: drop-shadow(0 0 5px rgba(255,210,61,.8)); }}
+.trend-zoom-note {{ font-size: 8.5px; fill: var(--text-3); font-family: var(--mono); opacity: .8; }}
 .trend-readout {{
   font-family: var(--mono);
   font-size: .76em;
