@@ -114,6 +114,40 @@ TEAM_DB = {
     "智利": ("Chile", "CL"), "玻利维亚": ("Bolivia", "BO"),
 }
 
+
+class TeamRegistry:
+    """球队注册表抽象接口: 把"中文名"映射到该队伍在Elo数据源里的
+    (标识名, 队伍代码), 供get_elo()/_get_team_style()等函数使用。
+
+    多联赛阶段0铺路(2026-07-02, 全方位审查确认低风险): 世界杯当前用国家队
+    Elo(eloratings.net), 英超/中超要接俱乐部Elo(clubelo.com等), 两者的
+    队名映射表/数据源完全不同。这一步只是把"查表"这个动作抽成接口, 不改变
+    任何现有行为——EloRatingsRegistry原样桥接现有TEAM_DB字典。未来要支持
+    别的联赛, 只需要新写一个Registry子类实现elo_key(), 不需要改动
+    get_elo()/_get_team_style()等业务逻辑代码。战意/赛制/数据源适配等
+    工作量更大的部分(阶段1-4)未来若要做需要单独评估, 这次不做。
+    """
+
+    def elo_key(self, team_cn: str) -> tuple[str, str] | None:
+        """返回(标识名, 队伍代码), 查不到返回None。"""
+        raise NotImplementedError
+
+
+class EloRatingsRegistry(TeamRegistry):
+    """世界杯当前实现: 原样桥接现有TEAM_DB字典(中文名->(eloratings.net文件名, 2字母代码))。"""
+
+    def __init__(self, team_db: dict):
+        self._team_db = team_db
+
+    def elo_key(self, team_cn: str) -> tuple[str, str] | None:
+        return self._team_db.get(team_cn)
+
+
+# 模块级默认实例, 供全文件复用。未来切换/新增联赛只需要换这一行绑定的
+# Registry实现, 不需要改下面消费它的业务逻辑。
+TEAM_REGISTRY = EloRatingsRegistry(TEAM_DB)
+
+
 # ═══════════════════════════════════════════════════════════════════
 # 1. 体彩赔率
 # ═══════════════════════════════════════════════════════════════════
@@ -195,7 +229,7 @@ def _devig(odds: dict) -> dict:
 # ═══════════════════════════════════════════════════════════════════
 
 def get_elo(team_cn: str) -> float | None:
-    entry = TEAM_DB.get(team_cn)
+    entry = TEAM_REGISTRY.elo_key(team_cn)
     if not entry:
         return None
     fname, code = entry
@@ -394,8 +428,8 @@ def _predict_draw_prob(elo_h: float, elo_a: float, home_cn: str = None, away_cn:
         low_score_tendency, avg_conceded, h2h_draw = 0.40, 1.2, 0.25
 
         if home_cn and away_cn:
-            h_entry = TEAM_DB.get(home_cn)
-            a_entry = TEAM_DB.get(away_cn)
+            h_entry = TEAM_REGISTRY.elo_key(home_cn)
+            a_entry = TEAM_REGISTRY.elo_key(away_cn)
             if h_entry and a_entry:
                 h_code, a_code = h_entry[1], a_entry[1]
                 h_stats = _get_team_style(home_cn)
@@ -425,7 +459,7 @@ def _get_team_style(team_cn: str) -> dict | None:
     (ELO_CACHE/{team}.tsv)会被get_elo()每24h重新抓取更新, --serve长驻进程
     缓存命中后就再也不会用新抓的比赛数据重算球队风格特征。改成对比tsv文件
     mtime, 变了才重新计算, 跟其余缓存(_xg_cache等)统一到同一套模式。)"""
-    entry = TEAM_DB.get(team_cn)
+    entry = TEAM_REGISTRY.elo_key(team_cn)
     if not entry:
         return None
     fname, code = entry
@@ -465,8 +499,8 @@ def _get_team_style(team_cn: str) -> dict | None:
 
 
 def _get_h2h_draw_rate(home_cn: str, away_cn: str) -> float:
-    h_entry = TEAM_DB.get(home_cn)
-    a_entry = TEAM_DB.get(away_cn)
+    h_entry = TEAM_REGISTRY.elo_key(home_cn)
+    a_entry = TEAM_REGISTRY.elo_key(away_cn)
     if not h_entry or not a_entry:
         return 0.25
     h_code, a_code = h_entry[1], a_entry[1]
@@ -512,7 +546,7 @@ def _get_cohesion_factor(team_cn: str, knockout: bool = False) -> float:
                 return entry.get("lambda_factor", 1.0)
 
     # 自动量化: 基于近期比赛数和一致性
-    entry = TEAM_DB.get(team_cn)
+    entry = TEAM_REGISTRY.elo_key(team_cn)
     if not entry:
         return 1.0
     fname, code = entry
@@ -560,7 +594,7 @@ def weighted_goals_rate(team_cn: str, days_back: int = 365) -> tuple[float, floa
     返回 (加权场均进球, 加权场均失球),若数据不足返回 None。
     """
     XI = 0.0065  # 半衰期约107天
-    entry = TEAM_DB.get(team_cn)
+    entry = TEAM_REGISTRY.elo_key(team_cn)
     if not entry:
         return None
     fname, code = entry
