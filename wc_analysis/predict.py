@@ -822,10 +822,19 @@ def predict_match(elo_h: float, elo_a: float, adj_h: float = 1.0, adj_a: float =
         hc_prior = {"h": round(hc_h, 4), "d": round(hc_d, 4), "a": round(hc_a, 4),
                     "line": "-1"}
 
-    # 总进球
+    # 总进球: 0..n-2球各自"恰好N球", 最后一档(n-1, 通常是"7")是市场约定的
+    # "N+球"开口档, 而非"恰好N球"。
+    # (审计修复2026-07-02: 此前最后一档只算"恰好7球", 且score_matrix用n=8
+    # 截断(每队最多算到7球), i+j>=8的所有组合(如4-4/4-5等)被完全丢弃, 既没
+    # 算进模型自己的分布也没暴露出来, 导致9场生产预测的ttg字典求和实测都<1
+    # (缺失0.46%~2.0%), 不是合法概率分布; 且市场盘口的这一档本身就是"N球或
+    # 以上"开口档, 用"恰好N球"的口径去跟市场devig概率算edge, 会系统性压低
+    # 这一档的edge(exact-N的概率天然小于N+的概率)。改为把所有i+j>=n-1的格子
+    # 折进最后一档, 使模型分布严格归一且与市场同口径。)
     ttg = {}
-    for g in range(n):
+    for g in range(n - 1):
         ttg[str(g)] = float(sum(mat[i, g-i] for i in range(n) if 0 <= g-i < n))
+    ttg[str(n - 1)] = float(sum(mat[i, j] for i in range(n) for j in range(n) if i + j >= n - 1))
     # 热门比分
     scores = [(f"{i}-{j}", float(mat[i, j])) for i in range(6) for j in range(6)]
     scores.sort(key=lambda x: -x[1])
@@ -1573,49 +1582,64 @@ def render_html(predictions: list[dict]) -> str:
     </div>'''
 
         # 2. 总进球 (TTG) - 显示模型概率 vs 市场概率
+        # (审计修复2026-07-02: 此前只检查ttg_odds/ttg是否存在, 没检查ttg_market/
+        # ttg_posterior——市场没开对应去水概率时这两者是空字典/None, ttg_mkt.get(...,0)
+        # 全部返回0, 渲染出一排"市场0% 0% 0% 0% 0%"的表格, 看起来像"模型认为这些
+        # 都不可能"而不是"这项数据缺失"(9场生产预测实测全部踩中, 因为市场概率来自
+        # devig计算, 某些盘口没开全)。分别判断市场/后验是否真的有数据, 没有就显示
+        # "暂无市场数据"文案而不是伪造的0%; 同时5档(0/1/2/3/4+)统一用_pct3()最大
+        # 余数法保证显示总和=100%, 之前这里跟修复前的胜平负一样是各自独立.0%取整。)
         ttg_section = ""
         if p.get("ttg_odds") and p.get("ttg"):
             ttg_o = p["ttg_odds"]
             ttg_mkt = p.get("ttg_market") or {}
             ttg_model = p["ttg"]
             ttg_post = p.get("ttg_posterior") or {}
-            # 找出最大概率的进球数
-            best_g = max(ttg_mkt.keys(), key=lambda k: ttg_mkt.get(k, 0)) if ttg_mkt else "0"
-            best_market_p = ttg_mkt.get(best_g, 0)
-            best_model_p = ttg_model.get(best_g, 0)
-            best_odds = ttg_o.get(best_g, 0)
-            best_post = ttg_post.get(best_g, 0) if ttg_post else 0
-            # 渲染 0-3 球 + 4+球
-            ttg_cells_model = "".join(
-                f'<td class="num">{ttg_model.get(str(g), 0):.0%}</td>'
-                for g in range(4))
-            ttg_cells_market = "".join(
-                f'<td class="num">{ttg_mkt.get(str(g), 0):.0%}</td>'
-                for g in range(4))
-            ttg_cells_post = "".join(
-                f'<td class="num"><b>{ttg_post.get(str(g), 0):.0%}</b></td>'
-                for g in range(4))
+            has_market = bool(ttg_mkt)
+            has_post = bool(ttg_post)
+
+            def _bucket5(d: dict) -> list[float]:
+                """把0/1/2/3/4+这5档从ttg字典里取出(4+ = 4..7档相加)。"""
+                b = [d.get(str(g), 0.0) for g in range(4)]
+                b.append(sum(d.get(str(g), 0.0) for g in range(4, 8)))
+                return b
+
+            model_vals = _bucket5(ttg_model)
+            model_pct = _pct3(*model_vals)
+            if has_market:
+                market_vals = _bucket5(ttg_mkt)
+                market_pct = _pct3(*market_vals)
+                best_g = max(ttg_mkt.keys(), key=lambda k: ttg_mkt.get(k, 0))
+                best_market_p = ttg_mkt.get(best_g, 0)
+                title_suffix = f" · 市场最可能: <b>{best_g}球</b> ({best_market_p:.0%})"
+                market_row = "".join(f'<td class="num">{x}%</td>' for x in market_pct)
+            else:
+                title_suffix = " · 市场未开盘"
+                market_row = '<td class="num" colspan="5">暂无市场数据</td>'
+            if has_post:
+                post_vals = _bucket5(ttg_post)
+                post_pct = _pct3(*post_vals)
+                post_row = "".join(f'<td class="num"><b>{x}%</b></td>' for x in post_pct)
+            else:
+                post_row = '<td class="num" colspan="5">暂无市场数据, 后验退化为模型值(见上)</td>'
+            ttg_cells_model = "".join(f'<td class="num">{x}%</td>' for x in model_pct)
             ttg_cells_odds = "".join(
                 f'<td class="num">{ttg_o.get(str(g), 0):.2f}</td>'
                 for g in range(4))
-            # 4+球合并
-            p4plus_m = sum(ttg_model.get(str(g), 0) for g in range(4, 8))
-            p4plus_k = sum(ttg_mkt.get(str(g), 0) for g in range(4, 8))
-            p4plus_post = sum(ttg_post.get(str(g), 0) for g in range(4, 8)) if ttg_post else 0
             o4plus_inv = sum(1.0/ttg_o.get(str(g), 999) for g in range(4, 8) if ttg_o.get(str(g)))
             o4plus = 1.0 / o4plus_inv if o4plus_inv > 0 else 0
             ttg_section = f'''
     <div class="market-section">
-      <div class="market-title">总进球 (TTG) · 市场最可能: <b>{best_g}球</b> ({best_market_p:.0%})</div>
+      <div class="market-title">总进球 (TTG){title_suffix}</div>
       <table>
         <thead><tr><th></th><th>0球</th><th>1球</th><th>2球</th><th>3球</th><th>4+球</th></tr></thead>
         <tbody>
           <tr><td class="row-label">模型</td>
-          {ttg_cells_model}<td class="num">{p4plus_m:.0%}</td></tr>
+          {ttg_cells_model}</tr>
           <tr><td class="row-label">市场</td>
-          {ttg_cells_market}<td class="num">{p4plus_k:.0%}</td></tr>
+          {market_row}</tr>
           <tr class="posterior-row"><td class="row-label">后验</td>
-          {ttg_cells_post}<td class="num"><b>{p4plus_post:.0%}</b></td></tr>
+          {post_row}</tr>
           <tr><td class="row-label">赔率</td>
           {ttg_cells_odds}<td class="num">{o4plus:.2f}</td></tr>
         </tbody>
