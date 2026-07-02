@@ -23,7 +23,7 @@
   .venv/bin/python wc_analysis/predict.py --serve   # 启动本地服务+自动刷新
 """
 from __future__ import annotations
-import json, math, urllib.request, time, sys, os
+import html, json, math, urllib.request, time, sys, os
 from pathlib import Path
 from datetime import datetime, timedelta
 from urllib.parse import quote
@@ -472,7 +472,10 @@ def _get_cohesion_factor(team_cn: str, knockout: bool = False) -> float:
 
     # 手动定性因子(优先级最高,人工判断)
     if COHESION_FILE.exists():
-        coh = json.loads(COHESION_FILE.read_text(encoding="utf-8"))
+        try:
+            coh = json.loads(COHESION_FILE.read_text(encoding="utf-8"))
+        except (json.JSONDecodeError, OSError):
+            coh = {}  # 文件损坏/并发写入截断时不让整条pipeline崩溃, 退化为跳过手动因子
         if team_cn in coh:
             entry = coh[team_cn]
             # 淘汰赛阶段忽略"首次世界杯"前提的磨合惩罚, 穿透到自动量化
@@ -963,7 +966,10 @@ def get_adjustments(home: str, away: str) -> tuple[float, float, list[str]]:
     # standings.json(最新赛果同步时间), 视为过时数据并停用 — 防止小组赛结束前的旧伤情
     # (如"德容存疑"但其实已康复首发)继续以最高优先级污染 λ。
     if INJURIES_FILE.exists() and _injuries_is_fresh():
-        inj = json.loads(INJURIES_FILE.read_text(encoding="utf-8"))
+        try:
+            inj = json.loads(INJURIES_FILE.read_text(encoding="utf-8"))
+        except (json.JSONDecodeError, OSError):
+            inj = {}
         for team, adj_key in [(home, "adj_h"), (away, "adj_a")]:
             if team in inj:
                 factor = inj[team].get("lambda_factor", 1.0)
@@ -975,9 +981,17 @@ def get_adjustments(home: str, away: str) -> tuple[float, float, list[str]]:
                     notes.append(f"{team}: {inj[team].get('reason','伤停')} (λ×{factor:.2f})")
 
     # 天气 (高温>33°C 或 湿度>85% 降总进球)
+    # (审计修复2026-07-02: 此前这里裸读取, 全文件唯一没有try/except保护的数据源
+    # ——corners.json/cohesion.json/sofascore都已有保护。get_adjustments被run_pipeline
+    # 对每场比赛调用一次, 且调用链上无外层try/except, weather.json一旦被并发写入
+    # 截断或写入非法JSON, 会直接抛出未捕获异常中止整条run_pipeline, predictions.json
+    # 不再更新, 而/api/refresh在此崩溃前已发送200, 客户端会误判"刷新成功"。)
     weather_file = DATA_DIR / "weather.json"
     if weather_file.exists():
-        w = json.loads(weather_file.read_text(encoding="utf-8"))
+        try:
+            w = json.loads(weather_file.read_text(encoding="utf-8"))
+        except (json.JSONDecodeError, OSError):
+            w = {}
         key = f"{home}vs{away}"
         if key in w and "temp_c" in w[key]:
             max_temp = max(w[key]["temp_c"])
@@ -1215,6 +1229,22 @@ def compute_recommendations(rec: dict, pred: dict) -> list[dict]:
 
     out.sort(key=lambda x: -x["edge"])
     return out
+
+
+def _atomic_write_text(path: Path, content: str, encoding: str = "utf-8") -> None:
+    """原子写: 先写临时文件再os.replace()替换, 避免读者读到写入中途的半成品。
+
+    (审计修复2026-07-02: predictions.json/prediction_history.json/index.html
+    此前都是裸write_text(先truncate再写入新内容), 对于几万行的大json文件写入
+    有一定耗时。_pipeline_lock已经解决了"两个run_pipeline()互相踩写"的竞态,
+    但读者(如/data/predictions.json的HTTP请求, 或本地另一进程直接读文件)在
+    这个写入窗口期读, 仍可能读到被截断的不完整内容——这是读写竞态, 锁解决
+    不了(锁只保护写者之间, 不会让读者等待)。os.replace()在同一文件系统内
+    是原子操作, 读者只会看到"旧完整版本"或"新完整版本", 不会看到中间状态。)
+    """
+    tmp = path.parent / (path.name + ".tmp")
+    tmp.write_text(content, encoding=encoding)
+    os.replace(tmp, path)
 
 
 # ═══════════════════════════════════════════════════════════════════
@@ -1488,15 +1518,21 @@ def render_html(predictions: list[dict]) -> str:
             notes_html += f'<div class="insight movement">{p["odds_movement"]}</div>'
 
         # 场外因素新闻 notice(不量化概率, 仅提醒人工判断)
+        # (审计修复2026-07-02: title/source/link来自Google News RSS抓取的外部内容,
+        # 此前直接拼接进HTML, 未做html.escape——link还被直接用在href=属性里, 存在
+        # 潜在XSS风险面(纵深防御: 即便Google News本身可信, 抓取链路上任何环节被
+        # 污染都会直接注入到面板)。全部字段渲染前统一转义。)
         news_html = ""
         for n in p.get("news_notices", []) or []:
-            title = n.get("title", "")
-            src = n.get("source", "")
-            link = n.get("link", "#")
+            title = html.escape(n.get("title", ""))
+            src = html.escape(n.get("source", ""))
+            link = html.escape(n.get("link", "#"), quote=True)
+            label = html.escape(n.get("label", ""))
+            team = html.escape(n.get("team", ""))
             news_html += (
                 f'<div class="news-notice">'
-                f'<span class="news-tag">{n.get("label","")}</span>'
-                f'<span class="news-team">{n.get("team","")}</span>'
+                f'<span class="news-tag">{label}</span>'
+                f'<span class="news-team">{team}</span>'
                 f'<a href="{link}" target="_blank" rel="noopener" class="news-title">{title}</a>'
                 f'<span class="news-src">{src}</span>'
                 f'</div>'
@@ -2497,8 +2533,8 @@ def run_pipeline() -> list[dict]:
             m, {"prior": had_post, "hc_prior": hhad_post, "ttg": ttg_post})
         predictions.append(rec)
 
-    (DATA_DIR / "predictions.json").write_text(
-        json.dumps(predictions, ensure_ascii=False, indent=2), encoding="utf-8")
+    _atomic_write_text(DATA_DIR / "predictions.json",
+        json.dumps(predictions, ensure_ascii=False, indent=2))
     # 追加到历史预测日志(供 backtest.py 对比真实结果用, 每场比赛只留一条快照, 语义不可动)
     _append_prediction_log(predictions)
     # 追加到趋势序列(独立文件, 每场比赛多个时间点, 供前端画近12h概率变化图)
@@ -2507,8 +2543,8 @@ def run_pipeline() -> list[dict]:
         record_snapshot(predictions)
     except Exception as e:
         print(f"  ⚠ 趋势记录失败: {e}")
-    html = render_html(predictions)
-    (SITE_DIR / "index.html").write_text(html, encoding="utf-8")
+    html_out = render_html(predictions)
+    _atomic_write_text(SITE_DIR / "index.html", html_out)
     print(f"  ✅ {len(predictions)} 场预测 → site/index.html")
     return predictions
 
@@ -2540,7 +2576,18 @@ def _append_prediction_log(predictions: list[dict]):
             "elo_diff": p.get("elo_diff", 0),
             "predicted_at": ts,
         })
-    hist_file.write_text(json.dumps(history, ensure_ascii=False, indent=2), encoding="utf-8")
+    _atomic_write_text(hist_file, json.dumps(history, ensure_ascii=False, indent=2))
+
+
+# 审计修复2026-07-02: run_pipeline()此前完全无锁, /api/refresh(每个HTTP请求
+# 独立线程处理, 见下方ThreadedHTTPServer)与_auto_refresh_loop(后台daemon线程,
+# 默认10min一轮)可能同时各自调用一遍run_pipeline(), 两者都会读旧文件→内存
+# 计算→整份写回, 存在竞态(后写入的覆盖先写入的, 或读到另一线程写了一半的
+# 半成品json)。push_odds.sh的curl --max-time 90超时后不会取消服务端仍在跑的
+# run_pipeline(), 慢查询与下一轮cron/auto_refresh_loop重叠会放大这个风险。
+# 用一把全局锁保证任意时刻只有一次run_pipeline()在执行, 拿不到锁的请求直接
+# 返回"已有刷新在进行中"而不是并发跑一遍。
+_pipeline_lock = threading.Lock()
 
 
 class ThreadedHTTPServer(HTTPServer):
@@ -2564,14 +2611,47 @@ class RefreshHandler(SimpleHTTPRequestHandler):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, directory=str(SITE_DIR), **kwargs)
 
-    def do_GET(self):
-        if self.path == "/api/refresh":
-            self.send_response(200)
+    def _handle_refresh(self):
+        """/api/refresh 的共享实现(GET/POST都会走这里)。
+
+        (审计修复2026-07-02: 此前do_GET/do_POST各自重复一份, 且都是先
+        send_response(200)再跑run_pipeline() —— 一旦run_pipeline()抛异常
+        (比如weather.json损坏, 已在get_adjustments里补了try/except但保留
+        这层作为最后防线), 响应头已经发出200, 客户端会拿到一个"成功"状态码
+        但空/不完整的body, 前端r.json()解析报错却又走不到"网络错误"分支,
+        错误现象和真实原因完全对不上。现在改成run_pipeline()跑完(或抛异常)
+        之后才决定发200还是500。
+        同时用_pipeline_lock防止/api/refresh与_auto_refresh_loop并发执行:
+        拿不到锁直接返回"已有刷新在进行中", 不会排队等锁导致请求堆积。
+        """
+        if not _pipeline_lock.acquire(blocking=False):
+            self.send_response(429)
             self.send_header("Content-Type", "application/json")
             self.send_header("Access-Control-Allow-Origin", "*")
             self.end_headers()
+            self.wfile.write(b'{"ok":false,"error":"refresh already in progress"}')
+            return
+        try:
             run_pipeline()
-            self.wfile.write(b'{"ok":true}')
+        except Exception as e:
+            self.send_response(500)
+            self.send_header("Content-Type", "application/json")
+            self.send_header("Access-Control-Allow-Origin", "*")
+            self.end_headers()
+            self.wfile.write(json.dumps({"ok": False, "error": str(e)},
+                                       ensure_ascii=False).encode("utf-8"))
+            return
+        finally:
+            _pipeline_lock.release()
+        self.send_response(200)
+        self.send_header("Content-Type", "application/json")
+        self.send_header("Access-Control-Allow-Origin", "*")
+        self.end_headers()
+        self.wfile.write(b'{"ok":true}')
+
+    def do_GET(self):
+        if self.path == "/api/refresh":
+            self._handle_refresh()
         elif self.path == "/api/version":
             # 轻量版本端点: 前端轮询此值, 变化即说明有新数据 -> 提示+平滑刷新
             self.send_response(200)
@@ -2641,12 +2721,7 @@ class RefreshHandler(SimpleHTTPRequestHandler):
     def do_POST(self):
         # POST also handled for /api/refresh
         if self.path == "/api/refresh":
-            self.send_response(200)
-            self.send_header("Content-Type", "application/json")
-            self.send_header("Access-Control-Allow-Origin", "*")
-            self.end_headers()
-            run_pipeline()
-            self.wfile.write(b'{"ok":true}')
+            self._handle_refresh()
         elif self.path == "/api/retrain":
             # Trigger model weight retraining (step5_learn)
             self.send_response(200)
@@ -2682,7 +2757,8 @@ def _auto_refresh_loop(interval: int = 600):
     while True:
         time.sleep(interval)
         try:
-            run_pipeline()
+            with _pipeline_lock:  # 与/api/refresh互斥, 避免同时跑两遍pipeline
+                run_pipeline()
             now = datetime.datetime.now()
 
             # DC核心参数(RHO/HOME_ADV/AVG_GOALS)自进化: 每轮都检测样本是否变化
@@ -2720,7 +2796,17 @@ def _auto_refresh_loop(interval: int = 600):
 
 
 def main():
-    run_pipeline()
+    # 审计修复2026-07-02: 此前裸调用, 启动时若第一次run_pipeline()就抛异常
+    # (网络抖动/依赖缺失等), 会阻止HTTP服务绑定端口, systemd(Restart=always,
+    # RestartSec=5)检测到进程退出会持续重启, 若故障没解决就陷入快速重启循环。
+    # _auto_refresh_loop已经有同款try/except保护, 这里补上让二者一致: 首次
+    # 失败仅记录日志, --serve模式仍会启动HTTP服务(用已有的predictions.json/
+    # index.html兜底展示旧数据, 好于完全连不上服务)。
+    try:
+        run_pipeline()
+    except Exception as e:
+        print(f"  ⚠ 启动时首次pipeline执行失败: {e}")
+        print("  仍会启动HTTP服务, 用已有数据文件兜底展示(若存在)")
     if "--serve" in sys.argv:
         port = 8026
         print(f"\n🌐 http://localhost:{port}")
