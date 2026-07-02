@@ -634,6 +634,24 @@ _GROUP_STAGE_STATUSES = {
 }
 
 
+def _check_wc_results_staleness() -> None:
+    """wc_results.json(淘汰赛真实比分)完全没有自动更新机制(Wikipedia/体彩比分
+    接口都需要额外投入才能接, 见memory: [已废弃]小组赛自进化结果), 只能靠日志
+    告警提醒需要人工补充——这是本次全方位审查里唯一"尚未产生实际错误但即将
+    产生"的数据缺口: 淘汰赛持续进行, 若没人手动追加战报, evolve_groupstage的
+    自进化样本会静默停止增长, 且此前完全没有任何提示会告诉你这件事在发生。
+    (用户已确认: 先加这个低成本告警兜底, 暂不投入建真正的自动抓取。)
+    """
+    f = DATA_DIR / "wc_results.json"
+    if not f.exists():
+        return
+    age_days = (time.time() - f.stat().st_mtime) / 86400
+    if age_days > 2:
+        print(f"  ⚠ wc_results.json已{age_days:.1f}天未更新, 若近期有淘汰赛"
+              f"结果产生, evolve_groupstage的自进化样本会静默停止增长, "
+              f"建议人工补充最新战报")
+
+
 def _is_knockout_stage() -> bool:
     """判定当前是否已进入淘汰赛阶段(硬保护)。
     依据: (1) standings.json 显式写了 stage; (2) wc_results 完成场次 >= 72(48队×3÷2,
@@ -1472,20 +1490,41 @@ def render_html(predictions: list[dict]) -> str:
         except Exception:
             pass
     # 数据来源/新鲜度
+    # (审计修复2026-07-02: 此前只算了age_sec用于文字描述, 但LIVE绿点徽章硬编码
+    # 常亮, 跟数据实际年龄完全无关——fetch_sporttery()抓取失败会静默回退陈旧
+    # 缓存(已用真实断网事件push.log 2026-07-02 03:48:01验证过), 断网期间页面
+    # 仍显示绿色LIVE+呼吸动画, 用户无法从视觉上分辨"实时"还是"用户没告诉你的
+    # 陈旧数据"。现在统一记录data_age_sec, 按年龄分三档降级徽章样式, 超过阈值
+    # 再加顶部醒目banner, 不能只让用户自己读小字时间戳。)
     fresh = DATA_DIR / "odds_parsed_fresh.json"
     if fresh.exists():
-        age_sec = time.time() - fresh.stat().st_mtime
-        if age_sec < 3600:
-            data_source = f"4090 relay ({int(age_sec/60)}分钟前)"
+        data_age_sec = time.time() - fresh.stat().st_mtime
+        if data_age_sec < 3600:
+            data_source = f"4090 relay ({int(data_age_sec/60)}分钟前)"
         else:
-            data_source = f"4090 relay ({int(age_sec/3600)}小时前)"
+            data_source = f"4090 relay ({int(data_age_sec/3600)}小时前)"
     else:
         cache = DATA_DIR / "odds_parsed.json"
         if cache.exists():
-            age_sec = time.time() - cache.stat().st_mtime
-            data_source = f"本地缓存 ({int(age_sec/60)}分钟前)"
+            data_age_sec = time.time() - cache.stat().st_mtime
+            data_source = f"本地缓存 ({int(data_age_sec/60)}分钟前)"
         else:
+            data_age_sec = float("inf")
             data_source = "未知"
+
+    if data_age_sec < 2 * 3600:
+        freshness_cls, freshness_label = "live", "LIVE"
+    elif data_age_sec < 6 * 3600:
+        freshness_cls, freshness_label = "stale-warn", "数据滞后"
+    else:
+        freshness_cls, freshness_label = "stale-bad", "数据滞后"
+    freshness_banner = ""
+    if data_age_sec >= 4 * 3600:
+        hrs = "未知" if data_age_sec == float("inf") else f"{data_age_sec/3600:.1f}小时"
+        freshness_banner = (
+            f'<div class="freshness-banner">'
+            f'⚠ 盘口数据已 {hrs} 未更新, 当前展示的概率/购买建议可能已过时, 请谨慎参考'
+            f'</div>')
     cards_html = []
     for _card_i, p in enumerate(predictions):
         # ═══ 主显示: 让球盘后验概率 ═══
@@ -1882,6 +1921,15 @@ header.page-header .tagline {{
 }}
 .sb-badge.evo {{ color: var(--accent); border-color: var(--accent); }}
 .sb-badge.hit {{ color: var(--green); }}
+.sb-badge.stale-warn {{ color: var(--amber); border-color: var(--amber); }}
+.sb-badge.stale-warn .dot {{ width: 7px; height: 7px; border-radius: 50%; background: var(--amber); }}
+.sb-badge.stale-bad {{ color: var(--red); border-color: var(--red); }}
+.sb-badge.stale-bad .dot {{ width: 7px; height: 7px; border-radius: 50%; background: var(--red); }}
+.freshness-banner {{
+  background: var(--red-bg); color: var(--red); border: 1px solid var(--red);
+  border-radius: 8px; padding: 10px 16px; margin: 0 auto 16px; max-width: 1100px;
+  font-size: .85em; text-align: center;
+}}
 .controls {{
   display: flex;
   gap: 8px;
@@ -2292,13 +2340,14 @@ footer.page-footer {{
 </style>
 </head><body>
 <div id="toast">⟳ 盘口已更新</div>
+{freshness_banner}
 <header class="page-header">
   <div class="brand">
     <h1>⚽ 世界杯让球盘预测</h1>
     <span class="tagline">Dixon-Coles · {gen_time}</span>
   </div>
   <div class="scoreboard">
-    <span class="sb-badge live"><span class="dot"></span>LIVE</span>
+    <span class="sb-badge {freshness_cls}"><span class="dot"></span>{freshness_label}</span>
     <span class="sb-badge evo" title="自进化的Dixon-Coles相关系数">进化 ρ={RHO}</span>
     {f'<span class="sb-badge hit" title="最近小组赛回测命中率">命中 {_hit_pct}</span>' if _hit_pct else ''}
     <span class="sb-badge" title="数据来源/新鲜度">{data_source}</span>
@@ -2450,6 +2499,7 @@ footer.page-footer {{
 
 def run_pipeline() -> list[dict]:
     _reload_params_override()  # 每轮都读一次磁盘, 让evolve_groupstage进化出的新参数真正生效
+    _check_wc_results_staleness()  # 低成本告警兜底: wc_results.json太久没更新就提醒
     print(f"[{datetime.now():%H:%M:%S}] 抓取体彩盘口...")
     matches = fetch_sporttery()
     print(f"  {len(matches)} 场在售")
