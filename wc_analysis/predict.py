@@ -274,14 +274,24 @@ def elo_to_lambdas(elo_h: float, elo_a: float) -> tuple[float, float]:
 
 
 _xg_cache = None
+_xg_cache_mtime = 0
 def _load_xg_profiles() -> dict:
-    global _xg_cache
-    if _xg_cache is not None:
-        return _xg_cache
+    """加载xG档案。
+    (审计修复2026-07-02: 此前"读一次永久缓存", --serve长驻进程永远看不到
+    xg_profiles.json后续更新, 与_load_motivation()已有的mtime校验模式不一致。
+    改统一成同款: 检查文件mtime, 变化才重新读。)"""
+    global _xg_cache, _xg_cache_mtime
     xg_file = DATA_DIR / "xg_profiles.json"
-    if xg_file.exists():
+    if not xg_file.exists():
+        _xg_cache = {}
+        return _xg_cache
+    mtime = xg_file.stat().st_mtime
+    if _xg_cache is not None and mtime == _xg_cache_mtime:
+        return _xg_cache
+    try:
         _xg_cache = json.loads(xg_file.read_text(encoding="utf-8"))
-    else:
+        _xg_cache_mtime = mtime
+    except (json.JSONDecodeError, OSError):
         _xg_cache = {}
     return _xg_cache
 
@@ -314,18 +324,22 @@ SOFA_MIN_MATCHES = 5      # 少于5场样本不可靠 → 中性
 # 用中位数而非拍脑袋值: 让因子在真实分布中心对称, 强防守队<1、弱防守队>1, 无系统性偏移。
 SOFA_LEAGUE_XGA = 1.10
 _sofa_cache = None
+_sofa_cache_mtime = 0
 
 
 def _load_sofascore() -> dict:
-    global _sofa_cache
-    if _sofa_cache is not None:
+    """加载SofaScore防守特征, 同_load_xg_profiles()的mtime校验修复。"""
+    global _sofa_cache, _sofa_cache_mtime
+    if not SOFASCORE_FILE.exists():
+        _sofa_cache = {}
         return _sofa_cache
-    if SOFASCORE_FILE.exists():
-        try:
-            _sofa_cache = json.loads(SOFASCORE_FILE.read_text(encoding="utf-8"))
-        except (json.JSONDecodeError, OSError):
-            _sofa_cache = {}
-    else:
+    mtime = SOFASCORE_FILE.stat().st_mtime
+    if _sofa_cache is not None and mtime == _sofa_cache_mtime:
+        return _sofa_cache
+    try:
+        _sofa_cache = json.loads(SOFASCORE_FILE.read_text(encoding="utf-8"))
+        _sofa_cache_mtime = mtime
+    except (json.JSONDecodeError, OSError):
         _sofa_cache = {}
     return _sofa_cache
 
@@ -348,14 +362,23 @@ def _sofa_defense_factor(team_cn: str) -> float:
 
 
 _draw_model = None
+_draw_model_mtime = 0
 def _predict_draw_prob(elo_h: float, elo_a: float, home_cn: str = None, away_cn: str = None) -> float | None:
-    """用训练好的逻辑回归预测平局概率(v2: 8特征含风格+交锋)。"""
-    global _draw_model
-    if _draw_model is None:
-        dm_file = DATA_DIR / "draw_model.json"
-        if not dm_file.exists():
-            return None
-        _draw_model = json.loads(dm_file.read_text(encoding="utf-8"))
+    """用训练好的逻辑回归预测平局概率(v2: 8特征含风格+交锋)。
+    同_load_xg_profiles()的mtime校验修复: 此前"读一次永久缓存", --serve长驻
+    进程永远看不到draw_model.json后续被重新训练产出的新权重。"""
+    global _draw_model, _draw_model_mtime
+    dm_file = DATA_DIR / "draw_model.json"
+    if not dm_file.exists():
+        return None
+    mtime = dm_file.stat().st_mtime
+    if _draw_model is None or mtime != _draw_model_mtime:
+        try:
+            _draw_model = json.loads(dm_file.read_text(encoding="utf-8"))
+            _draw_model_mtime = mtime
+        except (json.JSONDecodeError, OSError):
+            if _draw_model is None:
+                return None  # 从未成功加载过, 没有旧缓存可回退
     m = _draw_model
     n_feats = len(m["w"])
 
@@ -396,10 +419,12 @@ def _predict_draw_prob(elo_h: float, elo_a: float, home_cn: str = None, away_cn:
     return 1.0 / (1.0 + math.exp(-max(-500, min(500, z))))
 
 
-_style_cache = {}
+_style_cache = {}  # team_cn -> (tsv_mtime, result)
 def _get_team_style(team_cn: str) -> dict | None:
-    if team_cn in _style_cache:
-        return _style_cache[team_cn]
+    """(审计修复2026-07-02: 此前按team_cn缓存后永不失效, 但源头tsv文件
+    (ELO_CACHE/{team}.tsv)会被get_elo()每24h重新抓取更新, --serve长驻进程
+    缓存命中后就再也不会用新抓的比赛数据重算球队风格特征。改成对比tsv文件
+    mtime, 变了才重新计算, 跟其余缓存(_xg_cache等)统一到同一套模式。)"""
     entry = TEAM_DB.get(team_cn)
     if not entry:
         return None
@@ -407,6 +432,10 @@ def _get_team_style(team_cn: str) -> dict | None:
     tsv = ELO_CACHE / f"{fname}.tsv"
     if not tsv.exists():
         return None
+    mtime = tsv.stat().st_mtime
+    cached = _style_cache.get(team_cn)
+    if cached is not None and cached[0] == mtime:
+        return cached[1]
     recent = []
     for line in tsv.read_text(encoding="utf-8").strip().split("\n")[-25:]:
         parts = line.split("\t")
@@ -431,7 +460,7 @@ def _get_team_style(team_cn: str) -> dict | None:
         "tempo": sum(m["scored"] + m["conceded"] for m in recent) / len(recent),
         "low_block": sum(1 for m in recent if m["conceded"] <= 1) / len(recent),
     }
-    _style_cache[team_cn] = result
+    _style_cache[team_cn] = (mtime, result)
     return result
 
 

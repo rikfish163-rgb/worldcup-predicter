@@ -220,13 +220,29 @@ def update_match_factors(home_cn: str, away_cn: str, home_en: str, away_en: str,
     news = prune_expired(news)
 
     match_key = f"{match_date}_{home_cn}_{away_cn}"
+    old_block = news.get(match_key) or {}
+
+    # (审计修复2026-07-02: 此前home/away两次抓取共用一个try/except, 任一路
+    # 抛异常都会把已经成功抓到的另一路也清空为[]; 且写回时无条件整体替换
+    # news[match_key], 就算这次两路都空也会覆盖掉上一次可能已经抓到的非空
+    # 旧数据。改为分别try/except(一路失败不连累另一路), 且某一路为空时
+    # 保留旧数据里对应那一路的非空值, 而不是用空值覆盖。)
     try:
         home_items = fetch_team_factors(home_en, away_en, match_date)
-        time.sleep(1.0)  # 温和限速
+    except Exception as e:
+        print(f"  ⚠ 场外因素抓取失败({home_cn}): {e}")
+        home_items = []
+    time.sleep(1.0)  # 温和限速
+    try:
         away_items = fetch_team_factors(away_en, home_en, match_date)
     except Exception as e:
-        print(f"  ⚠ 场外因素抓取失败({home_cn} vs {away_cn}): {e}")
-        home_items, away_items = [], []
+        print(f"  ⚠ 场外因素抓取失败({away_cn}): {e}")
+        away_items = []
+
+    if not home_items and old_block.get("home"):
+        home_items = old_block["home"]
+    if not away_items and old_block.get("away"):
+        away_items = old_block["away"]
 
     block = {"date": match_date, "home": home_items, "away": away_items,
              "fetched_at": datetime.now(timezone.utc).isoformat()}
