@@ -2486,7 +2486,15 @@ def run_pipeline() -> list[dict]:
             "news_notices": news_notices,
         }
         # 体彩购买建议 (跨多玩法扫描)
-        rec["recommendations"] = compute_recommendations(m, pred)
+        # (审计修复2026-07-02: 此前直接传pred(predict_match的原始返回值), 其
+        # prior/hc_prior/ttg全部是未经市场校准的纯模型先验——compute_recommendations
+        # 内部用它们算edge_v = model_p - mkt_p 和凯利下注比例, 等于绕过了系统自己
+        # 引以为傲的对数池市场融合校准层, 直接拿"模型自己有多自信"当依据算真金白银
+        # 的购买建议, 而不是"融合市场信息后还剩多少edge"。改为显式传入刚计算好的
+        # 校准后验(had_post/hhad_post/ttg_post), 字段名保持一致, compute_recommendations
+        # 内部逻辑不用改。)
+        rec["recommendations"] = compute_recommendations(
+            m, {"prior": had_post, "hc_prior": hhad_post, "ttg": ttg_post})
         predictions.append(rec)
 
     (DATA_DIR / "predictions.json").write_text(
