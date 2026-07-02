@@ -52,17 +52,37 @@ NEWS_FILE = DATA_DIR / "news_factors.json"
 CORNERS_FILE = DATA_DIR / "corners.json"
 SOFASCORE_FILE = DATA_DIR / "sofascore_features.json"
 
-RHO = -0.20  # 交叉验证最优(2286场, 2020-2026)
-AVG_GOALS = 2.50  # 交叉验证最优
-HOME_ADV = 0.40  # 世界杯中立场仍有~40Elo主场效应; 联赛可设更高
+RHO = -0.20  # 交叉验证最优(2286场, 2020-2026); 会被params_override.json覆盖
+AVG_GOALS = 2.50  # 交叉验证最优; 会被params_override.json覆盖
+HOME_ADV = 0.40  # 世界杯中立场仍有~40Elo主场效应; 联赛可设更高; 会被params_override.json覆盖
 
-# 自进化参数覆盖(harness.py 诊断后自动写入)
+# 自进化参数覆盖(evolve_groupstage.py 诊断后自动写入 params_override.json)
 _PARAMS_OVERRIDE = DATA_DIR / "params_override.json"
-if _PARAMS_OVERRIDE.exists():
-    _po = __import__("json").loads(_PARAMS_OVERRIDE.read_text(encoding="utf-8"))
-    RHO = _po.get("rho", RHO)
-    AVG_GOALS = _po.get("avg_goals", AVG_GOALS)
-    HOME_ADV = _po.get("home_adv", HOME_ADV)
+
+
+def _reload_params_override() -> None:
+    """重新读取 params_override.json 覆盖 RHO/AVG_GOALS/HOME_ADV。
+
+    (审计修复2026-07-02: 此前这段逻辑只在模块import时执行一次, 写入全局变量后
+    再无任何地方重新读取。--serve长驻进程一旦启动, RHO/AVG_GOALS/HOME_ADV就
+    永久停留在启动那一刻读到的值——不管_auto_refresh_loop里evolve_groupstage
+    之后又诊断出多少次新参数并写入磁盘, 只要进程不重启, 内存里用的值就与磁盘
+    上的params_override.json静默漂移。现在把加载逻辑独立成函数, run_pipeline()
+    每次运行前都会调用它, 保证每一轮预测用的都是当前磁盘上最新的参数。)
+    """
+    global RHO, AVG_GOALS, HOME_ADV
+    if not _PARAMS_OVERRIDE.exists():
+        return
+    try:
+        _po = json.loads(_PARAMS_OVERRIDE.read_text(encoding="utf-8"))
+        RHO = _po.get("rho", RHO)
+        AVG_GOALS = _po.get("avg_goals", AVG_GOALS)
+        HOME_ADV = _po.get("home_adv", HOME_ADV)
+    except (json.JSONDecodeError, OSError):
+        pass  # 读取失败保留当前值, 不让坏文件打断启动/刷新
+
+
+_reload_params_override()
 
 # 中文队名 → eloratings 文件名 + 2字母代码
 TEAM_DB = {
@@ -227,7 +247,13 @@ def poisson_pmf(k: int, lam: float) -> float:
     return math.exp(-lam) * (lam ** k) / math.factorial(k)
 
 
-def score_matrix(lam_h: float, lam_a: float, rho: float = RHO, n: int = 8) -> np.ndarray:
+def score_matrix(lam_h: float, lam_a: float, rho: float | None = None, n: int = 8) -> np.ndarray:
+    # rho默认值不能写成"= RHO"(会在模块加载时把当时的RHO值固定绑死进函数签名,
+    # 之后_reload_params_override()更新全局RHO对已绑定的默认值毫无作用)。
+    # 两处调用方(predict_match/run_pipeline)都不显式传rho, 全靠这个默认值,
+    # 改成None+运行时读取全局变量, 才能让热重载真正影响到这里。
+    if rho is None:
+        rho = RHO
     mat = np.zeros((n, n))
     for i in range(n):
         for j in range(n):
@@ -2334,6 +2360,7 @@ footer.page-footer {{
 # ═══════════════════════════════════════════════════════════════════
 
 def run_pipeline() -> list[dict]:
+    _reload_params_override()  # 每轮都读一次磁盘, 让evolve_groupstage进化出的新参数真正生效
     print(f"[{datetime.now():%H:%M:%S}] 抓取体彩盘口...")
     matches = fetch_sporttery()
     print(f"  {len(matches)} 场在售")

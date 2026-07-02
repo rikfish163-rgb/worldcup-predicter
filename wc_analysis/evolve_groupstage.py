@@ -78,8 +78,23 @@ def result_outcome(home_goals: int, away_goals: int) -> str:
 
 
 def load_posteriors() -> list[dict]:
+    """加载 prediction_history.json 里可用于自进化诊断的记录。
+
+    (审计修复2026-07-02: 此前用 "posterior" in x 过滤, 但那是v1架构(已废弃)
+    的字段名。predict.py::_append_prediction_log() 从初始commit起就写的是
+    v2 schema(hc_posterior/hc_prior/had_posterior/had_prior), 从未再写过裸
+    posterior字段 —— 过滤条件因此永远只命中2026-06-23那批24条v1孤儿记录,
+    样本永久冻结, 淘汰赛打多少场都不会再增长。改用 "had_posterior" 精确匹配
+    当前活跃schema。
+
+    注意: 诊断必须用 had_*(常规胜平负)而不是 hc_*(让球盘)字段 —— hc_prior的
+    "平局"含义是"赢盘口那一球刚好被抹平"(如-1盘口下主队净胜1球即为hc的"平"),
+    不是真实比分0-0/1-1那种平局。真实结果wc_results.json里result_outcome()
+    是按净胜球判断h/d/a, 语义上只能对应常规盘(had_*)概率, 用hc_*会让"平局
+    偏差"这个诊断维度整体错位, 比继续用冻结的旧样本更糟。
+    """
     data = json.loads(Path(HISTORY).read_text(encoding="utf-8"))
-    return [x for x in data if isinstance(x, dict) and "posterior" in x]
+    return [x for x in data if isinstance(x, dict) and "had_posterior" in x]
 
 
 def load_results() -> list[dict]:
@@ -125,7 +140,7 @@ def logloss(probs: dict, actual: str) -> float:
 
 
 def build_matched() -> tuple[list[dict], list[tuple]]:
-    """把 24 条后验预测与 72 条真实小组赛结果配对。
+    """把历史后验预测(had_posterior)与真实比赛结果(wc_results.json)配对。
     每条记录保留 model prior / calibrated posterior / market / elo_diff,
     并把所有概率翻转到"预测主队"视角后再翻到真实主队视角,
     保证 actual 与 probs 同一参照系。
@@ -158,9 +173,9 @@ def build_matched() -> tuple[list[dict], list[tuple]]:
         else:
             actual = actual_home_persp
 
-        post = _norm3(p["posterior"])
-        prior = _norm3(p.get("prior", post))
-        market = _norm3(p["market"]) if p.get("market") else None
+        post = _norm3(p["had_posterior"])
+        prior = _norm3(p.get("had_prior", post))
+        market = _norm3(p["had_market"]) if p.get("had_market") else None
         # elo_diff 历史里是"预测主队 - 预测客队"; 与 prior/post 同视角, 无需翻转
         elo_diff = float(p.get("elo_diff", 0.0))
 
@@ -250,8 +265,46 @@ def _clamp(x, lo, hi):
     return max(lo, min(hi, x))
 
 
+def _wilson_ci(p_hat: float, n: int, z: float = 1.96) -> tuple[float, float]:
+    """Wilson score interval, 比朴素正态近似(p±z*sqrt(p(1-p)/n))更适合小样本/
+    极端比例。朴素SE在p_hat=0或1时会退化成0(标准误直接归零), 导致任意微小
+    偏差都被判定为"显著"——这不是理论假设, 是本次修复过程中用n=3全部命中的
+    真实样本实测触发的假阳性(强队3场全赢, 朴素SE=0, 100%会被误判显著)。
+    Wilson区间基于似然反演, 在p_hat趋于0/1时区间会相应变宽而不是坍缩为0宽度,
+    对这种小样本边界情况更稳健。"""
+    if n <= 0:
+        return (0.0, 1.0)
+    denom = 1 + z * z / n
+    center = (p_hat + z * z / (2 * n)) / denom
+    half = z * math.sqrt(p_hat * (1 - p_hat) / n + z * z / (4 * n * n)) / denom
+    return (max(0.0, center - half), min(1.0, center + half))
+
+
+def _is_significant(bias: float, actual_rate: float, n: int, z: float = 1.96) -> bool:
+    """判断"预测率 vs 实际率"的偏差是否统计显著: 用Wilson区间检验"模型预测率"
+    是否落在"实际发生率"的95%置信区间之外。
+
+    (审计修复2026-07-02: n=18/29这种小样本下, 置信区间可以宽达±20-25个百分点,
+    经常比偏差本身还大——之前的调参逻辑只看|bias|是否超过一个固定小阈值(如
+    3-4个百分点)就动参数, 统计上无法排除"系统性偏差"纯粹是噪声。改成只有当
+    预测率落在实际发生率的95%置信区间之外, 才判定为真实系统偏差、允许对应
+    参数调整; 否则维持基线值, 退回"仅诊断展示, 不追加调参噪声"。用户已确认
+    选择这个更保守的方案。)
+    """
+    if n <= 0:
+        return False
+    predicted = actual_rate + bias  # bias定义为 predicted - actual, 反推回predicted
+    lo, hi = _wilson_ci(actual_rate, n, z)
+    return predicted < lo or predicted > hi
+
+
 def evolve_params(diag: dict) -> dict:
-    """根据偏差给出有界参数调整。返回新参数 + 决策日志。"""
+    """根据偏差给出有界参数调整。返回新参数 + 决策日志。
+
+    每个维度(平局/强队/主场)的调整都先过 _is_significant() 门槛: 只有当该
+    维度偏差的95%置信区间下界仍显著偏离0, 才允许对应参数偏离基线; 否则维持
+    BASE_*值, 决策日志里注明"未达统计显著, 维持基线", 而不是把噪声当信号调参。
+    """
     decisions: list[str] = []
     new_rho = BASE_RHO
     new_avg = BASE_AVG_GOALS
@@ -261,56 +314,62 @@ def evolve_params(diag: dict) -> dict:
     n = diag.get("n", 0)
     low_conf = n < LOW_CONFIDENCE_N
 
-    # --- 平局偏差 -> RHO ---
+    # --- 平局偏差 -> RHO (仅当统计显著) ---
     draw = diag.get("draw", {})
     dbias = draw.get("bias_prior", 0.0)  # <0 模型低估平局
-    # 缩放: 每 1% 低估 -> |RHO| 增 ~0.004 (有界, 小样本时半步)
-    step_scale = 0.40 if low_conf else 0.80
-    drho = _clamp(-dbias, -0.10, 0.10) * step_scale  # 低估(dbias<0)-> drho>0 -> rho 更负
-    # rho 更负 = |rho| 更大. rho_new = rho_base - drho
-    new_rho = _clamp(BASE_RHO - drho, *RHO_BOUNDS)
-    if abs(dbias) < 0.03:
-        decisions.append(f"平局偏差 {dbias:+.1%} 在阈值内, RHO 基本不动")
-    elif dbias < 0:
-        decisions.append(f"平局被低估 {dbias:+.1%} -> 增大|RHO|: {BASE_RHO:.3f}->{new_rho:.3f}")
+    draw_sig = (not low_conf) and _is_significant(dbias, draw.get("actual", 0.0), n)
+    if draw_sig:
+        step_scale = 0.40 if low_conf else 0.80
+        drho = _clamp(-dbias, -0.10, 0.10) * step_scale  # 低估(dbias<0)-> drho>0 -> rho 更负
+        new_rho = _clamp(BASE_RHO - drho, *RHO_BOUNDS)  # rho 更负 = |rho| 更大
+        if dbias < 0:
+            decisions.append(f"平局被低估 {dbias:+.1%}(统计显著,n={n}) -> 增大|RHO|: {BASE_RHO:.3f}->{new_rho:.3f}")
+        else:
+            decisions.append(f"平局被高估 {dbias:+.1%}(统计显著,n={n}) -> 减小|RHO|: {BASE_RHO:.3f}->{new_rho:.3f}")
     else:
-        decisions.append(f"平局被高估 {dbias:+.1%} -> 减小|RHO|: {BASE_RHO:.3f}->{new_rho:.3f}")
+        why = "样本不足" if low_conf else "95%置信区间未显著偏离0(疑似噪声)"
+        decisions.append(f"平局偏差 {dbias:+.1%}, {why}, RHO 维持基线 {BASE_RHO:.3f}")
 
-    # --- 强队偏差 -> 市场权重提示 (+ 轻微收敛 AVG_GOALS) ---
+    # --- 强队偏差 -> 市场权重提示 (仅当统计显著) ---
     strong = diag.get("strong", {})
-    if strong.get("n", 0) >= 3:
+    strong_n = strong.get("n", 0)
+    strong_sig = strong_n >= 3 and _is_significant(
+        strong.get("bias", 0.0), strong.get("actual_winrate", 0.0), strong_n)
+    if strong_n >= 3:
         sbias = strong["bias"]  # >0 强队被高估
-        if sbias > 0.05:
+        if strong_sig and sbias > 0.05:
             market_weight_hint = "提高市场权重 (让球盘 0.70->0.75, 常规盘 0.60->0.65)"
             decisions.append(
-                f"强队被高估 {sbias:+.1%} (n={strong['n']}) -> 建议提高市场权重, "
+                f"强队被高估 {sbias:+.1%}(统计显著,n={strong_n}) -> 建议提高市场权重, "
                 f"模型过度自信强队")
-        elif sbias < -0.05:
+        elif strong_sig and sbias < -0.05:
             decisions.append(
-                f"强队被低估 {sbias:+.1%} (n={strong['n']}) -> 模型对强队偏保守, 市场权重可微降")
+                f"强队被低估 {sbias:+.1%}(统计显著,n={strong_n}) -> 模型对强队偏保守, 市场权重可微降")
         else:
-            decisions.append(f"强队偏差 {sbias:+.1%} (n={strong['n']}) 可接受, 市场权重不变")
+            decisions.append(f"强队偏差 {sbias:+.1%}(n={strong_n}) 未达统计显著或幅度不足, 市场权重不变")
     else:
-        decisions.append(f"强队样本不足 (n={strong.get('n',0)}<3), 跳过强队调参")
+        decisions.append(f"强队样本不足 (n={strong_n}<3), 跳过强队调参")
 
-    # --- 主场偏差 -> HOME_ADV ---
+    # --- 主场偏差 -> HOME_ADV (仅当统计显著) ---
     home = diag.get("home", {})
     hbias = home.get("bias", 0.0)  # >0 主胜被高估
-    # 每 1% 高估 -> HOME_ADV 降 ~0.6 (有界). 世界杯中立场, 高估主胜应削主场效应.
-    dhome = _clamp(hbias, -0.15, 0.15) * (30.0 if low_conf else 60.0) / 100.0
-    new_home = _clamp(BASE_HOME_ADV - dhome, *HOME_ADV_BOUNDS)
-    if abs(hbias) < 0.04:
-        decisions.append(f"主场偏差 {hbias:+.1%} 在阈值内, HOME_ADV 基本不动")
-    elif hbias > 0:
-        decisions.append(f"主胜被高估 {hbias:+.1%} -> 降 HOME_ADV: {BASE_HOME_ADV:.3f}->{new_home:.3f}")
+    home_sig = (not low_conf) and _is_significant(hbias, home.get("actual_winrate", 0.0), n)
+    if home_sig:
+        dhome = _clamp(hbias, -0.15, 0.15) * (30.0 if low_conf else 60.0) / 100.0
+        new_home = _clamp(BASE_HOME_ADV - dhome, *HOME_ADV_BOUNDS)
+        if hbias > 0:
+            decisions.append(f"主胜被高估 {hbias:+.1%}(统计显著,n={n}) -> 降 HOME_ADV: {BASE_HOME_ADV:.3f}->{new_home:.3f}")
+        else:
+            decisions.append(f"主胜被低估 {hbias:+.1%}(统计显著,n={n}) -> 升 HOME_ADV: {BASE_HOME_ADV:.3f}->{new_home:.3f}")
     else:
-        decisions.append(f"主胜被低估 {hbias:+.1%} -> 升 HOME_ADV: {BASE_HOME_ADV:.3f}->{new_home:.3f}")
+        why = "样本不足" if low_conf else "95%置信区间未显著偏离0(疑似噪声)"
+        decisions.append(f"主场偏差 {hbias:+.1%}, {why}, HOME_ADV 维持基线 {BASE_HOME_ADV:.3f}")
 
-    # AVG_GOALS: 仅当 prior Brier 明显差且强队被高估时轻微下调(降低极端比分自信)
+    # AVG_GOALS: 仅当强队偏差本身显著、且整体Brier也明显偏差时才轻微下调
     calib = diag.get("calib", {})
-    if strong.get("n", 0) >= 3 and strong.get("bias", 0) > 0.08 and calib.get("brier_prior", 0) > 0.55:
+    if strong_sig and strong.get("bias", 0) > 0.08 and calib.get("brier_prior", 0) > 0.55:
         new_avg = _clamp(BASE_AVG_GOALS - (0.03 if low_conf else 0.06), *AVG_GOALS_BOUNDS)
-        decisions.append(f"模型整体过度自信 -> 轻微下调 AVG_GOALS: {BASE_AVG_GOALS:.2f}->{new_avg:.2f}")
+        decisions.append(f"模型整体过度自信(统计显著) -> 轻微下调 AVG_GOALS: {BASE_AVG_GOALS:.2f}->{new_avg:.2f}")
     else:
         decisions.append(f"AVG_GOALS 维持 {BASE_AVG_GOALS:.2f}")
 

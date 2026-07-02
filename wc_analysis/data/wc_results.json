@@ -1,5 +1,5 @@
 {
-  "_comment": "WC 2026 已完成比赛 (Wikipedia 抓取)",
+  "_comment": "WC 2026 已完成比赛 (Wikipedia 抓取; 小组赛72场 + 淘汰赛陆续人工补充, 见各条round字段)",
   "results": [
     {
       "date": "2026-06-11",
@@ -570,6 +570,64 @@
       "away": "Ghana",
       "home_goals": 2,
       "away_goals": 1
+    },
+    {
+      "date": "2026-06-28",
+      "home": "South Africa",
+      "away": "Canada",
+      "home_goals": 0,
+      "away_goals": 1,
+      "round": "R32"
+    },
+    {
+      "date": "2026-06-29",
+      "home": "Brazil",
+      "away": "Japan",
+      "home_goals": 2,
+      "away_goals": 1,
+      "round": "R32"
+    },
+    {
+      "date": "2026-06-29",
+      "home": "Germany",
+      "away": "Paraguay",
+      "home_goals": 1,
+      "away_goals": 1,
+      "round": "R32",
+      "note": "加时1-1, 巴拉圭点球4-3胜"
+    },
+    {
+      "date": "2026-06-29",
+      "home": "Netherlands",
+      "away": "Morocco",
+      "home_goals": 1,
+      "away_goals": 1,
+      "round": "R32",
+      "note": "加时1-1, 摩洛哥点球3-2胜"
+    },
+    {
+      "date": "2026-06-30",
+      "home": "France",
+      "away": "Sweden",
+      "home_goals": 3,
+      "away_goals": 0,
+      "round": "R32"
+    },
+    {
+      "date": "2026-06-30",
+      "home": "Ivory Coast",
+      "away": "Norway",
+      "home_goals": 1,
+      "away_goals": 2,
+      "round": "R32"
+    },
+    {
+      "date": "2026-06-30",
+      "home": "Mexico",
+      "away": "Ecuador",
+      "home_goals": 2,
+      "away_goals": 0,
+      "round": "R32"
     }
   ]
 }
