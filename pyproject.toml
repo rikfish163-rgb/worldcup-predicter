@@ -50,6 +50,12 @@ Repository = "https://github.com/probberechts/soccerdata"
 Documentation = "https://soccerdata.readthedocs.io"
 Changelog = "https://github.com/probberechts/soccerdata/releases"
 
+[project.scripts]
+matchline = "league_platform.app:main"
+
+[tool.hatch.build.targets.wheel]
+packages = ["soccerdata", "league_platform"]
+
 # ━━━━━━━━━━━━━━━━━━━━━━━ Extra Dependencies ━━━━━━━━━━━━━━━━━━━━━━━ #
 
 [dependency-groups]

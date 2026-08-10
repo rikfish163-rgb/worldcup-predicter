@@ -1,4 +1,46 @@
-# 2026 World Cup Betting Prediction System
+# 赛线 Matchline：六联赛比赛与预测平台
+
+> 当前迁移状态：第一阶段已经建立英超、西甲、德甲、意甲、法甲和中超的统一联赛契约、
+> 只读 API、数据质量门禁与全新响应式比赛中心。五大联赛目前使用可校验恢复的
+> football-data.co.uk 2021/22–2023/24 历史缓存；中超实时源尚未接入，界面会明确显示不可用，
+> 不使用样例数据或欧洲联赛参数冒充。
+
+启动新平台：
+
+```bash
+cd /home/hetaisheng/soccerdata
+.venv/bin/python -m league_platform.app
+# http://127.0.0.1:8030
+```
+
+首次干净检出时，按固定 URL 与 SHA-256 清单恢复历史输入（第三方数据本身不提交到 Git）：
+
+```bash
+.venv/bin/python -m league_platform.restore_data
+```
+
+当前 API：
+
+```text
+GET /api/v1/snapshot
+GET /api/v1/competitions
+GET /api/v1/matches?competition=premier-league&season=2324&limit=24
+GET /api/v1/health
+```
+
+平台原则：
+
+- 比赛、赛季、来源和采集时间采用统一契约，旧世界杯 JSON 不再充当通用 schema。
+- 训练只使用预测时点之前的数据；按时间滚动回测，不使用随机 K 折。
+- 模型必须按联赛披露 Brier、Log loss、RPS、校准误差和样本量，未通过门禁不展示概率。
+- 不提供购买建议、Kelly 金额、收益承诺或按 EV 排序的投注信号。
+
+技术研究见 [docs/open-source-platform-research.md](docs/open-source-platform-research.md)，架构和验收门禁见
+[docs/multi-league-architecture.md](docs/multi-league-architecture.md)。
+
+## 旧世界杯系统（保留兼容，以下说明存在历史漂移）
+
+## 2026 World Cup Betting Prediction System
 
 > Self-evolving Asian Handicap (让球盘) prediction system for the 2026 FIFA World Cup, deployed at **predict.hetaisheng.ccwu.cc**.
 

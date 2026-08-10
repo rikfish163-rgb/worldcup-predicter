@@ -1,0 +1,200 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      name="description"
+      content="赛线 Matchline：覆盖五大联赛与中超的数据质量、比赛结果和可审计预测平台。"
+    />
+    <title>赛线 Matchline · 六联赛比赛中心</title>
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%23152332'/%3E%3Cpath d='M7 24V8h4l5 8 5-8h4v16h-4V14l-5 7-5-7v10z' fill='%23f5f3ed'/%3E%3C/svg%3E" />
+    <link rel="stylesheet" href="/styles.css" />
+    <script src="/app.js" defer></script>
+  </head>
+  <body>
+    <a class="skip-link" href="#main-content">跳到主要内容</a>
+    <header class="site-header">
+      <div class="masthead shell">
+        <a class="brand" href="#match-center" aria-label="赛线 Matchline 首页">
+          <span class="brand-mark" aria-hidden="true">M</span>
+          <span><strong>赛线</strong><small>Matchline</small></span>
+        </a>
+        <nav class="primary-nav" aria-label="主要导航">
+          <a href="#match-center">比赛中心</a>
+          <a href="#source-health">数据状态</a>
+          <a href="#model-health">模型可信度</a>
+          <a href="#methodology">方法与数据</a>
+        </nav>
+        <div class="header-status" id="header-status" aria-live="polite">
+          <span class="status-dot status-dot--loading"></span>
+          正在核对数据
+        </div>
+      </div>
+    </header>
+
+    <main id="main-content">
+      <section class="hero shell" id="match-center" aria-labelledby="hero-title">
+        <div class="hero-copy">
+          <p class="eyebrow">六联赛 · 统一比赛契约 · 来源可追溯</p>
+          <h1 id="hero-title">先看比赛，再看模型。</h1>
+          <p class="hero-lede">
+            英超、西甲、德甲、意甲、法甲与中超的比赛中心。每条数据都说明来源、时间和缺失项；
+            未经严格时间序列回测的模型不会展示“命中率”。
+          </p>
+        </div>
+        <div class="hero-scoreboard" aria-label="平台当前状态">
+          <span class="scoreboard-label">数据覆盖</span>
+          <strong id="hero-coverage">— / 6</strong>
+          <span id="hero-freshness">读取中</span>
+        </div>
+      </section>
+
+      <section class="control-deck" aria-label="比赛筛选">
+        <div class="shell">
+          <div class="league-tabs" id="league-tabs" role="group" aria-label="选择联赛"></div>
+          <div class="filters">
+            <label>
+              <span>赛季</span>
+              <select id="season-filter">
+                <option value="all">全部赛季</option>
+              </select>
+            </label>
+            <label>
+              <span>比赛状态</span>
+              <select id="status-filter">
+                <option value="all">全部状态</option>
+                <option value="upcoming">未赛</option>
+                <option value="live">进行中</option>
+                <option value="finished">完赛</option>
+                <option value="postponed">延期</option>
+              </select>
+            </label>
+            <label class="search-field">
+              <span>球队</span>
+              <input id="team-search" type="search" placeholder="搜索球队" autocomplete="off" />
+            </label>
+            <button class="quiet-button" id="clear-filters" type="button">清除筛选</button>
+          </div>
+        </div>
+      </section>
+
+      <section class="summary-strip shell" aria-label="平台摘要">
+        <article>
+          <span>已核验比赛</span>
+          <strong id="summary-matches">—</strong>
+          <small>本地历史结果</small>
+        </article>
+        <article>
+          <span>可用联赛</span>
+          <strong id="summary-leagues">—</strong>
+          <small>六联赛目标</small>
+        </article>
+        <article>
+          <span>最近比赛</span>
+          <strong id="summary-latest">—</strong>
+          <small>来源事件时间</small>
+        </article>
+        <article>
+          <span>已通过模型</span>
+          <strong id="summary-models">—</strong>
+          <small>严格回测门禁</small>
+        </article>
+      </section>
+
+      <div class="content-grid shell">
+        <section class="match-panel" aria-labelledby="matches-title">
+          <div class="section-heading">
+            <div>
+              <p class="eyebrow">Matches</p>
+              <h2 id="matches-title">赛程与结果</h2>
+            </div>
+            <p id="match-count" aria-live="polite">正在加载</p>
+          </div>
+          <div class="notice notice--loading" id="loading-notice" role="status">
+            正在读取统一比赛数据……
+          </div>
+          <div class="match-list" id="match-list"></div>
+          <button class="load-more" id="load-more" type="button" hidden>再看 24 场</button>
+        </section>
+
+        <aside class="rail" aria-label="数据和模型状态">
+          <section class="rail-card" id="source-health" aria-labelledby="source-title">
+            <p class="eyebrow">Source health</p>
+            <h2 id="source-title">数据状态</h2>
+            <div id="source-list" class="source-list"></div>
+          </section>
+          <section class="rail-card rail-card--model" aria-labelledby="rail-model-title">
+            <p class="eyebrow">Validation gate</p>
+            <h2 id="rail-model-title">模型门禁</h2>
+            <p class="gate-value">尚未通过</p>
+            <p>
+              当前版本只展示真实历史结果和市场快照。每个联赛完成 walk-forward 回测、概率校准与样本审计后，才开放模型概率。
+            </p>
+            <a href="#model-health">查看验收指标 →</a>
+          </section>
+        </aside>
+      </div>
+
+      <section class="evidence-section shell" id="model-health" aria-labelledby="model-title">
+        <div class="section-heading section-heading--wide">
+          <div>
+            <p class="eyebrow">Model health</p>
+            <h2 id="model-title">模型可信度，不用一句“命中率”概括</h2>
+          </div>
+          <p>指标必须按联赛、赛季、样本窗口独立披露。</p>
+        </div>
+        <div class="table-wrap" tabindex="0" aria-label="模型可信度表，可横向滚动">
+          <table>
+            <caption>六联赛模型验收状态</caption>
+            <thead>
+              <tr>
+                <th scope="col">联赛</th>
+                <th scope="col">状态</th>
+                <th scope="col">样本量</th>
+                <th scope="col">Brier</th>
+                <th scope="col">Log loss</th>
+                <th scope="col">说明</th>
+              </tr>
+            </thead>
+            <tbody id="model-table-body"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <section class="method-section shell" id="methodology" aria-labelledby="method-title">
+        <div>
+          <p class="eyebrow">Method & provenance</p>
+          <h2 id="method-title">预测必须晚于数据，验证必须早于结论。</h2>
+        </div>
+        <div class="method-grid">
+          <article>
+            <span>01</span>
+            <h3>统一比赛身份</h3>
+            <p>用稳定联赛 ID、赛季、开赛时间和球队身份建立 fixture，不用中文显示名充当主键。</p>
+          </article>
+          <article>
+            <span>02</span>
+            <h3>按时间滚动验证</h3>
+            <p>训练只看过去，测试只看未来；赔率、阵容和临场信息必须带采集时点并设置隔离窗口。</p>
+          </article>
+          <article>
+            <span>03</span>
+            <h3>概率质量优先</h3>
+            <p>用 Brier、Log loss、RPS 和校准误差评估，准确率只作辅助，不把 EV 或 Kelly 当模型质量。</p>
+          </article>
+        </div>
+        <p class="research-disclaimer">
+          本平台用于数据分析和模型研究，不构成投注建议。赔率仅作为市场概率快照，不提供购买排序、金额建议或收益承诺。
+        </p>
+      </section>
+    </main>
+
+    <footer class="site-footer">
+      <div class="shell">
+        <span>赛线 Matchline · 可审计足球数据平台</span>
+        <span id="footer-version">Schema —</span>
+      </div>
+    </footer>
+  </body>
+</html>
