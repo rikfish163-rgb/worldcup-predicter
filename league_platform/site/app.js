@@ -223,11 +223,17 @@ function renderModelHealth() {
       (league) => `
         <tr>
           <th scope="row">${escapeHtml(league.name_zh)}</th>
-          <td class="model-pending">待严格回测</td>
+          <td class="model-pending">${
+            league.model_health.status === "evaluated" ? "已留出评估" : "待严格回测"
+          }</td>
           <td>${formatNumber(league.model_health.sample_n)}</td>
-          <td>—</td>
-          <td>—</td>
-          <td>${escapeHtml(league.model_health.message)}</td>
+          <td>${league.model_health.brier_score ?? "—"}</td>
+          <td>${league.model_health.log_loss ?? "—"}</td>
+          <td>${
+            league.model_health.status === "evaluated"
+              ? `${escapeHtml(league.model_health.evaluation_season)} 留出赛季 · 动态 Elo 基线`
+              : escapeHtml(league.model_health.message)
+          }</td>
         </tr>
       `,
     )

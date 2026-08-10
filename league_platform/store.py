@@ -93,3 +93,9 @@ class PlatformStore:
                 ),
             },
         }
+
+    def model_evaluations(self) -> list[dict]:
+        return [
+            {"competition_id": item["id"], **deepcopy(item["model_health"])}
+            for item in self._snapshot["competitions"]
+        ]
