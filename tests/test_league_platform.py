@@ -9,6 +9,7 @@ from league_platform.catalog import LEAGUES, get_league
 from league_platform.current import attach_current_data
 from league_platform.dixon_coles import evaluate_dixon_coles
 from league_platform.live_sources.espn import parse_espn_payload
+from league_platform.live_sources.espn_market import parse_espn_market
 from league_platform.live_sources.understat import (
     aggregate_understat_payload,
     decode_understat_payload,
@@ -77,6 +78,34 @@ def test_espn_current_fixture_contract_preserves_native_ids_and_as_of():
     assert fixtures[0]["home_provider_team_id"] == "359"
     assert fixtures[0]["source"]["retrieved_at"] == as_of.isoformat()
     assert len(fixtures[0]["source"]["raw_sha256"]) == 64
+
+
+def test_espn_market_is_devigged_and_bound_to_native_fixture():
+    payload = json.dumps(
+        {
+            "pickcenter": [
+                {
+                    "provider": {"name": "ExampleBook"},
+                    "homeTeamOdds": {"moneyLine": -150},
+                    "drawOdds": {"moneyLine": 300},
+                    "awayTeamOdds": {"moneyLine": 400},
+                }
+            ]
+        }
+    ).encode()
+    as_of = datetime(2026, 8, 10, tzinfo=timezone.utc)
+
+    market = parse_espn_market(
+        payload,
+        fixture_id="espn:401",
+        retrieved_at=as_of,
+        url="https://site.api.espn.com/example",
+    )
+
+    assert market["fixture_id"] == "espn:401"
+    assert market["provider"] == "ExampleBook"
+    assert abs(sum(market["probability"].values()) - 1) < 1e-5
+    assert market["source"]["raw_sha256"]
 
 
 def test_understat_form_uses_only_results_before_as_of():

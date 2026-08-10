@@ -37,7 +37,7 @@ GET /api/v1/predictions
 - 比赛、赛季、来源状态和事件时间采用统一契约，旧世界杯 JSON 不再充当通用 schema。
 - 历史文件提供 SHA-256 与 provider fixture ID；原始采集时点无法追溯时明确返回 `null`。
 - 训练只使用预测时点之前的数据；按时间滚动回测，不使用随机 K 折。
-- 动态 Elo 与在线 Dixon-Coles 基线按联赛披露 Brier、Log loss、RPS、ECE、连续窗口和市场对照；
+- 动态 Elo 与在线 Dixon-Coles 基线按联赛披露 Brier、Log loss、RPS、ECE、连续窗口和历史/当前市场对照；
   未接入当前赛程前不生成未来预测。
 - 不提供购买建议、Kelly 金额、收益承诺或按 EV 排序的投注信号。
 

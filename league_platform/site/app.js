@@ -162,6 +162,13 @@ function marketBlock(match) {
       <span class="market-label">预期进球 ${prediction.expected_goals.home.toFixed(2)} : ${prediction.expected_goals.away.toFixed(2)} · ${
         prediction.feature_coverage.recent_xg ? "含 Understat 近况" : "无当前 xG，已降级"
       }</span>
+      <span class="market-label">${
+        prediction.market_probability
+          ? `当前市场对照 主 ${(prediction.market_probability.home * 100).toFixed(1)}% · 平 ${(
+              prediction.market_probability.draw * 100
+            ).toFixed(1)}% · 客 ${(prediction.market_probability.away * 100).toFixed(1)}%`
+          : "没有可验证的当前市场快照；伤停与首发也未确认，生产门禁保持关闭"
+      }</span>
     `;
   }
   if (state.blockedFixtures.has(match.id)) {

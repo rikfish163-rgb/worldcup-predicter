@@ -8,7 +8,11 @@ import tempfile
 from datetime import datetime, timezone
 from pathlib import Path
 
-from league_platform.live_sources import fetch_espn_fixtures, fetch_understat_features
+from league_platform.live_sources import (
+    fetch_espn_fixtures,
+    fetch_espn_markets,
+    fetch_understat_features,
+)
 
 
 DEFAULT_OUTPUT = Path("data/live/current.json")
@@ -18,6 +22,8 @@ def sync(output: Path = DEFAULT_OUTPUT, *, now: datetime | None = None) -> dict:
     as_of = now or datetime.now(timezone.utc)
     if as_of.tzinfo is None:
         as_of = as_of.replace(tzinfo=timezone.utc)
+    espn = fetch_espn_fixtures(now=as_of)
+    espn_markets = fetch_espn_markets(espn["fixtures"], now=as_of)
     snapshot = {
         "schema_version": "1.0.0",
         "as_of": as_of.isoformat(),
@@ -25,10 +31,11 @@ def sync(output: Path = DEFAULT_OUTPUT, *, now: datetime | None = None) -> dict:
             "fixtures_and_results": "ESPN",
             "recent_xg_and_form": "Understat",
             "historical_training": ["football-data.co.uk", "OpenFootball"],
-            "current_market": None,
+            "current_market": "ESPN event summary / named bookmaker",
             "injuries_and_lineups": None,
         },
-        "espn": fetch_espn_fixtures(now=as_of),
+        "espn": espn,
+        "espn_markets": espn_markets,
         "understat": fetch_understat_features(now=as_of),
     }
     output.parent.mkdir(parents=True, exist_ok=True)
@@ -54,7 +61,10 @@ def main() -> None:
                 "as_of": snapshot["as_of"],
                 "fixtures": len(snapshot["espn"]["fixtures"]),
                 "team_features": len(snapshot["understat"]["team_features"]),
-                "errors": len(snapshot["espn"]["errors"]) + len(snapshot["understat"]["errors"]),
+                "markets": len(snapshot["espn_markets"]["markets"]),
+                "errors": len(snapshot["espn"]["errors"])
+                + len(snapshot["espn_markets"]["errors"])
+                + len(snapshot["understat"]["errors"]),
             },
             ensure_ascii=False,
         )
