@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import argparse
+import ipaddress
 import json
 from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
@@ -104,6 +105,12 @@ def create_server(
     data_dir: Path | str,
     live_path: Path | str | None = DEFAULT_LIVE_PATH,
 ) -> ThreadingHTTPServer:
+    try:
+        is_loopback = host == "localhost" or ipaddress.ip_address(host).is_loopback
+    except ValueError:
+        is_loopback = False
+    if not is_loopback:
+        raise ValueError("remote binding requires a secured reverse proxy to the loopback server")
     PlatformHandler.store = PlatformStore(
         Path(data_dir), live_path=Path(live_path) if live_path is not None else None
     )

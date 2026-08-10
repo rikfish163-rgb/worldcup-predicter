@@ -79,13 +79,14 @@ def fetch_espn_fixtures(
     horizon_days: int = 45,
     opener: Callable[..., object] = urllib.request.urlopen,
 ) -> dict:
-    retrieved_at = now or datetime.now(timezone.utc)
-    if retrieved_at.tzinfo is None:
-        retrieved_at = retrieved_at.replace(tzinfo=timezone.utc)
-    end = retrieved_at + timedelta(days=horizon_days)
-    date_range = f"{retrieved_at:%Y%m%d}-{end:%Y%m%d}"
+    reference_time = now or datetime.now(timezone.utc)
+    if reference_time.tzinfo is None:
+        reference_time = reference_time.replace(tzinfo=timezone.utc)
+    end = reference_time + timedelta(days=horizon_days)
+    date_range = f"{reference_time:%Y%m%d}-{end:%Y%m%d}"
     fixtures = []
     errors = []
+    observation_times = []
     for competition_id, code in ESPN_CODES.items():
         url = (
             "https://site.api.espn.com/apis/site/v2/sports/soccer/"
@@ -100,11 +101,13 @@ def fetch_espn_fixtures(
                 payload = response.read(10 * 1024 * 1024 + 1)
             if len(payload) > 10 * 1024 * 1024:
                 raise RuntimeError("ESPN response exceeded 10 MiB")
+            observed_at = reference_time if now is not None else datetime.now(timezone.utc)
+            observation_times.append(observed_at)
             fixtures.extend(
                 parse_espn_payload(
                     payload,
                     competition_id=competition_id,
-                    retrieved_at=retrieved_at,
+                    retrieved_at=observed_at,
                     url=url,
                 )
             )
@@ -113,7 +116,7 @@ def fetch_espn_fixtures(
     fixtures.sort(key=lambda item: item["kickoff_at"])
     return {
         "provider": "ESPN",
-        "retrieved_at": retrieved_at.isoformat(),
+        "retrieved_at": max(observation_times, default=reference_time).isoformat(),
         "horizon_days": horizon_days,
         "fixtures": fixtures,
         "errors": errors,

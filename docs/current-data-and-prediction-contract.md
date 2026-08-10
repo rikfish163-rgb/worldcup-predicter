@@ -3,8 +3,9 @@
 ## 不可混淆的两层
 
 1. `data/MatchHistory` 中的 football-data.co.uk 与 OpenFootball 数据只用于训练、校准和回测。
-2. `data/live/current.json` 只保存带 `as_of/retrieved_at/raw_sha256` 的当前来源快照，用于确认未来
-   fixture 和构造预测时点特征。
+2. `data/live/current.json` 只保存带 `as_of/retrieved_at` 和内容哈希的当前来源快照，用于确认未来
+   fixture 和构造预测时点特征。每个 HTTP 响应在实际收到后记录 `retrieved_at`，最终 `as_of`
+   在全部来源完成后生成；因此所有被采用的观察都满足 `retrieved_at <= as_of`。
 
 历史比赛不会因为仍在本地而被标成“当前”，当前快照超过 6 小时后预测 API 自动变为 unavailable。
 
@@ -18,6 +19,9 @@
 | 中超历史训练 | OpenFootball CC0 | 2022–2024 | 独立 parser/身份/参数；无赔率保持空值 |
 | 当前市场赔率 | ESPN event summary / DraftKings | 六联赛均有部分覆盖 | 按 fixture 抓取、记录 bookmaker、去水；无覆盖保持空值 |
 | 伤停与确认首发 | 尚未接入 | 0/6 | 所有预测标记 research-only |
+
+ESPN JSON 保存响应内容 SHA-256；Understat 同时保存压缩传输字节的 `wire_sha256` 与解压内容的
+`content_sha256`。任一来源启动失败会记录结构化错误并降级，不会丢弃其他已成功来源。
 
 同步命令：
 

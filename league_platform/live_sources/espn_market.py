@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+import math
 import urllib.request
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from datetime import datetime, timedelta, timezone
@@ -33,6 +34,8 @@ def parse_espn_market(
         }
     except (KeyError, TypeError, ValueError):
         return None
+    if not all(math.isfinite(value) and value != 0 for value in raw.values()):
+        return None
     implied = {key: _american_probability(value) for key, value in raw.items()}
     total = sum(implied.values())
     return {
@@ -56,10 +59,10 @@ def fetch_espn_markets(
     horizon_days: int = 45,
     max_fixtures: int = 120,
 ) -> dict:
-    retrieved_at = now or datetime.now(timezone.utc)
-    if retrieved_at.tzinfo is None:
-        retrieved_at = retrieved_at.replace(tzinfo=timezone.utc)
-    cutoff = retrieved_at.astimezone(timezone.utc) + timedelta(days=horizon_days)
+    reference_time = now or datetime.now(timezone.utc)
+    if reference_time.tzinfo is None:
+        reference_time = reference_time.replace(tzinfo=timezone.utc)
+    cutoff = reference_time.astimezone(timezone.utc) + timedelta(days=horizon_days)
     candidates = sorted(
         (
             fixture
@@ -89,16 +92,19 @@ def fetch_espn_markets(
 
     observations = []
     errors = []
+    observation_times = []
     with ThreadPoolExecutor(max_workers=8) as executor:
         futures = {executor.submit(fetch_one, fixture): fixture for fixture in candidates}
         for future in as_completed(futures):
             fixture = futures[future]
             try:
                 _, payload, url = future.result()
+                observed_at = reference_time if now is not None else datetime.now(timezone.utc)
+                observation_times.append(observed_at)
                 observation = parse_espn_market(
                     payload,
                     fixture_id=fixture["id"],
-                    retrieved_at=retrieved_at,
+                    retrieved_at=observed_at,
                     url=url,
                 )
                 if observation:
@@ -108,7 +114,7 @@ def fetch_espn_markets(
     observations.sort(key=lambda item: item["fixture_id"])
     return {
         "provider": "ESPN event summary",
-        "retrieved_at": retrieved_at.isoformat(),
+        "retrieved_at": max(observation_times, default=reference_time).isoformat(),
         "requested_fixtures": len(candidates),
         "markets": observations,
         "errors": errors,

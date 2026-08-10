@@ -23,10 +23,10 @@
   .venv/bin/python wc_analysis/predict.py --serve   # 启动本地服务+自动刷新
 """
 from __future__ import annotations
-import json, math, urllib.request, time, sys, os
+import hashlib, hmac, json, math, urllib.request, time, sys, os
 from pathlib import Path
 from datetime import datetime
-from urllib.parse import quote
+from urllib.parse import quote, unquote, urlparse
 from http.server import HTTPServer, SimpleHTTPRequestHandler
 import threading
 
@@ -49,6 +49,36 @@ ELO_CACHE.mkdir(exist_ok=True)
 INJURIES_FILE = DATA_DIR / "injuries.json"
 COHESION_FILE = DATA_DIR / "cohesion.json"
 CORNERS_FILE = DATA_DIR / "corners.json"
+PUBLIC_DATA_FILES = frozenset(
+    {"groups_2026.json", "predictions.json", "standings.json", "top3_predictions.json"}
+)
+
+
+def _public_data_target(request_path: str) -> Path | None:
+    path = unquote(urlparse(request_path).path)
+    if not path.startswith("/data/"):
+        return None
+    relative = path.removeprefix("/data/")
+    if relative not in PUBLIC_DATA_FILES:
+        return None
+    root = DATA_DIR.resolve()
+    target = (root / relative).resolve()
+    return target if target.is_relative_to(root) else None
+
+
+def _admin_authorized(headers) -> bool:
+    expected = os.environ.get("WC_ADMIN_TOKEN")
+    if not expected:
+        return False
+    scheme, separator, supplied = headers.get("Authorization", "").partition(" ")
+    return (
+        separator == " "
+        and scheme == "Bearer"
+        and hmac.compare_digest(
+            hashlib.sha256(supplied.encode()).digest(),
+            hashlib.sha256(expected.encode()).digest(),
+        )
+    )
 
 RHO = -0.20  # 交叉验证最优(2286场, 2020-2026)
 AVG_GOALS = 2.50  # 交叉验证最优
@@ -1854,6 +1884,9 @@ def _append_prediction_log(predictions: list[dict]):
     hist_file.write_text(json.dumps(history, ensure_ascii=False, indent=2), encoding="utf-8")
 
 
+_pipeline_lock = threading.Lock()
+
+
 class ThreadedHTTPServer(HTTPServer):
     """Multi-threaded HTTP server to handle concurrent requests."""
     daemon_threads = True
@@ -1875,19 +1908,46 @@ class RefreshHandler(SimpleHTTPRequestHandler):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, directory=str(SITE_DIR), **kwargs)
 
+    def _handle_refresh(self):
+        if not _admin_authorized(self.headers):
+            self.send_response(403)
+            self.send_header("Content-Type", "application/json")
+            self.end_headers()
+            self.wfile.write(b'{"ok":false,"error":"admin authorization required"}')
+            return
+        if not _pipeline_lock.acquire(blocking=False):
+            self.send_response(429)
+            self.send_header("Content-Type", "application/json")
+            self.end_headers()
+            self.wfile.write(b'{"ok":false,"error":"refresh already in progress"}')
+            return
+        try:
+            run_pipeline()
+        except Exception as e:
+            self.send_response(500)
+            self.send_header("Content-Type", "application/json")
+            self.end_headers()
+            self.wfile.write(json.dumps({"ok": False, "error": str(e)},
+                                       ensure_ascii=False).encode("utf-8"))
+            return
+        finally:
+            _pipeline_lock.release()
+        self.send_response(200)
+        self.send_header("Content-Type", "application/json")
+        self.end_headers()
+        self.wfile.write(b'{"ok":true}')
+
     def do_GET(self):
         if self.path == "/api/refresh":
-            self.send_response(200)
+            self.send_response(405)
+            self.send_header("Allow", "POST")
             self.send_header("Content-Type", "application/json")
-            self.send_header("Access-Control-Allow-Origin", "*")
             self.end_headers()
-            run_pipeline()
-            self.wfile.write(b'{"ok":true}')
+            self.wfile.write(b'{"ok":false,"error":"use authenticated POST"}')
         elif self.path.startswith("/data/"):
             # Serve from wc_analysis/data directory
-            rel = self.path[len("/data/"):]
-            target = DATA_DIR / rel
-            if target.is_file():
+            target = _public_data_target(self.path)
+            if target is not None and target.is_file():
                 self.send_response(200)
                 if target.suffix == ".json":
                     self.send_header("Content-Type", "application/json")
@@ -1899,6 +1959,12 @@ class RefreshHandler(SimpleHTTPRequestHandler):
                 self.end_headers()
                 self.wfile.write(b'{"error": "not found"}')
         elif self.path == "/api/top3":
+            if not _admin_authorized(self.headers):
+                self.send_response(403)
+                self.send_header("Content-Type", "application/json")
+                self.end_headers()
+                self.wfile.write(b'{"ok":false,"error":"admin authorization required"}')
+                return
             # Generate fresh top-3 predictions using TopPredictor (run in thread to avoid blocking)
             def _run_top3():
                 try:
@@ -1942,25 +2008,27 @@ class RefreshHandler(SimpleHTTPRequestHandler):
     def do_POST(self):
         # POST also handled for /api/refresh
         if self.path == "/api/refresh":
-            self.send_response(200)
-            self.send_header("Content-Type", "application/json")
-            self.send_header("Access-Control-Allow-Origin", "*")
-            self.end_headers()
-            run_pipeline()
-            self.wfile.write(b'{"ok":true}')
+            self._handle_refresh()
         elif self.path == "/api/retrain":
             # Trigger model weight retraining (step5_learn)
-            self.send_response(200)
-            self.send_header("Content-Type", "application/json")
-            self.send_header("Access-Control-Allow-Origin", "*")
-            self.end_headers()
+            if not _admin_authorized(self.headers):
+                self.send_response(403)
+                self.send_header("Content-Type", "application/json")
+                self.end_headers()
+                self.wfile.write(b'{"ok":false,"error":"admin authorization required"}')
+                return
             try:
                 from self_evolving_loop import step5_learn
                 step5_learn()
-                self.wfile.write(b'{"ok":true,"retrained":true}')
+                status = 200
+                payload = {"ok": True, "retrained": True}
             except Exception as e:
-                self.wfile.write(json.dumps({"ok": False, "error": str(e)},
-                                           ensure_ascii=False).encode("utf-8"))
+                status = 500
+                payload = {"ok": False, "error": str(e)}
+            self.send_response(status)
+            self.send_header("Content-Type", "application/json")
+            self.end_headers()
+            self.wfile.write(json.dumps(payload, ensure_ascii=False).encode("utf-8"))
         else:
             self.send_response(404)
             self.end_headers()
@@ -1997,8 +2065,8 @@ def main():
         print(f"\n🌐 http://localhost:{port}")
         print("   '重新抓取'按钮 = 实时刷新 | 后台每10分钟自动刷新 | Ctrl+C 停止")
         threading.Thread(target=_auto_refresh_loop, daemon=True).start()
-        HTTPServer(("0.0.0.0", port), RefreshHandler)  # for type check
-        ThreadedHTTPServer(("0.0.0.0", port), RefreshHandler).serve_forever()
+        HTTPServer(("127.0.0.1", port), RefreshHandler)  # for type check
+        ThreadedHTTPServer(("127.0.0.1", port), RefreshHandler).serve_forever()
     else:
         print(f"\n  打开: file://{(SITE_DIR / 'index.html').resolve()}")
         print("  加 --serve 启动本地服务(支持实时刷新按钮)")
