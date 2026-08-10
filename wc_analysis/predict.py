@@ -32,6 +32,19 @@ import threading
 
 import numpy as np
 
+MAX_REMOTE_BYTES = 20 * 1024 * 1024
+
+
+def _read_bounded(response, max_bytes: int = MAX_REMOTE_BYTES) -> bytes:
+    payload = response.read(max_bytes + 1)
+    if len(payload) > max_bytes:
+        raise ValueError(f"remote response exceeds {max_bytes} bytes")
+    return payload
+
+
+def _safe_html(value) -> str:
+    return html.escape(str(value), quote=True)
+
 # ═══════════════════════════════════════════════════════════════════
 # 配置
 # ═══════════════════════════════════════════════════════════════════
@@ -206,7 +219,7 @@ def fetch_sporttery() -> list[dict]:
         "sec-fetch-site": "same-site"})
     try:
         with urllib.request.urlopen(req, timeout=30) as r:
-            raw = json.loads(r.read())
+            raw = json.loads(_read_bounded(r))
     except Exception as e:
         if parsed_cache.exists():
             age = time.time() - parsed_cache.stat().st_mtime
@@ -268,7 +281,8 @@ def get_elo(team_cn: str) -> float | None:
         url = f"https://www.eloratings.net/{quote(fname)}.tsv"
         try:
             req = urllib.request.Request(url, headers={"User-Agent": UA})
-            data = urllib.request.urlopen(req, timeout=20).read().decode("utf-8", "replace")
+            with urllib.request.urlopen(req, timeout=20) as response:
+                data = _read_bounded(response).decode("utf-8", "replace")
             cache.write_text(data, encoding="utf-8")
         except Exception:
             if not cache.exists():
@@ -1649,14 +1663,19 @@ def render_html(predictions: list[dict]) -> str:
 
         # 热门比分
         scores = p.get("top_scores", [])[:5]
-        scores_chips = "".join(f'<span class="score-chip"><b>{s}</b> {prob:.0%}</span>' for s, prob in scores)
+        scores_chips = "".join(
+            f'<span class="score-chip"><b>{_safe_html(s)}</b> {prob:.0%}</span>'
+            for s, prob in scores
+        )
 
         # 注释
         notes_html = ""
         if p.get("notes"):
-            notes_html = f'<div class="insight">{p["notes"]}</div>'
+            notes_html = f'<div class="insight">{_safe_html(p["notes"])}</div>'
         if p.get("odds_movement"):
-            notes_html += f'<div class="insight movement">{p["odds_movement"]}</div>'
+            notes_html += (
+                f'<div class="insight movement">{_safe_html(p["odds_movement"])}</div>'
+            )
 
         # 场外因素新闻 notice(不量化概率, 仅提醒人工判断)
         # (审计修复2026-07-02: title/source/link来自Google News RSS抓取的外部内容,
@@ -1684,6 +1703,7 @@ def render_html(predictions: list[dict]) -> str:
             hc_line_display = f"让{float(handicap_line):+.1f}球" if handicap_line else "让-1球"
         except (ValueError, TypeError):
             hc_line_display = f"让{handicap_line}"
+        safe_hc_line_display = _safe_html(hc_line_display)
 
         # ═══ 多玩法数据准备 ═══
         # 1. 常规盘 (HAD) - 仅在开盘时显示
@@ -1794,7 +1814,7 @@ def render_html(predictions: list[dict]) -> str:
                 else:
                     color = "#60a5fa"
                 rec_chips += f'''<div class="rec-chip" style="border-color:{color}">
-              <div class="rec-market">{r["market"]} · <b>{r["label"]}</b></div>
+              <div class="rec-market">{_safe_html(r["market"])} · <b>{_safe_html(r["label"])}</b></div>
               <div class="rec-odds">赔率 <b>{r["odds"]:.2f}</b> · 模型 {r["model_p"]:.0%} · 市场 {r["mkt_p"]:.0%}</div>
               <div class="rec-edge" style="color:{color}">edge +{r["edge"]:.1%} · EV {ev_pct:+.1f}% · 凯利 {kelly_pct:.1f}%</div>
             </div>'''
@@ -1808,17 +1828,17 @@ def render_html(predictions: list[dict]) -> str:
         card = f'''<article class="match" style="--i:{_card_i}">
   <header>
     <div class="matchup">
-      <span class="team home">{p["home"]}</span>
+      <span class="team home">{_safe_html(p["home"])}</span>
       <span class="vs">vs</span>
-      <span class="team away">{p["away"]}</span>
+      <span class="team away">{_safe_html(p["away"])}</span>
     </div>
     <div class="meta-row">
-      <time>{p["date"]} {p["time"][:5]}</time>
-      <span class="league-tag">{p.get("league","")}</span>
-      <span class="hc-tag">{hc_line_display}</span>
+      <time>{_safe_html(p["date"])} {_safe_html(p["time"][:5])}</time>
+      <span class="league-tag">{_safe_html(p.get("league", ""))}</span>
+      <span class="hc-tag">{safe_hc_line_display}</span>
       <span class="conf-tag" style="color:{conf_color}">{conf_label}</span>
-      <span class="mot-tag" title="主队战意: {p.get("status_h","")} | λ×{p.get("motivation_h",1.0):.2f}" style="color:{_mot_color(p.get("motivation_h",1.0))}">主 {p.get("status_h","-")} {p.get("motivation_h",1.0):.2f}</span>
-      <span class="mot-tag" title="客队战意: {p.get("status_a","")} | λ×{p.get("motivation_a",1.0):.2f}" style="color:{_mot_color(p.get("motivation_a",1.0))}">客 {p.get("status_a","-")} {p.get("motivation_a",1.0):.2f}</span>
+      <span class="mot-tag" title="主队战意: {_safe_html(p.get("status_h", ""))} | λ×{p.get("motivation_h",1.0):.2f}" style="color:{_mot_color(p.get("motivation_h",1.0))}">主 {_safe_html(p.get("status_h", "-"))} {p.get("motivation_h",1.0):.2f}</span>
+      <span class="mot-tag" title="客队战意: {_safe_html(p.get("status_a", ""))} | λ×{p.get("motivation_a",1.0):.2f}" style="color:{_mot_color(p.get("motivation_a",1.0))}">客 {_safe_html(p.get("status_a", "-"))} {p.get("motivation_a",1.0):.2f}</span>
       {edge_signal}
     </div>
   </header>
@@ -1835,7 +1855,7 @@ def render_html(predictions: list[dict]) -> str:
 
   <div class="data-grid">
     <div class="market-section primary">
-      <div class="market-title">让球盘 (HHAD) {hc_line_display}</div>
+      <div class="market-title">让球盘 (HHAD) {safe_hc_line_display}</div>
       <table>
         <thead><tr><th></th><th>主让胜</th><th>平局</th><th>客让胜</th></tr></thead>
         <tbody>
@@ -2777,6 +2797,19 @@ class ThreadedHTTPServer(HTTPServer):
 class RefreshHandler(SimpleHTTPRequestHandler):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, directory=str(SITE_DIR), **kwargs)
+
+    def end_headers(self):
+        self.send_header(
+            "Content-Security-Policy",
+            "default-src 'self'; script-src 'self' 'unsafe-inline'; "
+            "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; "
+            "font-src https://fonts.gstatic.com; img-src 'self' data:; "
+            "connect-src 'self'; object-src 'none'; base-uri 'none'; "
+            "frame-ancestors 'none'",
+        )
+        self.send_header("X-Content-Type-Options", "nosniff")
+        self.send_header("X-Frame-Options", "DENY")
+        super().end_headers()
 
     def _handle_refresh(self):
         """/api/refresh 的共享实现(GET/POST都会走这里)。

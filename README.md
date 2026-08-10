@@ -52,7 +52,7 @@ GET /api/v1/predictions
 
 ## 2026 World Cup Betting Prediction System
 
-> Self-evolving Asian Handicap (让球盘) prediction system for the 2026 FIFA World Cup, deployed at **predict.hetaisheng.ccwu.cc**.
+> Historical compatibility system for the 2026 FIFA World Cup. Its former public deployment is not a supported deployment target.
 
 This project combines Dixon-Coles statistical modeling, LightGBM, and a 37-feature PyTorch neural network into a 4-model ensemble that predicts match outcomes from China Sports Lottery (体彩) odds, real-time group standings, and Elo ratings.
 
@@ -403,7 +403,7 @@ Daily retrain results stored in `data/loop.log` and visible at `/api/retrain`.
 
 ## Deployment
 
-Production setup (this repo's live deployment):
+Historical deployment notes (retained for compatibility only; public exposure is unsupported):
 
 - **VPS**: `ubuntu@170.106.198.250:8026` (Singapore, public via nginx)
 - **4090 box**: `hts@110os9214fc69.vicp.fun:41380` (China residential IP, GPU)

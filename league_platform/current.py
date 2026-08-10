@@ -12,6 +12,14 @@ from urllib.parse import urlparse
 
 from league_platform.identity import team_id
 
+EXPECTED_SOURCE_ROLES = {
+    "fixtures_and_results": "ESPN",
+    "recent_xg_and_form": "Understat",
+    "historical_training": ["football-data.co.uk", "OpenFootball"],
+    "current_market": "ESPN event summary / named bookmaker",
+    "injuries_and_lineups": None,
+}
+
 
 def _validate_source(
     source: dict,
@@ -20,6 +28,7 @@ def _validate_source(
     hash_keys: tuple[str, ...],
     expected_name: str,
     allowed_hosts: set[str],
+    require_all_hashes: bool = False,
 ) -> None:
     observed = datetime.fromisoformat(source["retrieved_at"])
     if observed.tzinfo is None or observed.astimezone(timezone.utc) > as_of.astimezone(
@@ -34,11 +43,14 @@ def _validate_source(
     if source.get("name") != expected_name:
         raise ValueError("current source name does not match its data role")
     hashes = [source.get(key) for key in hash_keys]
-    if not any(
+    valid_hashes = [
         isinstance(value, str)
         and len(value) == 64
         and all(character in string.hexdigits for character in value)
         for value in hashes
+    ]
+    if (require_all_hashes and not all(valid_hashes)) or (
+        not require_all_hashes and not any(valid_hashes)
     ):
         raise ValueError("current source is missing a 64-character content hash")
 
@@ -85,9 +97,10 @@ def _validate_live_snapshot(live: dict, as_of: datetime, competition_ids: set[st
         _validate_source(
             feature["source"],
             as_of,
-            hash_keys=("content_sha256", "raw_sha256"),
+            hash_keys=("wire_sha256", "content_sha256"),
             expected_name="Understat",
             allowed_hosts={"understat.com"},
+            require_all_hashes=True,
         )
         for key in ("xg_for", "xg_against"):
             if (
@@ -137,7 +150,7 @@ def attach_current_data(
         return payload
 
     live = json.loads(live_path.read_text(encoding="utf-8"))
-    if live.get("schema_version") != "1.0.0" or not isinstance(live.get("roles"), dict):
+    if live.get("schema_version") != "1.0.0" or live.get("roles") != EXPECTED_SOURCE_ROLES:
         raise ValueError("live snapshot schema_version or roles are invalid")
     provider_contracts = {
         "espn": ("ESPN", "fixtures"),

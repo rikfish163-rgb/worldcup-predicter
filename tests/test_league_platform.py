@@ -30,6 +30,13 @@ from league_platform.sources.openfootball import OpenFootballSource
 
 EXPECTED_LEAGUES = {"premier-league", "la-liga", "bundesliga", "serie-a", "ligue-1", "csl"}
 TEST_SHA256 = "a" * 64
+TEST_ROLES = {
+    "fixtures_and_results": "ESPN",
+    "recent_xg_and_form": "Understat",
+    "historical_training": ["football-data.co.uk", "OpenFootball"],
+    "current_market": "ESPN event summary / named bookmaker",
+    "injuries_and_lineups": None,
+}
 
 
 def _espn_source(as_of: datetime, native_id: str) -> dict:
@@ -433,7 +440,7 @@ def test_current_snapshot_is_attached_with_as_of_and_feature_coverage(tmp_path):
         "schema_version": "1.0.0",
         "as_of": as_of.isoformat(),
         "expected_competitions": sorted(EXPECTED_LEAGUES),
-        "roles": {"fixtures_and_results": "ESPN", "recent_xg_and_form": "Understat"},
+        "roles": TEST_ROLES,
         "espn": {
             "provider": "ESPN",
             "errors": [],
@@ -468,7 +475,8 @@ def test_current_snapshot_is_attached_with_as_of_and_feature_coverage(tmp_path):
                         "name": "Understat",
                         "url": "https://understat.com/example",
                         "retrieved_at": as_of.isoformat(),
-                        "raw_sha256": TEST_SHA256,
+                        "wire_sha256": TEST_SHA256,
+                        "content_sha256": TEST_SHA256,
                     },
                 }
             ],
@@ -518,6 +526,22 @@ def test_current_snapshot_is_attached_with_as_of_and_feature_coverage(tmp_path):
         )
 
     live = json.loads(json.dumps(valid_live))
+    del live["understat"]["team_features"][0]["source"]["wire_sha256"]
+    live_path.write_text(json.dumps(live), encoding="utf-8")
+    with pytest.raises(ValueError, match="content hash"):
+        attach_current_data(
+            build_platform_snapshot(Path("data/MatchHistory")), live_path, now=as_of
+        )
+
+    live = json.loads(json.dumps(valid_live))
+    live["roles"]["injuries_and_lineups"] = "unverified-feed"
+    live_path.write_text(json.dumps(live), encoding="utf-8")
+    with pytest.raises(ValueError, match="roles"):
+        attach_current_data(
+            build_platform_snapshot(Path("data/MatchHistory")), live_path, now=as_of
+        )
+
+    live = json.loads(json.dumps(valid_live))
     live["espn"]["fixtures"][0]["source"]["url"] = "https://evil.example/not-espn"
     live_path.write_text(json.dumps(live), encoding="utf-8")
     with pytest.raises(ValueError, match="allowlisted"):
@@ -540,7 +564,7 @@ def test_future_predictions_only_use_post_as_of_fixtures_and_disclose_gates(tmp_
         "schema_version": "1.0.0",
         "as_of": as_of.isoformat(),
         "expected_competitions": sorted(EXPECTED_LEAGUES),
-        "roles": {"fixtures_and_results": "ESPN", "recent_xg_and_form": "Understat"},
+        "roles": TEST_ROLES,
         "espn": {
             "provider": "ESPN",
             "errors": [],
@@ -591,7 +615,7 @@ def test_future_predictions_block_model_parameters_fitted_after_as_of(tmp_path):
         "schema_version": "1.0.0",
         "as_of": as_of.isoformat(),
         "expected_competitions": sorted(EXPECTED_LEAGUES),
-        "roles": {"fixtures_and_results": "ESPN"},
+        "roles": TEST_ROLES,
         "espn": {
             "provider": "ESPN",
             "errors": [],
