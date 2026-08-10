@@ -95,6 +95,39 @@ def test_store_filters_matches_without_mutating_the_snapshot():
     assert store.snapshot()["summary"]["finished_matches"] == 5404
 
 
+def test_store_validates_query_contract_and_filters_date():
+    store = PlatformStore(Path("data/MatchHistory"))
+
+    dated = store.matches(match_date="2024-05-19", limit=500)
+
+    assert dated["total"] > 0
+    assert all(match["kickoff_at"].startswith("2024-05-19") for match in dated["matches"])
+    for kwargs in (
+        {"competition_id": "unknown"},
+        {"status": "unknown"},
+        {"match_date": "19-05-2024"},
+    ):
+        try:
+            store.matches(**kwargs)
+        except ValueError:
+            pass
+        else:
+            raise AssertionError(f"expected validation failure for {kwargs}")
+
+
+def test_source_rejects_duplicate_fixtures(tmp_path):
+    csv = "Date,Time,HomeTeam,AwayTeam,FTHG,FTAG,AvgH,AvgD,AvgA\n19/05/2024,16:00,A,B,1,0,2,3,4\n"
+    (tmp_path / "E0_2324.csv").write_text(csv + csv.split("\n", 1)[1], encoding="utf-8")
+
+    source = MatchHistorySource(tmp_path)
+    try:
+        source.load("premier-league")
+    except ValueError as exc:
+        assert "duplicate fixtures" in str(exc)
+    else:
+        raise AssertionError("duplicate fixture must block the snapshot")
+
+
 def test_store_health_exposes_source_and_model_gates():
     store = PlatformStore(Path("data/MatchHistory"))
 

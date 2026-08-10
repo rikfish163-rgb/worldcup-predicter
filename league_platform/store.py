@@ -3,10 +3,13 @@
 from __future__ import annotations
 
 from copy import deepcopy
-from datetime import datetime
+from datetime import date, datetime
 from pathlib import Path
 
 from league_platform.snapshot import build_platform_snapshot
+
+
+MATCH_STATUSES = {"upcoming", "live", "finished", "postponed", "cancelled"}
 
 
 class PlatformStore:
@@ -27,17 +30,30 @@ class PlatformStore:
         competition_id: str | None = None,
         season: str | None = None,
         status: str | None = None,
+        match_date: str | None = None,
         query: str | None = None,
         limit: int = 100,
         offset: int = 0,
     ) -> dict:
         matches = self._snapshot["matches"]
+        competition_ids = {item["id"] for item in self._snapshot["competitions"]}
+        if competition_id and competition_id not in competition_ids:
+            raise ValueError(f"unknown competition: {competition_id}")
+        if status and status not in MATCH_STATUSES:
+            raise ValueError(f"unknown status: {status}")
+        if match_date:
+            try:
+                date.fromisoformat(match_date)
+            except ValueError as exc:
+                raise ValueError("date must use YYYY-MM-DD") from exc
         if competition_id:
             matches = [item for item in matches if item["competition_id"] == competition_id]
         if season:
             matches = [item for item in matches if item["season"] == season]
         if status:
             matches = [item for item in matches if item["status"] == status]
+        if match_date:
+            matches = [item for item in matches if item["kickoff_at"][:10] == match_date]
         if query:
             normalized = query.strip().casefold()
             matches = [

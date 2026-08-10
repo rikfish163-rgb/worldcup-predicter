@@ -3,6 +3,7 @@ const state = {
   competition: "all",
   season: "all",
   status: "all",
+  date: "",
   query: "",
   visible: 24,
 };
@@ -54,6 +55,7 @@ function filteredMatches() {
     if (state.competition !== "all" && match.competition_id !== state.competition) return false;
     if (state.season !== "all" && match.season !== state.season) return false;
     if (state.status !== "all" && match.status !== state.status) return false;
+    if (state.date && match.kickoff_at.slice(0, 10) !== state.date) return false;
     if (state.query) {
       const query = state.query.toLocaleLowerCase("zh-CN");
       return (
@@ -109,7 +111,9 @@ function renderSummary() {
   $("#summary-latest").textContent = latest ? formatDate(latest) : "暂无";
   $("#summary-models").textContent = `${summary.evaluated_models} / ${competitions.length}`;
   $("#hero-coverage").textContent = `${summary.available_competitions} / ${competitions.length}`;
-  $("#hero-freshness").textContent = latest ? `最近比赛 ${formatDate(latest)}` : "没有可验证比赛";
+  $("#hero-freshness").textContent = latest
+    ? `来源中最近事件 ${formatDate(latest)}`
+    : "没有可验证比赛";
   $("#footer-version").textContent = `Schema ${state.snapshot.schema_version}`;
 
   const hasFresh = competitions.some((league) => league.source_status === "fresh");
@@ -156,7 +160,9 @@ function renderMatches() {
           const league = leagueById(match.competition_id);
           const score = match.score ?? { home: "—", away: "—" };
           return `
-            <article class="match-row">
+            <article class="match-row" aria-label="${escapeHtml(match.home_team)} 对 ${escapeHtml(
+              match.away_team,
+            )}">
               <div class="match-meta">
                 <span class="match-league">${escapeHtml(league?.name_zh ?? match.competition_id)}</span>
                 <time class="match-time" datetime="${escapeHtml(match.kickoff_at)}">${formatDate(
@@ -239,6 +245,11 @@ function bindControls() {
     state.visible = 24;
     renderMatches();
   });
+  $("#date-filter").addEventListener("change", (event) => {
+    state.date = event.target.value;
+    state.visible = 24;
+    renderMatches();
+  });
   $("#team-search").addEventListener("input", (event) => {
     state.query = event.target.value.trim();
     state.visible = 24;
@@ -248,10 +259,12 @@ function bindControls() {
     state.competition = "all";
     state.season = "all";
     state.status = "all";
+    state.date = "";
     state.query = "";
     state.visible = 24;
     $("#season-filter").value = "all";
     $("#status-filter").value = "all";
+    $("#date-filter").value = "";
     $("#team-search").value = "";
     renderLeagueTabs();
     renderMatches();

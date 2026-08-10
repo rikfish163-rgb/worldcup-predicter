@@ -54,9 +54,7 @@ def build_platform_snapshot(data_dir: Path, *, now: datetime | None = None) -> d
         "generated_at": generated_at.isoformat(),
         "timezone": "Asia/Shanghai",
         "summary": {
-            "finished_matches": sum(
-                item["data_quality"]["row_count"] for item in competition_payloads
-            ),
+            "finished_matches": sum(item["status"] == "finished" for item in match_payloads),
             "available_competitions": available,
             "unavailable_competitions": len(LEAGUES) - available,
             "evaluated_models": 0,

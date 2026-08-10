@@ -69,6 +69,8 @@ class MatchHistorySource:
             }
         )
         duplicate_rate = float(key.duplicated(keep=False).mean())
+        if duplicate_rate:
+            raise ValueError(f"duplicate fixtures detected for {league.id}: {duplicate_rate:.2%}")
         score_completeness = float(1 - frame[["FTHG", "FTAG"]].isna().any(axis=1).mean())
         odds_columns = {"AvgH", "AvgD", "AvgA"}
         odds_completeness = (
