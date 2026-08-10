@@ -23,7 +23,7 @@
   .venv/bin/python wc_analysis/predict.py --serve   # 启动本地服务+自动刷新
 """
 from __future__ import annotations
-import hashlib, hmac, json, math, urllib.request, time, sys, os
+import hashlib, hmac, html, json, math, urllib.request, time, sys, os
 from pathlib import Path
 from datetime import datetime
 from urllib.parse import quote, unquote, urlparse
