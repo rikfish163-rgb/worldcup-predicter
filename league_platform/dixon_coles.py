@@ -133,6 +133,7 @@ def evaluate_dixon_coles(league_id: str, matches: list[Match]) -> dict:
         "away_goal_average": round(away_average, 6),
         "rho": best_rho,
         "calibration_alpha": best_alpha,
+        "calibration_prior": [round(value, 8) for value in best_prior],
         "calibration_log_loss": round(best_loss, 6),
         "prediction_time_rule": "pre_kickoff_group_update",
         **metrics,

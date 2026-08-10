@@ -14,6 +14,7 @@ from league_platform.store import PlatformStore
 ROOT = Path(__file__).resolve().parent
 SITE_DIR = ROOT / "site"
 DEFAULT_DATA_DIR = ROOT.parent / "data" / "MatchHistory"
+DEFAULT_LIVE_PATH = ROOT.parent / "data" / "live" / "current.json"
 
 
 class PlatformHandler(SimpleHTTPRequestHandler):
@@ -62,13 +63,7 @@ class PlatformHandler(SimpleHTTPRequestHandler):
             self._send_json({"evaluations": self.store.model_evaluations()})
             return
         if parsed.path == "/api/v1/predictions":
-            self._send_json(
-                {
-                    "status": "unavailable",
-                    "predictions": [],
-                    "message": "没有已验证的当前赛程输入；历史回测不得冒充未来预测。",
-                }
-            )
+            self._send_json(self.store.predictions())
             return
         super().do_GET()
 
@@ -103,8 +98,15 @@ def _first(params: dict[str, list[str]], key: str) -> str | None:
     return value or None
 
 
-def create_server(host: str, port: int, data_dir: Path | str) -> ThreadingHTTPServer:
-    PlatformHandler.store = PlatformStore(Path(data_dir))
+def create_server(
+    host: str,
+    port: int,
+    data_dir: Path | str,
+    live_path: Path | str | None = DEFAULT_LIVE_PATH,
+) -> ThreadingHTTPServer:
+    PlatformHandler.store = PlatformStore(
+        Path(data_dir), live_path=Path(live_path) if live_path is not None else None
+    )
     return ThreadingHTTPServer((host, port), PlatformHandler)
 
 
@@ -113,8 +115,9 @@ def main() -> None:
     parser.add_argument("--host", default="127.0.0.1")
     parser.add_argument("--port", type=int, default=8030)
     parser.add_argument("--data-dir", type=Path, default=DEFAULT_DATA_DIR)
+    parser.add_argument("--live-data", type=Path, default=DEFAULT_LIVE_PATH)
     args = parser.parse_args()
-    server = create_server(args.host, args.port, args.data_dir)
+    server = create_server(args.host, args.port, args.data_dir, args.live_data)
     print(f"Matchline is running at http://{args.host}:{args.port}")
     try:
         server.serve_forever()

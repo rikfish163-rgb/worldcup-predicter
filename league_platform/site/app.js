@@ -1,5 +1,7 @@
 const state = {
   snapshot: null,
+  predictions: new Map(),
+  blockedFixtures: new Set(),
   competition: "all",
   season: "all",
   status: "all",
@@ -51,20 +53,28 @@ function leagueById(id) {
 }
 
 function filteredMatches() {
-  return state.snapshot.matches.filter((match) => {
-    if (state.competition !== "all" && match.competition_id !== state.competition) return false;
-    if (state.season !== "all" && match.season !== state.season) return false;
-    if (state.status !== "all" && match.status !== state.status) return false;
-    if (state.date && match.kickoff_at.slice(0, 10) !== state.date) return false;
-    if (state.query) {
-      const query = state.query.toLocaleLowerCase("zh-CN");
-      return (
-        match.home_team.toLocaleLowerCase("zh-CN").includes(query) ||
-        match.away_team.toLocaleLowerCase("zh-CN").includes(query)
-      );
-    }
-    return true;
-  });
+  return state.snapshot.matches
+    .filter((match) => {
+      if (state.competition !== "all" && match.competition_id !== state.competition) return false;
+      if (state.season !== "all" && match.season !== state.season) return false;
+      if (state.status !== "all" && match.status !== state.status) return false;
+      if (state.date && match.kickoff_at.slice(0, 10) !== state.date) return false;
+      if (state.query) {
+        const query = state.query.toLocaleLowerCase("zh-CN");
+        return (
+          match.home_team.toLocaleLowerCase("zh-CN").includes(query) ||
+          match.away_team.toLocaleLowerCase("zh-CN").includes(query)
+        );
+      }
+      return true;
+    })
+    .sort((left, right) => {
+      const leftUpcoming = left.status === "upcoming";
+      const rightUpcoming = right.status === "upcoming";
+      if (leftUpcoming !== rightUpcoming) return leftUpcoming ? -1 : 1;
+      const direction = leftUpcoming ? 1 : -1;
+      return direction * left.kickoff_at.localeCompare(right.kickoff_at);
+    });
 }
 
 function renderLeagueTabs() {
@@ -105,25 +115,58 @@ function renderSeasonOptions() {
 
 function renderSummary() {
   const { summary, competitions, matches } = state.snapshot;
-  const latest = matches[0]?.kickoff_at;
+  const latestFinished = matches.find((match) => match.status === "finished")?.kickoff_at;
+  const current = state.snapshot.current_data;
   $("#summary-matches").textContent = formatNumber(summary.finished_matches);
   $("#summary-leagues").textContent = `${summary.available_competitions} / ${competitions.length}`;
-  $("#summary-latest").textContent = latest ? formatDate(latest) : "暂无";
+  $("#summary-latest").textContent = latestFinished ? formatDate(latestFinished) : "暂无";
   $("#summary-models").textContent = `${summary.evaluated_models} / ${competitions.length}`;
   $("#hero-coverage").textContent = `${summary.available_competitions} / ${competitions.length}`;
-  $("#hero-freshness").textContent = latest
-    ? `来源中最近事件 ${formatDate(latest)}`
-    : "没有可验证比赛";
+  $("#hero-freshness").textContent =
+    current?.status === "fresh"
+      ? `当前赛程已同步 · 截至 ${formatDate(current.as_of)}`
+      : current?.message || "没有可验证的当前赛程";
   $("#footer-version").textContent = `Schema ${state.snapshot.schema_version}`;
 
-  const hasFresh = competitions.some((league) => league.source_status === "fresh");
+  const hasFresh = current?.status === "fresh";
   const header = $("#header-status");
   header.innerHTML = `<span class="status-dot ${hasFresh ? "" : "status-dot--stale"}"></span>${
-    hasFresh ? "数据可用" : "历史数据已过期"
+    hasFresh ? "当前赛程已同步" : "当前数据不可用"
   }`;
 }
 
 function marketBlock(match) {
+  const prediction = state.predictions.get(match.id);
+  if (prediction) {
+    const probabilities = prediction.dixon_coles_probability;
+    const labels = [
+      ["主", probabilities.home],
+      ["平", probabilities.draw],
+      ["客", probabilities.away],
+    ];
+    return `
+      <span class="market-label">研究预测 · Dixon-Coles · as-of ${formatDate(prediction.as_of)}</span>
+      ${labels
+        .map(
+          ([label, value]) => `
+            <div class="probability-line">
+              <span>${label}</span>
+              <span class="probability-track" aria-hidden="true">
+                <span class="probability-fill" style="width:${Math.round(value * 100)}%"></span>
+              </span>
+              <span class="probability-value">${(value * 100).toFixed(1)}%</span>
+            </div>
+          `,
+        )
+        .join("")}
+      <span class="market-label">预期进球 ${prediction.expected_goals.home.toFixed(2)} : ${prediction.expected_goals.away.toFixed(2)} · ${
+        prediction.feature_coverage.recent_xg ? "含 Understat 近况" : "无当前 xG，已降级"
+      }</span>
+    `;
+  }
+  if (state.blockedFixtures.has(match.id)) {
+    return '<p class="market-label">新升班或历史样本不足，预测已阻断</p>';
+  }
   if (!match.market_probability) {
     return '<p class="market-label">该场没有可验证的市场概率</p>';
   }
@@ -185,7 +228,7 @@ function renderMatches() {
               <div class="match-market">
                 ${marketBlock(match)}
                 <span class="source-tag">来源 ${escapeHtml(match.source.name)} · ${escapeHtml(
-                  match.source.file,
+                  match.source.file ?? match.source.native_fixture_id ?? "已记录原始快照",
                 )}</span>
               </div>
             </article>
@@ -207,10 +250,16 @@ function renderSourceHealth() {
       (league) => `
         <div class="source-item">
           <strong>${escapeHtml(league.name_zh)}</strong>
-          <span class="source-status source-status--${escapeHtml(league.source_status)}">${escapeHtml(
-            sourceStatusLabels[league.source_status] ?? league.source_status,
+          <span class="source-status source-status--${escapeHtml(
+            league.current_source_status ?? league.source_status
+          )}">${escapeHtml(
+            sourceStatusLabels[league.current_source_status ?? league.source_status] ??
+              league.current_source_status ??
+              league.source_status,
           )}</span>
-          <small>${escapeHtml(league.source_message)}</small>
+          <small>当前赛程 ${formatNumber(league.current_fixture_count ?? 0)} 场 · xG 球队 ${formatNumber(
+            league.current_xg_team_count ?? 0,
+          )} 支。历史训练集：${escapeHtml(league.source_message)}</small>
         </div>
       `,
     )
@@ -285,9 +334,21 @@ function bindControls() {
 
 async function boot() {
   try {
-    const response = await fetch("/api/v1/snapshot", { headers: { Accept: "application/json" } });
-    if (!response.ok) throw new Error(`HTTP ${response.status}`);
-    state.snapshot = await response.json();
+    const [snapshotResponse, predictionResponse] = await Promise.all([
+      fetch("/api/v1/snapshot", { headers: { Accept: "application/json" } }),
+      fetch("/api/v1/predictions", { headers: { Accept: "application/json" } }),
+    ]);
+    if (!snapshotResponse.ok || !predictionResponse.ok) {
+      throw new Error(`HTTP ${snapshotResponse.status}/${predictionResponse.status}`);
+    }
+    state.snapshot = await snapshotResponse.json();
+    const predictionPayload = await predictionResponse.json();
+    state.predictions = new Map(
+      predictionPayload.predictions.map((prediction) => [prediction.fixture_id, prediction]),
+    );
+    state.blockedFixtures = new Set(
+      predictionPayload.blocked.map((item) => item.fixture_id),
+    );
     $("#loading-notice").remove();
     renderLeagueTabs();
     renderSeasonOptions();

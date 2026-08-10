@@ -221,6 +221,7 @@ def evaluate_league(league_id: str, matches: list[Match]) -> dict:
         "draw_rate": round(draw_rate, 6),
         "home_advantage_elo": round(home_advantage, 3),
         "calibration_alpha": alpha,
+        "calibration_prior": [round(value, 8) for value in prior],
         "calibration_log_loss": round(calibration_log_loss, 6),
         "prediction_time_rule": "pre_kickoff_group_update",
         "walk_forward_folds": folds,

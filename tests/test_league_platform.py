@@ -1,11 +1,20 @@
 from __future__ import annotations
 
 import json
+import gzip
 from datetime import datetime, timezone
 from pathlib import Path
 
 from league_platform.catalog import LEAGUES, get_league
+from league_platform.current import attach_current_data
 from league_platform.dixon_coles import evaluate_dixon_coles
+from league_platform.live_sources.espn import parse_espn_payload
+from league_platform.live_sources.understat import (
+    aggregate_understat_payload,
+    decode_understat_payload,
+)
+from league_platform.identity import canonical_team_name, team_id
+from league_platform.future import build_future_predictions
 from league_platform.model import evaluate_league
 from league_platform.snapshot import build_platform_snapshot
 from league_platform.store import PlatformStore
@@ -25,10 +34,108 @@ def test_data_manifest_pins_all_six_league_inputs():
     assert all(len(item["sha256"]) == 64 for item in manifest["files"])
 
 
+def test_espn_current_fixture_contract_preserves_native_ids_and_as_of():
+    payload = json.dumps(
+        {
+            "events": [
+                {
+                    "id": "401",
+                    "date": "2026-08-21T19:00Z",
+                    "season": {"year": 2026},
+                    "status": {"type": {"name": "STATUS_SCHEDULED"}},
+                    "competitions": [
+                        {
+                            "competitors": [
+                                {
+                                    "homeAway": "home",
+                                    "team": {"id": "359", "displayName": "Arsenal"},
+                                    "score": "0",
+                                },
+                                {
+                                    "homeAway": "away",
+                                    "team": {"id": "388", "displayName": "Coventry City"},
+                                    "score": "0",
+                                },
+                            ]
+                        }
+                    ],
+                }
+            ]
+        }
+    ).encode()
+    as_of = datetime(2026, 8, 10, tzinfo=timezone.utc)
+
+    fixtures = parse_espn_payload(
+        payload,
+        competition_id="premier-league",
+        retrieved_at=as_of,
+        url="https://site.api.espn.com/example",
+    )
+
+    assert fixtures[0]["id"] == "espn:401"
+    assert fixtures[0]["status"] == "upcoming"
+    assert fixtures[0]["home_provider_team_id"] == "359"
+    assert fixtures[0]["source"]["retrieved_at"] == as_of.isoformat()
+    assert len(fixtures[0]["source"]["raw_sha256"]) == 64
+
+
+def test_understat_form_uses_only_results_before_as_of():
+    dates = []
+    for day in range(1, 8):
+        dates.append(
+            {
+                "id": str(day),
+                "datetime": f"2026-05-{day:02d} 15:00:00",
+                "isResult": True,
+                "h": {"id": "1", "title": "Arsenal"},
+                "a": {"id": str(day + 1), "title": f"Team {day}"},
+                "xG": {"h": str(day), "a": "1.0"},
+                "goals": {"h": str(day % 3), "a": "1"},
+            }
+        )
+    dates.append(
+        {
+            "id": "future",
+            "datetime": "2026-09-01 15:00:00",
+            "isResult": True,
+            "h": {"id": "1", "title": "Arsenal"},
+            "a": {"id": "99", "title": "Future"},
+            "xG": {"h": "99", "a": "99"},
+            "goals": {"h": "9", "a": "9"},
+        }
+    )
+    as_of = datetime(2026, 8, 10, tzinfo=timezone.utc)
+
+    observations = aggregate_understat_payload(
+        json.dumps({"dates": dates}).encode(),
+        competition_id="premier-league",
+        retrieved_at=as_of,
+        url="https://understat.com/example",
+    )
+    arsenal = next(item for item in observations if item["provider_team_id"] == "1")
+
+    assert arsenal["sample_n"] == 5
+    assert arsenal["xg_for"] == 5.0
+    assert arsenal["last_match_at"].startswith("2026-05-07")
+
+
+def test_understat_gzip_payload_can_be_decoded_before_aggregation():
+    payload = gzip.compress(json.dumps({"dates": []}).encode())
+
+    assert json.loads(decode_understat_payload(payload))["dates"] == []
+
+
 def test_catalog_contains_big_five_and_chinese_super_league():
     assert {league.id for league in LEAGUES} == EXPECTED_LEAGUES
     assert get_league("csl").name_zh == "中超"
     assert all(league.timezone for league in LEAGUES)
+
+
+def test_team_registry_aligns_provider_aliases_without_merging_promoted_clubs():
+    assert canonical_team_name("premier-league", "Manchester City") == "Man City"
+    assert team_id("premier-league", "Manchester City") == team_id("premier-league", "Man City")
+    assert canonical_team_name("csl", "Shanghai Port") == "Shanghai Port FC"
+    assert canonical_team_name("premier-league", "Coventry City") == "Coventry City"
 
 
 def test_match_history_source_loads_real_cached_big_five_data():
@@ -202,3 +309,91 @@ def test_store_health_exposes_source_and_model_gates():
     assert health["sources"]["unavailable"] == 0
     assert health["models"]["evaluated"] == 6
     assert health["models"]["gate"] == "historical_baselines_evaluated_current_predictions_blocked"
+
+
+def test_current_snapshot_is_attached_with_as_of_and_feature_coverage(tmp_path):
+    as_of = datetime(2026, 8, 10, 1, 0, tzinfo=timezone.utc)
+    live = {
+        "as_of": as_of.isoformat(),
+        "roles": {"fixtures_and_results": "ESPN", "recent_xg_and_form": "Understat"},
+        "espn": {
+            "errors": [],
+            "fixtures": [
+                {
+                    "id": "espn:1",
+                    "competition_id": "premier-league",
+                    "season": "2026",
+                    "kickoff_at": "2026-08-21T19:00:00+00:00",
+                    "home_team": "Manchester City",
+                    "away_team": "Arsenal",
+                    "status": "upcoming",
+                    "score": None,
+                    "source": {"name": "ESPN", "retrieved_at": as_of.isoformat()},
+                }
+            ],
+        },
+        "understat": {
+            "errors": [],
+            "team_features": [
+                {
+                    "competition_id": "premier-league",
+                    "team": "Manchester City",
+                    "sample_n": 5,
+                }
+            ],
+        },
+    }
+    live_path = tmp_path / "current.json"
+    live_path.write_text(json.dumps(live), encoding="utf-8")
+
+    snapshot = attach_current_data(
+        build_platform_snapshot(Path("data/MatchHistory")),
+        live_path,
+        now=as_of,
+    )
+    fixture = next(item for item in snapshot["matches"] if item["id"] == "espn:1")
+
+    assert snapshot["current_data"]["status"] == "fresh"
+    assert snapshot["summary"]["current_fixture_count"] == 1
+    assert fixture["home_team_id"] == "premier-league:man-city"
+    assert fixture["current_features"]["home"]["sample_n"] == 5
+
+
+def test_future_predictions_only_use_post_as_of_fixtures_and_disclose_gates(tmp_path):
+    as_of = datetime(2026, 8, 10, 1, 0, tzinfo=timezone.utc)
+    live = {
+        "as_of": as_of.isoformat(),
+        "roles": {"fixtures_and_results": "ESPN", "recent_xg_and_form": "Understat"},
+        "espn": {
+            "errors": [],
+            "fixtures": [
+                {
+                    "id": "espn:future",
+                    "competition_id": "premier-league",
+                    "season": "2026",
+                    "kickoff_at": "2026-08-21T19:00:00+00:00",
+                    "home_team": "Manchester City",
+                    "away_team": "Arsenal",
+                    "status": "upcoming",
+                    "score": None,
+                    "source": {"name": "ESPN", "retrieved_at": as_of.isoformat()},
+                }
+            ],
+        },
+        "understat": {"errors": [], "team_features": []},
+    }
+    live_path = tmp_path / "current.json"
+    live_path.write_text(json.dumps(live), encoding="utf-8")
+    snapshot = attach_current_data(
+        build_platform_snapshot(Path("data/MatchHistory")), live_path, now=as_of
+    )
+
+    result = build_future_predictions(snapshot)
+
+    assert result["status"] == "research_only"
+    assert len(result["predictions"]) == 1
+    prediction = result["predictions"][0]
+    assert prediction["kickoff_at"] > prediction["as_of"]
+    assert prediction["training_cutoff"] < prediction["as_of"]
+    assert prediction["quality_gate"].startswith("blocked_for_production")
+    assert abs(sum(prediction["dixon_coles_probability"].values()) - 1) < 1e-5

@@ -30,6 +30,8 @@ Provider adapters
 | [Kloppy](https://github.com/PySport/kloppy) | 统一事件与追踪数据 | BSD-3-Clause | 有授权事件数据后作为可选标准化层 |
 | [ClubElo](https://clubelo.com/Data) | 欧洲俱乐部历史 Elo | 数据许可需单独确认 | 欧洲强度先验；不能承担中超强度 |
 | [football-data.co.uk](https://www.football-data.co.uk/) | 五大联赛历史比分和赔率 CSV | 免费访问，分发许可需确认 | 当前历史市场基线；不在未确认许可前重新分发原始文件 |
+| ESPN scoreboard | 六联赛当前赛程、结果和原生球队/比赛 ID | 公共读取端点，使用条款需持续复核 | 已作为当前 fixture 主源，原始响应哈希和抓取时点必须保留 |
+| Understat | 五大联赛比赛 xG 与近期状态 | 公共站点，抓取条款需持续复核 | 已作为欧洲近期 xG 辅助源，不覆盖中超也不替代赛程主源 |
 
 明确不作为生产核心：
 
