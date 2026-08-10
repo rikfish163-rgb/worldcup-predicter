@@ -33,6 +33,11 @@ def build_platform_snapshot(data_dir: Path, *, now: datetime | None = None) -> d
         if result.status != "unavailable":
             available += 1
         model_health = evaluate_league(league.id, result.matches)
+        model_health["data_cutoff"] = (
+            max(match.kickoff_at for match in result.matches).isoformat()
+            if result.matches
+            else None
+        )
         dixon_coles = evaluate_dixon_coles(league.id, result.matches)
         model_health["dixon_coles"] = dixon_coles
         if model_health["status"] == "evaluated" and dixon_coles["status"] == "evaluated":

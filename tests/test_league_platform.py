@@ -426,3 +426,42 @@ def test_future_predictions_only_use_post_as_of_fixtures_and_disclose_gates(tmp_
     assert prediction["training_cutoff"] < prediction["as_of"]
     assert prediction["quality_gate"].startswith("blocked_for_production")
     assert abs(sum(prediction["dixon_coles_probability"].values()) - 1) < 1e-5
+
+
+def test_future_predictions_block_model_parameters_fitted_after_as_of(tmp_path):
+    as_of = datetime(2026, 8, 10, 1, 0, tzinfo=timezone.utc)
+    live = {
+        "as_of": as_of.isoformat(),
+        "roles": {"fixtures_and_results": "ESPN"},
+        "espn": {
+            "errors": [],
+            "fixtures": [
+                {
+                    "id": "espn:future-leak-check",
+                    "competition_id": "premier-league",
+                    "season": "2026",
+                    "kickoff_at": "2026-08-21T19:00:00+00:00",
+                    "home_team": "Manchester City",
+                    "away_team": "Arsenal",
+                    "status": "upcoming",
+                    "score": None,
+                    "source": {"name": "ESPN", "retrieved_at": as_of.isoformat()},
+                }
+            ],
+        },
+        "understat": {"errors": [], "team_features": []},
+    }
+    live_path = tmp_path / "current.json"
+    live_path.write_text(json.dumps(live), encoding="utf-8")
+    snapshot = attach_current_data(
+        build_platform_snapshot(Path("data/MatchHistory")), live_path, now=as_of
+    )
+    competition = next(item for item in snapshot["competitions"] if item["id"] == "premier-league")
+    competition["model_health"]["data_cutoff"] = "2026-08-11T00:00:00+00:00"
+
+    result = build_future_predictions(snapshot)
+
+    assert result["predictions"] == []
+    assert result["blocked"] == [
+        {"fixture_id": "espn:future-leak-check", "reason": "historical_model_not_causal"}
+    ]
