@@ -219,24 +219,26 @@ function renderSourceHealth() {
 
 function renderModelHealth() {
   $("#model-table-body").innerHTML = state.snapshot.competitions
-    .map(
-      (league) => `
+    .map((league) => {
+      const metrics = league.model_health.selected_metrics ?? league.model_health;
+      const candidate = league.model_health.selected_candidate ?? league.model_health.model;
+      return `
         <tr>
           <th scope="row">${escapeHtml(league.name_zh)}</th>
           <td class="model-pending">${
             league.model_health.status === "evaluated" ? "已留出评估" : "待严格回测"
           }</td>
-          <td>${formatNumber(league.model_health.sample_n)}</td>
-          <td>${league.model_health.brier_score ?? "—"}</td>
-          <td>${league.model_health.log_loss ?? "—"}</td>
+          <td>${formatNumber(metrics.sample_n)}</td>
+          <td>${metrics.brier_score ?? "—"}</td>
+          <td>${metrics.log_loss ?? "—"}</td>
           <td>${
             league.model_health.status === "evaluated"
-              ? `${escapeHtml(league.model_health.evaluation_season)} 留出赛季 · 动态 Elo 基线`
+              ? `${escapeHtml(league.model_health.evaluation_season)} 留出赛季 · ${escapeHtml(candidate)} · 研究基线`
               : escapeHtml(league.model_health.message)
           }</td>
         </tr>
-      `,
-    )
+      `;
+    })
     .join("");
 }
 

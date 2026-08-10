@@ -2,8 +2,9 @@
 
 > 当前迁移状态：第一阶段已经建立英超、西甲、德甲、意甲、法甲和中超的统一联赛契约、
 > 只读 API、数据质量门禁与全新响应式比赛中心。五大联赛目前使用可校验恢复的
-> football-data.co.uk 2021/22–2023/24 历史缓存；中超实时源尚未接入，界面会明确显示不可用，
-> 不使用样例数据或欧洲联赛参数冒充。
+> football-data.co.uk 2021/22–2023/24 历史缓存，以及 OpenFootball CC0 的中超
+> 2022–2024 历史结果；六个来源当前均已过期，只适合历史回测。2026 实时源尚未接入，
+> 不使用样例数据或欧洲联赛参数冒充当前预测。
 
 启动新平台：
 
@@ -35,7 +36,8 @@ GET /api/v1/predictions
 - 比赛、赛季、来源状态和事件时间采用统一契约，旧世界杯 JSON 不再充当通用 schema。
 - 历史文件提供 SHA-256 与 provider fixture ID；原始采集时点无法追溯时明确返回 `null`。
 - 训练只使用预测时点之前的数据；按时间滚动回测，不使用随机 K 折。
-- 动态 Elo 基线按联赛披露 Brier、Log loss、RPS、ECE 和样本量；未接入当前赛程前不生成未来预测。
+- 动态 Elo 与在线 Dixon-Coles 基线按联赛披露 Brier、Log loss、RPS、ECE、连续窗口和市场对照；
+  未接入当前赛程前不生成未来预测。
 - 不提供购买建议、Kelly 金额、收益承诺或按 EV 排序的投注信号。
 
 技术研究见 [docs/open-source-platform-research.md](docs/open-source-platform-research.md)，架构和验收门禁见

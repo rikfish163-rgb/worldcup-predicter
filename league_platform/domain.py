@@ -42,21 +42,25 @@ class Match:
     source_file: str
     source_sha256: str
     provider_fixture_id: str
+    source_name: str
+    source_license_status: str
 
     def to_dict(self) -> dict:
         payload = asdict(self)
         payload["kickoff_at"] = self.kickoff_at.isoformat()
         payload["source"] = {
-            "name": "football-data.co.uk",
+            "name": self.source_name,
             "file": self.source_file,
             "sha256": self.source_sha256,
             "provider_fixture_id": self.provider_fixture_id,
             "retrieved_at": None,
-            "license_status": "provider_terms_require_review",
+            "license_status": self.source_license_status,
         }
         payload.pop("source_file")
         payload.pop("source_sha256")
         payload.pop("provider_fixture_id")
+        payload.pop("source_name")
+        payload.pop("source_license_status")
         return payload
 
 

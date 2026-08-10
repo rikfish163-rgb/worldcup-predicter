@@ -25,7 +25,7 @@ Provider adapters
 | [penaltyblog](https://github.com/martineastwood/penaltyblog) | Poisson、Dixon-Coles、双变量 Poisson、Bayesian、赔率去水 | MIT | 作为模型实现和概率网格基准，先对照验证再决定是否新增依赖 |
 | [soccerdata](https://github.com/probberechts/soccerdata) | FBref、Understat、ClubElo、ESPN、Sofascore、Football-Data 适配 | Apache-2.0 | 保留抓取层，在其上增加统一契约、来源时间和质量门禁 |
 | [football-data.org](https://www.football-data.org/coverage) | 当前赛程、结果、积分 | 免费层 + 商业层 | 五大联赛的首选 API 候选；中超覆盖和套餐需实测 |
-| [openfootball/world](https://github.com/openfootball/world) | 公开历史赛程与结果，包含中国超级联赛目录 | Public Domain/开放数据 | 适合中超历史结果回填和可复现测试，不自动等同实时生产源 |
+| [openfootball/world](https://github.com/openfootball/world) | 公开历史赛程与结果，包含中国超级联赛目录 | CC0-1.0 | 已接入中超 2022–2024 历史结果和可复现测试，不自动等同实时生产源 |
 | [StatsBomb Open Data](https://github.com/statsbomb/open-data) | 高质量事件和部分 360 数据 | 定制开放数据许可 | 只用于研究和特征验证，不作为六联赛实时主源 |
 | [Kloppy](https://github.com/PySport/kloppy) | 统一事件与追踪数据 | BSD-3-Clause | 有授权事件数据后作为可选标准化层 |
 | [ClubElo](https://clubelo.com/Data) | 欧洲俱乐部历史 Elo | 数据许可需单独确认 | 欧洲强度先验；不能承担中超强度 |
@@ -43,7 +43,7 @@ Provider adapters
 
 | 数据用途 | 五大联赛 | 中超 | 缺失处理 |
 |---|---|---|---|
-| 历史比分 | MatchHistory / OpenFootball | OpenFootball 候选 | 无来源时标记不可用 |
+| 历史比分 | MatchHistory / OpenFootball | OpenFootball 2022–2024 已接入 | 无来源时标记不可用 |
 | 当前赛程与结果 | football-data.org / Sofascore | football-data.org 或授权 API 待验证 | 不用旧缓存显示为实时 |
 | 历史赔率 | football-data.co.uk | 授权数据待定 | 无赔率不计算市场概率 |
 | xG / 事件 | Understat、FBref、授权事件源 | 当前没有稳定公开源 | 保持空值，不用 Elo 冒充 xG |

@@ -1,6 +1,6 @@
 {
-  "provider": "football-data.co.uk",
-  "license_note": "Verify provider terms before redistribution; this manifest stores URLs and hashes, not third-party data.",
+  "provider": "multiple",
+  "license_note": "The manifest stores URLs and hashes, not third-party data. Verify football-data.co.uk terms before redistribution; OpenFootball files are CC0-1.0.",
   "files": [
     {"name": "D1_2122.csv", "url": "https://www.football-data.co.uk/mmz4281/2122/D1.csv", "sha256": "034d0e1296e944dddf25e3c91b85ef5bd1ad25661b89d73878f5c73bfea4b9fc"},
     {"name": "D1_2223.csv", "url": "https://www.football-data.co.uk/mmz4281/2223/D1.csv", "sha256": "b716517b25033ce8e0243e967aa961876425a4c41e97c8aa8fa59f2aca061341"},
@@ -16,6 +16,9 @@
     {"name": "I1_2324.csv", "url": "https://www.football-data.co.uk/mmz4281/2324/I1.csv", "sha256": "343a89db026fe4204ebeabd663cdfee8d02a45457828fc1cb63fa630ca170723"},
     {"name": "SP1_2122.csv", "url": "https://www.football-data.co.uk/mmz4281/2122/SP1.csv", "sha256": "2d9e619700712823d15716c07715133f8c3b1a09046930dcfc785a38633dee2e"},
     {"name": "SP1_2223.csv", "url": "https://www.football-data.co.uk/mmz4281/2223/SP1.csv", "sha256": "53348112526b5165539df240be350083989bb258f30c0ff7cacbc0165ca7e4b3"},
-    {"name": "SP1_2324.csv", "url": "https://www.football-data.co.uk/mmz4281/2324/SP1.csv", "sha256": "5323f596c7ed318e4bce95557a369d809d98501fa499ea5f41350cd45cf3c7d9"}
+    {"name": "SP1_2324.csv", "url": "https://www.football-data.co.uk/mmz4281/2324/SP1.csv", "sha256": "5323f596c7ed318e4bce95557a369d809d98501fa499ea5f41350cd45cf3c7d9"},
+    {"name": "CSL_2022.txt", "url": "https://raw.githubusercontent.com/openfootball/world/master/asia/china/2022_cn1.txt", "sha256": "88b1bde6f7db8fdf345369f22f4a148f9827bd4265f27f57e7eb84a4bc0c5ad2"},
+    {"name": "CSL_2023.txt", "url": "https://raw.githubusercontent.com/openfootball/world/master/asia/china/2023_cn1.txt", "sha256": "e02e9cdd12b247a0985910865a3b69bdb2db036c947f1b9cc95c5816518b25e8"},
+    {"name": "CSL_2024.txt", "url": "https://raw.githubusercontent.com/openfootball/world/master/asia/china/2024_cn1.txt", "sha256": "5e9b238c2ee01aadb7f604813cdf877feb80a053e3ebfc1341c113affb1d1991"}
   ]
 }
