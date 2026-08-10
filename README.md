@@ -1,6 +1,58 @@
-# 2026 World Cup Betting Prediction System
+# 赛线 Matchline：六联赛比赛与预测平台
 
-> Self-evolving Asian Handicap (让球盘) prediction system for the 2026 FIFA World Cup, deployed at **predict.hetaisheng.ccwu.cc**.
+> 当前迁移状态：已经建立英超、西甲、德甲、意甲、法甲和中超的统一联赛契约、
+> 只读 API、数据质量门禁与全新响应式比赛中心。五大联赛使用可校验恢复的
+> football-data.co.uk 2021/22–2023/24 历史缓存，以及 OpenFootball CC0 的中超
+> 2022–2024 历史结果，这些旧数据只进入训练、校准和回测。未来赛程、近期 xG 与市场
+> 对照由独立当前源同步；缺少伤停和确认首发时，预测始终标记为 `research_only`。
+
+启动新平台：
+
+```bash
+cd /home/hetaisheng/soccerdata
+.venv/bin/python -m league_platform.sync_live
+.venv/bin/python -m league_platform.app
+# http://127.0.0.1:8030
+```
+
+Matchline 拒绝非 loopback 监听。远程部署必须由带 TLS、认证和限流的反向代理转发到本地
+`127.0.0.1:8030`，不能直接把内置开发服务器暴露到公网。
+
+首次干净检出时，按固定 URL 与 SHA-256 清单恢复历史输入（第三方数据本身不提交到 Git）：
+
+```bash
+.venv/bin/python -m league_platform.restore_data
+```
+
+当前 API：
+
+```text
+GET /api/v1/snapshot
+GET /api/v1/competitions
+GET /api/v1/matches?competition=premier-league&season=2324&limit=24
+GET /api/v1/health
+GET /api/v1/model-evaluations
+GET /api/v1/predictions
+```
+
+平台原则：
+
+- 比赛、赛季、来源状态和事件时间采用统一契约，旧世界杯 JSON 不再充当通用 schema。
+- 历史文件提供 SHA-256 与 provider fixture ID；原始采集时点无法追溯时明确返回 `null`。
+- 训练只使用预测时点之前的数据；按时间滚动回测，不使用随机 K 折。
+- 动态 Elo 与在线 Dixon-Coles 基线按联赛披露 Brier、Log loss、RPS、ECE、连续窗口和历史/当前市场对照；
+  未接入当前赛程前不生成未来预测。
+- 不提供购买建议、Kelly 金额、收益承诺或按 EV 排序的投注信号。
+
+技术研究见 [docs/open-source-platform-research.md](docs/open-source-platform-research.md)，架构和验收门禁见
+[docs/multi-league-architecture.md](docs/multi-league-architecture.md)，历史/当前数据隔离与未来预测契约见
+[docs/current-data-and-prediction-contract.md](docs/current-data-and-prediction-contract.md)。
+
+## 旧世界杯系统（保留兼容，以下说明存在历史漂移）
+
+## 2026 World Cup Betting Prediction System
+
+> Historical compatibility system for the 2026 FIFA World Cup. Its former public deployment is not a supported deployment target.
 
 This project combines Dixon-Coles statistical modeling, LightGBM, and a 37-feature PyTorch neural network into a 4-model ensemble that predicts match outcomes from China Sports Lottery (体彩) odds, real-time group standings, and Elo ratings.
 
@@ -158,6 +210,9 @@ bash wc_analysis/relay_sporttery.sh      # uses 4090 + SCP relay
 python wc_analysis/predict.py --serve
 # Open http://localhost:8026
 ```
+
+旧服务只监听 `127.0.0.1`。`/api/refresh`、`/api/retrain` 与会生成文件的 `/api/top3`
+要求请求头 `Authorization: Bearer $WC_ADMIN_TOKEN`；未配置令牌时管理端点保持关闭。
 
 Endpoints:
 
@@ -348,7 +403,7 @@ Daily retrain results stored in `data/loop.log` and visible at `/api/retrain`.
 
 ## Deployment
 
-Production setup (this repo's live deployment):
+Historical deployment notes (retained for compatibility only; public exposure is unsupported):
 
 - **VPS**: `ubuntu@170.106.198.250:8026` (Singapore, public via nginx)
 - **4090 box**: `hts@110os9214fc69.vicp.fun:41380` (China residential IP, GPU)

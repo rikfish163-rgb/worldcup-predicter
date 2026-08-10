@@ -23,6 +23,15 @@ SPORTTERY_URL = ("https://webapi.sporttery.cn/gateway/jc/football/"
 DATA_DIR = Path(__file__).parent / "data"
 PARSED = DATA_DIR / "odds_parsed.json"
 RAW = DATA_DIR / "sporttery_raw.json"
+_refresh_lock = threading.Lock()
+MAX_REMOTE_BYTES = 20 * 1024 * 1024
+
+
+def _read_bounded(response, max_bytes: int = MAX_REMOTE_BYTES) -> bytes:
+    payload = response.read(max_bytes + 1)
+    if len(payload) > max_bytes:
+        raise ValueError(f"remote response exceeds {max_bytes} bytes")
+    return payload
 
 
 def fetch_sporttery_raw() -> dict:
@@ -40,7 +49,7 @@ def fetch_sporttery_raw() -> dict:
         "sec-fetch-site": "same-site",
     })
     with urllib.request.urlopen(req, timeout=30) as r:
-        return json.loads(r.read())
+        return json.loads(_read_bounded(r))
 
 
 def parse_matches(match_info: list[dict]) -> list[dict]:
@@ -86,6 +95,8 @@ def _devig(odds: dict) -> dict:
 
 def refresh_cache() -> int:
     """Refresh cached odds data; return match count."""
+    if not _refresh_lock.acquire(blocking=False):
+        return -2
     try:
         raw = fetch_sporttery_raw()
         matches = parse_matches(raw.get("value", {}).get("matchInfoList", []))
@@ -96,6 +107,8 @@ def refresh_cache() -> int:
     except Exception as e:
         print(f"  ⚠ Refresh failed: {e}", file=sys.stderr)
         return -1
+    finally:
+        _refresh_lock.release()
 
 
 class SportteryHandler(http.server.BaseHTTPRequestHandler):
@@ -160,7 +173,7 @@ def main():
     print(f"[{time.strftime('%H:%M:%S')}] HTTP server on :{port}")
     print(f"  GET /odds.json - {len(PARSED.read_text()) if PARSED.exists() else 0} bytes")
     print(f"  GET /health")
-    httpd = http.server.HTTPServer(("0.0.0.0", port), SportteryHandler)
+    httpd = http.server.HTTPServer(("127.0.0.1", port), SportteryHandler)
     httpd.serve_forever()
 
 

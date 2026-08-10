@@ -23,14 +23,27 @@
   .venv/bin/python wc_analysis/predict.py --serve   # 启动本地服务+自动刷新
 """
 from __future__ import annotations
-import json, math, urllib.request, time, sys, os
+import hashlib, hmac, html, json, math, urllib.request, time, sys, os
 from pathlib import Path
 from datetime import datetime
-from urllib.parse import quote
+from urllib.parse import quote, unquote, urlparse
 from http.server import HTTPServer, SimpleHTTPRequestHandler
 import threading
 
 import numpy as np
+
+MAX_REMOTE_BYTES = 20 * 1024 * 1024
+
+
+def _read_bounded(response, max_bytes: int = MAX_REMOTE_BYTES) -> bytes:
+    payload = response.read(max_bytes + 1)
+    if len(payload) > max_bytes:
+        raise ValueError(f"remote response exceeds {max_bytes} bytes")
+    return payload
+
+
+def _safe_html(value) -> str:
+    return html.escape(str(value), quote=True)
 
 # ═══════════════════════════════════════════════════════════════════
 # 配置
@@ -49,6 +62,36 @@ ELO_CACHE.mkdir(exist_ok=True)
 INJURIES_FILE = DATA_DIR / "injuries.json"
 COHESION_FILE = DATA_DIR / "cohesion.json"
 CORNERS_FILE = DATA_DIR / "corners.json"
+PUBLIC_DATA_FILES = frozenset(
+    {"groups_2026.json", "predictions.json", "standings.json", "top3_predictions.json"}
+)
+
+
+def _public_data_target(request_path: str) -> Path | None:
+    path = unquote(urlparse(request_path).path)
+    if not path.startswith("/data/"):
+        return None
+    relative = path.removeprefix("/data/")
+    if relative not in PUBLIC_DATA_FILES:
+        return None
+    root = DATA_DIR.resolve()
+    target = (root / relative).resolve()
+    return target if target.is_relative_to(root) else None
+
+
+def _admin_authorized(headers) -> bool:
+    expected = os.environ.get("WC_ADMIN_TOKEN")
+    if not expected:
+        return False
+    scheme, separator, supplied = headers.get("Authorization", "").partition(" ")
+    return (
+        separator == " "
+        and scheme == "Bearer"
+        and hmac.compare_digest(
+            hashlib.sha256(supplied.encode()).digest(),
+            hashlib.sha256(expected.encode()).digest(),
+        )
+    )
 
 RHO = -0.20  # 交叉验证最优(2286场, 2020-2026)
 AVG_GOALS = 2.50  # 交叉验证最优
@@ -120,7 +163,7 @@ def fetch_sporttery() -> list[dict]:
         "sec-fetch-site": "same-site"})
     try:
         with urllib.request.urlopen(req, timeout=30) as r:
-            raw = json.loads(r.read())
+            raw = json.loads(_read_bounded(r))
     except Exception as e:
         if parsed_cache.exists():
             age = time.time() - parsed_cache.stat().st_mtime
@@ -182,7 +225,8 @@ def get_elo(team_cn: str) -> float | None:
         url = f"https://www.eloratings.net/{quote(fname)}.tsv"
         try:
             req = urllib.request.Request(url, headers={"User-Agent": UA})
-            data = urllib.request.urlopen(req, timeout=20).read().decode("utf-8", "replace")
+            with urllib.request.urlopen(req, timeout=20) as response:
+                data = _read_bounded(response).decode("utf-8", "replace")
             cache.write_text(data, encoding="utf-8")
         except Exception:
             if not cache.exists():
@@ -1103,20 +1147,26 @@ def render_html(predictions: list[dict]) -> str:
 
         # 热门比分
         scores = p.get("top_scores", [])[:5]
-        scores_chips = "".join(f'<span class="score-chip"><b>{s}</b> {prob:.0%}</span>' for s, prob in scores)
+        scores_chips = "".join(
+            f'<span class="score-chip"><b>{_safe_html(s)}</b> {prob:.0%}</span>'
+            for s, prob in scores
+        )
 
         # 注释
         notes_html = ""
         if p.get("notes"):
-            notes_html = f'<div class="insight">{p["notes"]}</div>'
+            notes_html = f'<div class="insight">{_safe_html(p["notes"])}</div>'
         if p.get("odds_movement"):
-            notes_html += f'<div class="insight movement">{p["odds_movement"]}</div>'
+            notes_html += (
+                f'<div class="insight movement">{_safe_html(p["odds_movement"])}</div>'
+            )
 
         # 让球线显示
         try:
             hc_line_display = f"让{float(handicap_line):+.1f}球" if handicap_line else "让-1球"
         except (ValueError, TypeError):
             hc_line_display = f"让{handicap_line}"
+        safe_hc_line_display = _safe_html(hc_line_display)
 
         # ═══ 多玩法数据准备 ═══
         # 1. 常规盘 (HAD) - 仅在开盘时显示
@@ -1209,7 +1259,7 @@ def render_html(predictions: list[dict]) -> str:
                 else:
                     color = "#60a5fa"
                 rec_chips += f'''<div class="rec-chip" style="border-color:{color}">
-              <div class="rec-market">{r["market"]} · <b>{r["label"]}</b></div>
+              <div class="rec-market">{_safe_html(r["market"])} · <b>{_safe_html(r["label"])}</b></div>
               <div class="rec-odds">赔率 <b>{r["odds"]:.2f}</b> · 模型 {r["model_p"]:.0%} · 市场 {r["mkt_p"]:.0%}</div>
               <div class="rec-edge" style="color:{color}">edge +{r["edge"]:.1%} · EV {ev_pct:+.1f}% · 凯利 {kelly_pct:.1f}%</div>
             </div>'''
@@ -1223,17 +1273,17 @@ def render_html(predictions: list[dict]) -> str:
         card = f'''<article class="match">
   <header>
     <div class="matchup">
-      <span class="team home">{p["home"]}</span>
+      <span class="team home">{_safe_html(p["home"])}</span>
       <span class="vs">vs</span>
-      <span class="team away">{p["away"]}</span>
+      <span class="team away">{_safe_html(p["away"])}</span>
     </div>
     <div class="meta-row">
-      <time>{p["date"]} {p["time"][:5]}</time>
-      <span class="league-tag">{p.get("league","")}</span>
-      <span class="hc-tag">{hc_line_display}</span>
+      <time>{_safe_html(p["date"])} {_safe_html(p["time"][:5])}</time>
+      <span class="league-tag">{_safe_html(p.get("league", ""))}</span>
+      <span class="hc-tag">{safe_hc_line_display}</span>
       <span class="conf-tag" style="color:{conf_color}">{conf_label}</span>
-      <span class="mot-tag" title="主队战意: {p.get("status_h","")} | λ×{p.get("motivation_h",1.0):.2f}" style="color:{_mot_color(p.get("motivation_h",1.0))}">主 {p.get("status_h","-")} {p.get("motivation_h",1.0):.2f}</span>
-      <span class="mot-tag" title="客队战意: {p.get("status_a","")} | λ×{p.get("motivation_a",1.0):.2f}" style="color:{_mot_color(p.get("motivation_a",1.0))}">客 {p.get("status_a","-")} {p.get("motivation_a",1.0):.2f}</span>
+      <span class="mot-tag" title="主队战意: {_safe_html(p.get("status_h", ""))} | λ×{p.get("motivation_h",1.0):.2f}" style="color:{_mot_color(p.get("motivation_h",1.0))}">主 {_safe_html(p.get("status_h", "-"))} {p.get("motivation_h",1.0):.2f}</span>
+      <span class="mot-tag" title="客队战意: {_safe_html(p.get("status_a", ""))} | λ×{p.get("motivation_a",1.0):.2f}" style="color:{_mot_color(p.get("motivation_a",1.0))}">客 {_safe_html(p.get("status_a", "-"))} {p.get("motivation_a",1.0):.2f}</span>
       {edge_signal}
     </div>
   </header>
@@ -1249,7 +1299,7 @@ def render_html(predictions: list[dict]) -> str:
 
   <div class="data-grid">
     <div class="market-section primary">
-      <div class="market-title">让球盘 (HHAD) {hc_line_display}</div>
+      <div class="market-title">让球盘 (HHAD) {safe_hc_line_display}</div>
       <table>
         <thead><tr><th></th><th>主让胜</th><th>平局</th><th>客让胜</th></tr></thead>
         <tbody>
@@ -1854,6 +1904,9 @@ def _append_prediction_log(predictions: list[dict]):
     hist_file.write_text(json.dumps(history, ensure_ascii=False, indent=2), encoding="utf-8")
 
 
+_pipeline_lock = threading.Lock()
+
+
 class ThreadedHTTPServer(HTTPServer):
     """Multi-threaded HTTP server to handle concurrent requests."""
     daemon_threads = True
@@ -1875,19 +1928,59 @@ class RefreshHandler(SimpleHTTPRequestHandler):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, directory=str(SITE_DIR), **kwargs)
 
+    def end_headers(self):
+        self.send_header(
+            "Content-Security-Policy",
+            "default-src 'self'; script-src 'self' 'unsafe-inline'; "
+            "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; "
+            "font-src https://fonts.gstatic.com; img-src 'self' data:; "
+            "connect-src 'self'; object-src 'none'; base-uri 'none'; "
+            "frame-ancestors 'none'",
+        )
+        self.send_header("X-Content-Type-Options", "nosniff")
+        self.send_header("X-Frame-Options", "DENY")
+        super().end_headers()
+
+    def _handle_refresh(self):
+        if not _admin_authorized(self.headers):
+            self.send_response(403)
+            self.send_header("Content-Type", "application/json")
+            self.end_headers()
+            self.wfile.write(b'{"ok":false,"error":"admin authorization required"}')
+            return
+        if not _pipeline_lock.acquire(blocking=False):
+            self.send_response(429)
+            self.send_header("Content-Type", "application/json")
+            self.end_headers()
+            self.wfile.write(b'{"ok":false,"error":"refresh already in progress"}')
+            return
+        try:
+            run_pipeline()
+        except Exception as e:
+            self.send_response(500)
+            self.send_header("Content-Type", "application/json")
+            self.end_headers()
+            self.wfile.write(json.dumps({"ok": False, "error": str(e)},
+                                       ensure_ascii=False).encode("utf-8"))
+            return
+        finally:
+            _pipeline_lock.release()
+        self.send_response(200)
+        self.send_header("Content-Type", "application/json")
+        self.end_headers()
+        self.wfile.write(b'{"ok":true}')
+
     def do_GET(self):
         if self.path == "/api/refresh":
-            self.send_response(200)
+            self.send_response(405)
+            self.send_header("Allow", "POST")
             self.send_header("Content-Type", "application/json")
-            self.send_header("Access-Control-Allow-Origin", "*")
             self.end_headers()
-            run_pipeline()
-            self.wfile.write(b'{"ok":true}')
+            self.wfile.write(b'{"ok":false,"error":"use authenticated POST"}')
         elif self.path.startswith("/data/"):
             # Serve from wc_analysis/data directory
-            rel = self.path[len("/data/"):]
-            target = DATA_DIR / rel
-            if target.is_file():
+            target = _public_data_target(self.path)
+            if target is not None and target.is_file():
                 self.send_response(200)
                 if target.suffix == ".json":
                     self.send_header("Content-Type", "application/json")
@@ -1899,6 +1992,12 @@ class RefreshHandler(SimpleHTTPRequestHandler):
                 self.end_headers()
                 self.wfile.write(b'{"error": "not found"}')
         elif self.path == "/api/top3":
+            if not _admin_authorized(self.headers):
+                self.send_response(403)
+                self.send_header("Content-Type", "application/json")
+                self.end_headers()
+                self.wfile.write(b'{"ok":false,"error":"admin authorization required"}')
+                return
             # Generate fresh top-3 predictions using TopPredictor (run in thread to avoid blocking)
             def _run_top3():
                 try:
@@ -1942,25 +2041,27 @@ class RefreshHandler(SimpleHTTPRequestHandler):
     def do_POST(self):
         # POST also handled for /api/refresh
         if self.path == "/api/refresh":
-            self.send_response(200)
-            self.send_header("Content-Type", "application/json")
-            self.send_header("Access-Control-Allow-Origin", "*")
-            self.end_headers()
-            run_pipeline()
-            self.wfile.write(b'{"ok":true}')
+            self._handle_refresh()
         elif self.path == "/api/retrain":
             # Trigger model weight retraining (step5_learn)
-            self.send_response(200)
-            self.send_header("Content-Type", "application/json")
-            self.send_header("Access-Control-Allow-Origin", "*")
-            self.end_headers()
+            if not _admin_authorized(self.headers):
+                self.send_response(403)
+                self.send_header("Content-Type", "application/json")
+                self.end_headers()
+                self.wfile.write(b'{"ok":false,"error":"admin authorization required"}')
+                return
             try:
                 from self_evolving_loop import step5_learn
                 step5_learn()
-                self.wfile.write(b'{"ok":true,"retrained":true}')
+                status = 200
+                payload = {"ok": True, "retrained": True}
             except Exception as e:
-                self.wfile.write(json.dumps({"ok": False, "error": str(e)},
-                                           ensure_ascii=False).encode("utf-8"))
+                status = 500
+                payload = {"ok": False, "error": str(e)}
+            self.send_response(status)
+            self.send_header("Content-Type", "application/json")
+            self.end_headers()
+            self.wfile.write(json.dumps(payload, ensure_ascii=False).encode("utf-8"))
         else:
             self.send_response(404)
             self.end_headers()
@@ -1997,8 +2098,8 @@ def main():
         print(f"\n🌐 http://localhost:{port}")
         print("   '重新抓取'按钮 = 实时刷新 | 后台每10分钟自动刷新 | Ctrl+C 停止")
         threading.Thread(target=_auto_refresh_loop, daemon=True).start()
-        HTTPServer(("0.0.0.0", port), RefreshHandler)  # for type check
-        ThreadedHTTPServer(("0.0.0.0", port), RefreshHandler).serve_forever()
+        HTTPServer(("127.0.0.1", port), RefreshHandler)  # for type check
+        ThreadedHTTPServer(("127.0.0.1", port), RefreshHandler).serve_forever()
     else:
         print(f"\n  打开: file://{(SITE_DIR / 'index.html').resolve()}")
         print("  加 --serve 启动本地服务(支持实时刷新按钮)")

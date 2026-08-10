@@ -1,11 +1,53 @@
 import math
+import io
+from pathlib import Path
 
+import pytest
+
+from wc_analysis import predict as legacy_predict
 from wc_analysis.worldcup_0622_analysis import (
     dixon_coles_tau,
     poisson_score_matrix,
     summarize_score_matrix,
     weighted_mean,
 )
+
+
+def test_legacy_data_route_rejects_absolute_and_traversal_paths():
+    assert legacy_predict._public_data_target("/data//etc/passwd") is None
+    assert legacy_predict._public_data_target("/data/%2e%2e/predict.py") is None
+    target = legacy_predict._public_data_target("/data/predictions.json")
+    assert target == (legacy_predict.DATA_DIR / "predictions.json").resolve()
+
+
+def test_legacy_mutation_routes_require_configured_bearer_token(monkeypatch):
+    monkeypatch.delenv("WC_ADMIN_TOKEN", raising=False)
+    assert not legacy_predict._admin_authorized({})
+    monkeypatch.setenv("WC_ADMIN_TOKEN", "test-only-token")
+    assert not legacy_predict._admin_authorized({})
+    assert not legacy_predict._admin_authorized({"Authorization": "Bearer wrong"})
+    assert legacy_predict._admin_authorized({"Authorization": "Bearer test-only-token"})
+
+
+def test_legacy_network_helpers_keep_tls_verification_and_loopback_binding():
+    sporttery_server = next(Path("wc_analysis").glob("**/sporttery_server.py")).read_text()
+    assert 'HTTPServer(("127.0.0.1", port)' in sporttery_server
+    assert 'HTTPServer(("0.0.0.0", port)' not in sporttery_server
+    for path in (Path("wc_analysis/build_groups.py"), Path("wc_analysis/fetch_pinnacle.py")):
+        assert "CERT_NONE" not in path.read_text()
+
+
+def test_legacy_remote_reads_are_bounded_and_html_is_escaped():
+    with pytest.raises(ValueError, match="exceeds"):
+        legacy_predict._read_bounded(io.BytesIO(b"12345"), max_bytes=4)
+    assert legacy_predict._safe_html('<script>alert("x")</script>') == (
+        "&lt;script&gt;alert(&quot;x&quot;)&lt;/script&gt;"
+    )
+    predict_source = Path("wc_analysis/predict.py").read_text()
+    sporttery_source = next(Path("wc_analysis").glob("**/sporttery_server.py")).read_text()
+    assert "Content-Security-Policy" in predict_source
+    assert "json.loads(r.read())" not in predict_source
+    assert "json.loads(r.read())" not in sporttery_source
 
 
 def test_weighted_mean_uses_newer_matches_more_heavily():
