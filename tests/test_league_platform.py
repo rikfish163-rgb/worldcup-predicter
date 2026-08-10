@@ -42,6 +42,28 @@ def _espn_source(as_of: datetime, native_id: str) -> dict:
     }
 
 
+def _coverage_fixtures(as_of: datetime, *, exclude: str = "premier-league") -> list[dict]:
+    fixtures = []
+    for index, competition_id in enumerate(sorted(EXPECTED_LEAGUES - {exclude}), start=10):
+        native_id = f"coverage-{index}"
+        fixtures.append(
+            {
+                "id": f"espn:{native_id}",
+                "competition_id": competition_id,
+                "season": "2026",
+                "kickoff_at": "2026-08-22T19:00:00+00:00",
+                "home_team": f"Coverage Home {index}",
+                "away_team": f"Coverage Away {index}",
+                "status": "upcoming",
+                "score": None,
+                "home_provider_team_id": f"h{index}",
+                "away_provider_team_id": f"a{index}",
+                "source": _espn_source(as_of, native_id),
+            }
+        )
+    return fixtures
+
+
 def test_data_manifest_pins_all_six_league_inputs():
     manifest = json.loads(Path("league_platform/data_manifest.json").read_text())
 
@@ -410,7 +432,7 @@ def test_current_snapshot_is_attached_with_as_of_and_feature_coverage(tmp_path):
     live = {
         "schema_version": "1.0.0",
         "as_of": as_of.isoformat(),
-        "expected_competitions": ["premier-league"],
+        "expected_competitions": sorted(EXPECTED_LEAGUES),
         "roles": {"fixtures_and_results": "ESPN", "recent_xg_and_form": "Understat"},
         "espn": {
             "provider": "ESPN",
@@ -428,7 +450,8 @@ def test_current_snapshot_is_attached_with_as_of_and_feature_coverage(tmp_path):
                     "home_provider_team_id": "1",
                     "away_provider_team_id": "2",
                     "source": _espn_source(as_of, "1"),
-                }
+                },
+                *_coverage_fixtures(as_of),
             ],
         },
         "understat": {
@@ -467,7 +490,7 @@ def test_current_snapshot_is_attached_with_as_of_and_feature_coverage(tmp_path):
     fixture = next(item for item in snapshot["matches"] if item["id"] == "espn:1")
 
     assert snapshot["current_data"]["status"] == "fresh"
-    assert snapshot["summary"]["current_fixture_count"] == 1
+    assert snapshot["summary"]["current_fixture_count"] == 6
     assert fixture["home_team_id"] == "premier-league:man-city"
     assert fixture["current_features"]["home"]["sample_n"] == 5
 
@@ -516,7 +539,7 @@ def test_future_predictions_only_use_post_as_of_fixtures_and_disclose_gates(tmp_
     live = {
         "schema_version": "1.0.0",
         "as_of": as_of.isoformat(),
-        "expected_competitions": ["premier-league"],
+        "expected_competitions": sorted(EXPECTED_LEAGUES),
         "roles": {"fixtures_and_results": "ESPN", "recent_xg_and_form": "Understat"},
         "espn": {
             "provider": "ESPN",
@@ -534,7 +557,8 @@ def test_future_predictions_only_use_post_as_of_fixtures_and_disclose_gates(tmp_
                     "home_provider_team_id": "1",
                     "away_provider_team_id": "2",
                     "source": _espn_source(as_of, "future"),
-                }
+                },
+                *_coverage_fixtures(as_of),
             ],
         },
         "understat": {"provider": "Understat", "errors": [], "team_features": []},
@@ -566,7 +590,7 @@ def test_future_predictions_block_model_parameters_fitted_after_as_of(tmp_path):
     live = {
         "schema_version": "1.0.0",
         "as_of": as_of.isoformat(),
-        "expected_competitions": ["premier-league"],
+        "expected_competitions": sorted(EXPECTED_LEAGUES),
         "roles": {"fixtures_and_results": "ESPN"},
         "espn": {
             "provider": "ESPN",
@@ -584,7 +608,8 @@ def test_future_predictions_block_model_parameters_fitted_after_as_of(tmp_path):
                     "home_provider_team_id": "1",
                     "away_provider_team_id": "2",
                     "source": _espn_source(as_of, "future-leak-check"),
-                }
+                },
+                *_coverage_fixtures(as_of),
             ],
         },
         "understat": {"provider": "Understat", "errors": [], "team_features": []},
@@ -605,6 +630,7 @@ def test_future_predictions_block_model_parameters_fitted_after_as_of(tmp_path):
     result = build_future_predictions(snapshot)
 
     assert result["predictions"] == []
-    assert result["blocked"] == [
-        {"fixture_id": "espn:future-leak-check", "reason": "historical_model_not_causal"}
-    ]
+    target = next(
+        item for item in result["blocked"] if item["fixture_id"] == "espn:future-leak-check"
+    )
+    assert target["reason"] == "historical_model_not_causal"
