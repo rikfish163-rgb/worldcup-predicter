@@ -8,9 +8,12 @@ import json
 import tempfile
 import urllib.request
 from pathlib import Path
+from urllib.parse import urlparse
 
 
 MANIFEST = Path(__file__).with_name("data_manifest.json")
+ALLOWED_HOSTS = {"www.football-data.co.uk", "raw.githubusercontent.com"}
+MAX_DOWNLOAD_BYTES = 20 * 1024 * 1024
 
 
 def _sha256(path: Path) -> str:
@@ -24,15 +27,33 @@ def _sha256(path: Path) -> str:
 def restore(destination: Path) -> None:
     manifest = json.loads(MANIFEST.read_text(encoding="utf-8"))
     destination.mkdir(parents=True, exist_ok=True)
+    destination = destination.resolve()
     for item in manifest["files"]:
-        target = destination / item["name"]
+        name = item["name"]
+        if Path(name).name != name or "/" in name or "\\" in name:
+            raise ValueError(f"unsafe manifest filename: {name}")
+        parsed_url = urlparse(item["url"])
+        if parsed_url.scheme != "https" or parsed_url.hostname not in ALLOWED_HOSTS:
+            raise ValueError(f"unapproved manifest URL: {item['url']}")
+        target = destination / name
         if target.exists() and _sha256(target) == item["sha256"]:
             print(f"verified {target}")
             continue
-        with tempfile.NamedTemporaryFile(dir=destination, delete=False) as stream:
-            temporary = Path(stream.name)
-            with urllib.request.urlopen(item["url"], timeout=30) as response:  # noqa: S310
-                stream.write(response.read())
+        temporary = None
+        try:
+            with tempfile.NamedTemporaryFile(dir=destination, delete=False) as stream:
+                temporary = Path(stream.name)
+                with urllib.request.urlopen(item["url"], timeout=30) as response:  # noqa: S310
+                    downloaded = 0
+                    for chunk in iter(lambda: response.read(1024 * 1024), b""):
+                        downloaded += len(chunk)
+                        if downloaded > MAX_DOWNLOAD_BYTES:
+                            raise RuntimeError(f"download too large for {name}")
+                        stream.write(chunk)
+        except Exception:
+            if temporary is not None:
+                temporary.unlink(missing_ok=True)
+            raise
         actual = _sha256(temporary)
         if actual != item["sha256"]:
             temporary.unlink(missing_ok=True)

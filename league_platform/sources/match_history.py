@@ -3,16 +3,14 @@
 from __future__ import annotations
 
 import hashlib
-import re
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from zoneinfo import ZoneInfo
 
 import pandas as pd
-from unidecode import unidecode
-
 from league_platform.catalog import get_league
 from league_platform.domain import Match, ProbabilitySet, Score, SourceResult
+from league_platform.identity import team_id
 
 
 class MatchHistorySource:
@@ -132,8 +130,8 @@ class MatchHistorySource:
         kickoff = row["_kickoff"].to_pydatetime()
         home_team = str(row["HomeTeam"]).strip()
         away_team = str(row["AwayTeam"]).strip()
-        home_team_id = MatchHistorySource._team_id(league_id, home_team)
-        away_team_id = MatchHistorySource._team_id(league_id, away_team)
+        home_team_id = team_id(league_id, home_team)
+        away_team_id = team_id(league_id, away_team)
         identity = "|".join(
             [
                 league_id,
@@ -167,12 +165,9 @@ class MatchHistorySource:
             source_file=str(row["_source_file"]),
             source_sha256=str(row["_source_sha256"]),
             provider_fixture_id=f"{row['_source_file']}:{int(row['_source_row'])}",
+            source_name="football-data.co.uk",
+            source_license_status="provider_terms_require_review",
         )
-
-    @staticmethod
-    def _team_id(league_id: str, name: str) -> str:
-        slug = re.sub(r"[^a-z0-9]+", "-", unidecode(name).lower()).strip("-")
-        return f"{league_id}:{slug}"
 
     @staticmethod
     def _market_probability(row: pd.Series) -> ProbabilitySet | None:

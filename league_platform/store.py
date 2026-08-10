@@ -76,18 +76,29 @@ class PlatformStore:
     def health(self) -> dict:
         summary = self._snapshot["summary"]
         unavailable = summary["unavailable_competitions"]
+        fresh = summary["fresh_competitions"]
+        stale = summary["stale_competitions"]
         evaluated = summary["evaluated_models"]
         return {
-            "status": "ok" if unavailable == 0 and evaluated > 0 else "degraded",
+            "status": (
+                "ok"
+                if unavailable == 0
+                and stale == 0
+                and fresh == len(self._snapshot["competitions"])
+                and evaluated == len(self._snapshot["competitions"])
+                else "degraded"
+            ),
             "generated_at": self._snapshot["generated_at"],
             "sources": {
                 "available": summary["available_competitions"],
+                "fresh": fresh,
+                "stale": stale,
                 "unavailable": unavailable,
             },
             "models": {
                 "evaluated": evaluated,
                 "gate": (
-                    "passed"
+                    "historical_baselines_evaluated_current_predictions_blocked"
                     if evaluated == len(self._snapshot["competitions"])
                     else "blocked_until_walk_forward_validation"
                 ),

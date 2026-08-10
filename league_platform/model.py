@@ -150,11 +150,66 @@ def evaluate_league(league_id: str, matches: list[Match]) -> dict:
     calibration_rows = [row for row in rows if row[0].season == calibration_season]
     evaluation_rows = [row for row in rows if row[0].season == evaluation_season]
     alpha, prior = _calibrate(calibration_rows)
+    calibration_probabilities = [
+        tuple((1 - alpha) * value + alpha * prior[index] for index, value in enumerate(row[1]))
+        for row in calibration_rows
+    ]
+    calibration_log_loss = _log_loss(
+        calibration_probabilities, [row[2] for row in calibration_rows]
+    )
     probabilities = [
         tuple((1 - alpha) * value + alpha * prior[index] for index, value in enumerate(row[1]))
         for row in evaluation_rows
     ]
     outcomes = [row[2] for row in evaluation_rows]
+    metrics = _metrics(probabilities, outcomes)
+    training_rows = [row for row in rows if row[0].season != evaluation_season]
+    training_prior = tuple(
+        sum(row[2][index] for row in training_rows) / len(training_rows) for index in range(3)
+    )
+    frequency_metrics = _metrics([training_prior] * len(outcomes), outcomes)
+    market_pairs = [
+        (
+            (
+                row[0].market_probability.home,
+                row[0].market_probability.draw,
+                row[0].market_probability.away,
+            ),
+            row[2],
+        )
+        for row in evaluation_rows
+        if row[0].market_probability is not None
+    ]
+    market_metrics = (
+        _metrics(
+            [pair[0] for pair in market_pairs],
+            [pair[1] for pair in market_pairs],
+        )
+        if market_pairs
+        else None
+    )
+    fold_size = math.ceil(len(evaluation_rows) / 4)
+    folds = []
+    for index in range(0, len(evaluation_rows), fold_size):
+        fold_rows = evaluation_rows[index : index + fold_size]
+        fold_probabilities = probabilities[index : index + fold_size]
+        fold_outcomes = outcomes[index : index + fold_size]
+        folds.append(
+            {
+                "fold": len(folds) + 1,
+                "start_at": fold_rows[0][0].kickoff_at.isoformat(),
+                "end_at": fold_rows[-1][0].kickoff_at.isoformat(),
+                "sample_n": len(fold_rows),
+                **_metrics(fold_probabilities, fold_outcomes),
+            }
+        )
+    quality_gate = "research_only_no_market_baseline"
+    if market_metrics:
+        quality_gate = (
+            "beats_market_baseline"
+            if metrics["brier_score"] < market_metrics["brier_score"]
+            else "research_only_underperforms_market"
+        )
     return {
         "status": "evaluated",
         "model": "dynamic_elo_three_way_v1",
@@ -166,6 +221,15 @@ def evaluate_league(league_id: str, matches: list[Match]) -> dict:
         "draw_rate": round(draw_rate, 6),
         "home_advantage_elo": round(home_advantage, 3),
         "calibration_alpha": alpha,
+        "calibration_log_loss": round(calibration_log_loss, 6),
         "prediction_time_rule": "pre_kickoff_group_update",
-        **_metrics(probabilities, outcomes),
+        "walk_forward_folds": folds,
+        "baselines": {
+            "historical_frequency": {"sample_n": len(outcomes), **frequency_metrics},
+            "market": (
+                {"sample_n": len(market_pairs), **market_metrics} if market_metrics else None
+            ),
+        },
+        "quality_gate": quality_gate,
+        **metrics,
     }

@@ -6,8 +6,10 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 from league_platform.catalog import LEAGUES
+from league_platform.dixon_coles import evaluate_dixon_coles
 from league_platform.model import evaluate_league
 from league_platform.sources.match_history import MatchHistorySource
+from league_platform.sources.openfootball import OpenFootballSource
 
 
 def build_platform_snapshot(data_dir: Path, *, now: datetime | None = None) -> dict:
@@ -16,16 +18,31 @@ def build_platform_snapshot(data_dir: Path, *, now: datetime | None = None) -> d
     generated_at = now or datetime.now(timezone.utc)
     if generated_at.tzinfo is None:
         generated_at = generated_at.replace(tzinfo=timezone.utc)
-    source = MatchHistorySource(data_dir, now=generated_at)
+    match_history_source = MatchHistorySource(data_dir, now=generated_at)
+    csl_source = OpenFootballSource(data_dir, now=generated_at)
 
     competition_payloads = []
     match_payloads = []
     available = 0
     for league in LEAGUES:
-        result = source.load(league.id)
+        result = (
+            csl_source.load(league.id)
+            if league.id == "csl"
+            else match_history_source.load(league.id)
+        )
         if result.status != "unavailable":
             available += 1
         model_health = evaluate_league(league.id, result.matches)
+        dixon_coles = evaluate_dixon_coles(league.id, result.matches)
+        model_health["dixon_coles"] = dixon_coles
+        if model_health["status"] == "evaluated" and dixon_coles["status"] == "evaluated":
+            selected = min(
+                (model_health, dixon_coles), key=lambda item: item["calibration_log_loss"]
+            )
+            model_health["selected_candidate"] = selected["model"]
+            model_health["selected_metrics"] = {
+                key: selected[key] for key in ("sample_n", "brier_score", "log_loss", "rps", "ece")
+            }
         if model_health["status"] == "not_evaluated":
             model_health.setdefault(
                 "message", "该联赛尚未完成严格时间序列回测，不展示未经验证的命中率。"
@@ -57,6 +74,12 @@ def build_platform_snapshot(data_dir: Path, *, now: datetime | None = None) -> d
             "finished_matches": sum(item["status"] == "finished" for item in match_payloads),
             "available_competitions": available,
             "unavailable_competitions": len(LEAGUES) - available,
+            "fresh_competitions": sum(
+                item["source_status"] == "fresh" for item in competition_payloads
+            ),
+            "stale_competitions": sum(
+                item["source_status"] == "stale" for item in competition_payloads
+            ),
             "evaluated_models": sum(
                 item["model_health"]["status"] == "evaluated" for item in competition_payloads
             ),
