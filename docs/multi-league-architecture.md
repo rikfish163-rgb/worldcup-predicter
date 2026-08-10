@@ -32,14 +32,15 @@ match_history_code, football_data_code
 
 ```text
 id, competition_id, season, kickoff_at,
-home_team, away_team, status, score,
-market_probability, source{name,file}
+home_team, away_team, home_team_id, away_team_id, status, score,
+market_probability, source{name,file,sha256,provider_fixture_id,retrieved_at,license_status}
 ```
 
-后续接入实时 provider 时扩展 canonical team ID、provider fixture ID、observed_at、raw hash，
-但保持现有字段向后兼容。
+当前历史文件已有 canonical team ID、provider fixture ID 与 raw SHA-256。由于旧缓存没有可证明的
+采集时点，`retrieved_at` 明确为 `null`；实时 provider 接入后才允许填入经过记录的 observed_at，
+并保持现有字段向后兼容。
 
-### Prediction（下一阶段）
+### Prediction
 
 ```text
 prediction_id, fixture_id, as_of, generated_at,
@@ -47,6 +48,19 @@ model_version, feature_version, training_cutoff,
 prior, calibrated, score_distribution,
 market_reference, data_quality, explanations
 ```
+
+当前已实现 `dynamic_elo_three_way_v1` 历史基线：2021/22 用于参数预热，2022/23 用于
+chronological 概率混合校准，2023/24 作为完整留出赛季。同一开球时刻的比赛先统一预测，再批量
+更新评分。`/api/v1/model-evaluations` 披露结果；`/api/v1/predictions` 在没有当前赛程输入时明确
+返回 unavailable，不把历史回测冒充未来预测。Dixon-Coles 和实时 Prediction 契约仍属下一阶段。
+
+| 联赛 | 留出样本 | Brier | Log loss | RPS | ECE |
+|---|---:|---:|---:|---:|---:|
+| 英超 | 380 | 0.569576 | 0.962788 | 0.200051 | 0.061135 |
+| 西甲 | 380 | 0.587581 | 0.982138 | 0.192589 | 0.072041 |
+| 德甲 | 306 | 0.601732 | 1.006571 | 0.203206 | 0.044664 |
+| 意甲 | 380 | 0.604397 | 1.010251 | 0.197587 | 0.076607 |
+| 法甲 | 306 | 0.623505 | 1.035729 | 0.214427 | 0.040648 |
 
 ## 已验证的数据质量
 

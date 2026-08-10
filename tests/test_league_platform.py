@@ -5,6 +5,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 from league_platform.catalog import LEAGUES, get_league
+from league_platform.model import evaluate_league
 from league_platform.snapshot import build_platform_snapshot
 from league_platform.store import PlatformStore
 from league_platform.sources.match_history import MatchHistorySource
@@ -40,6 +41,9 @@ def test_match_history_source_loads_real_cached_big_five_data():
     assert premier_league.matches[0].competition_id == "premier-league"
     assert premier_league.matches[0].status == "finished"
     assert premier_league.matches[0].score is not None
+    assert premier_league.matches[0].home_team_id.startswith("premier-league:")
+    assert len(premier_league.matches[0].source_sha256) == 64
+    assert premier_league.matches[0].provider_fixture_id.endswith(tuple(str(n) for n in range(10)))
     assert premier_league.latest_event_at is not None
 
 
@@ -67,6 +71,8 @@ def test_platform_snapshot_is_source_backed_and_deduplicated():
     match_ids = [match["id"] for match in snapshot["matches"]]
     assert len(match_ids) == len(set(match_ids))
     assert all(match["source"]["name"] == "football-data.co.uk" for match in snapshot["matches"])
+    assert all(match["source"]["sha256"] for match in snapshot["matches"])
+    assert all(match["home_team_id"] and match["away_team_id"] for match in snapshot["matches"])
 
 
 def test_snapshot_exposes_quality_metrics_instead_of_unqualified_accuracy():
@@ -79,7 +85,8 @@ def test_snapshot_exposes_quality_metrics_instead_of_unqualified_accuracy():
     assert premier_league["data_quality"]["duplicate_fixture_rate"] == 0.0
     assert premier_league["data_quality"]["score_completeness"] == 1.0
     assert premier_league["data_quality"]["odds_completeness"] == 1.0
-    assert premier_league["model_health"]["status"] == "not_evaluated"
+    assert premier_league["model_health"]["status"] == "evaluated"
+    assert premier_league["model_health"]["brier_score"] > 0
     assert "accuracy" not in premier_league["model_health"]
 
 
@@ -128,6 +135,32 @@ def test_source_rejects_duplicate_fixtures(tmp_path):
         raise AssertionError("duplicate fixture must block the snapshot")
 
 
+def test_walk_forward_evaluation_is_chronological_and_calibrated():
+    matches = MatchHistorySource(Path("data/MatchHistory")).load("premier-league").matches
+
+    evaluation = evaluate_league("premier-league", matches)
+
+    assert evaluation["status"] == "evaluated"
+    assert evaluation["calibration_season"] == "2223"
+    assert evaluation["evaluation_season"] == "2324"
+    assert evaluation["sample_n"] == 380
+    assert 0 < evaluation["brier_score"] < 1
+    assert 0 < evaluation["log_loss"] < 2
+    assert 0 <= evaluation["rps"] < 1
+    assert 0 <= evaluation["ece"] < 1
+    assert 0 <= evaluation["calibration_alpha"] <= 1
+    assert evaluation["prediction_time_rule"] == "pre_kickoff_group_update"
+
+
+def test_snapshot_exposes_evaluated_big_five_but_keeps_csl_blocked():
+    snapshot = build_platform_snapshot(Path("data/MatchHistory"))
+    by_id = {item["id"]: item for item in snapshot["competitions"]}
+
+    assert snapshot["summary"]["evaluated_models"] == 5
+    assert by_id["premier-league"]["model_health"]["sample_n"] == 380
+    assert by_id["csl"]["model_health"]["status"] == "not_evaluated"
+
+
 def test_store_health_exposes_source_and_model_gates():
     store = PlatformStore(Path("data/MatchHistory"))
 
@@ -136,5 +169,5 @@ def test_store_health_exposes_source_and_model_gates():
     assert health["status"] == "degraded"
     assert health["sources"]["available"] == 5
     assert health["sources"]["unavailable"] == 1
-    assert health["models"]["evaluated"] == 0
+    assert health["models"]["evaluated"] == 5
     assert health["models"]["gate"] == "blocked_until_walk_forward_validation"

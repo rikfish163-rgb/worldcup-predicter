@@ -34,10 +34,14 @@ class Match:
     kickoff_at: datetime
     home_team: str
     away_team: str
+    home_team_id: str
+    away_team_id: str
     status: MatchStatus
     score: Score | None
     market_probability: ProbabilitySet | None
     source_file: str
+    source_sha256: str
+    provider_fixture_id: str
 
     def to_dict(self) -> dict:
         payload = asdict(self)
@@ -45,8 +49,14 @@ class Match:
         payload["source"] = {
             "name": "football-data.co.uk",
             "file": self.source_file,
+            "sha256": self.source_sha256,
+            "provider_fixture_id": self.provider_fixture_id,
+            "retrieved_at": None,
+            "license_status": "provider_terms_require_review",
         }
         payload.pop("source_file")
+        payload.pop("source_sha256")
+        payload.pop("provider_fixture_id")
         return payload
 
 

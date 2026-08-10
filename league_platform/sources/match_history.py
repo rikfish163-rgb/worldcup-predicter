@@ -3,11 +3,13 @@
 from __future__ import annotations
 
 import hashlib
+import re
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from zoneinfo import ZoneInfo
 
 import pandas as pd
+from unidecode import unidecode
 
 from league_platform.catalog import get_league
 from league_platform.domain import Match, ProbabilitySet, Score, SourceResult
@@ -107,6 +109,8 @@ class MatchHistorySource:
         except UnicodeDecodeError:
             frame = pd.read_csv(path, encoding="latin-1")
         frame["_source_file"] = path.name
+        frame["_source_row"] = range(2, len(frame) + 2)
+        frame["_source_sha256"] = hashlib.sha256(path.read_bytes()).hexdigest()
         frame["_season"] = path.stem.rsplit("_", 1)[-1]
         return frame
 
@@ -126,13 +130,17 @@ class MatchHistorySource:
     @staticmethod
     def _row_to_match(row: pd.Series, league_id: str) -> Match:
         kickoff = row["_kickoff"].to_pydatetime()
+        home_team = str(row["HomeTeam"]).strip()
+        away_team = str(row["AwayTeam"]).strip()
+        home_team_id = MatchHistorySource._team_id(league_id, home_team)
+        away_team_id = MatchHistorySource._team_id(league_id, away_team)
         identity = "|".join(
             [
                 league_id,
                 str(row["_season"]),
                 kickoff.isoformat(),
-                str(row["HomeTeam"]),
-                str(row["AwayTeam"]),
+                home_team_id,
+                away_team_id,
             ]
         )
         match_id = hashlib.sha1(identity.encode("utf-8"), usedforsecurity=False).hexdigest()[:16]
@@ -149,13 +157,22 @@ class MatchHistorySource:
             competition_id=league_id,
             season=str(row["_season"]),
             kickoff_at=kickoff,
-            home_team=str(row["HomeTeam"]).strip(),
-            away_team=str(row["AwayTeam"]).strip(),
+            home_team=home_team,
+            away_team=away_team,
+            home_team_id=home_team_id,
+            away_team_id=away_team_id,
             status="finished" if score is not None else "upcoming",
             score=score,
             market_probability=MatchHistorySource._market_probability(row),
             source_file=str(row["_source_file"]),
+            source_sha256=str(row["_source_sha256"]),
+            provider_fixture_id=f"{row['_source_file']}:{int(row['_source_row'])}",
         )
+
+    @staticmethod
+    def _team_id(league_id: str, name: str) -> str:
+        slug = re.sub(r"[^a-z0-9]+", "-", unidecode(name).lower()).strip("-")
+        return f"{league_id}:{slug}"
 
     @staticmethod
     def _market_probability(row: pd.Series) -> ProbabilitySet | None:

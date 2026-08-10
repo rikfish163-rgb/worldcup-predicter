@@ -58,6 +58,18 @@ class PlatformHandler(SimpleHTTPRequestHandler):
         if parsed.path == "/api/v1/health":
             self._send_json(self.store.health())
             return
+        if parsed.path == "/api/v1/model-evaluations":
+            self._send_json({"evaluations": self.store.model_evaluations()})
+            return
+        if parsed.path == "/api/v1/predictions":
+            self._send_json(
+                {
+                    "status": "unavailable",
+                    "predictions": [],
+                    "message": "没有已验证的当前赛程输入；历史回测不得冒充未来预测。",
+                }
+            )
+            return
         super().do_GET()
 
     def end_headers(self) -> None:
