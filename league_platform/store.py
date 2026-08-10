@@ -7,6 +7,8 @@ from datetime import date, datetime
 from pathlib import Path
 
 from league_platform.snapshot import build_platform_snapshot
+from league_platform.current import attach_current_data
+from league_platform.future import build_future_predictions
 
 
 MATCH_STATUSES = {"upcoming", "live", "finished", "postponed", "cancelled"}
@@ -15,8 +17,17 @@ MATCH_STATUSES = {"upcoming", "live", "finished", "postponed", "cancelled"}
 class PlatformStore:
     """Keep one immutable source snapshot and expose bounded UI queries."""
 
-    def __init__(self, data_dir: Path, *, now: datetime | None = None):
+    def __init__(
+        self,
+        data_dir: Path,
+        *,
+        now: datetime | None = None,
+        live_path: Path | None = None,
+    ):
         self._snapshot = build_platform_snapshot(data_dir, now=now)
+        if live_path is not None:
+            self._snapshot = attach_current_data(self._snapshot, live_path, now=now)
+        self._predictions = build_future_predictions(self._snapshot)
 
     def snapshot(self) -> dict:
         return deepcopy(self._snapshot)
@@ -79,6 +90,7 @@ class PlatformStore:
         fresh = summary["fresh_competitions"]
         stale = summary["stale_competitions"]
         evaluated = summary["evaluated_models"]
+        research_predictions = len(self._predictions.get("predictions", []))
         return {
             "status": (
                 "ok"
@@ -97,12 +109,18 @@ class PlatformStore:
             },
             "models": {
                 "evaluated": evaluated,
+                "research_predictions": research_predictions,
                 "gate": (
-                    "historical_baselines_evaluated_current_predictions_blocked"
+                    "research_predictions_available_production_blocked"
+                    if research_predictions
+                    else "historical_baselines_evaluated_current_predictions_blocked"
                     if evaluated == len(self._snapshot["competitions"])
                     else "blocked_until_walk_forward_validation"
                 ),
             },
+            "current_data": deepcopy(
+                self._snapshot.get("current_data", {"status": "unavailable", "as_of": None})
+            ),
         }
 
     def model_evaluations(self) -> list[dict]:
@@ -110,3 +128,6 @@ class PlatformStore:
             {"competition_id": item["id"], **deepcopy(item["model_health"])}
             for item in self._snapshot["competitions"]
         ]
+
+    def predictions(self) -> dict:
+        return deepcopy(self._predictions)

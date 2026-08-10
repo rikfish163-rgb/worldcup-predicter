@@ -10,6 +10,7 @@
 
 ```bash
 cd /home/hetaisheng/soccerdata
+.venv/bin/python -m league_platform.sync_live
 .venv/bin/python -m league_platform.app
 # http://127.0.0.1:8030
 ```
@@ -41,7 +42,8 @@ GET /api/v1/predictions
 - 不提供购买建议、Kelly 金额、收益承诺或按 EV 排序的投注信号。
 
 技术研究见 [docs/open-source-platform-research.md](docs/open-source-platform-research.md)，架构和验收门禁见
-[docs/multi-league-architecture.md](docs/multi-league-architecture.md)。
+[docs/multi-league-architecture.md](docs/multi-league-architecture.md)，历史/当前数据隔离与未来预测契约见
+[docs/current-data-and-prediction-contract.md](docs/current-data-and-prediction-contract.md)。
 
 ## 旧世界杯系统（保留兼容，以下说明存在历史漂移）
 
