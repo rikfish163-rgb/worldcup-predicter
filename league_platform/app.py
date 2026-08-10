@@ -106,7 +106,7 @@ def create_server(
     live_path: Path | str | None = DEFAULT_LIVE_PATH,
 ) -> ThreadingHTTPServer:
     try:
-        is_loopback = host == "localhost" or ipaddress.ip_address(host).is_loopback
+        is_loopback = ipaddress.ip_address(host).is_loopback
     except ValueError:
         is_loopback = False
     if not is_loopback:

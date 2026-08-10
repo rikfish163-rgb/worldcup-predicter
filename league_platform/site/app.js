@@ -21,6 +21,7 @@ const statusLabels = {
 const sourceStatusLabels = {
   fresh: "新鲜（≤6小时）",
   delayed: "延迟",
+  degraded: "降级",
   stale: "过期",
   unavailable: "不可用",
 };

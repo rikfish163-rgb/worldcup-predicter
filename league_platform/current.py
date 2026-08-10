@@ -4,14 +4,23 @@ from __future__ import annotations
 
 import json
 import math
+import string
 from copy import deepcopy
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
+from urllib.parse import urlparse
 
 from league_platform.identity import team_id
 
 
-def _validate_source(source: dict, as_of: datetime, *, hash_keys: tuple[str, ...]) -> None:
+def _validate_source(
+    source: dict,
+    as_of: datetime,
+    *,
+    hash_keys: tuple[str, ...],
+    expected_name: str,
+    allowed_hosts: set[str],
+) -> None:
     observed = datetime.fromisoformat(source["retrieved_at"])
     if observed.tzinfo is None or observed.astimezone(timezone.utc) > as_of.astimezone(
         timezone.utc
@@ -19,10 +28,18 @@ def _validate_source(source: dict, as_of: datetime, *, hash_keys: tuple[str, ...
         raise ValueError(
             "current source retrieved_at must be timezone-aware and no later than as_of"
         )
-    if not source.get("url", "").startswith("https://"):
-        raise ValueError("current source URL must use HTTPS")
+    parsed_url = urlparse(source.get("url", ""))
+    if parsed_url.scheme != "https" or parsed_url.hostname not in allowed_hosts:
+        raise ValueError("current source URL or host is not allowlisted")
+    if source.get("name") != expected_name:
+        raise ValueError("current source name does not match its data role")
     hashes = [source.get(key) for key in hash_keys]
-    if not any(isinstance(value, str) and len(value) == 64 for value in hashes):
+    if not any(
+        isinstance(value, str)
+        and len(value) == 64
+        and all(character in string.hexdigits for character in value)
+        for value in hashes
+    ):
         raise ValueError("current source is missing a 64-character content hash")
 
 
@@ -39,7 +56,13 @@ def _validate_live_snapshot(live: dict, as_of: datetime, competition_ids: set[st
         if kickoff.tzinfo is None:
             raise ValueError("current fixture kickoff_at must be timezone-aware")
         source = fixture["source"]
-        _validate_source(source, as_of, hash_keys=("raw_sha256",))
+        _validate_source(
+            source,
+            as_of,
+            hash_keys=("raw_sha256",),
+            expected_name="ESPN",
+            allowed_hosts={"site.api.espn.com"},
+        )
         if (
             not all(
                 fixture.get(key)
@@ -48,6 +71,14 @@ def _validate_live_snapshot(live: dict, as_of: datetime, competition_ids: set[st
             or source.get("native_fixture_id") is None
         ):
             raise ValueError("current fixture is missing provider-native IDs")
+        score = fixture.get("score")
+        if fixture["status"] == "finished" and (
+            not isinstance(score, dict)
+            or not all(
+                isinstance(score.get(key), int) and score[key] >= 0 for key in ("home", "away")
+            )
+        ):
+            raise ValueError("finished current fixture requires a non-negative integer score")
     for feature in live.get("understat", {}).get("team_features", []):
         if feature.get("competition_id") not in competition_ids:
             raise ValueError("current feature has unknown competition")
@@ -55,17 +86,29 @@ def _validate_live_snapshot(live: dict, as_of: datetime, competition_ids: set[st
             feature["source"],
             as_of,
             hash_keys=("content_sha256", "raw_sha256"),
+            expected_name="Understat",
+            allowed_hosts={"understat.com"},
         )
         for key in ("xg_for", "xg_against"):
-            if key in feature and not math.isfinite(float(feature[key])):
-                raise ValueError("current xG feature must be finite")
+            if (
+                key not in feature
+                or not math.isfinite(float(feature[key]))
+                or float(feature[key]) < 0
+            ):
+                raise ValueError("current xG feature must be present, finite and non-negative")
     for market in live.get("espn_markets", {}).get("markets", []):
         if market.get("fixture_id") not in fixture_ids or not market.get("provider"):
             raise ValueError("current market is missing a known fixture or provider")
         market_source = {**market["source"], "retrieved_at": market["retrieved_at"]}
-        _validate_source(market_source, as_of, hash_keys=("raw_sha256",))
+        _validate_source(
+            market_source,
+            as_of,
+            hash_keys=("raw_sha256",),
+            expected_name="ESPN event summary",
+            allowed_hosts={"site.api.espn.com"},
+        )
         values = market.get("probability", {}).values()
-        if len(market.get("probability", {})) != 3 or not all(
+        if set(market.get("probability", {})) != {"home", "draw", "away"} or not all(
             math.isfinite(float(value)) and 0 <= float(value) <= 1 for value in values
         ):
             raise ValueError("current market probabilities must be finite and bounded")
@@ -94,6 +137,22 @@ def attach_current_data(
         return payload
 
     live = json.loads(live_path.read_text(encoding="utf-8"))
+    if live.get("schema_version") != "1.0.0" or not isinstance(live.get("roles"), dict):
+        raise ValueError("live snapshot schema_version or roles are invalid")
+    provider_contracts = {
+        "espn": ("ESPN", "fixtures"),
+        "espn_markets": ("ESPN event summary", "markets"),
+        "understat": ("Understat", "team_features"),
+    }
+    for key, (provider, records_key) in provider_contracts.items():
+        source_payload = live.get(key)
+        if (
+            not isinstance(source_payload, dict)
+            or source_payload.get("provider") != provider
+            or not isinstance(source_payload.get(records_key), list)
+            or not isinstance(source_payload.get("errors"), list)
+        ):
+            raise ValueError("live snapshot provider contract is invalid")
     as_of = datetime.fromisoformat(live["as_of"])
     if as_of.tzinfo is None:
         raise ValueError("live snapshot as_of must be timezone-aware")
@@ -102,7 +161,23 @@ def attach_current_data(
     competition_ids = {item["id"] for item in payload["competitions"]}
     _validate_live_snapshot(live, as_of, competition_ids)
     age = checked_at.astimezone(timezone.utc) - as_of.astimezone(timezone.utc)
-    status = "fresh" if age <= freshness_limit else "stale"
+    provider_errors = {
+        "espn": live.get("espn", {}).get("errors", []),
+        "espn_markets": live.get("espn_markets", {}).get("errors", []),
+        "understat": live.get("understat", {}).get("errors", []),
+    }
+    fixtures_from_source = live.get("espn", {}).get("fixtures", [])
+    fixture_competitions = {fixture.get("competition_id") for fixture in fixtures_from_source}
+    platform_competitions = {item["id"] for item in payload["competitions"]}
+    expected_competitions = set(live.get("expected_competitions", []))
+    if not expected_competitions or not expected_competitions <= platform_competitions:
+        raise ValueError("live snapshot expected_competitions are invalid")
+    if not fixtures_from_source:
+        status = "unavailable"
+    elif any(provider_errors.values()) or fixture_competitions != expected_competitions:
+        status = "degraded"
+    else:
+        status = "fresh" if age <= freshness_limit else "stale"
 
     features = live.get("understat", {}).get("team_features", [])
     markets = {
@@ -164,11 +239,7 @@ def attach_current_data(
         "as_of": as_of.isoformat(),
         "age_seconds": max(0, int(age.total_seconds())),
         "roles": live.get("roles", {}),
-        "provider_errors": {
-            "espn": live.get("espn", {}).get("errors", []),
-            "espn_markets": live.get("espn_markets", {}).get("errors", []),
-            "understat": live.get("understat", {}).get("errors", []),
-        },
+        "provider_errors": provider_errors,
         "fixture_count": len(fixtures),
         "xg_team_count": len(features),
         "market_count": len(markets),

@@ -16,13 +16,7 @@ UA = ("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
 
 def fetch(url: str) -> str:
     req = urllib.request.Request(url, headers={"User-Agent": UA})
-    ctx = None
-    if url.startswith("https"):
-        import ssl
-        ctx = ssl.create_default_context()
-        ctx.check_hostname = False
-        ctx.verify_mode = ssl.CERT_NONE
-    return urllib.request.urlopen(req, timeout=30, context=ctx).read().decode("utf-8", errors="replace")
+    return urllib.request.urlopen(req, timeout=30).read().decode("utf-8", errors="replace")
 
 
 def extract_groups(html: str) -> dict:
