@@ -31,11 +31,21 @@ body {
   background: var(--bg);
   color: var(--text-1);
   line-height: 1.5;
-  padding: 40px 20px;
-  max-width: 720px;
+  padding: 28px 36px 60px;
+  max-width: 1680px;
   margin: 0 auto;
   position: relative;
   z-index: 1;
+}
+@keyframes cardIn { from { opacity:0; transform:translateY(18px) } to { opacity:1; transform:none } }
+@keyframes barGrow { from { width:0 } to { width:var(--w) } }
+@keyframes dotPulse { 0%,100% { opacity:1; box-shadow:0 0 0 0 var(--green) } 50% { opacity:.55; box-shadow:0 0 0 5px transparent } }
+@keyframes toastIn { from { opacity:0; transform:translate(-50%,-16px) } to { opacity:1; transform:translate(-50%,0) } }
+.match-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(440px, 1fr));
+  gap: 20px;
+  align-items: start;
 }
 body::before {
   content: '';
@@ -55,19 +65,69 @@ body::after {
   pointer-events: none;
 }
 header.page-header {
-  margin-bottom: 40px;
-  padding-bottom: 24px;
-  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 16px;
+  margin-bottom: 28px;
+  padding: 18px 22px;
+  background: var(--surface);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+}
+header.page-header .brand {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
 }
 header.page-header h1 {
-  font-size: 1.1em;
-  font-weight: 600;
-  letter-spacing: -0.02em;
-  margin-bottom: 4px;
+  font-size: 1.35em;
+  font-weight: 700;
+  letter-spacing: -0.03em;
 }
 header.page-header .tagline {
-  font-size: .8em;
+  font-size: .72em;
   color: var(--text-3);
+}
+.scoreboard {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+.sb-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--mono);
+  font-size: .72em;
+  font-weight: 500;
+  padding: 5px 11px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: var(--bg);
+  color: var(--text-2);
+  white-space: nowrap;
+}
+.sb-badge.live { color: var(--green); border-color: var(--green); }
+.sb-badge.live .dot {
+  width: 7px; height: 7px; border-radius: 50%;
+  background: var(--green);
+  animation: dotPulse 1.6s ease-in-out infinite;
+}
+.sb-badge.evo { color: var(--accent); border-color: var(--accent); }
+.sb-badge.hit { color: var(--green); }
+.sb-badge.stale-warn { color: var(--amber); border-color: var(--amber); }
+.sb-badge.stale-warn .dot { width: 7px; height: 7px; border-radius: 50%; background: var(--amber); }
+.sb-badge.stale-bad { color: var(--red); border-color: var(--red); }
+.sb-badge.stale-bad .dot { width: 7px; height: 7px; border-radius: 50%; background: var(--red); }
+.freshness-banner {
+  background: var(--red-bg); color: var(--red); border: 1px solid var(--red);
+  border-radius: 8px; padding: 10px 16px; margin: 0 auto 16px; max-width: 1100px;
+  font-size: .85em; text-align: center;
 }
 .controls {
   display: flex;
@@ -102,12 +162,17 @@ header.page-header .tagline {
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
   border: 1px solid var(--border);
-  border-radius: var(--radius);
+  border-radius: 14px;
   padding: 24px;
-  margin-bottom: 16px;
-  transition: border-color .2s;
+  transition: transform .25s cubic-bezier(.4,0,.2,1), box-shadow .25s, border-color .2s;
+  animation: cardIn .5s ease both;
+  animation-delay: calc(var(--i, 0) * 0.06s);
 }
-.match:hover { border-color: var(--text-3); }
+.match:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 36px rgba(0,0,0,.45);
+  border-color: var(--accent);
+}
 
 .match header {
   margin-bottom: 16px;
@@ -144,6 +209,15 @@ header.page-header .tagline {
   font-size: .85em;
 }
 .conf-tag { font-weight: 500; }
+.mot-tag {
+  font-size: .7em;
+  font-family: var(--mono);
+  padding: 2px 6px;
+  border: 1px solid var(--border);
+  border-radius: 3px;
+  background: var(--bg);
+  cursor: help;
+}
 .value-badge {
   background: var(--green-bg);
   color: var(--green);
@@ -167,14 +241,16 @@ header.page-header .tagline {
   justify-content: center;
   font-family: var(--mono);
   font-size: .75em;
-  font-weight: 500;
-  transition: width .4s ease;
-  min-width: 30px;
+  font-weight: 600;
+  width: var(--w);
+  min-width: 32px;
+  animation: barGrow .85s cubic-bezier(.4,0,.2,1) both;
+  animation-delay: calc(var(--i, 0) * 0.06s + 0.25s);
 }
-.bar span { opacity: .9; }
-.bar-h { background: var(--green-bg); color: var(--green); }
-.bar-d { background: var(--amber-bg); color: var(--amber); }
-.bar-a { background: var(--blue-bg); color: var(--blue); }
+.bar span { opacity: .95; }
+.bar-h { background: var(--green-bg); color: var(--green); box-shadow: inset 0 0 12px -4px var(--green); }
+.bar-d { background: var(--amber-bg); color: var(--amber); box-shadow: inset 0 0 12px -4px var(--amber); }
+.bar-a { background: var(--blue-bg); color: var(--blue); box-shadow: inset 0 0 12px -4px var(--blue); }
 .bar-labels {
   display: flex;
   justify-content: space-between;
@@ -182,6 +258,78 @@ header.page-header .tagline {
   color: var(--text-3);
   margin-top: 4px;
   padding: 0 4px;
+}
+
+.trend-wrap { margin: 14px 0 16px; }
+.trend-hdr {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  font-size: .72em;
+  font-weight: 600;
+  color: var(--text-2);
+  margin-bottom: 6px;
+}
+.trend-hint {
+  opacity: .85;
+  font-weight: 500;
+  color: var(--accent);
+  animation: trendHintBounce 1.8s ease-in-out infinite;
+}
+@keyframes trendHintBounce { 0%,100% { transform: translateX(0); } 50% { transform: translateX(3px); } }
+.trend-svg {
+  width: 100%;
+  height: 88px;
+  display: block;
+  cursor: crosshair;
+  touch-action: none;
+  background:
+    radial-gradient(circle at 15% 20%, rgba(61,220,132,.10), transparent 55%),
+    radial-gradient(circle at 85% 75%, rgba(79,195,255,.10), transparent 55%),
+    linear-gradient(180deg, #23201c 0%, #17140f 100%);
+  border: 1.5px solid #3d3630;
+  border-radius: 12px;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.04), 0 3px 10px rgba(0,0,0,.35);
+}
+.trend-line { opacity: 1; }
+.trend-area { opacity: .9; }
+.trend-dot { filter: drop-shadow(0 0 3px rgba(0,0,0,.5)); }
+.trend-dot-live { animation: trendPulse 1.4s ease-in-out infinite; }
+@keyframes trendPulse {
+  0%,100% { r: 5.5; opacity: 1; }
+  50% { r: 7.5; opacity: .75; }
+}
+.trend-cursor { stroke: #ffd23d; stroke-width: 1.5; stroke-dasharray: 4 4; opacity: .85; }
+.trend-cursor-dot { stroke: #fff; stroke-width: 2; filter: drop-shadow(0 0 5px rgba(255,210,61,.8)); }
+.trend-zoom-note { font-size: 8.5px; fill: var(--text-3); font-family: var(--mono); opacity: .8; }
+.trend-readout {
+  font-family: var(--mono);
+  font-size: .76em;
+  font-weight: 600;
+  color: var(--text-2);
+  min-height: 1.5em;
+  margin-top: 6px;
+  padding: 5px 10px;
+  background: #1c1917;
+  border: 1px solid #3d3630;
+  border-radius: 8px;
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+.trend-readout .r-h { color: #3ddc84; text-shadow: 0 0 8px rgba(61,220,132,.5); }
+.trend-readout .r-d { color: #ffd23d; text-shadow: 0 0 8px rgba(255,210,61,.5); }
+.trend-readout .r-a { color: #4fc3ff; text-shadow: 0 0 8px rgba(79,195,255,.5); }
+.trend-readout .r-t { color: var(--text-3); font-weight: 500; }
+.trend-empty {
+  font-size: .72em;
+  color: var(--text-3);
+  padding: 14px 10px;
+  text-align: center;
+  font-style: italic;
+  background: linear-gradient(180deg, #23201c 0%, #17140f 100%);
+  border: 1.5px dashed #3d3630;
+  border-radius: 12px;
 }
 
 .data-grid { margin-bottom: 12px; }
@@ -330,6 +478,23 @@ header.page-header .tagline {
   border-color: var(--red);
   color: var(--red);
 }
+.news-notice {
+  margin-top: 8px;
+  padding: 7px 12px;
+  background: var(--blue-bg);
+  border-left: 3px solid var(--blue);
+  border-radius: 0 var(--radius) var(--radius) 0;
+  font-size: .72em;
+  display: flex;
+  align-items: baseline;
+  gap: 7px;
+  flex-wrap: wrap;
+}
+.news-tag { font-weight: 600; color: var(--blue); white-space: nowrap; }
+.news-team { color: var(--text-3); font-family: var(--mono); font-size: .9em; white-space: nowrap; }
+.news-title { color: var(--text-2); text-decoration: none; flex: 1; min-width: 160px; }
+.news-title:hover { color: var(--accent); text-decoration: underline; }
+.news-src { color: var(--text-3); font-size: .85em; white-space: nowrap; }
 
 footer.page-footer {
   margin-top: 40px;
@@ -339,47 +504,125 @@ footer.page-footer {
   color: var(--text-3);
   line-height: 1.7;
 }
-@media (max-width: 500px) {
-  body { padding: 20px 12px; }
+#toast {
+  position: fixed;
+  top: 20px; left: 50%;
+  transform: translate(-50%, 0);
+  z-index: 100;
+  background: var(--green);
+  color: #08120b;
+  font-weight: 600;
+  font-size: .82em;
+  padding: 10px 20px;
+  border-radius: 999px;
+  box-shadow: 0 6px 24px rgba(0,0,0,.4);
+  animation: toastIn .4s ease both;
+  display: none;
+}
+.fading { transition: opacity .5s ease; opacity: 0 !important; }
+@media (max-width: 920px) {
+  .match-grid { grid-template-columns: 1fr; }
+}
+@media (max-width: 680px) {
+  body { padding: 16px 12px 40px; }
+  header.page-header { padding: 14px 16px; }
+  header.page-header h1 { font-size: 1.15em; }
   .match { padding: 16px; }
   .matchup { flex-wrap: wrap; gap: 6px; }
+  .scoreboard { gap: 6px; }
+  .sb-badge { font-size: .66em; padding: 4px 9px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  *, .match, .bar, .sb-badge .dot { animation: none !important; transition: none !important; }
+  .bar { width: var(--w); }
 }
 </style>
 </head><body>
+<div id="toast">⟳ 盘口已更新</div>
+<div class="freshness-banner">⚠ 盘口数据已 7.1小时 未更新, 当前展示的概率/购买建议可能已过时, 请谨慎参考</div>
 <header class="page-header">
-  <h1>让球盘预测 (Asian Handicap Forecast)</h1>
-  <p class="tagline">Dixon-Coles + 体彩让球盘校准 · 2026-06-26 08:30:53 · 数据: 本地缓存 (0分钟前)</p>
+  <div class="brand">
+    <h1>⚽ 世界杯让球盘预测</h1>
+    <span class="tagline">Dixon-Coles · 2026-07-02 14:44:08</span>
+  </div>
+  <div class="scoreboard">
+    <span class="sb-badge stale-bad"><span class="dot"></span>数据滞后</span>
+    <span class="sb-badge evo" title="自进化的Dixon-Coles相关系数">进化 ρ=-0.2</span>
+    <span class="sb-badge hit" title="最近小组赛回测命中率">命中 71%</span>
+    <span class="sb-badge" title="数据来源/新鲜度">4090 relay (7小时前)</span>
+  </div>
 </header>
 
 <div class="controls">
   <button onclick="location.reload()">刷新</button>
   <button id="fetchBtn" onclick="doRefresh()">重新抓取</button>
+  <a href="/data/standings.json" target="_blank" class="link-btn" style="font-size:.75em;color:var(--text-2);text-decoration:none;padding:6px 10px;border:1px solid var(--border);border-radius:var(--radius);">实时积分</a>
+  <a href="/data/groups_2026.json" target="_blank" class="link-btn" style="font-size:.75em;color:var(--text-2);text-decoration:none;padding:6px 10px;border:1px solid var(--border);border-radius:var(--radius);">小组分组</a>
   <span id="status" class="status-msg"></span>
 </div>
 
-<article class="match">
+<div class="match-grid">
+<article class="match" style="--i:0">
   <header>
     <div class="matchup">
-      <span class="team home">巴拉圭</span>
+      <span class="team home">西班牙</span>
       <span class="vs">vs</span>
-      <span class="team away">澳大利亚</span>
+      <span class="team away">奥地利</span>
     </div>
     <div class="meta-row">
-      <time>2026-06-26 10:00</time>
+      <time>2026-07-03 03:00</time>
       <span class="league-tag">世界杯</span>
       <span class="hc-tag">让-1.0球</span>
       <span class="conf-tag" style="color:#9a6700">中等</span>
-      
+      <span class="mot-tag" title="主队战意: knockout | λ×1.00" style="color:#c4bcb2">主 knockout 1.00</span>
+      <span class="mot-tag" title="客队战意: knockout | λ×1.00" style="color:#c4bcb2">客 knockout 1.00</span>
+      <span class="value-badge">客让胜 +4.1%</span>
     </div>
   </header>
 
   <div class="prob-visual">
     <div class="bar-container">
-      <div class="bar bar-h" style="width:16.0%"><span>16%</span></div>
-      <div class="bar bar-d" style="width:21.6%"><span>22%</span></div>
-      <div class="bar bar-a" style="width:62.4%"><span>62%</span></div>
+      <div class="bar bar-h" style="--w:46.8%"><span>47%</span></div>
+      <div class="bar bar-d" style="--w:24.2%"><span>24%</span></div>
+      <div class="bar bar-a" style="--w:29.0%"><span>29%</span></div>
     </div>
     <div class="bar-labels"><span>主让胜</span><span>平局</span><span>客让胜</span></div>
+  </div>
+  <div class="trend-wrap">
+    <div class="trend-hdr"><span>✨ 近12h让球盘概率走势</span><span class="trend-hint">👆 拖动查看历史</span></div>
+    <svg class="trend-svg" viewBox="0 0 560 96" preserveAspectRatio="none"
+         data-points='[{"t": "2026-07-02T14:19:26", "h": 0.4679, "d": 0.2421, "a": 0.29, "x": 537.1}, {"t": "2026-07-02T14:33:44", "h": 0.4679, "d": 0.2421, "a": 0.29, "x": 548.0}, {"t": "2026-07-02T14:44:08", "h": 0.4679, "d": 0.2421, "a": 0.29, "x": 556.0}]'>
+      <defs><linearGradient id="fillH" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stop-color="#3ddc84" stop-opacity="0.45"/>
+          <stop offset="100%" stop-color="#3ddc84" stop-opacity="0"/>
+        </linearGradient>
+        <filter id="glowH" x="-50%" y="-50%" width="200%" height="200%">
+          <feGaussianBlur stdDeviation="2.2" result="blur"/>
+          <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+        </filter><linearGradient id="fillD" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stop-color="#ffd23d" stop-opacity="0.45"/>
+          <stop offset="100%" stop-color="#ffd23d" stop-opacity="0"/>
+        </linearGradient>
+        <filter id="glowD" x="-50%" y="-50%" width="200%" height="200%">
+          <feGaussianBlur stdDeviation="2.2" result="blur"/>
+          <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+        </filter><linearGradient id="fillA" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stop-color="#4fc3ff" stop-opacity="0.45"/>
+          <stop offset="100%" stop-color="#4fc3ff" stop-opacity="0"/>
+        </linearGradient>
+        <filter id="glowA" x="-50%" y="-50%" width="200%" height="200%">
+          <feGaussianBlur stdDeviation="2.2" result="blur"/>
+          <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+        </filter></defs>
+      <path d="M 537.1,96 L 537.1,10.0 L 548.0,10.0 L 556.0,10.0 L 556.0,96 Z" fill="url(#fillH)" class="trend-area trend-area-h"/><path d="M 537.1,96 L 537.1,86.0 L 548.0,86.0 L 556.0,86.0 L 556.0,96 Z" fill="url(#fillD)" class="trend-area trend-area-d"/><path d="M 537.1,96 L 537.1,69.9 L 548.0,69.9 L 556.0,69.9 L 556.0,96 Z" fill="url(#fillA)" class="trend-area trend-area-a"/>
+      <polyline points="537.1,10.0 548.0,10.0 556.0,10.0" fill="none" stroke="#1a1512" stroke-width="5.5" stroke-linecap="round" stroke-linejoin="round" opacity="0.5"/><polyline points="537.1,86.0 548.0,86.0 556.0,86.0" fill="none" stroke="#1a1512" stroke-width="5.5" stroke-linecap="round" stroke-linejoin="round" opacity="0.5"/><polyline points="537.1,69.9 548.0,69.9 556.0,69.9" fill="none" stroke="#1a1512" stroke-width="5.5" stroke-linecap="round" stroke-linejoin="round" opacity="0.5"/>
+      <polyline points="537.1,10.0 548.0,10.0 556.0,10.0" fill="none" stroke="#3ddc84" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round" filter="url(#glowH)" class="trend-line trend-h"/><polyline points="537.1,86.0 548.0,86.0 556.0,86.0" fill="none" stroke="#ffd23d" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round" filter="url(#glowD)" class="trend-line trend-d"/><polyline points="537.1,69.9 548.0,69.9 556.0,69.9" fill="none" stroke="#4fc3ff" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round" filter="url(#glowA)" class="trend-line trend-a"/>
+      <circle cx="556.0" cy="10.0" r="6" fill="#3ddc84" stroke="#fff" stroke-width="1.6" class="trend-dot trend-dot-live"/><circle cx="556.0" cy="86.0" r="6" fill="#ffd23d" stroke="#fff" stroke-width="1.6" class="trend-dot trend-dot-live"/><circle cx="556.0" cy="69.9" r="6" fill="#4fc3ff" stroke="#fff" stroke-width="1.6" class="trend-dot trend-dot-live"/>
+      <line class="trend-cursor" x1="0" y1="0" x2="0" y2="96" style="display:none"/>
+      <circle class="trend-cursor-dot" r="4" style="display:none"/>
+      <text x="554" y="12" text-anchor="end" class="trend-zoom-note">纵轴 24%~47%</text>
+    </svg>
+    <div class="trend-readout"></div>
   </div>
 
   <div class="data-grid">
@@ -389,11 +632,11 @@ footer.page-footer {
         <thead><tr><th></th><th>主让胜</th><th>平局</th><th>客让胜</th></tr></thead>
         <tbody>
           <tr><td class="row-label">模型</td>
-          <td class="num">21%</td><td class="num">21%</td><td class="num">58%</td></tr>
+          <td class="num">37%</td><td class="num">23%</td><td class="num">40%</td></tr>
           <tr><td class="row-label">市场</td>
-            <td class="num">14%</td><td class="num">22%</td><td class="num">64%</td></tr>
+            <td class="num">51%</td><td class="num">24%</td><td class="num">25%</td></tr>
           <tr class="posterior-row"><td class="row-label">后验</td>
-          <td class="num"><b>16%</b></td><td class="num"><b>22%</b></td><td class="num"><b>62%</b></td></tr>
+          <td class="num"><b>47%</b></td><td class="num"><b>24%</b></td><td class="num"><b>29%</b></td></tr>
         </tbody>
       </table>
     </div>
@@ -404,188 +647,119 @@ footer.page-footer {
         <thead><tr><th></th><th>主胜</th><th>平局</th><th>客胜</th></tr></thead>
         <tbody>
           <tr><td class="row-label">模型</td>
-          <td class="num">32%</td><td class="num">49%</td><td class="num">19%</td></tr>
+          <td class="num">63%</td><td class="num">23%</td><td class="num">14%</td></tr>
           <tr><td class="row-label">市场</td>
-          <td class="num">34%</td><td class="num">40%</td><td class="num">25%</td></tr>
+          <td class="num">74%</td><td class="num">17%</td><td class="num">9%</td></tr>
           <tr class="posterior-row"><td class="row-label">后验</td>
-          <td class="num"><b>34%</b></td><td class="num"><b>44%</b></td><td class="num"><b>23%</b></td></tr>
+          <td class="num"><b>70%</b></td><td class="num"><b>19%</b></td><td class="num"><b>11%</b></td></tr>
           <tr><td class="row-label">赔率</td>
-          <td class="num">2.57</td><td class="num">2.20</td><td class="num">3.50</td></tr>
+          <td class="num">1.19</td><td class="num">5.15</td><td class="num">10.50</td></tr>
         </tbody>
       </table>
     </div>
     
     <div class="market-section">
-      <div class="market-title">总进球 (TTG) · 市场最可能: <b>0球</b> (0%)</div>
+      <div class="market-title">总进球 (TTG) · 市场未开盘</div>
       <table>
         <thead><tr><th></th><th>0球</th><th>1球</th><th>2球</th><th>3球</th><th>4+球</th></tr></thead>
         <tbody>
           <tr><td class="row-label">模型</td>
-          <td class="num">13%</td><td class="num">18%</td><td class="num">29%</td><td class="num">20%</td><td class="num">20%</td></tr>
+          <td class="num">9%</td><td class="num">14%</td><td class="num">27%</td><td class="num">22%</td><td class="num">28%</td></tr>
           <tr><td class="row-label">市场</td>
-          <td class="num">0%</td><td class="num">0%</td><td class="num">0%</td><td class="num">0%</td><td class="num">0%</td></tr>
+          <td class="num" colspan="5">暂无市场数据</td></tr>
           <tr class="posterior-row"><td class="row-label">后验</td>
-          <td class="num"><b>0%</b></td><td class="num"><b>0%</b></td><td class="num"><b>0%</b></td><td class="num"><b>0%</b></td><td class="num"><b>0%</b></td></tr>
+          <td class="num" colspan="5">暂无市场数据, 后验退化为模型值(见上)</td></tr>
           <tr><td class="row-label">赔率</td>
-          <td class="num">4.70</td><td class="num">4.25</td><td class="num">2.70</td><td class="num">4.80</td><td class="num">4.39</td></tr>
+          <td class="num">14.50</td><td class="num">5.60</td><td class="num">3.60</td><td class="num">3.35</td><td class="num">2.32</td></tr>
         </tbody>
       </table>
     </div>
     <div class="params">
-      <span>Elo 1816 / 1799</span>
-      <span>λ 1.32 / 0.98</span>
+      <span>Elo 2144 / 1836</span>
+      <span>λ 1.86 / 0.80</span>
     </div>
   </div>
   
-    <div class="rec-section">
-      <div class="rec-title">体彩购买建议 (Top 2 of 2)</div>
-      <div class="rec-list"><div class="rec-chip" style="border-color:#fbbf24">
-              <div class="rec-market">胜平负 · <b>平局</b></div>
-              <div class="rec-odds">赔率 <b>2.20</b> · 模型 49% · 市场 40%</div>
-              <div class="rec-edge" style="color:#fbbf24">edge +9.1% · EV +8.7% · 凯利 1.8%</div>
-            </div><div class="rec-chip" style="border-color:#4ade80">
-              <div class="rec-market">让球-1.00 · <b>主让胜</b></div>
-              <div class="rec-odds">赔率 <b>6.20</b> · 模型 21% · 市场 14%</div>
-              <div class="rec-edge" style="color:#4ade80">edge +6.4% · EV +28.4% · 凯利 1.4%</div>
-            </div></div>
-    </div>
   <div class="chips-row">
-    <span class="score-chip"><b>1-1</b> 16%</span><span class="score-chip"><b>0-0</b> 13%</span><span class="score-chip"><b>1-0</b> 11%</span><span class="score-chip"><b>2-0</b> 9%</span><span class="score-chip"><b>2-1</b> 9%</span>
+    <span class="score-chip"><b>1-1</b> 12%</span><span class="score-chip"><b>2-0</b> 12%</span><span class="score-chip"><b>1-0</b> 11%</span><span class="score-chip"><b>2-1</b> 10%</span><span class="score-chip"><b>0-0</b> 9%</span>
   </div>
-  <div class="insight">巴拉圭定位球能力强(λ×1.076); 澳大利亚定位球能力强(λ×1.072)</div>
-</article><article class="match">
-  <header>
-    <div class="matchup">
-      <span class="team home">土耳其</span>
-      <span class="vs">vs</span>
-      <span class="team away">美国</span>
-    </div>
-    <div class="meta-row">
-      <time>2026-06-26 10:00</time>
-      <span class="league-tag">世界杯</span>
-      <span class="hc-tag">让+1.0球</span>
-      <span class="conf-tag" style="color:#9a6700">中等</span>
-      <span class="value-badge">主让胜 +6.6%</span>
-    </div>
-  </header>
-
-  <div class="prob-visual">
-    <div class="bar-container">
-      <div class="bar bar-h" style="width:52.2%"><span>52%</span></div>
-      <div class="bar bar-d" style="width:21.5%"><span>21%</span></div>
-      <div class="bar bar-a" style="width:26.3%"><span>26%</span></div>
-    </div>
-    <div class="bar-labels"><span>主让胜</span><span>平局</span><span>客让胜</span></div>
-  </div>
-
-  <div class="data-grid">
-    <div class="market-section primary">
-      <div class="market-title">让球盘 (HHAD) 让+1.0球</div>
-      <table>
-        <thead><tr><th></th><th>主让胜</th><th>平局</th><th>客让胜</th></tr></thead>
-        <tbody>
-          <tr><td class="row-label">模型</td>
-          <td class="num">66%</td><td class="num">18%</td><td class="num">16%</td></tr>
-          <tr><td class="row-label">市场</td>
-            <td class="num">46%</td><td class="num">23%</td><td class="num">32%</td></tr>
-          <tr class="posterior-row"><td class="row-label">后验</td>
-          <td class="num"><b>52%</b></td><td class="num"><b>21%</b></td><td class="num"><b>26%</b></td></tr>
-        </tbody>
-      </table>
-    </div>
-    
-    <div class="market-section">
-      <div class="market-title">胜平负 (HAD)</div>
-      <table>
-        <thead><tr><th></th><th>主胜</th><th>平局</th><th>客胜</th></tr></thead>
-        <tbody>
-          <tr><td class="row-label">模型</td>
-          <td class="num">40%</td><td class="num">21%</td><td class="num">39%</td></tr>
-          <tr><td class="row-label">市场</td>
-          <td class="num">24%</td><td class="num">23%</td><td class="num">54%</td></tr>
-          <tr class="posterior-row"><td class="row-label">后验</td>
-          <td class="num"><b>30%</b></td><td class="num"><b>22%</b></td><td class="num"><b>48%</b></td></tr>
-          <tr><td class="row-label">赔率</td>
-          <td class="num">3.75</td><td class="num">3.90</td><td class="num">1.65</td></tr>
-        </tbody>
-      </table>
-    </div>
-    
-    <div class="market-section">
-      <div class="market-title">总进球 (TTG) · 市场最可能: <b>0球</b> (0%)</div>
-      <table>
-        <thead><tr><th></th><th>0球</th><th>1球</th><th>2球</th><th>3球</th><th>4+球</th></tr></thead>
-        <tbody>
-          <tr><td class="row-label">模型</td>
-          <td class="num">10%</td><td class="num">15%</td><td class="num">28%</td><td class="num">22%</td><td class="num">25%</td></tr>
-          <tr><td class="row-label">市场</td>
-          <td class="num">0%</td><td class="num">0%</td><td class="num">0%</td><td class="num">0%</td><td class="num">0%</td></tr>
-          <tr class="posterior-row"><td class="row-label">后验</td>
-          <td class="num"><b>0%</b></td><td class="num"><b>0%</b></td><td class="num"><b>0%</b></td><td class="num"><b>0%</b></td><td class="num"><b>0%</b></td></tr>
-          <tr><td class="row-label">赔率</td>
-          <td class="num">14.00</td><td class="num">6.00</td><td class="num">3.85</td><td class="num">3.30</td><td class="num">2.21</td></tr>
-        </tbody>
-      </table>
-    </div>
-    <div class="params">
-      <span>Elo 1813 / 1820</span>
-      <span>λ 1.29 / 1.26</span>
-    </div>
-  </div>
+  <div class="insight">奥地利近况防守强[实采xGA](影响西班牙进攻 λ×0.82); 西班牙近况防守强[实采xGA](影响奥地利进攻 λ×0.80)</div>
   
-    <div class="rec-section">
-      <div class="rec-title">体彩购买建议 (Top 2 of 2)</div>
-      <div class="rec-list"><div class="rec-chip" style="border-color:#4ade80">
-              <div class="rec-market">让球+1.00 · <b>主让胜</b></div>
-              <div class="rec-odds">赔率 <b>1.94</b> · 模型 66% · 市场 46%</div>
-              <div class="rec-edge" style="color:#4ade80">edge +20.9% · EV +29.0% · 凯利 7.7%</div>
-            </div><div class="rec-chip" style="border-color:#4ade80">
-              <div class="rec-market">胜平负 · <b>主胜</b></div>
-              <div class="rec-odds">赔率 <b>3.75</b> · 模型 40% · 市场 24%</div>
-              <div class="rec-edge" style="color:#4ade80">edge +16.6% · EV +50.7% · 凯利 4.6%</div>
-            </div></div>
-    </div>
-  <div class="chips-row">
-    <span class="score-chip"><b>1-1</b> 15%</span><span class="score-chip"><b>0-0</b> 10%</span><span class="score-chip"><b>2-1</b> 8%</span><span class="score-chip"><b>1-2</b> 8%</span><span class="score-chip"><b>1-0</b> 8%</span>
-  </div>
-  <div class="insight">土耳其定位球能力强(λ×1.075); 美国定位球能力强(λ×1.077)</div>
-</article><article class="match">
+</article><article class="match" style="--i:1">
   <header>
     <div class="matchup">
-      <span class="team home">挪威</span>
+      <span class="team home">葡萄牙</span>
       <span class="vs">vs</span>
-      <span class="team away">法国</span>
+      <span class="team away">克罗地亚</span>
     </div>
     <div class="meta-row">
-      <time>2026-06-27 03:00</time>
+      <time>2026-07-03 07:00</time>
       <span class="league-tag">世界杯</span>
-      <span class="hc-tag">让+1.0球</span>
+      <span class="hc-tag">让-1.0球</span>
       <span class="conf-tag" style="color:#656d76">开放</span>
-      <span class="value-badge">主让胜 +3.4%</span>
+      <span class="mot-tag" title="主队战意: knockout | λ×1.00" style="color:#c4bcb2">主 knockout 1.00</span>
+      <span class="mot-tag" title="客队战意: knockout | λ×1.00" style="color:#c4bcb2">客 knockout 1.00</span>
+      
     </div>
   </header>
 
   <div class="prob-visual">
     <div class="bar-container">
-      <div class="bar bar-h" style="width:44.0%"><span>44%</span></div>
-      <div class="bar bar-d" style="width:24.0%"><span>24%</span></div>
-      <div class="bar bar-a" style="width:32.0%"><span>32%</span></div>
+      <div class="bar bar-h" style="--w:28.4%"><span>28%</span></div>
+      <div class="bar bar-d" style="--w:27.6%"><span>28%</span></div>
+      <div class="bar bar-a" style="--w:43.9%"><span>44%</span></div>
     </div>
     <div class="bar-labels"><span>主让胜</span><span>平局</span><span>客让胜</span></div>
+  </div>
+  <div class="trend-wrap">
+    <div class="trend-hdr"><span>✨ 近12h让球盘概率走势</span><span class="trend-hint">👆 拖动查看历史</span></div>
+    <svg class="trend-svg" viewBox="0 0 560 96" preserveAspectRatio="none"
+         data-points='[{"t": "2026-07-02T14:19:26", "h": 0.2845, "d": 0.2764, "a": 0.4391, "x": 537.1}, {"t": "2026-07-02T14:33:44", "h": 0.2845, "d": 0.2764, "a": 0.4391, "x": 548.0}, {"t": "2026-07-02T14:44:08", "h": 0.2845, "d": 0.2764, "a": 0.4391, "x": 556.0}]'>
+      <defs><linearGradient id="fillH" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stop-color="#3ddc84" stop-opacity="0.45"/>
+          <stop offset="100%" stop-color="#3ddc84" stop-opacity="0"/>
+        </linearGradient>
+        <filter id="glowH" x="-50%" y="-50%" width="200%" height="200%">
+          <feGaussianBlur stdDeviation="2.2" result="blur"/>
+          <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+        </filter><linearGradient id="fillD" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stop-color="#ffd23d" stop-opacity="0.45"/>
+          <stop offset="100%" stop-color="#ffd23d" stop-opacity="0"/>
+        </linearGradient>
+        <filter id="glowD" x="-50%" y="-50%" width="200%" height="200%">
+          <feGaussianBlur stdDeviation="2.2" result="blur"/>
+          <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+        </filter><linearGradient id="fillA" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stop-color="#4fc3ff" stop-opacity="0.45"/>
+          <stop offset="100%" stop-color="#4fc3ff" stop-opacity="0"/>
+        </linearGradient>
+        <filter id="glowA" x="-50%" y="-50%" width="200%" height="200%">
+          <feGaussianBlur stdDeviation="2.2" result="blur"/>
+          <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+        </filter></defs>
+      <path d="M 537.1,96 L 537.1,82.2 L 548.0,82.2 L 556.0,82.2 L 556.0,96 Z" fill="url(#fillH)" class="trend-area trend-area-h"/><path d="M 537.1,96 L 537.1,86.0 L 548.0,86.0 L 556.0,86.0 L 556.0,96 Z" fill="url(#fillD)" class="trend-area trend-area-d"/><path d="M 537.1,96 L 537.1,10.0 L 548.0,10.0 L 556.0,10.0 L 556.0,96 Z" fill="url(#fillA)" class="trend-area trend-area-a"/>
+      <polyline points="537.1,82.2 548.0,82.2 556.0,82.2" fill="none" stroke="#1a1512" stroke-width="5.5" stroke-linecap="round" stroke-linejoin="round" opacity="0.5"/><polyline points="537.1,86.0 548.0,86.0 556.0,86.0" fill="none" stroke="#1a1512" stroke-width="5.5" stroke-linecap="round" stroke-linejoin="round" opacity="0.5"/><polyline points="537.1,10.0 548.0,10.0 556.0,10.0" fill="none" stroke="#1a1512" stroke-width="5.5" stroke-linecap="round" stroke-linejoin="round" opacity="0.5"/>
+      <polyline points="537.1,82.2 548.0,82.2 556.0,82.2" fill="none" stroke="#3ddc84" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round" filter="url(#glowH)" class="trend-line trend-h"/><polyline points="537.1,86.0 548.0,86.0 556.0,86.0" fill="none" stroke="#ffd23d" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round" filter="url(#glowD)" class="trend-line trend-d"/><polyline points="537.1,10.0 548.0,10.0 556.0,10.0" fill="none" stroke="#4fc3ff" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round" filter="url(#glowA)" class="trend-line trend-a"/>
+      <circle cx="556.0" cy="82.2" r="6" fill="#3ddc84" stroke="#fff" stroke-width="1.6" class="trend-dot trend-dot-live"/><circle cx="556.0" cy="86.0" r="6" fill="#ffd23d" stroke="#fff" stroke-width="1.6" class="trend-dot trend-dot-live"/><circle cx="556.0" cy="10.0" r="6" fill="#4fc3ff" stroke="#fff" stroke-width="1.6" class="trend-dot trend-dot-live"/>
+      <line class="trend-cursor" x1="0" y1="0" x2="0" y2="96" style="display:none"/>
+      <circle class="trend-cursor-dot" r="4" style="display:none"/>
+      <text x="554" y="12" text-anchor="end" class="trend-zoom-note">纵轴 28%~44%</text>
+    </svg>
+    <div class="trend-readout"></div>
   </div>
 
   <div class="data-grid">
     <div class="market-section primary">
-      <div class="market-title">让球盘 (HHAD) 让+1.0球</div>
+      <div class="market-title">让球盘 (HHAD) 让-1.0球</div>
       <table>
         <thead><tr><th></th><th>主让胜</th><th>平局</th><th>客让胜</th></tr></thead>
         <tbody>
           <tr><td class="row-label">模型</td>
-          <td class="num">52%</td><td class="num">20%</td><td class="num">28%</td></tr>
+          <td class="num">29%</td><td class="num">23%</td><td class="num">48%</td></tr>
           <tr><td class="row-label">市场</td>
-            <td class="num">41%</td><td class="num">26%</td><td class="num">34%</td></tr>
+            <td class="num">28%</td><td class="num">30%</td><td class="num">42%</td></tr>
           <tr class="posterior-row"><td class="row-label">后验</td>
-          <td class="num"><b>44%</b></td><td class="num"><b>24%</b></td><td class="num"><b>32%</b></td></tr>
+          <td class="num"><b>28%</b></td><td class="num"><b>28%</b></td><td class="num"><b>44%</b></td></tr>
         </tbody>
       </table>
     </div>
@@ -596,78 +770,359 @@ footer.page-footer {
         <thead><tr><th></th><th>主胜</th><th>平局</th><th>客胜</th></tr></thead>
         <tbody>
           <tr><td class="row-label">模型</td>
-          <td class="num">27%</td><td class="num">21%</td><td class="num">52%</td></tr>
+          <td class="num">56%</td><td class="num">24%</td><td class="num">20%</td></tr>
           <tr><td class="row-label">市场</td>
-          <td class="num">19%</td><td class="num">23%</td><td class="num">58%</td></tr>
+          <td class="num">56%</td><td class="num">27%</td><td class="num">17%</td></tr>
           <tr class="posterior-row"><td class="row-label">后验</td>
-          <td class="num"><b>22%</b></td><td class="num"><b>22%</b></td><td class="num"><b>56%</b></td></tr>
+          <td class="num"><b>56%</b></td><td class="num"><b>26%</b></td><td class="num"><b>18%</b></td></tr>
           <tr><td class="row-label">赔率</td>
-          <td class="num">4.65</td><td class="num">3.90</td><td class="num">1.52</td></tr>
+          <td class="num">1.57</td><td class="num">3.32</td><td class="num">5.22</td></tr>
         </tbody>
       </table>
     </div>
     
     <div class="market-section">
-      <div class="market-title">总进球 (TTG) · 市场最可能: <b>0球</b> (0%)</div>
+      <div class="market-title">总进球 (TTG) · 市场未开盘</div>
       <table>
         <thead><tr><th></th><th>0球</th><th>1球</th><th>2球</th><th>3球</th><th>4+球</th></tr></thead>
         <tbody>
           <tr><td class="row-label">模型</td>
-          <td class="num">7%</td><td class="num">10%</td><td class="num">24%</td><td class="num">22%</td><td class="num">36%</td></tr>
+          <td class="num">10%</td><td class="num">15%</td><td class="num">27%</td><td class="num">22%</td><td class="num">26%</td></tr>
           <tr><td class="row-label">市场</td>
-          <td class="num">0%</td><td class="num">0%</td><td class="num">0%</td><td class="num">0%</td><td class="num">0%</td></tr>
+          <td class="num" colspan="5">暂无市场数据</td></tr>
           <tr class="posterior-row"><td class="row-label">后验</td>
-          <td class="num"><b>0%</b></td><td class="num"><b>0%</b></td><td class="num"><b>0%</b></td><td class="num"><b>0%</b></td><td class="num"><b>0%</b></td></tr>
+          <td class="num" colspan="5">暂无市场数据, 后验退化为模型值(见上)</td></tr>
           <tr><td class="row-label">赔率</td>
-          <td class="num">16.00</td><td class="num">6.00</td><td class="num">3.80</td><td class="num">3.45</td><td class="num">2.12</td></tr>
+          <td class="num">11.50</td><td class="num">5.50</td><td class="num">3.30</td><td class="num">3.30</td><td class="num">2.64</td></tr>
         </tbody>
       </table>
     </div>
     <div class="params">
-      <span>Elo 1951 / 2090</span>
-      <span>λ 1.28 / 1.82</span>
+      <span>Elo 1990 / 1905</span>
+      <span>λ 1.64 / 0.93</span>
+    </div>
+  </div>
+  
+  <div class="chips-row">
+    <span class="score-chip"><b>1-1</b> 14%</span><span class="score-chip"><b>2-0</b> 10%</span><span class="score-chip"><b>1-0</b> 10%</span><span class="score-chip"><b>0-0</b> 10%</span><span class="score-chip"><b>2-1</b> 10%</span>
+  </div>
+  <div class="insight">克罗地亚近况防守强[实采xGA](影响葡萄牙进攻 λ×0.93); 葡萄牙近况防守强[实采xGA](影响克罗地亚进攻 λ×0.87)</div>
+  
+</article><article class="match" style="--i:2">
+  <header>
+    <div class="matchup">
+      <span class="team home">瑞士</span>
+      <span class="vs">vs</span>
+      <span class="team away">阿尔及利亚</span>
+    </div>
+    <div class="meta-row">
+      <time>2026-07-03 11:00</time>
+      <span class="league-tag">世界杯</span>
+      <span class="hc-tag">让-1.0球</span>
+      <span class="conf-tag" style="color:#9a6700">中等</span>
+      <span class="mot-tag" title="主队战意: knockout | λ×1.00" style="color:#c4bcb2">主 knockout 1.00</span>
+      <span class="mot-tag" title="客队战意: knockout | λ×1.00" style="color:#c4bcb2">客 knockout 1.00</span>
+      
+    </div>
+  </header>
+
+  <div class="prob-visual">
+    <div class="bar-container">
+      <div class="bar bar-h" style="--w:27.0%"><span>27%</span></div>
+      <div class="bar bar-d" style="--w:25.7%"><span>26%</span></div>
+      <div class="bar bar-a" style="--w:47.3%"><span>47%</span></div>
+    </div>
+    <div class="bar-labels"><span>主让胜</span><span>平局</span><span>客让胜</span></div>
+  </div>
+  <div class="trend-wrap">
+    <div class="trend-hdr"><span>✨ 近12h让球盘概率走势</span><span class="trend-hint">👆 拖动查看历史</span></div>
+    <svg class="trend-svg" viewBox="0 0 560 96" preserveAspectRatio="none"
+         data-points='[{"t": "2026-07-02T14:19:26", "h": 0.2696, "d": 0.257, "a": 0.4734, "x": 537.1}, {"t": "2026-07-02T14:33:44", "h": 0.2696, "d": 0.257, "a": 0.4734, "x": 548.0}, {"t": "2026-07-02T14:44:08", "h": 0.2696, "d": 0.257, "a": 0.4734, "x": 556.0}]'>
+      <defs><linearGradient id="fillH" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stop-color="#3ddc84" stop-opacity="0.45"/>
+          <stop offset="100%" stop-color="#3ddc84" stop-opacity="0"/>
+        </linearGradient>
+        <filter id="glowH" x="-50%" y="-50%" width="200%" height="200%">
+          <feGaussianBlur stdDeviation="2.2" result="blur"/>
+          <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+        </filter><linearGradient id="fillD" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stop-color="#ffd23d" stop-opacity="0.45"/>
+          <stop offset="100%" stop-color="#ffd23d" stop-opacity="0"/>
+        </linearGradient>
+        <filter id="glowD" x="-50%" y="-50%" width="200%" height="200%">
+          <feGaussianBlur stdDeviation="2.2" result="blur"/>
+          <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+        </filter><linearGradient id="fillA" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stop-color="#4fc3ff" stop-opacity="0.45"/>
+          <stop offset="100%" stop-color="#4fc3ff" stop-opacity="0"/>
+        </linearGradient>
+        <filter id="glowA" x="-50%" y="-50%" width="200%" height="200%">
+          <feGaussianBlur stdDeviation="2.2" result="blur"/>
+          <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+        </filter></defs>
+      <path d="M 537.1,96 L 537.1,81.6 L 548.0,81.6 L 556.0,81.6 L 556.0,96 Z" fill="url(#fillH)" class="trend-area trend-area-h"/><path d="M 537.1,96 L 537.1,86.0 L 548.0,86.0 L 556.0,86.0 L 556.0,96 Z" fill="url(#fillD)" class="trend-area trend-area-d"/><path d="M 537.1,96 L 537.1,10.0 L 548.0,10.0 L 556.0,10.0 L 556.0,96 Z" fill="url(#fillA)" class="trend-area trend-area-a"/>
+      <polyline points="537.1,81.6 548.0,81.6 556.0,81.6" fill="none" stroke="#1a1512" stroke-width="5.5" stroke-linecap="round" stroke-linejoin="round" opacity="0.5"/><polyline points="537.1,86.0 548.0,86.0 556.0,86.0" fill="none" stroke="#1a1512" stroke-width="5.5" stroke-linecap="round" stroke-linejoin="round" opacity="0.5"/><polyline points="537.1,10.0 548.0,10.0 556.0,10.0" fill="none" stroke="#1a1512" stroke-width="5.5" stroke-linecap="round" stroke-linejoin="round" opacity="0.5"/>
+      <polyline points="537.1,81.6 548.0,81.6 556.0,81.6" fill="none" stroke="#3ddc84" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round" filter="url(#glowH)" class="trend-line trend-h"/><polyline points="537.1,86.0 548.0,86.0 556.0,86.0" fill="none" stroke="#ffd23d" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round" filter="url(#glowD)" class="trend-line trend-d"/><polyline points="537.1,10.0 548.0,10.0 556.0,10.0" fill="none" stroke="#4fc3ff" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round" filter="url(#glowA)" class="trend-line trend-a"/>
+      <circle cx="556.0" cy="81.6" r="6" fill="#3ddc84" stroke="#fff" stroke-width="1.6" class="trend-dot trend-dot-live"/><circle cx="556.0" cy="86.0" r="6" fill="#ffd23d" stroke="#fff" stroke-width="1.6" class="trend-dot trend-dot-live"/><circle cx="556.0" cy="10.0" r="6" fill="#4fc3ff" stroke="#fff" stroke-width="1.6" class="trend-dot trend-dot-live"/>
+      <line class="trend-cursor" x1="0" y1="0" x2="0" y2="96" style="display:none"/>
+      <circle class="trend-cursor-dot" r="4" style="display:none"/>
+      <text x="554" y="12" text-anchor="end" class="trend-zoom-note">纵轴 26%~47%</text>
+    </svg>
+    <div class="trend-readout"></div>
+  </div>
+
+  <div class="data-grid">
+    <div class="market-section primary">
+      <div class="market-title">让球盘 (HHAD) 让-1.0球</div>
+      <table>
+        <thead><tr><th></th><th>主让胜</th><th>平局</th><th>客让胜</th></tr></thead>
+        <tbody>
+          <tr><td class="row-label">模型</td>
+          <td class="num">33%</td><td class="num">22%</td><td class="num">45%</td></tr>
+          <tr><td class="row-label">市场</td>
+            <td class="num">24%</td><td class="num">28%</td><td class="num">48%</td></tr>
+          <tr class="posterior-row"><td class="row-label">后验</td>
+          <td class="num"><b>27%</b></td><td class="num"><b>26%</b></td><td class="num"><b>47%</b></td></tr>
+        </tbody>
+      </table>
+    </div>
+    
+    <div class="market-section">
+      <div class="market-title">胜平负 (HAD)</div>
+      <table>
+        <thead><tr><th></th><th>主胜</th><th>平局</th><th>客胜</th></tr></thead>
+        <tbody>
+          <tr><td class="row-label">模型</td>
+          <td class="num">62%</td><td class="num">17%</td><td class="num">21%</td></tr>
+          <tr><td class="row-label">市场</td>
+          <td class="num">50%</td><td class="num">29%</td><td class="num">21%</td></tr>
+          <tr class="posterior-row"><td class="row-label">后验</td>
+          <td class="num"><b>55%</b></td><td class="num"><b>23%</b></td><td class="num"><b>22%</b></td></tr>
+          <tr><td class="row-label">赔率</td>
+          <td class="num">1.76</td><td class="num">3.12</td><td class="num">4.15</td></tr>
+        </tbody>
+      </table>
+    </div>
+    
+    <div class="market-section">
+      <div class="market-title">总进球 (TTG) · 市场未开盘</div>
+      <table>
+        <thead><tr><th></th><th>0球</th><th>1球</th><th>2球</th><th>3球</th><th>4+球</th></tr></thead>
+        <tbody>
+          <tr><td class="row-label">模型</td>
+          <td class="num">7%</td><td class="num">11%</td><td class="num">25%</td><td class="num">22%</td><td class="num">35%</td></tr>
+          <tr><td class="row-label">市场</td>
+          <td class="num" colspan="5">暂无市场数据</td></tr>
+          <tr class="posterior-row"><td class="row-label">后验</td>
+          <td class="num" colspan="5">暂无市场数据, 后验退化为模型值(见上)</td></tr>
+          <tr><td class="row-label">赔率</td>
+          <td class="num">9.00</td><td class="num">4.40</td><td class="num">3.00</td><td class="num">3.75</td><td class="num">3.17</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="params">
+      <span>Elo 1914 / 1785</span>
+      <span>λ 1.91 / 1.06</span>
+    </div>
+  </div>
+  
+  <div class="chips-row">
+    <span class="score-chip"><b>1-1</b> 12%</span><span class="score-chip"><b>2-1</b> 10%</span><span class="score-chip"><b>2-0</b> 9%</span><span class="score-chip"><b>1-0</b> 8%</span><span class="score-chip"><b>0-0</b> 7%</span>
+  </div>
+  
+  
+</article><article class="match" style="--i:3">
+  <header>
+    <div class="matchup">
+      <span class="team home">澳大利亚</span>
+      <span class="vs">vs</span>
+      <span class="team away">埃及</span>
+    </div>
+    <div class="meta-row">
+      <time>2026-07-04 02:00</time>
+      <span class="league-tag">世界杯</span>
+      <span class="hc-tag">让+1.0球</span>
+      <span class="conf-tag" style="color:#1a7f37">高确信</span>
+      <span class="mot-tag" title="主队战意: knockout | λ×1.00" style="color:#c4bcb2">主 knockout 1.00</span>
+      <span class="mot-tag" title="客队战意: knockout | λ×1.00" style="color:#c4bcb2">客 knockout 1.00</span>
+      <span class="value-badge">主让胜 +5.9%</span>
+    </div>
+  </header>
+
+  <div class="prob-visual">
+    <div class="bar-container">
+      <div class="bar bar-h" style="--w:67.0%"><span>67%</span></div>
+      <div class="bar bar-d" style="--w:20.3%"><span>20%</span></div>
+      <div class="bar bar-a" style="--w:12.7%"><span>13%</span></div>
+    </div>
+    <div class="bar-labels"><span>主让胜</span><span>平局</span><span>客让胜</span></div>
+  </div>
+  <div class="trend-wrap">
+    <div class="trend-hdr"><span>✨ 近12h让球盘概率走势</span><span class="trend-hint">👆 拖动查看历史</span></div>
+    <svg class="trend-svg" viewBox="0 0 560 96" preserveAspectRatio="none"
+         data-points='[{"t": "2026-07-02T14:19:26", "h": 0.6698, "d": 0.2031, "a": 0.1271, "x": 537.1}, {"t": "2026-07-02T14:33:44", "h": 0.6698, "d": 0.2031, "a": 0.1271, "x": 548.0}, {"t": "2026-07-02T14:44:08", "h": 0.6698, "d": 0.2031, "a": 0.1271, "x": 556.0}]'>
+      <defs><linearGradient id="fillH" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stop-color="#3ddc84" stop-opacity="0.45"/>
+          <stop offset="100%" stop-color="#3ddc84" stop-opacity="0"/>
+        </linearGradient>
+        <filter id="glowH" x="-50%" y="-50%" width="200%" height="200%">
+          <feGaussianBlur stdDeviation="2.2" result="blur"/>
+          <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+        </filter><linearGradient id="fillD" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stop-color="#ffd23d" stop-opacity="0.45"/>
+          <stop offset="100%" stop-color="#ffd23d" stop-opacity="0"/>
+        </linearGradient>
+        <filter id="glowD" x="-50%" y="-50%" width="200%" height="200%">
+          <feGaussianBlur stdDeviation="2.2" result="blur"/>
+          <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+        </filter><linearGradient id="fillA" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stop-color="#4fc3ff" stop-opacity="0.45"/>
+          <stop offset="100%" stop-color="#4fc3ff" stop-opacity="0"/>
+        </linearGradient>
+        <filter id="glowA" x="-50%" y="-50%" width="200%" height="200%">
+          <feGaussianBlur stdDeviation="2.2" result="blur"/>
+          <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+        </filter></defs>
+      <path d="M 537.1,96 L 537.1,10.0 L 548.0,10.0 L 556.0,10.0 L 556.0,96 Z" fill="url(#fillH)" class="trend-area trend-area-h"/><path d="M 537.1,96 L 537.1,75.4 L 548.0,75.4 L 556.0,75.4 L 556.0,96 Z" fill="url(#fillD)" class="trend-area trend-area-d"/><path d="M 537.1,96 L 537.1,86.0 L 548.0,86.0 L 556.0,86.0 L 556.0,96 Z" fill="url(#fillA)" class="trend-area trend-area-a"/>
+      <polyline points="537.1,10.0 548.0,10.0 556.0,10.0" fill="none" stroke="#1a1512" stroke-width="5.5" stroke-linecap="round" stroke-linejoin="round" opacity="0.5"/><polyline points="537.1,75.4 548.0,75.4 556.0,75.4" fill="none" stroke="#1a1512" stroke-width="5.5" stroke-linecap="round" stroke-linejoin="round" opacity="0.5"/><polyline points="537.1,86.0 548.0,86.0 556.0,86.0" fill="none" stroke="#1a1512" stroke-width="5.5" stroke-linecap="round" stroke-linejoin="round" opacity="0.5"/>
+      <polyline points="537.1,10.0 548.0,10.0 556.0,10.0" fill="none" stroke="#3ddc84" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round" filter="url(#glowH)" class="trend-line trend-h"/><polyline points="537.1,75.4 548.0,75.4 556.0,75.4" fill="none" stroke="#ffd23d" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round" filter="url(#glowD)" class="trend-line trend-d"/><polyline points="537.1,86.0 548.0,86.0 556.0,86.0" fill="none" stroke="#4fc3ff" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round" filter="url(#glowA)" class="trend-line trend-a"/>
+      <circle cx="556.0" cy="10.0" r="6" fill="#3ddc84" stroke="#fff" stroke-width="1.6" class="trend-dot trend-dot-live"/><circle cx="556.0" cy="75.4" r="6" fill="#ffd23d" stroke="#fff" stroke-width="1.6" class="trend-dot trend-dot-live"/><circle cx="556.0" cy="86.0" r="6" fill="#4fc3ff" stroke="#fff" stroke-width="1.6" class="trend-dot trend-dot-live"/>
+      <line class="trend-cursor" x1="0" y1="0" x2="0" y2="96" style="display:none"/>
+      <circle class="trend-cursor-dot" r="4" style="display:none"/>
+      <text x="554" y="12" text-anchor="end" class="trend-zoom-note">纵轴 13%~67%</text>
+    </svg>
+    <div class="trend-readout"></div>
+  </div>
+
+  <div class="data-grid">
+    <div class="market-section primary">
+      <div class="market-title">让球盘 (HHAD) 让+1.0球</div>
+      <table>
+        <thead><tr><th></th><th>主让胜</th><th>平局</th><th>客让胜</th></tr></thead>
+        <tbody>
+          <tr><td class="row-label">模型</td>
+          <td class="num">78%</td><td class="num">13%</td><td class="num">9%</td></tr>
+          <tr><td class="row-label">市场</td>
+            <td class="num">61%</td><td class="num">24%</td><td class="num">15%</td></tr>
+          <tr class="posterior-row"><td class="row-label">后验</td>
+          <td class="num"><b>67%</b></td><td class="num"><b>20%</b></td><td class="num"><b>13%</b></td></tr>
+        </tbody>
+      </table>
+    </div>
+    
+    <div class="market-section">
+      <div class="market-title">胜平负 (HAD)</div>
+      <table>
+        <thead><tr><th></th><th>主胜</th><th>平局</th><th>客胜</th></tr></thead>
+        <tbody>
+          <tr><td class="row-label">模型</td>
+          <td class="num">37%</td><td class="num">47%</td><td class="num">16%</td></tr>
+          <tr><td class="row-label">市场</td>
+          <td class="num">28%</td><td class="num">34%</td><td class="num">38%</td></tr>
+          <tr class="posterior-row"><td class="row-label">后验</td>
+          <td class="num"><b>32%</b></td><td class="num"><b>40%</b></td><td class="num"><b>28%</b></td></tr>
+          <tr><td class="row-label">赔率</td>
+          <td class="num">3.15</td><td class="num">2.60</td><td class="num">2.34</td></tr>
+        </tbody>
+      </table>
+    </div>
+    
+    <div class="market-section">
+      <div class="market-title">总进球 (TTG) · 市场未开盘</div>
+      <table>
+        <thead><tr><th></th><th>0球</th><th>1球</th><th>2球</th><th>3球</th><th>4+球</th></tr></thead>
+        <tbody>
+          <tr><td class="row-label">模型</td>
+          <td class="num">9%</td><td class="num">14%</td><td class="num">27%</td><td class="num">22%</td><td class="num">28%</td></tr>
+          <tr><td class="row-label">市场</td>
+          <td class="num" colspan="5">暂无市场数据</td></tr>
+          <tr class="posterior-row"><td class="row-label">后验</td>
+          <td class="num" colspan="5">暂无市场数据, 后验退化为模型值(见上)</td></tr>
+          <tr><td class="row-label">赔率</td>
+          <td class="num">6.00</td><td class="num">3.35</td><td class="num">2.90</td><td class="num">4.20</td><td class="num">4.85</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="params">
+      <span>Elo 1800 / 1742</span>
+      <span>λ 1.65 / 1.03</span>
     </div>
   </div>
   
     <div class="rec-section">
-      <div class="rec-title">体彩购买建议 (Top 2 of 2)</div>
-      <div class="rec-list"><div class="rec-chip" style="border-color:#fbbf24">
-              <div class="rec-market">让球+1.00 · <b>主让胜</b></div>
-              <div class="rec-odds">赔率 <b>2.18</b> · 模型 52% · 市场 41%</div>
-              <div class="rec-edge" style="color:#fbbf24">edge +11.3% · EV +13.3% · 凯利 2.8%</div>
-            </div><div class="rec-chip" style="border-color:#4ade80">
-              <div class="rec-market">胜平负 · <b>主胜</b></div>
-              <div class="rec-odds">赔率 <b>4.65</b> · 模型 27% · 市场 19%</div>
-              <div class="rec-edge" style="color:#4ade80">edge +7.7% · EV +24.4% · 凯利 1.7%</div>
+      <div class="rec-title">体彩购买建议 (Top 1 of 1)</div>
+      <div class="rec-list"><div class="rec-chip" style="border-color:#60a5fa">
+              <div class="rec-market">胜平负 · <b>平局</b></div>
+              <div class="rec-odds">赔率 <b>2.60</b> · 模型 40% · 市场 34%</div>
+              <div class="rec-edge" style="color:#60a5fa">edge +6.1% · EV +4.4% · 凯利 0.7%</div>
             </div></div>
     </div>
   <div class="chips-row">
-    <span class="score-chip"><b>1-1</b> 13%</span><span class="score-chip"><b>1-2</b> 10%</span><span class="score-chip"><b>0-2</b> 7%</span><span class="score-chip"><b>2-1</b> 7%</span><span class="score-chip"><b>0-0</b> 7%</span>
+    <span class="score-chip"><b>1-1</b> 14%</span><span class="score-chip"><b>2-1</b> 10%</span><span class="score-chip"><b>2-0</b> 9%</span><span class="score-chip"><b>0-0</b> 9%</span><span class="score-chip"><b>1-0</b> 9%</span>
   </div>
-  <div class="insight">挪威定位球能力强(λ×1.108); 法国定位球能力强(λ×1.120)</div>
-</article><article class="match">
+  <div class="insight">埃及近况防守差[实采xGA](影响澳大利亚进攻 λ×1.20); 澳大利亚近况防守强[实采xGA](影响埃及进攻 λ×0.99)</div>
+  <div class="news-notice"><span class="news-tag">🩹 伤停新闻(赛前确认)</span><span class="news-team">埃及</span><a href="https://news.google.com/rss/articles/CBMiugFBVV95cUxQVWV2dVRQc2lIU3JQVk9qVFFMMTRRcGZqRUdMMkkwek1lbS01ZC04c2Z2UkhFcWduWkotVUFNSHNWRHJGNHJBQjRHc1ZydWZuWjRGVm8xOXF0U2JDUWd5WXAwNnBWREF4U2p1UmhCZzR5VnQ4dm5FR3hkcUg3a3R1NkowM1QwOE96bW9sWk9iMUg2ZU5QX3dtUXNyNE1nSDhDTjd2R3E5S3NTRkV4VHpuLUpfVmY4RlRXM0E?oc=5" target="_blank" rel="noopener" class="news-title">&#x27;The King is back&#x27; - Egypt&#x27;s Salah resumes training after hamstring scare - Reuters</a><span class="news-src">Reuters</span></div>
+</article><article class="match" style="--i:4">
   <header>
     <div class="matchup">
-      <span class="team home">塞内加尔</span>
+      <span class="team home">阿根廷</span>
       <span class="vs">vs</span>
-      <span class="team away">伊拉克</span>
+      <span class="team away">佛得角</span>
     </div>
     <div class="meta-row">
-      <time>2026-06-27 03:00</time>
+      <time>2026-07-04 06:00</time>
       <span class="league-tag">世界杯</span>
       <span class="hc-tag">让-2.0球</span>
-      <span class="conf-tag" style="color:#9a6700">中等</span>
-      <span class="value-badge">客让胜 +4.5%</span>
+      <span class="conf-tag" style="color:#656d76">开放</span>
+      <span class="mot-tag" title="主队战意: knockout | λ×1.00" style="color:#c4bcb2">主 knockout 1.00</span>
+      <span class="mot-tag" title="客队战意: knockout | λ×1.00" style="color:#c4bcb2">客 knockout 1.00</span>
+      
     </div>
   </header>
 
   <div class="prob-visual">
     <div class="bar-container">
-      <div class="bar bar-h" style="width:30.1%"><span>30%</span></div>
-      <div class="bar bar-d" style="width:22.6%"><span>23%</span></div>
-      <div class="bar bar-a" style="width:47.3%"><span>47%</span></div>
+      <div class="bar bar-h" style="--w:41.3%"><span>41%</span></div>
+      <div class="bar bar-d" style="--w:23.1%"><span>23%</span></div>
+      <div class="bar bar-a" style="--w:35.5%"><span>36%</span></div>
     </div>
     <div class="bar-labels"><span>主让胜</span><span>平局</span><span>客让胜</span></div>
+  </div>
+  <div class="trend-wrap">
+    <div class="trend-hdr"><span>✨ 近12h让球盘概率走势</span><span class="trend-hint">👆 拖动查看历史</span></div>
+    <svg class="trend-svg" viewBox="0 0 560 96" preserveAspectRatio="none"
+         data-points='[{"t": "2026-07-02T14:19:26", "h": 0.4135, "d": 0.2311, "a": 0.3554, "x": 537.1}, {"t": "2026-07-02T14:33:44", "h": 0.4135, "d": 0.2311, "a": 0.3554, "x": 548.0}, {"t": "2026-07-02T14:44:08", "h": 0.4135, "d": 0.2311, "a": 0.3554, "x": 556.0}]'>
+      <defs><linearGradient id="fillH" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stop-color="#3ddc84" stop-opacity="0.45"/>
+          <stop offset="100%" stop-color="#3ddc84" stop-opacity="0"/>
+        </linearGradient>
+        <filter id="glowH" x="-50%" y="-50%" width="200%" height="200%">
+          <feGaussianBlur stdDeviation="2.2" result="blur"/>
+          <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+        </filter><linearGradient id="fillD" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stop-color="#ffd23d" stop-opacity="0.45"/>
+          <stop offset="100%" stop-color="#ffd23d" stop-opacity="0"/>
+        </linearGradient>
+        <filter id="glowD" x="-50%" y="-50%" width="200%" height="200%">
+          <feGaussianBlur stdDeviation="2.2" result="blur"/>
+          <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+        </filter><linearGradient id="fillA" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stop-color="#4fc3ff" stop-opacity="0.45"/>
+          <stop offset="100%" stop-color="#4fc3ff" stop-opacity="0"/>
+        </linearGradient>
+        <filter id="glowA" x="-50%" y="-50%" width="200%" height="200%">
+          <feGaussianBlur stdDeviation="2.2" result="blur"/>
+          <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+        </filter></defs>
+      <path d="M 537.1,96 L 537.1,10.0 L 548.0,10.0 L 556.0,10.0 L 556.0,96 Z" fill="url(#fillH)" class="trend-area trend-area-h"/><path d="M 537.1,96 L 537.1,86.0 L 548.0,86.0 L 556.0,86.0 L 556.0,96 Z" fill="url(#fillD)" class="trend-area trend-area-d"/><path d="M 537.1,96 L 537.1,34.2 L 548.0,34.2 L 556.0,34.2 L 556.0,96 Z" fill="url(#fillA)" class="trend-area trend-area-a"/>
+      <polyline points="537.1,10.0 548.0,10.0 556.0,10.0" fill="none" stroke="#1a1512" stroke-width="5.5" stroke-linecap="round" stroke-linejoin="round" opacity="0.5"/><polyline points="537.1,86.0 548.0,86.0 556.0,86.0" fill="none" stroke="#1a1512" stroke-width="5.5" stroke-linecap="round" stroke-linejoin="round" opacity="0.5"/><polyline points="537.1,34.2 548.0,34.2 556.0,34.2" fill="none" stroke="#1a1512" stroke-width="5.5" stroke-linecap="round" stroke-linejoin="round" opacity="0.5"/>
+      <polyline points="537.1,10.0 548.0,10.0 556.0,10.0" fill="none" stroke="#3ddc84" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round" filter="url(#glowH)" class="trend-line trend-h"/><polyline points="537.1,86.0 548.0,86.0 556.0,86.0" fill="none" stroke="#ffd23d" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round" filter="url(#glowD)" class="trend-line trend-d"/><polyline points="537.1,34.2 548.0,34.2 556.0,34.2" fill="none" stroke="#4fc3ff" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round" filter="url(#glowA)" class="trend-line trend-a"/>
+      <circle cx="556.0" cy="10.0" r="6" fill="#3ddc84" stroke="#fff" stroke-width="1.6" class="trend-dot trend-dot-live"/><circle cx="556.0" cy="86.0" r="6" fill="#ffd23d" stroke="#fff" stroke-width="1.6" class="trend-dot trend-dot-live"/><circle cx="556.0" cy="34.2" r="6" fill="#4fc3ff" stroke="#fff" stroke-width="1.6" class="trend-dot trend-dot-live"/>
+      <line class="trend-cursor" x1="0" y1="0" x2="0" y2="96" style="display:none"/>
+      <circle class="trend-cursor-dot" r="4" style="display:none"/>
+      <text x="554" y="12" text-anchor="end" class="trend-zoom-note">纵轴 23%~41%</text>
+    </svg>
+    <div class="trend-readout"></div>
   </div>
 
   <div class="data-grid">
@@ -677,705 +1132,104 @@ footer.page-footer {
         <thead><tr><th></th><th>主让胜</th><th>平局</th><th>客让胜</th></tr></thead>
         <tbody>
           <tr><td class="row-label">模型</td>
-          <td class="num">21%</td><td class="num">22%</td><td class="num">57%</td></tr>
+          <td class="num">44%</td><td class="num">22%</td><td class="num">34%</td></tr>
           <tr><td class="row-label">市场</td>
-            <td class="num">35%</td><td class="num">22%</td><td class="num">43%</td></tr>
+            <td class="num">40%</td><td class="num">24%</td><td class="num">36%</td></tr>
           <tr class="posterior-row"><td class="row-label">后验</td>
-          <td class="num"><b>30%</b></td><td class="num"><b>23%</b></td><td class="num"><b>47%</b></td></tr>
+          <td class="num"><b>41%</b></td><td class="num"><b>23%</b></td><td class="num"><b>36%</b></td></tr>
         </tbody>
       </table>
     </div>
     
     
     <div class="market-section">
-      <div class="market-title">总进球 (TTG) · 市场最可能: <b>0球</b> (0%)</div>
+      <div class="market-title">总进球 (TTG) · 市场未开盘</div>
       <table>
         <thead><tr><th></th><th>0球</th><th>1球</th><th>2球</th><th>3球</th><th>4+球</th></tr></thead>
         <tbody>
           <tr><td class="row-label">模型</td>
-          <td class="num">12%</td><td class="num">20%</td><td class="num">28%</td><td class="num">20%</td><td class="num">20%</td></tr>
+          <td class="num">4%</td><td class="num">8%</td><td class="num">19%</td><td class="num">22%</td><td class="num">47%</td></tr>
           <tr><td class="row-label">市场</td>
-          <td class="num">0%</td><td class="num">0%</td><td class="num">0%</td><td class="num">0%</td><td class="num">0%</td></tr>
+          <td class="num" colspan="5">暂无市场数据</td></tr>
           <tr class="posterior-row"><td class="row-label">后验</td>
-          <td class="num"><b>0%</b></td><td class="num"><b>0%</b></td><td class="num"><b>0%</b></td><td class="num"><b>0%</b></td><td class="num"><b>0%</b></td></tr>
+          <td class="num" colspan="5">暂无市场数据, 后验退化为模型值(见上)</td></tr>
           <tr><td class="row-label">赔率</td>
-          <td class="num">24.00</td><td class="num">6.70</td><td class="num">4.10</td><td class="num">3.40</td><td class="num">1.91</td></tr>
+          <td class="num">19.00</td><td class="num">6.20</td><td class="num">4.00</td><td class="num">3.40</td><td class="num">2.01</td></tr>
         </tbody>
       </table>
     </div>
     <div class="params">
-      <span>Elo 1817 / 1586</span>
-      <span>λ 1.82 / 0.48</span>
+      <span>Elo 2148 / 1622</span>
+      <span>λ 2.96 / 0.59</span>
     </div>
   </div>
   
-    <div class="rec-section">
-      <div class="rec-title">体彩购买建议 (Top 1 of 1)</div>
-      <div class="rec-list"><div class="rec-chip" style="border-color:#4ade80">
-              <div class="rec-market">让球-2.00 · <b>客让胜</b></div>
-              <div class="rec-odds">赔率 <b>2.07</b> · 模型 57% · 市场 43%</div>
-              <div class="rec-edge" style="color:#4ade80">edge +14.6% · EV +18.9% · 凯利 4.4%</div>
-            </div></div>
-    </div>
   <div class="chips-row">
-    <span class="score-chip"><b>2-0</b> 17%</span><span class="score-chip"><b>1-0</b> 17%</span><span class="score-chip"><b>0-0</b> 12%</span><span class="score-chip"><b>1-1</b> 10%</span><span class="score-chip"><b>3-0</b> 10%</span>
+    <span class="score-chip"><b>2-0</b> 13%</span><span class="score-chip"><b>3-0</b> 13%</span><span class="score-chip"><b>4-0</b> 9%</span><span class="score-chip"><b>1-0</b> 8%</span><span class="score-chip"><b>2-1</b> 8%</span>
   </div>
-  <div class="insight">塞内加尔定位球能力强(λ×1.076); 伊拉克定位球能力强(λ×1.021)</div>
-</article><article class="match">
-  <header>
-    <div class="matchup">
-      <span class="team home">佛得角</span>
-      <span class="vs">vs</span>
-      <span class="team away">沙特阿拉伯</span>
-    </div>
-    <div class="meta-row">
-      <time>2026-06-27 08:00</time>
-      <span class="league-tag">世界杯</span>
-      <span class="hc-tag">让-1.0球</span>
-      <span class="conf-tag" style="color:#9a6700">中等</span>
-      
-    </div>
-  </header>
-
-  <div class="prob-visual">
-    <div class="bar-container">
-      <div class="bar bar-h" style="width:17.4%"><span>17%</span></div>
-      <div class="bar bar-d" style="width:22.3%"><span>22%</span></div>
-      <div class="bar bar-a" style="width:60.3%"><span>60%</span></div>
-    </div>
-    <div class="bar-labels"><span>主让胜</span><span>平局</span><span>客让胜</span></div>
-  </div>
-
-  <div class="data-grid">
-    <div class="market-section primary">
-      <div class="market-title">让球盘 (HHAD) 让-1.0球</div>
-      <table>
-        <thead><tr><th></th><th>主让胜</th><th>平局</th><th>客让胜</th></tr></thead>
-        <tbody>
-          <tr><td class="row-label">模型</td>
-          <td class="num">21%</td><td class="num">23%</td><td class="num">56%</td></tr>
-          <tr><td class="row-label">市场</td>
-            <td class="num">16%</td><td class="num">22%</td><td class="num">62%</td></tr>
-          <tr class="posterior-row"><td class="row-label">后验</td>
-          <td class="num"><b>17%</b></td><td class="num"><b>22%</b></td><td class="num"><b>60%</b></td></tr>
-        </tbody>
-      </table>
-    </div>
-    
-    <div class="market-section">
-      <div class="market-title">胜平负 (HAD)</div>
-      <table>
-        <thead><tr><th></th><th>主胜</th><th>平局</th><th>客胜</th></tr></thead>
-        <tbody>
-          <tr><td class="row-label">模型</td>
-          <td class="num">46%</td><td class="num">30%</td><td class="num">24%</td></tr>
-          <tr><td class="row-label">市场</td>
-          <td class="num">37%</td><td class="num">29%</td><td class="num">34%</td></tr>
-          <tr class="posterior-row"><td class="row-label">后验</td>
-          <td class="num"><b>41%</b></td><td class="num"><b>30%</b></td><td class="num"><b>30%</b></td></tr>
-          <tr><td class="row-label">赔率</td>
-          <td class="num">2.40</td><td class="num">3.05</td><td class="num">2.60</td></tr>
-        </tbody>
-      </table>
-    </div>
-    
-    <div class="market-section">
-      <div class="market-title">总进球 (TTG) · 市场最可能: <b>0球</b> (0%)</div>
-      <table>
-        <thead><tr><th></th><th>0球</th><th>1球</th><th>2球</th><th>3球</th><th>4+球</th></tr></thead>
-        <tbody>
-          <tr><td class="row-label">模型</td>
-          <td class="num">15%</td><td class="num">20%</td><td class="num">30%</td><td class="num">19%</td><td class="num">16%</td></tr>
-          <tr><td class="row-label">市场</td>
-          <td class="num">0%</td><td class="num">0%</td><td class="num">0%</td><td class="num">0%</td><td class="num">0%</td></tr>
-          <tr class="posterior-row"><td class="row-label">后验</td>
-          <td class="num"><b>0%</b></td><td class="num"><b>0%</b></td><td class="num"><b>0%</b></td><td class="num"><b>0%</b></td><td class="num"><b>0%</b></td></tr>
-          <tr><td class="row-label">赔率</td>
-          <td class="num">10.00</td><td class="num">4.25</td><td class="num">3.15</td><td class="num">3.60</td><td class="num">3.09</td></tr>
-        </tbody>
-      </table>
-    </div>
-    <div class="params">
-      <span>Elo 1625 / 1593</span>
-      <span>λ 1.27 / 0.85</span>
-    </div>
-  </div>
-  
-    <div class="rec-section">
-      <div class="rec-title">体彩购买建议 (Top 2 of 2)</div>
-      <div class="rec-list"><div class="rec-chip" style="border-color:#fbbf24">
-              <div class="rec-market">胜平负 · <b>主胜</b></div>
-              <div class="rec-odds">赔率 <b>2.40</b> · 模型 46% · 市场 37%</div>
-              <div class="rec-edge" style="color:#fbbf24">edge +9.3% · EV +11.0% · 凯利 2.0%</div>
-            </div><div class="rec-chip" style="border-color:#4ade80">
-              <div class="rec-market">让球-1.00 · <b>主让胜</b></div>
-              <div class="rec-odds">赔率 <b>5.55</b> · 模型 21% · 市场 16%</div>
-              <div class="rec-edge" style="color:#4ade80">edge +5.1% · EV +17.1% · 凯利 0.9%</div>
-            </div></div>
-    </div>
-  <div class="chips-row">
-    <span class="score-chip"><b>1-1</b> 16%</span><span class="score-chip"><b>0-0</b> 15%</span><span class="score-chip"><b>1-0</b> 13%</span><span class="score-chip"><b>2-0</b> 10%</span><span class="score-chip"><b>2-1</b> 8%</span>
-  </div>
-  <div class="insight">佛得角定位球能力强(λ×1.030); 沙特阿拉伯定位球能力强(λ×1.022); 佛得角磨合度低(λ×0.88)</div>
-</article><article class="match">
-  <header>
-    <div class="matchup">
-      <span class="team home">乌拉圭</span>
-      <span class="vs">vs</span>
-      <span class="team away">西班牙</span>
-    </div>
-    <div class="meta-row">
-      <time>2026-06-27 08:00</time>
-      <span class="league-tag">世界杯</span>
-      <span class="hc-tag">让+1.0球</span>
-      <span class="conf-tag" style="color:#656d76">开放</span>
-      
-    </div>
-  </header>
-
-  <div class="prob-visual">
-    <div class="bar-container">
-      <div class="bar bar-h" style="width:34.1%"><span>34%</span></div>
-      <div class="bar bar-d" style="width:25.8%"><span>26%</span></div>
-      <div class="bar bar-a" style="width:40.1%"><span>40%</span></div>
-    </div>
-    <div class="bar-labels"><span>主让胜</span><span>平局</span><span>客让胜</span></div>
-  </div>
-
-  <div class="data-grid">
-    <div class="market-section primary">
-      <div class="market-title">让球盘 (HHAD) 让+1.0球</div>
-      <table>
-        <thead><tr><th></th><th>主让胜</th><th>平局</th><th>客让胜</th></tr></thead>
-        <tbody>
-          <tr><td class="row-label">模型</td>
-          <td class="num">37%</td><td class="num">25%</td><td class="num">38%</td></tr>
-          <tr><td class="row-label">市场</td>
-            <td class="num">33%</td><td class="num">26%</td><td class="num">41%</td></tr>
-          <tr class="posterior-row"><td class="row-label">后验</td>
-          <td class="num"><b>34%</b></td><td class="num"><b>26%</b></td><td class="num"><b>40%</b></td></tr>
-        </tbody>
-      </table>
-    </div>
-    
-    <div class="market-section">
-      <div class="market-title">胜平负 (HAD)</div>
-      <table>
-        <thead><tr><th></th><th>主胜</th><th>平局</th><th>客胜</th></tr></thead>
-        <tbody>
-          <tr><td class="row-label">模型</td>
-          <td class="num">9%</td><td class="num">36%</td><td class="num">55%</td></tr>
-          <tr><td class="row-label">市场</td>
-          <td class="num">12%</td><td class="num">21%</td><td class="num">67%</td></tr>
-          <tr class="posterior-row"><td class="row-label">后验</td>
-          <td class="num"><b>11%</b></td><td class="num"><b>27%</b></td><td class="num"><b>62%</b></td></tr>
-          <tr><td class="row-label">赔率</td>
-          <td class="num">7.10</td><td class="num">4.22</td><td class="num">1.33</td></tr>
-        </tbody>
-      </table>
-    </div>
-    
-    <div class="market-section">
-      <div class="market-title">总进球 (TTG) · 市场最可能: <b>0球</b> (0%)</div>
-      <table>
-        <thead><tr><th></th><th>0球</th><th>1球</th><th>2球</th><th>3球</th><th>4+球</th></tr></thead>
-        <tbody>
-          <tr><td class="row-label">模型</td>
-          <td class="num">12%</td><td class="num">19%</td><td class="num">28%</td><td class="num">21%</td><td class="num">20%</td></tr>
-          <tr><td class="row-label">市场</td>
-          <td class="num">0%</td><td class="num">0%</td><td class="num">0%</td><td class="num">0%</td><td class="num">0%</td></tr>
-          <tr class="posterior-row"><td class="row-label">后验</td>
-          <td class="num"><b>0%</b></td><td class="num"><b>0%</b></td><td class="num"><b>0%</b></td><td class="num"><b>0%</b></td><td class="num"><b>0%</b></td></tr>
-          <tr><td class="row-label">赔率</td>
-          <td class="num">13.00</td><td class="num">5.10</td><td class="num">3.50</td><td class="num">3.45</td><td class="num">2.48</td></tr>
-        </tbody>
-      </table>
-    </div>
-    <div class="params">
-      <span>Elo 1851 / 2134</span>
-      <span>λ 0.60 / 1.73</span>
-    </div>
-  </div>
-  
-    <div class="rec-section">
-      <div class="rec-title">体彩购买建议 (Top 1 of 1)</div>
-      <div class="rec-list"><div class="rec-chip" style="border-color:#4ade80">
-              <div class="rec-market">胜平负 · <b>平局</b></div>
-              <div class="rec-odds">赔率 <b>4.22</b> · 模型 36% · 市场 21%</div>
-              <div class="rec-edge" style="color:#4ade80">edge +15.5% · EV +53.8% · 凯利 4.2%</div>
-            </div></div>
-    </div>
-  <div class="chips-row">
-    <span class="score-chip"><b>0-1</b> 15%</span><span class="score-chip"><b>0-2</b> 15%</span><span class="score-chip"><b>1-1</b> 12%</span><span class="score-chip"><b>0-0</b> 12%</span><span class="score-chip"><b>1-2</b> 9%</span>
-  </div>
-  <div class="insight">乌拉圭定位球能力强(λ×1.084); 西班牙定位球能力强(λ×1.120); 风格相克: 西班牙进攻被乌拉圭防反克制(λ×0.88)</div>
-</article><article class="match">
-  <header>
-    <div class="matchup">
-      <span class="team home">埃及</span>
-      <span class="vs">vs</span>
-      <span class="team away">伊朗</span>
-    </div>
-    <div class="meta-row">
-      <time>2026-06-27 11:00</time>
-      <span class="league-tag">世界杯</span>
-      <span class="hc-tag">让-1.0球</span>
-      <span class="conf-tag" style="color:#9a6700">中等</span>
-      <span class="value-badge">主让胜 +5.9%</span>
-    </div>
-  </header>
-
-  <div class="prob-visual">
-    <div class="bar-container">
-      <div class="bar bar-h" style="width:22.0%"><span>22%</span></div>
-      <div class="bar bar-d" style="width:25.4%"><span>25%</span></div>
-      <div class="bar bar-a" style="width:52.6%"><span>53%</span></div>
-    </div>
-    <div class="bar-labels"><span>主让胜</span><span>平局</span><span>客让胜</span></div>
-  </div>
-
-  <div class="data-grid">
-    <div class="market-section primary">
-      <div class="market-title">让球盘 (HHAD) 让-1.0球</div>
-      <table>
-        <thead><tr><th></th><th>主让胜</th><th>平局</th><th>客让胜</th></tr></thead>
-        <tbody>
-          <tr><td class="row-label">模型</td>
-          <td class="num">40%</td><td class="num">27%</td><td class="num">33%</td></tr>
-          <tr><td class="row-label">市场</td>
-            <td class="num">16%</td><td class="num">23%</td><td class="num">61%</td></tr>
-          <tr class="posterior-row"><td class="row-label">后验</td>
-          <td class="num"><b>22%</b></td><td class="num"><b>25%</b></td><td class="num"><b>53%</b></td></tr>
-        </tbody>
-      </table>
-    </div>
-    
-    <div class="market-section">
-      <div class="market-title">胜平负 (HAD)</div>
-      <table>
-        <thead><tr><th></th><th>主胜</th><th>平局</th><th>客胜</th></tr></thead>
-        <tbody>
-          <tr><td class="row-label">模型</td>
-          <td class="num">47%</td><td class="num">48%</td><td class="num">5%</td></tr>
-          <tr><td class="row-label">市场</td>
-          <td class="num">38%</td><td class="num">35%</td><td class="num">26%</td></tr>
-          <tr class="posterior-row"><td class="row-label">后验</td>
-          <td class="num"><b>44%</b></td><td class="num"><b>42%</b></td><td class="num"><b>14%</b></td></tr>
-          <tr><td class="row-label">赔率</td>
-          <td class="num">2.32</td><td class="num">2.50</td><td class="num">3.35</td></tr>
-        </tbody>
-      </table>
-    </div>
-    
-    <div class="market-section">
-      <div class="market-title">总进球 (TTG) · 市场最可能: <b>0球</b> (0%)</div>
-      <table>
-        <thead><tr><th></th><th>0球</th><th>1球</th><th>2球</th><th>3球</th><th>4+球</th></tr></thead>
-        <tbody>
-          <tr><td class="row-label">模型</td>
-          <td class="num">14%</td><td class="num">22%</td><td class="num">29%</td><td class="num">19%</td><td class="num">16%</td></tr>
-          <tr><td class="row-label">市场</td>
-          <td class="num">0%</td><td class="num">0%</td><td class="num">0%</td><td class="num">0%</td><td class="num">0%</td></tr>
-          <tr class="posterior-row"><td class="row-label">后验</td>
-          <td class="num"><b>0%</b></td><td class="num"><b>0%</b></td><td class="num"><b>0%</b></td><td class="num"><b>0%</b></td><td class="num"><b>0%</b></td></tr>
-          <tr><td class="row-label">赔率</td>
-          <td class="num">6.00</td><td class="num">3.60</td><td class="num">2.80</td><td class="num">4.65</td><td class="num">4.20</td></tr>
-        </tbody>
-      </table>
-    </div>
-    <div class="params">
-      <span>Elo 1740 / 1500</span>
-      <span>λ 1.68 / 0.42</span>
-    </div>
-  </div>
-  
-    <div class="rec-section">
-      <div class="rec-title">体彩购买建议 (Top 3 of 3)</div>
-      <div class="rec-list"><div class="rec-chip" style="border-color:#4ade80">
-              <div class="rec-market">让球-1.00 · <b>主让胜</b></div>
-              <div class="rec-odds">赔率 <b>5.50</b> · 模型 40% · 市场 16%</div>
-              <div class="rec-edge" style="color:#4ade80">edge +23.8% · EV +119.6% · 凯利 6.6%</div>
-            </div><div class="rec-chip" style="border-color:#4ade80">
-              <div class="rec-market">胜平负 · <b>平局</b></div>
-              <div class="rec-odds">赔率 <b>2.50</b> · 模型 48% · 市场 35%</div>
-              <div class="rec-edge" style="color:#4ade80">edge +12.4% · EV +19.4% · 凯利 3.2%</div>
-            </div><div class="rec-chip" style="border-color:#fbbf24">
-              <div class="rec-market">胜平负 · <b>主胜</b></div>
-              <div class="rec-odds">赔率 <b>2.32</b> · 模型 47% · 市场 38%</div>
-              <div class="rec-edge" style="color:#fbbf24">edge +9.2% · EV +9.8% · 凯利 1.8%</div>
-            </div></div>
-    </div>
-  <div class="chips-row">
-    <span class="score-chip"><b>1-0</b> 19%</span><span class="score-chip"><b>2-0</b> 17%</span><span class="score-chip"><b>0-0</b> 14%</span><span class="score-chip"><b>1-1</b> 10%</span><span class="score-chip"><b>3-0</b> 10%</span>
-  </div>
-  <div class="insight">伊朗Elo未知; 埃及定位球能力强(λ×1.058)</div>
-</article><article class="match">
-  <header>
-    <div class="matchup">
-      <span class="team home">新西兰</span>
-      <span class="vs">vs</span>
-      <span class="team away">比利时</span>
-    </div>
-    <div class="meta-row">
-      <time>2026-06-27 11:00</time>
-      <span class="league-tag">世界杯</span>
-      <span class="hc-tag">让+2.0球</span>
-      <span class="conf-tag" style="color:#656d76">开放</span>
-      <span class="value-badge">主让胜 +4.8%</span>
-    </div>
-  </header>
-
-  <div class="prob-visual">
-    <div class="bar-container">
-      <div class="bar bar-h" style="width:41.8%"><span>42%</span></div>
-      <div class="bar bar-d" style="width:23.1%"><span>23%</span></div>
-      <div class="bar bar-a" style="width:35.1%"><span>35%</span></div>
-    </div>
-    <div class="bar-labels"><span>主让胜</span><span>平局</span><span>客让胜</span></div>
-  </div>
-
-  <div class="data-grid">
-    <div class="market-section primary">
-      <div class="market-title">让球盘 (HHAD) 让+2.0球</div>
-      <table>
-        <thead><tr><th></th><th>主让胜</th><th>平局</th><th>客让胜</th></tr></thead>
-        <tbody>
-          <tr><td class="row-label">模型</td>
-          <td class="num">53%</td><td class="num">23%</td><td class="num">24%</td></tr>
-          <tr><td class="row-label">市场</td>
-            <td class="num">37%</td><td class="num">23%</td><td class="num">40%</td></tr>
-          <tr class="posterior-row"><td class="row-label">后验</td>
-          <td class="num"><b>42%</b></td><td class="num"><b>23%</b></td><td class="num"><b>35%</b></td></tr>
-        </tbody>
-      </table>
-    </div>
-    
-    
-    <div class="market-section">
-      <div class="market-title">总进球 (TTG) · 市场最可能: <b>0球</b> (0%)</div>
-      <table>
-        <thead><tr><th></th><th>0球</th><th>1球</th><th>2球</th><th>3球</th><th>4+球</th></tr></thead>
-        <tbody>
-          <tr><td class="row-label">模型</td>
-          <td class="num">10%</td><td class="num">18%</td><td class="num">27%</td><td class="num">21%</td><td class="num">23%</td></tr>
-          <tr><td class="row-label">市场</td>
-          <td class="num">0%</td><td class="num">0%</td><td class="num">0%</td><td class="num">0%</td><td class="num">0%</td></tr>
-          <tr class="posterior-row"><td class="row-label">后验</td>
-          <td class="num"><b>0%</b></td><td class="num"><b>0%</b></td><td class="num"><b>0%</b></td><td class="num"><b>0%</b></td><td class="num"><b>0%</b></td></tr>
-          <tr><td class="row-label">赔率</td>
-          <td class="num">23.00</td><td class="num">7.00</td><td class="num">4.50</td><td class="num">3.45</td><td class="num">1.80</td></tr>
-        </tbody>
-      </table>
-    </div>
-    <div class="params">
-      <span>Elo 1549 / 1869</span>
-      <span>λ 0.48 / 1.99</span>
-    </div>
-  </div>
-  
-    <div class="rec-section">
-      <div class="rec-title">体彩购买建议 (Top 1 of 1)</div>
-      <div class="rec-list"><div class="rec-chip" style="border-color:#4ade80">
-              <div class="rec-market">让球+2.00 · <b>主让胜</b></div>
-              <div class="rec-odds">赔率 <b>2.39</b> · 模型 53% · 市场 37%</div>
-              <div class="rec-edge" style="color:#4ade80">edge +15.8% · EV +26.4% · 凯利 4.7%</div>
-            </div></div>
-    </div>
-  <div class="chips-row">
-    <span class="score-chip"><b>0-2</b> 17%</span><span class="score-chip"><b>0-1</b> 15%</span><span class="score-chip"><b>0-3</b> 11%</span><span class="score-chip"><b>0-0</b> 10%</span><span class="score-chip"><b>1-1</b> 10%</span>
-  </div>
-  <div class="insight">比利时定位球能力强(λ×1.089)</div>
-</article><article class="match">
-  <header>
-    <div class="matchup">
-      <span class="team home">克罗地亚</span>
-      <span class="vs">vs</span>
-      <span class="team away">加纳</span>
-    </div>
-    <div class="meta-row">
-      <time>2026-06-28 05:00</time>
-      <span class="league-tag">世界杯</span>
-      <span class="hc-tag">让-1.0球</span>
-      <span class="conf-tag" style="color:#656d76">开放</span>
-      <span class="value-badge">主让胜 +3.6%</span>
-    </div>
-  </header>
-
-  <div class="prob-visual">
-    <div class="bar-container">
-      <div class="bar bar-h" style="width:35.0%"><span>35%</span></div>
-      <div class="bar bar-d" style="width:26.9%"><span>27%</span></div>
-      <div class="bar bar-a" style="width:38.1%"><span>38%</span></div>
-    </div>
-    <div class="bar-labels"><span>主让胜</span><span>平局</span><span>客让胜</span></div>
-  </div>
-
-  <div class="data-grid">
-    <div class="market-section primary">
-      <div class="market-title">让球盘 (HHAD) 让-1.0球</div>
-      <table>
-        <thead><tr><th></th><th>主让胜</th><th>平局</th><th>客让胜</th></tr></thead>
-        <tbody>
-          <tr><td class="row-label">模型</td>
-          <td class="num">44%</td><td class="num">27%</td><td class="num">29%</td></tr>
-          <tr><td class="row-label">市场</td>
-            <td class="num">31%</td><td class="num">26%</td><td class="num">42%</td></tr>
-          <tr class="posterior-row"><td class="row-label">后验</td>
-          <td class="num"><b>35%</b></td><td class="num"><b>27%</b></td><td class="num"><b>38%</b></td></tr>
-        </tbody>
-      </table>
-    </div>
-    
-    <div class="market-section">
-      <div class="market-title">胜平负 (HAD)</div>
-      <table>
-        <thead><tr><th></th><th>主胜</th><th>平局</th><th>客胜</th></tr></thead>
-        <tbody>
-          <tr><td class="row-label">模型</td>
-          <td class="num">72%</td><td class="num">22%</td><td class="num">5%</td></tr>
-          <tr><td class="row-label">市场</td>
-          <td class="num">56%</td><td class="num">29%</td><td class="num">15%</td></tr>
-          <tr class="posterior-row"><td class="row-label">后验</td>
-          <td class="num"><b>63%</b></td><td class="num"><b>27%</b></td><td class="num"><b>10%</b></td></tr>
-          <tr><td class="row-label">赔率</td>
-          <td class="num">1.57</td><td class="num">3.08</td><td class="num">5.95</td></tr>
-        </tbody>
-      </table>
-    </div>
-    
-    <div class="market-section">
-      <div class="market-title">总进球 (TTG) · 市场最可能: <b>0球</b> (0%)</div>
-      <table>
-        <thead><tr><th></th><th>0球</th><th>1球</th><th>2球</th><th>3球</th><th>4+球</th></tr></thead>
-        <tbody>
-          <tr><td class="row-label">模型</td>
-          <td class="num">14%</td><td class="num">23%</td><td class="num">29%</td><td class="num">19%</td><td class="num">16%</td></tr>
-          <tr><td class="row-label">市场</td>
-          <td class="num">0%</td><td class="num">0%</td><td class="num">0%</td><td class="num">0%</td><td class="num">0%</td></tr>
-          <tr class="posterior-row"><td class="row-label">后验</td>
-          <td class="num"><b>0%</b></td><td class="num"><b>0%</b></td><td class="num"><b>0%</b></td><td class="num"><b>0%</b></td><td class="num"><b>0%</b></td></tr>
-          <tr><td class="row-label">赔率</td>
-          <td class="num">7.00</td><td class="num">4.30</td><td class="num">2.95</td><td class="num">4.00</td><td class="num">3.45</td></tr>
-        </tbody>
-      </table>
-    </div>
-    <div class="params">
-      <span>Elo 1896 / 1584</span>
-      <span>λ 1.75 / 0.34</span>
-    </div>
-  </div>
-  
-    <div class="rec-section">
-      <div class="rec-title">体彩购买建议 (Top 2 of 2)</div>
-      <div class="rec-list"><div class="rec-chip" style="border-color:#fbbf24">
-              <div class="rec-market">胜平负 · <b>主胜</b></div>
-              <div class="rec-odds">赔率 <b>1.57</b> · 模型 72% · 市场 56%</div>
-              <div class="rec-edge" style="color:#fbbf24">edge +15.9% · EV +13.5% · 凯利 5.9%</div>
-            </div><div class="rec-chip" style="border-color:#4ade80">
-              <div class="rec-market">让球-1.00 · <b>主让胜</b></div>
-              <div class="rec-odds">赔率 <b>2.82</b> · 模型 44% · 市场 31%</div>
-              <div class="rec-edge" style="color:#4ade80">edge +12.3% · EV +23.2% · 凯利 3.2%</div>
-            </div></div>
-    </div>
-  <div class="chips-row">
-    <span class="score-chip"><b>1-0</b> 20%</span><span class="score-chip"><b>2-0</b> 19%</span><span class="score-chip"><b>0-0</b> 14%</span><span class="score-chip"><b>3-0</b> 11%</span><span class="score-chip"><b>1-1</b> 9%</span>
-  </div>
-  <div class="insight">克罗地亚定位球能力强(λ×1.095)</div>
-</article><article class="match">
-  <header>
-    <div class="matchup">
-      <span class="team home">巴拿马</span>
-      <span class="vs">vs</span>
-      <span class="team away">英格兰</span>
-    </div>
-    <div class="meta-row">
-      <time>2026-06-28 05:00</time>
-      <span class="league-tag">世界杯</span>
-      <span class="hc-tag">让+2.0球</span>
-      <span class="conf-tag" style="color:#656d76">开放</span>
-      <span class="value-badge">主让胜 +5.9%</span>
-    </div>
-  </header>
-
-  <div class="prob-visual">
-    <div class="bar-container">
-      <div class="bar bar-h" style="width:42.4%"><span>42%</span></div>
-      <div class="bar bar-d" style="width:23.0%"><span>23%</span></div>
-      <div class="bar bar-a" style="width:34.7%"><span>35%</span></div>
-    </div>
-    <div class="bar-labels"><span>主让胜</span><span>平局</span><span>客让胜</span></div>
-  </div>
-
-  <div class="data-grid">
-    <div class="market-section primary">
-      <div class="market-title">让球盘 (HHAD) 让+2.0球</div>
-      <table>
-        <thead><tr><th></th><th>主让胜</th><th>平局</th><th>客让胜</th></tr></thead>
-        <tbody>
-          <tr><td class="row-label">模型</td>
-          <td class="num">56%</td><td class="num">22%</td><td class="num">22%</td></tr>
-          <tr><td class="row-label">市场</td>
-            <td class="num">36%</td><td class="num">23%</td><td class="num">41%</td></tr>
-          <tr class="posterior-row"><td class="row-label">后验</td>
-          <td class="num"><b>42%</b></td><td class="num"><b>23%</b></td><td class="num"><b>35%</b></td></tr>
-        </tbody>
-      </table>
-    </div>
-    
-    
-    <div class="market-section">
-      <div class="market-title">总进球 (TTG) · 市场最可能: <b>0球</b> (0%)</div>
-      <table>
-        <thead><tr><th></th><th>0球</th><th>1球</th><th>2球</th><th>3球</th><th>4+球</th></tr></thead>
-        <tbody>
-          <tr><td class="row-label">模型</td>
-          <td class="num">10%</td><td class="num">17%</td><td class="num">28%</td><td class="num">21%</td><td class="num">23%</td></tr>
-          <tr><td class="row-label">市场</td>
-          <td class="num">0%</td><td class="num">0%</td><td class="num">0%</td><td class="num">0%</td><td class="num">0%</td></tr>
-          <tr class="posterior-row"><td class="row-label">后验</td>
-          <td class="num"><b>0%</b></td><td class="num"><b>0%</b></td><td class="num"><b>0%</b></td><td class="num"><b>0%</b></td><td class="num"><b>0%</b></td></tr>
-          <tr><td class="row-label">赔率</td>
-          <td class="num">22.00</td><td class="num">6.75</td><td class="num">4.25</td><td class="num">3.55</td><td class="num">1.84</td></tr>
-        </tbody>
-      </table>
-    </div>
-    <div class="params">
-      <span>Elo 1668 / 2028</span>
-      <span>λ 0.55 / 1.93</span>
-    </div>
-  </div>
-  
-    <div class="rec-section">
-      <div class="rec-title">体彩购买建议 (Top 1 of 1)</div>
-      <div class="rec-list"><div class="rec-chip" style="border-color:#4ade80">
-              <div class="rec-market">让球+2.00 · <b>主让胜</b></div>
-              <div class="rec-odds">赔率 <b>2.43</b> · 模型 56% · 市场 36%</div>
-              <div class="rec-edge" style="color:#4ade80">edge +19.6% · EV +36.1% · 凯利 6.3%</div>
-            </div></div>
-    </div>
-  <div class="chips-row">
-    <span class="score-chip"><b>0-2</b> 16%</span><span class="score-chip"><b>0-1</b> 14%</span><span class="score-chip"><b>1-1</b> 11%</span><span class="score-chip"><b>0-0</b> 10%</span><span class="score-chip"><b>0-3</b> 10%</span>
-  </div>
-  <div class="insight">巴拿马定位球能力强(λ×1.040); 英格兰定位球能力强(λ×1.129)</div>
-</article><article class="match">
+  <div class="insight">阿根廷定位球能力强(λ×1.095); 佛得角近况防守差[实采xGA](影响阿根廷进攻 λ×1.17); 阿根廷近况防守强[实采xGA](影响佛得角进攻 λ×0.80)</div>
+  <div class="news-notice"><span class="news-tag">🚩 争议/申诉</span><span class="news-team">阿根廷</span><a href="https://news.google.com/rss/articles/CBMie0FVX3lxTFA3ekJ4NDh0QWd4Y013eTFtRER3WXJSZmc5Z1BQcExiWmtMTnJYd2FJR1dURmc3TXNtbmluOHFKOWNPVHJjbU5vX283T190UW16UW45QnlMSm82ZnlCakVBSnk2WlVvVDhRWXItRWxmRENjX2VPazhVVEFiSdIBe0FVX3lxTE1KSm00WjZsLXc2clNmR196M2RrVFZuUk5FRTJvSUNXSDZadnQ0NUt1dTVQeTY4eU81bXJoTFk5S0NPRVhRRWJqSk5xQ0ZYNGsyamRaY2Y1Z0xKd2ZMTS1lWUZYdmd5aU9ESDhnMldZUi1pZm85ZVNjYXJyZw?oc=5" target="_blank" rel="noopener" class="news-title">Cape Verde captain under investigation for alleged rape as team faces Argentina - Miami Herald</a><span class="news-src">Miami Herald</span></div><div class="news-notice"><span class="news-tag">🚩 争议/申诉</span><span class="news-team">佛得角</span><a href="https://news.google.com/rss/articles/CBMie0FVX3lxTFA3ekJ4NDh0QWd4Y013eTFtRER3WXJSZmc5Z1BQcExiWmtMTnJYd2FJR1dURmc3TXNtbmluOHFKOWNPVHJjbU5vX283T190UW16UW45QnlMSm82ZnlCakVBSnk2WlVvVDhRWXItRWxmRENjX2VPazhVVEFiSdIBe0FVX3lxTE1KSm00WjZsLXc2clNmR196M2RrVFZuUk5FRTJvSUNXSDZadnQ0NUt1dTVQeTY4eU81bXJoTFk5S0NPRVhRRWJqSk5xQ0ZYNGsyamRaY2Y1Z0xKd2ZMTS1lWUZYdmd5aU9ESDhnMldZUi1pZm85ZVNjYXJyZw?oc=5" target="_blank" rel="noopener" class="news-title">Cape Verde captain under investigation for alleged rape as team faces Argentina - Miami Herald</a><span class="news-src">Miami Herald</span></div>
+</article><article class="match" style="--i:5">
   <header>
     <div class="matchup">
       <span class="team home">哥伦比亚</span>
       <span class="vs">vs</span>
-      <span class="team away">葡萄牙</span>
+      <span class="team away">加纳</span>
     </div>
     <div class="meta-row">
-      <time>2026-06-28 07:30</time>
-      <span class="league-tag">世界杯</span>
-      <span class="hc-tag">让+1.0球</span>
-      <span class="conf-tag" style="color:#9a6700">中等</span>
-      <span class="value-badge">主让胜 +7.9%</span>
-    </div>
-  </header>
-
-  <div class="prob-visual">
-    <div class="bar-container">
-      <div class="bar bar-h" style="width:55.8%"><span>56%</span></div>
-      <div class="bar bar-d" style="width:22.2%"><span>22%</span></div>
-      <div class="bar bar-a" style="width:21.9%"><span>22%</span></div>
-    </div>
-    <div class="bar-labels"><span>主让胜</span><span>平局</span><span>客让胜</span></div>
-  </div>
-
-  <div class="data-grid">
-    <div class="market-section primary">
-      <div class="market-title">让球盘 (HHAD) 让+1.0球</div>
-      <table>
-        <thead><tr><th></th><th>主让胜</th><th>平局</th><th>客让胜</th></tr></thead>
-        <tbody>
-          <tr><td class="row-label">模型</td>
-          <td class="num">73%</td><td class="num">15%</td><td class="num">12%</td></tr>
-          <tr><td class="row-label">市场</td>
-            <td class="num">48%</td><td class="num">25%</td><td class="num">27%</td></tr>
-          <tr class="posterior-row"><td class="row-label">后验</td>
-          <td class="num"><b>56%</b></td><td class="num"><b>22%</b></td><td class="num"><b>22%</b></td></tr>
-        </tbody>
-      </table>
-    </div>
-    
-    <div class="market-section">
-      <div class="market-title">胜平负 (HAD)</div>
-      <table>
-        <thead><tr><th></th><th>主胜</th><th>平局</th><th>客胜</th></tr></thead>
-        <tbody>
-          <tr><td class="row-label">模型</td>
-          <td class="num">43%</td><td class="num">30%</td><td class="num">27%</td></tr>
-          <tr><td class="row-label">市场</td>
-          <td class="num">22%</td><td class="num">27%</td><td class="num">51%</td></tr>
-          <tr class="posterior-row"><td class="row-label">后验</td>
-          <td class="num"><b>29%</b></td><td class="num"><b>29%</b></td><td class="num"><b>41%</b></td></tr>
-          <tr><td class="row-label">赔率</td>
-          <td class="num">4.10</td><td class="num">3.25</td><td class="num">1.73</td></tr>
-        </tbody>
-      </table>
-    </div>
-    
-    <div class="market-section">
-      <div class="market-title">总进球 (TTG) · 市场最可能: <b>0球</b> (0%)</div>
-      <table>
-        <thead><tr><th></th><th>0球</th><th>1球</th><th>2球</th><th>3球</th><th>4+球</th></tr></thead>
-        <tbody>
-          <tr><td class="row-label">模型</td>
-          <td class="num">8%</td><td class="num">12%</td><td class="num">26%</td><td class="num">22%</td><td class="num">31%</td></tr>
-          <tr><td class="row-label">市场</td>
-          <td class="num">0%</td><td class="num">0%</td><td class="num">0%</td><td class="num">0%</td><td class="num">0%</td></tr>
-          <tr class="posterior-row"><td class="row-label">后验</td>
-          <td class="num"><b>0%</b></td><td class="num"><b>0%</b></td><td class="num"><b>0%</b></td><td class="num"><b>0%</b></td><td class="num"><b>0%</b></td></tr>
-          <tr><td class="row-label">赔率</td>
-          <td class="num">9.50</td><td class="num">4.30</td><td class="num">3.20</td><td class="num">3.60</td><td class="num">3.06</td></tr>
-        </tbody>
-      </table>
-    </div>
-    <div class="params">
-      <span>Elo 2006 / 1988</span>
-      <span>λ 1.60 / 1.25</span>
-    </div>
-  </div>
-  
-    <div class="rec-section">
-      <div class="rec-title">体彩购买建议 (Top 2 of 2)</div>
-      <div class="rec-list"><div class="rec-chip" style="border-color:#4ade80">
-              <div class="rec-market">让球+1.00 · <b>主让胜</b></div>
-              <div class="rec-odds">赔率 <b>1.85</b> · 模型 73% · 市场 48%</div>
-              <div class="rec-edge" style="color:#4ade80">edge +24.7% · EV +34.2% · 凯利 10.1%</div>
-            </div><div class="rec-chip" style="border-color:#4ade80">
-              <div class="rec-market">胜平负 · <b>主胜</b></div>
-              <div class="rec-odds">赔率 <b>4.10</b> · 模型 43% · 市场 22%</div>
-              <div class="rec-edge" style="color:#4ade80">edge +21.3% · EV +75.7% · 凯利 6.1%</div>
-            </div></div>
-    </div>
-  <div class="chips-row">
-    <span class="score-chip"><b>1-1</b> 14%</span><span class="score-chip"><b>2-1</b> 9%</span><span class="score-chip"><b>0-0</b> 8%</span><span class="score-chip"><b>2-0</b> 7%</span><span class="score-chip"><b>1-2</b> 7%</span>
-  </div>
-  <div class="insight">哥伦比亚定位球能力强(λ×1.120); 葡萄牙定位球能力强(λ×1.117)</div>
-</article><article class="match">
-  <header>
-    <div class="matchup">
-      <span class="team home">刚果(金)</span>
-      <span class="vs">vs</span>
-      <span class="team away">乌兹别克斯坦</span>
-    </div>
-    <div class="meta-row">
-      <time>2026-06-28 07:30</time>
+      <time>2026-07-04 09:30</time>
       <span class="league-tag">世界杯</span>
       <span class="hc-tag">让-1.0球</span>
       <span class="conf-tag" style="color:#9a6700">中等</span>
-      <span class="value-badge">客让胜 +5.2%</span>
+      <span class="mot-tag" title="主队战意: knockout | λ×1.00" style="color:#c4bcb2">主 knockout 1.00</span>
+      <span class="mot-tag" title="客队战意: knockout | λ×1.00" style="color:#c4bcb2">客 knockout 1.00</span>
+      <span class="value-badge">主让胜 +7.2%</span>
     </div>
   </header>
 
   <div class="prob-visual">
     <div class="bar-container">
-      <div class="bar bar-h" style="width:24.0%"><span>24%</span></div>
-      <div class="bar bar-d" style="width:24.1%"><span>24%</span></div>
-      <div class="bar bar-a" style="width:51.8%"><span>52%</span></div>
+      <div class="bar bar-h" style="--w:45.9%"><span>46%</span></div>
+      <div class="bar bar-d" style="--w:27.0%"><span>27%</span></div>
+      <div class="bar bar-a" style="--w:27.1%"><span>27%</span></div>
     </div>
     <div class="bar-labels"><span>主让胜</span><span>平局</span><span>客让胜</span></div>
+  </div>
+  <div class="trend-wrap">
+    <div class="trend-hdr"><span>✨ 近12h让球盘概率走势</span><span class="trend-hint">👆 拖动查看历史</span></div>
+    <svg class="trend-svg" viewBox="0 0 560 96" preserveAspectRatio="none"
+         data-points='[{"t": "2026-07-02T14:19:26", "h": 0.4592, "d": 0.2695, "a": 0.2712, "x": 537.1}, {"t": "2026-07-02T14:33:44", "h": 0.4592, "d": 0.2695, "a": 0.2712, "x": 548.0}, {"t": "2026-07-02T14:44:08", "h": 0.4592, "d": 0.2695, "a": 0.2712, "x": 556.0}]'>
+      <defs><linearGradient id="fillH" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stop-color="#3ddc84" stop-opacity="0.45"/>
+          <stop offset="100%" stop-color="#3ddc84" stop-opacity="0"/>
+        </linearGradient>
+        <filter id="glowH" x="-50%" y="-50%" width="200%" height="200%">
+          <feGaussianBlur stdDeviation="2.2" result="blur"/>
+          <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+        </filter><linearGradient id="fillD" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stop-color="#ffd23d" stop-opacity="0.45"/>
+          <stop offset="100%" stop-color="#ffd23d" stop-opacity="0"/>
+        </linearGradient>
+        <filter id="glowD" x="-50%" y="-50%" width="200%" height="200%">
+          <feGaussianBlur stdDeviation="2.2" result="blur"/>
+          <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+        </filter><linearGradient id="fillA" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stop-color="#4fc3ff" stop-opacity="0.45"/>
+          <stop offset="100%" stop-color="#4fc3ff" stop-opacity="0"/>
+        </linearGradient>
+        <filter id="glowA" x="-50%" y="-50%" width="200%" height="200%">
+          <feGaussianBlur stdDeviation="2.2" result="blur"/>
+          <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+        </filter></defs>
+      <path d="M 537.1,96 L 537.1,10.0 L 548.0,10.0 L 556.0,10.0 L 556.0,96 Z" fill="url(#fillH)" class="trend-area trend-area-h"/><path d="M 537.1,96 L 537.1,86.0 L 548.0,86.0 L 556.0,86.0 L 556.0,96 Z" fill="url(#fillD)" class="trend-area trend-area-d"/><path d="M 537.1,96 L 537.1,85.3 L 548.0,85.3 L 556.0,85.3 L 556.0,96 Z" fill="url(#fillA)" class="trend-area trend-area-a"/>
+      <polyline points="537.1,10.0 548.0,10.0 556.0,10.0" fill="none" stroke="#1a1512" stroke-width="5.5" stroke-linecap="round" stroke-linejoin="round" opacity="0.5"/><polyline points="537.1,86.0 548.0,86.0 556.0,86.0" fill="none" stroke="#1a1512" stroke-width="5.5" stroke-linecap="round" stroke-linejoin="round" opacity="0.5"/><polyline points="537.1,85.3 548.0,85.3 556.0,85.3" fill="none" stroke="#1a1512" stroke-width="5.5" stroke-linecap="round" stroke-linejoin="round" opacity="0.5"/>
+      <polyline points="537.1,10.0 548.0,10.0 556.0,10.0" fill="none" stroke="#3ddc84" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round" filter="url(#glowH)" class="trend-line trend-h"/><polyline points="537.1,86.0 548.0,86.0 556.0,86.0" fill="none" stroke="#ffd23d" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round" filter="url(#glowD)" class="trend-line trend-d"/><polyline points="537.1,85.3 548.0,85.3 556.0,85.3" fill="none" stroke="#4fc3ff" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round" filter="url(#glowA)" class="trend-line trend-a"/>
+      <circle cx="556.0" cy="10.0" r="6" fill="#3ddc84" stroke="#fff" stroke-width="1.6" class="trend-dot trend-dot-live"/><circle cx="556.0" cy="86.0" r="6" fill="#ffd23d" stroke="#fff" stroke-width="1.6" class="trend-dot trend-dot-live"/><circle cx="556.0" cy="85.3" r="6" fill="#4fc3ff" stroke="#fff" stroke-width="1.6" class="trend-dot trend-dot-live"/>
+      <line class="trend-cursor" x1="0" y1="0" x2="0" y2="96" style="display:none"/>
+      <circle class="trend-cursor-dot" r="4" style="display:none"/>
+      <text x="554" y="12" text-anchor="end" class="trend-zoom-note">纵轴 27%~46%</text>
+    </svg>
+    <div class="trend-readout"></div>
   </div>
 
   <div class="data-grid">
@@ -1385,11 +1239,11 @@ footer.page-footer {
         <thead><tr><th></th><th>主让胜</th><th>平局</th><th>客让胜</th></tr></thead>
         <tbody>
           <tr><td class="row-label">模型</td>
-          <td class="num">16%</td><td class="num">21%</td><td class="num">63%</td></tr>
+          <td class="num">63%</td><td class="num">21%</td><td class="num">16%</td></tr>
           <tr><td class="row-label">市场</td>
-            <td class="num">28%</td><td class="num">25%</td><td class="num">47%</td></tr>
+            <td class="num">39%</td><td class="num">29%</td><td class="num">32%</td></tr>
           <tr class="posterior-row"><td class="row-label">后验</td>
-          <td class="num"><b>24%</b></td><td class="num"><b>24%</b></td><td class="num"><b>52%</b></td></tr>
+          <td class="num"><b>46%</b></td><td class="num"><b>27%</b></td><td class="num"><b>27%</b></td></tr>
         </tbody>
       </table>
     </div>
@@ -1400,82 +1254,236 @@ footer.page-footer {
         <thead><tr><th></th><th>主胜</th><th>平局</th><th>客胜</th></tr></thead>
         <tbody>
           <tr><td class="row-label">模型</td>
-          <td class="num">39%</td><td class="num">31%</td><td class="num">29%</td></tr>
+          <td class="num">84%</td><td class="num">14%</td><td class="num">2%</td></tr>
           <tr><td class="row-label">市场</td>
-          <td class="num">52%</td><td class="num">24%</td><td class="num">25%</td></tr>
+          <td class="num">67%</td><td class="num">22%</td><td class="num">11%</td></tr>
           <tr class="posterior-row"><td class="row-label">后验</td>
-          <td class="num"><b>47%</b></td><td class="num"><b>27%</b></td><td class="num"><b>27%</b></td></tr>
+          <td class="num"><b>75%</b></td><td class="num"><b>19%</b></td><td class="num"><b>6%</b></td></tr>
           <tr><td class="row-label">赔率</td>
-          <td class="num">1.71</td><td class="num">3.75</td><td class="num">3.60</td></tr>
+          <td class="num">1.32</td><td class="num">4.00</td><td class="num">8.20</td></tr>
         </tbody>
       </table>
     </div>
     
     <div class="market-section">
-      <div class="market-title">总进球 (TTG) · 市场最可能: <b>0球</b> (0%)</div>
+      <div class="market-title">总进球 (TTG) · 市场未开盘</div>
       <table>
         <thead><tr><th></th><th>0球</th><th>1球</th><th>2球</th><th>3球</th><th>4+球</th></tr></thead>
         <tbody>
           <tr><td class="row-label">模型</td>
-          <td class="num">16%</td><td class="num">22%</td><td class="num">30%</td><td class="num">18%</td><td class="num">14%</td></tr>
+          <td class="num">7%</td><td class="num">14%</td><td class="num">25%</td><td class="num">22%</td><td class="num">32%</td></tr>
           <tr><td class="row-label">市场</td>
-          <td class="num">0%</td><td class="num">0%</td><td class="num">0%</td><td class="num">0%</td><td class="num">0%</td></tr>
+          <td class="num" colspan="5">暂无市场数据</td></tr>
           <tr class="posterior-row"><td class="row-label">后验</td>
-          <td class="num"><b>0%</b></td><td class="num"><b>0%</b></td><td class="num"><b>0%</b></td><td class="num"><b>0%</b></td><td class="num"><b>0%</b></td></tr>
+          <td class="num" colspan="5">暂无市场数据, 后验退化为模型值(见上)</td></tr>
           <tr><td class="row-label">赔率</td>
-          <td class="num">13.50</td><td class="num">4.75</td><td class="num">3.65</td><td class="num">3.30</td><td class="num">2.55</td></tr>
+          <td class="num">9.50</td><td class="num">4.05</td><td class="num">3.15</td><td class="num">3.60</td><td class="num">3.26</td></tr>
         </tbody>
       </table>
     </div>
     <div class="params">
-      <span>Elo 1666 / 1677</span>
-      <span>λ 1.09 / 0.92</span>
+      <span>Elo 2004 / 1575</span>
+      <span>λ 2.52 / 0.35</span>
     </div>
   </div>
   
     <div class="rec-section">
-      <div class="rec-title">体彩购买建议 (Top 3 of 3)</div>
-      <div class="rec-list"><div class="rec-chip" style="border-color:#4ade80">
-              <div class="rec-market">让球-1.00 · <b>客让胜</b></div>
-              <div class="rec-odds">赔率 <b>1.90</b> · 模型 63% · 市场 47%</div>
-              <div class="rec-edge" style="color:#4ade80">edge +16.9% · EV +20.6% · 凯利 5.7%</div>
-            </div><div class="rec-chip" style="border-color:#4ade80">
-              <div class="rec-market">胜平负 · <b>平局</b></div>
-              <div class="rec-odds">赔率 <b>3.75</b> · 模型 31% · 市场 24%</div>
-              <div class="rec-edge" style="color:#4ade80">edge +7.8% · EV +17.9% · 凯利 1.6%</div>
-            </div><div class="rec-chip" style="border-color:#fbbf24">
-              <div class="rec-market">胜平负 · <b>客胜</b></div>
-              <div class="rec-odds">赔率 <b>3.60</b> · 模型 29% · 市场 25%</div>
-              <div class="rec-edge" style="color:#fbbf24">edge +4.8% · EV +5.9% · 凯利 0.6%</div>
+      <div class="rec-title">体彩购买建议 (Top 1 of 1)</div>
+      <div class="rec-list"><div class="rec-chip" style="border-color:#fbbf24">
+              <div class="rec-market">让球-1.00 · <b>主让胜</b></div>
+              <div class="rec-odds">赔率 <b>2.29</b> · 模型 46% · 市场 39%</div>
+              <div class="rec-edge" style="color:#fbbf24">edge +7.2% · EV +5.2% · 凯利 1.0%</div>
             </div></div>
     </div>
   <div class="chips-row">
-    <span class="score-chip"><b>1-1</b> 16%</span><span class="score-chip"><b>0-0</b> 16%</span><span class="score-chip"><b>1-0</b> 12%</span><span class="score-chip"><b>0-1</b> 10%</span><span class="score-chip"><b>2-0</b> 8%</span>
+    <span class="score-chip"><b>2-0</b> 18%</span><span class="score-chip"><b>3-0</b> 15%</span><span class="score-chip"><b>1-0</b> 13%</span><span class="score-chip"><b>4-0</b> 10%</span><span class="score-chip"><b>0-0</b> 7%</span>
   </div>
-  <div class="insight">刚果(金)定位球能力强(λ×1.040); 乌兹别克斯坦定位球能力强(λ×1.042)</div>
-</article><article class="match">
+  <div class="insight">加纳近况防守差[实采xGA](影响哥伦比亚进攻 λ×1.20); 哥伦比亚近况防守强[实采xGA](影响加纳进攻 λ×0.80)</div>
+  
+</article><article class="match" style="--i:6">
   <header>
     <div class="matchup">
-      <span class="team home">阿尔及利亚</span>
+      <span class="team home">天狼星</span>
       <span class="vs">vs</span>
-      <span class="team away">奥地利</span>
+      <span class="team away">米亚尔比</span>
     </div>
     <div class="meta-row">
-      <time>2026-06-28 10:00</time>
+      <time>2026-07-04 01:00</time>
+      <span class="league-tag">瑞超</span>
+      <span class="hc-tag">让-1.0球</span>
+      <span class="conf-tag" style="color:#9a6700">中等</span>
+      <span class="mot-tag" title="主队战意: knockout | λ×1.00" style="color:#c4bcb2">主 knockout 1.00</span>
+      <span class="mot-tag" title="客队战意: knockout | λ×1.00" style="color:#c4bcb2">客 knockout 1.00</span>
+      <span class="value-badge">客让胜 +5.9%</span>
+    </div>
+  </header>
+
+  <div class="prob-visual">
+    <div class="bar-container">
+      <div class="bar bar-h" style="--w:30.7%"><span>31%</span></div>
+      <div class="bar bar-d" style="--w:24.1%"><span>24%</span></div>
+      <div class="bar bar-a" style="--w:45.3%"><span>45%</span></div>
+    </div>
+    <div class="bar-labels"><span>主让胜</span><span>平局</span><span>客让胜</span></div>
+  </div>
+  <div class="trend-wrap">
+    <div class="trend-hdr"><span>✨ 近12h让球盘概率走势</span><span class="trend-hint">👆 拖动查看历史</span></div>
+    <svg class="trend-svg" viewBox="0 0 560 96" preserveAspectRatio="none"
+         data-points='[{"t": "2026-07-02T14:19:26", "h": 0.3067, "d": 0.2407, "a": 0.4526, "x": 537.1}, {"t": "2026-07-02T14:33:44", "h": 0.3067, "d": 0.2407, "a": 0.4526, "x": 548.0}, {"t": "2026-07-02T14:44:08", "h": 0.3067, "d": 0.2407, "a": 0.4526, "x": 556.0}]'>
+      <defs><linearGradient id="fillH" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stop-color="#3ddc84" stop-opacity="0.45"/>
+          <stop offset="100%" stop-color="#3ddc84" stop-opacity="0"/>
+        </linearGradient>
+        <filter id="glowH" x="-50%" y="-50%" width="200%" height="200%">
+          <feGaussianBlur stdDeviation="2.2" result="blur"/>
+          <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+        </filter><linearGradient id="fillD" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stop-color="#ffd23d" stop-opacity="0.45"/>
+          <stop offset="100%" stop-color="#ffd23d" stop-opacity="0"/>
+        </linearGradient>
+        <filter id="glowD" x="-50%" y="-50%" width="200%" height="200%">
+          <feGaussianBlur stdDeviation="2.2" result="blur"/>
+          <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+        </filter><linearGradient id="fillA" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stop-color="#4fc3ff" stop-opacity="0.45"/>
+          <stop offset="100%" stop-color="#4fc3ff" stop-opacity="0"/>
+        </linearGradient>
+        <filter id="glowA" x="-50%" y="-50%" width="200%" height="200%">
+          <feGaussianBlur stdDeviation="2.2" result="blur"/>
+          <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+        </filter></defs>
+      <path d="M 537.1,96 L 537.1,62.3 L 548.0,62.3 L 556.0,62.3 L 556.0,96 Z" fill="url(#fillH)" class="trend-area trend-area-h"/><path d="M 537.1,96 L 537.1,86.0 L 548.0,86.0 L 556.0,86.0 L 556.0,96 Z" fill="url(#fillD)" class="trend-area trend-area-d"/><path d="M 537.1,96 L 537.1,10.0 L 548.0,10.0 L 556.0,10.0 L 556.0,96 Z" fill="url(#fillA)" class="trend-area trend-area-a"/>
+      <polyline points="537.1,62.3 548.0,62.3 556.0,62.3" fill="none" stroke="#1a1512" stroke-width="5.5" stroke-linecap="round" stroke-linejoin="round" opacity="0.5"/><polyline points="537.1,86.0 548.0,86.0 556.0,86.0" fill="none" stroke="#1a1512" stroke-width="5.5" stroke-linecap="round" stroke-linejoin="round" opacity="0.5"/><polyline points="537.1,10.0 548.0,10.0 556.0,10.0" fill="none" stroke="#1a1512" stroke-width="5.5" stroke-linecap="round" stroke-linejoin="round" opacity="0.5"/>
+      <polyline points="537.1,62.3 548.0,62.3 556.0,62.3" fill="none" stroke="#3ddc84" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round" filter="url(#glowH)" class="trend-line trend-h"/><polyline points="537.1,86.0 548.0,86.0 556.0,86.0" fill="none" stroke="#ffd23d" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round" filter="url(#glowD)" class="trend-line trend-d"/><polyline points="537.1,10.0 548.0,10.0 556.0,10.0" fill="none" stroke="#4fc3ff" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round" filter="url(#glowA)" class="trend-line trend-a"/>
+      <circle cx="556.0" cy="62.3" r="6" fill="#3ddc84" stroke="#fff" stroke-width="1.6" class="trend-dot trend-dot-live"/><circle cx="556.0" cy="86.0" r="6" fill="#ffd23d" stroke="#fff" stroke-width="1.6" class="trend-dot trend-dot-live"/><circle cx="556.0" cy="10.0" r="6" fill="#4fc3ff" stroke="#fff" stroke-width="1.6" class="trend-dot trend-dot-live"/>
+      <line class="trend-cursor" x1="0" y1="0" x2="0" y2="96" style="display:none"/>
+      <circle class="trend-cursor-dot" r="4" style="display:none"/>
+      <text x="554" y="12" text-anchor="end" class="trend-zoom-note">纵轴 24%~45%</text>
+    </svg>
+    <div class="trend-readout"></div>
+  </div>
+
+  <div class="data-grid">
+    <div class="market-section primary">
+      <div class="market-title">让球盘 (HHAD) 让-1.0球</div>
+      <table>
+        <thead><tr><th></th><th>主让胜</th><th>平局</th><th>客让胜</th></tr></thead>
+        <tbody>
+          <tr><td class="row-label">模型</td>
+          <td class="num">21%</td><td class="num">20%</td><td class="num">59%</td></tr>
+          <tr><td class="row-label">市场</td>
+            <td class="num">36%</td><td class="num">25%</td><td class="num">39%</td></tr>
+          <tr class="posterior-row"><td class="row-label">后验</td>
+          <td class="num"><b>31%</b></td><td class="num"><b>24%</b></td><td class="num"><b>45%</b></td></tr>
+        </tbody>
+      </table>
+    </div>
+    
+    <div class="market-section">
+      <div class="market-title">胜平负 (HAD)</div>
+      <table>
+        <thead><tr><th></th><th>主胜</th><th>平局</th><th>客胜</th></tr></thead>
+        <tbody>
+          <tr><td class="row-label">模型</td>
+          <td class="num">42%</td><td class="num">30%</td><td class="num">28%</td></tr>
+          <tr><td class="row-label">市场</td>
+          <td class="num">59%</td><td class="num">22%</td><td class="num">19%</td></tr>
+          <tr class="posterior-row"><td class="row-label">后验</td>
+          <td class="num"><b>53%</b></td><td class="num"><b>25%</b></td><td class="num"><b>22%</b></td></tr>
+          <tr><td class="row-label">赔率</td>
+          <td class="num">1.49</td><td class="num">4.00</td><td class="num">4.80</td></tr>
+        </tbody>
+      </table>
+    </div>
+    
+    <div class="market-section">
+      <div class="market-title">总进球 (TTG) · 市场未开盘</div>
+      <table>
+        <thead><tr><th></th><th>0球</th><th>1球</th><th>2球</th><th>3球</th><th>4+球</th></tr></thead>
+        <tbody>
+          <tr><td class="row-label">模型</td>
+          <td class="num">11%</td><td class="num">16%</td><td class="num">28%</td><td class="num">21%</td><td class="num">24%</td></tr>
+          <tr><td class="row-label">市场</td>
+          <td class="num" colspan="5">暂无市场数据</td></tr>
+          <tr class="posterior-row"><td class="row-label">后验</td>
+          <td class="num" colspan="5">暂无市场数据, 后验退化为模型值(见上)</td></tr>
+          <tr><td class="row-label">赔率</td>
+          <td class="num">18.00</td><td class="num">5.70</td><td class="num">3.70</td><td class="num">3.50</td><td class="num">2.14</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="params">
+      <span>Elo 1500 / 1500</span>
+      <span>λ 1.39 / 1.11</span>
+    </div>
+  </div>
+  
+  <div class="chips-row">
+    <span class="score-chip"><b>1-1</b> 15%</span><span class="score-chip"><b>0-0</b> 11%</span><span class="score-chip"><b>1-0</b> 9%</span><span class="score-chip"><b>2-1</b> 9%</span><span class="score-chip"><b>2-0</b> 8%</span>
+  </div>
+  <div class="insight">天狼星Elo未知; 米亚尔比Elo未知</div>
+  
+</article><article class="match" style="--i:7">
+  <header>
+    <div class="matchup">
+      <span class="team home">加拿大</span>
+      <span class="vs">vs</span>
+      <span class="team away">摩洛哥</span>
+    </div>
+    <div class="meta-row">
+      <time>2026-07-05 01:00</time>
       <span class="league-tag">世界杯</span>
       <span class="hc-tag">让+1.0球</span>
-      <span class="conf-tag" style="color:#1a7f37">高确信</span>
+      <span class="conf-tag" style="color:#9a6700">中等</span>
+      <span class="mot-tag" title="主队战意: knockout | λ×1.00" style="color:#c4bcb2">主 knockout 1.00</span>
+      <span class="mot-tag" title="客队战意: knockout | λ×1.00" style="color:#c4bcb2">客 knockout 1.00</span>
       
     </div>
   </header>
 
   <div class="prob-visual">
     <div class="bar-container">
-      <div class="bar bar-h" style="width:66.1%"><span>66%</span></div>
-      <div class="bar bar-d" style="width:20.1%"><span>20%</span></div>
-      <div class="bar bar-a" style="width:13.8%"><span>14%</span></div>
+      <div class="bar bar-h" style="--w:47.7%"><span>48%</span></div>
+      <div class="bar bar-d" style="--w:25.8%"><span>26%</span></div>
+      <div class="bar bar-a" style="--w:26.4%"><span>26%</span></div>
     </div>
     <div class="bar-labels"><span>主让胜</span><span>平局</span><span>客让胜</span></div>
+  </div>
+  <div class="trend-wrap">
+    <div class="trend-hdr"><span>✨ 近12h让球盘概率走势</span><span class="trend-hint">👆 拖动查看历史</span></div>
+    <svg class="trend-svg" viewBox="0 0 560 96" preserveAspectRatio="none"
+         data-points='[{"t": "2026-07-02T14:19:26", "h": 0.4774, "d": 0.2584, "a": 0.2642, "x": 537.1}, {"t": "2026-07-02T14:33:44", "h": 0.4774, "d": 0.2584, "a": 0.2642, "x": 548.0}, {"t": "2026-07-02T14:44:08", "h": 0.4774, "d": 0.2584, "a": 0.2642, "x": 556.0}]'>
+      <defs><linearGradient id="fillH" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stop-color="#3ddc84" stop-opacity="0.45"/>
+          <stop offset="100%" stop-color="#3ddc84" stop-opacity="0"/>
+        </linearGradient>
+        <filter id="glowH" x="-50%" y="-50%" width="200%" height="200%">
+          <feGaussianBlur stdDeviation="2.2" result="blur"/>
+          <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+        </filter><linearGradient id="fillD" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stop-color="#ffd23d" stop-opacity="0.45"/>
+          <stop offset="100%" stop-color="#ffd23d" stop-opacity="0"/>
+        </linearGradient>
+        <filter id="glowD" x="-50%" y="-50%" width="200%" height="200%">
+          <feGaussianBlur stdDeviation="2.2" result="blur"/>
+          <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+        </filter><linearGradient id="fillA" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stop-color="#4fc3ff" stop-opacity="0.45"/>
+          <stop offset="100%" stop-color="#4fc3ff" stop-opacity="0"/>
+        </linearGradient>
+        <filter id="glowA" x="-50%" y="-50%" width="200%" height="200%">
+          <feGaussianBlur stdDeviation="2.2" result="blur"/>
+          <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+        </filter></defs>
+      <path d="M 537.1,96 L 537.1,10.0 L 548.0,10.0 L 556.0,10.0 L 556.0,96 Z" fill="url(#fillH)" class="trend-area trend-area-h"/><path d="M 537.1,96 L 537.1,86.0 L 548.0,86.0 L 556.0,86.0 L 556.0,96 Z" fill="url(#fillD)" class="trend-area trend-area-d"/><path d="M 537.1,96 L 537.1,84.0 L 548.0,84.0 L 556.0,84.0 L 556.0,96 Z" fill="url(#fillA)" class="trend-area trend-area-a"/>
+      <polyline points="537.1,10.0 548.0,10.0 556.0,10.0" fill="none" stroke="#1a1512" stroke-width="5.5" stroke-linecap="round" stroke-linejoin="round" opacity="0.5"/><polyline points="537.1,86.0 548.0,86.0 556.0,86.0" fill="none" stroke="#1a1512" stroke-width="5.5" stroke-linecap="round" stroke-linejoin="round" opacity="0.5"/><polyline points="537.1,84.0 548.0,84.0 556.0,84.0" fill="none" stroke="#1a1512" stroke-width="5.5" stroke-linecap="round" stroke-linejoin="round" opacity="0.5"/>
+      <polyline points="537.1,10.0 548.0,10.0 556.0,10.0" fill="none" stroke="#3ddc84" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round" filter="url(#glowH)" class="trend-line trend-h"/><polyline points="537.1,86.0 548.0,86.0 556.0,86.0" fill="none" stroke="#ffd23d" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round" filter="url(#glowD)" class="trend-line trend-d"/><polyline points="537.1,84.0 548.0,84.0 556.0,84.0" fill="none" stroke="#4fc3ff" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round" filter="url(#glowA)" class="trend-line trend-a"/>
+      <circle cx="556.0" cy="10.0" r="6" fill="#3ddc84" stroke="#fff" stroke-width="1.6" class="trend-dot trend-dot-live"/><circle cx="556.0" cy="86.0" r="6" fill="#ffd23d" stroke="#fff" stroke-width="1.6" class="trend-dot trend-dot-live"/><circle cx="556.0" cy="84.0" r="6" fill="#4fc3ff" stroke="#fff" stroke-width="1.6" class="trend-dot trend-dot-live"/>
+      <line class="trend-cursor" x1="0" y1="0" x2="0" y2="96" style="display:none"/>
+      <circle class="trend-cursor-dot" r="4" style="display:none"/>
+      <text x="554" y="12" text-anchor="end" class="trend-zoom-note">纵轴 26%~48%</text>
+    </svg>
+    <div class="trend-readout"></div>
   </div>
 
   <div class="data-grid">
@@ -1485,11 +1493,11 @@ footer.page-footer {
         <thead><tr><th></th><th>主让胜</th><th>平局</th><th>客让胜</th></tr></thead>
         <tbody>
           <tr><td class="row-label">模型</td>
-          <td class="num">62%</td><td class="num">19%</td><td class="num">19%</td></tr>
+          <td class="num">54%</td><td class="num">22%</td><td class="num">24%</td></tr>
           <tr><td class="row-label">市场</td>
-            <td class="num">68%</td><td class="num">20%</td><td class="num">12%</td></tr>
+            <td class="num">45%</td><td class="num">28%</td><td class="num">27%</td></tr>
           <tr class="posterior-row"><td class="row-label">后验</td>
-          <td class="num"><b>66%</b></td><td class="num"><b>20%</b></td><td class="num"><b>14%</b></td></tr>
+          <td class="num"><b>48%</b></td><td class="num"><b>26%</b></td><td class="num"><b>26%</b></td></tr>
         </tbody>
       </table>
     </div>
@@ -1500,82 +1508,105 @@ footer.page-footer {
         <thead><tr><th></th><th>主胜</th><th>平局</th><th>客胜</th></tr></thead>
         <tbody>
           <tr><td class="row-label">模型</td>
-          <td class="num">37%</td><td class="num">18%</td><td class="num">45%</td></tr>
+          <td class="num">24%</td><td class="num">28%</td><td class="num">48%</td></tr>
           <tr><td class="row-label">市场</td>
-          <td class="num">26%</td><td class="num">42%</td><td class="num">32%</td></tr>
+          <td class="num">18%</td><td class="num">28%</td><td class="num">54%</td></tr>
           <tr class="posterior-row"><td class="row-label">后验</td>
-          <td class="num"><b>31%</b></td><td class="num"><b>31%</b></td><td class="num"><b>38%</b></td></tr>
+          <td class="num"><b>20%</b></td><td class="num"><b>28%</b></td><td class="num"><b>52%</b></td></tr>
           <tr><td class="row-label">赔率</td>
-          <td class="num">3.35</td><td class="num">2.11</td><td class="num">2.80</td></tr>
+          <td class="num">4.80</td><td class="num">3.17</td><td class="num">1.65</td></tr>
         </tbody>
       </table>
     </div>
     
     <div class="market-section">
-      <div class="market-title">总进球 (TTG) · 市场最可能: <b>0球</b> (0%)</div>
+      <div class="market-title">总进球 (TTG) · 市场未开盘</div>
       <table>
         <thead><tr><th></th><th>0球</th><th>1球</th><th>2球</th><th>3球</th><th>4+球</th></tr></thead>
         <tbody>
           <tr><td class="row-label">模型</td>
-          <td class="num">10%</td><td class="num">15%</td><td class="num">28%</td><td class="num">22%</td><td class="num">25%</td></tr>
+          <td class="num">11%</td><td class="num">16%</td><td class="num">28%</td><td class="num">21%</td><td class="num">24%</td></tr>
           <tr><td class="row-label">市场</td>
-          <td class="num">0%</td><td class="num">0%</td><td class="num">0%</td><td class="num">0%</td><td class="num">0%</td></tr>
+          <td class="num" colspan="5">暂无市场数据</td></tr>
           <tr class="posterior-row"><td class="row-label">后验</td>
-          <td class="num"><b>0%</b></td><td class="num"><b>0%</b></td><td class="num"><b>0%</b></td><td class="num"><b>0%</b></td><td class="num"><b>0%</b></td></tr>
+          <td class="num" colspan="5">暂无市场数据, 后验退化为模型值(见上)</td></tr>
           <tr><td class="row-label">赔率</td>
-          <td class="num">4.20</td><td class="num">4.15</td><td class="num">2.65</td><td class="num">5.30</td><td class="num">4.79</td></tr>
+          <td class="num">8.00</td><td class="num">3.90</td><td class="num">3.05</td><td class="num">3.80</td><td class="num">3.55</td></tr>
         </tbody>
       </table>
     </div>
     <div class="params">
-      <span>Elo 1780 / 1841</span>
-      <span>λ 1.20 / 1.36</span>
+      <span>Elo 1764 / 1886</span>
+      <span>λ 0.99 / 1.49</span>
     </div>
   </div>
   
-    <div class="rec-section">
-      <div class="rec-title">体彩购买建议 (Top 3 of 3)</div>
-      <div class="rec-list"><div class="rec-chip" style="border-color:#4ade80">
-              <div class="rec-market">胜平负 · <b>客胜</b></div>
-              <div class="rec-odds">赔率 <b>2.80</b> · 模型 45% · 市场 32%</div>
-              <div class="rec-edge" style="color:#4ade80">edge +13.8% · EV +27.1% · 凯利 3.8%</div>
-            </div><div class="rec-chip" style="border-color:#4ade80">
-              <div class="rec-market">胜平负 · <b>主胜</b></div>
-              <div class="rec-odds">赔率 <b>3.35</b> · 模型 37% · 市场 26%</div>
-              <div class="rec-edge" style="color:#4ade80">edge +10.2% · EV +22.8% · 凯利 2.4%</div>
-            </div><div class="rec-chip" style="border-color:#4ade80">
-              <div class="rec-market">让球+1.00 · <b>客让胜</b></div>
-              <div class="rec-odds">赔率 <b>7.35</b> · 模型 19% · 市场 12%</div>
-              <div class="rec-edge" style="color:#4ade80">edge +6.6% · EV +37.0% · 凯利 1.5%</div>
-            </div></div>
-    </div>
   <div class="chips-row">
-    <span class="score-chip"><b>1-1</b> 15%</span><span class="score-chip"><b>0-0</b> 10%</span><span class="score-chip"><b>1-2</b> 9%</span><span class="score-chip"><b>0-1</b> 8%</span><span class="score-chip"><b>2-1</b> 8%</span>
+    <span class="score-chip"><b>1-1</b> 15%</span><span class="score-chip"><b>0-0</b> 11%</span><span class="score-chip"><b>0-1</b> 10%</span><span class="score-chip"><b>0-2</b> 9%</span><span class="score-chip"><b>1-2</b> 9%</span>
   </div>
-  <div class="insight">阿尔及利亚定位球能力强(λ×1.067); 奥地利定位球能力强(λ×1.082)</div>
-</article><article class="match">
+  <div class="insight">摩洛哥近况防守强[实采xGA](影响加拿大进攻 λ×0.80); 加拿大近况防守强[实采xGA](影响摩洛哥进攻 λ×0.82)</div>
+  
+</article><article class="match" style="--i:8">
   <header>
     <div class="matchup">
-      <span class="team home">约旦</span>
+      <span class="team home">巴拉圭</span>
       <span class="vs">vs</span>
-      <span class="team away">阿根廷</span>
+      <span class="team away">法国</span>
     </div>
     <div class="meta-row">
-      <time>2026-06-28 10:00</time>
+      <time>2026-07-05 05:00</time>
       <span class="league-tag">世界杯</span>
       <span class="hc-tag">让+2.0球</span>
       <span class="conf-tag" style="color:#656d76">开放</span>
+      <span class="mot-tag" title="主队战意: knockout | λ×1.00" style="color:#c4bcb2">主 knockout 1.00</span>
+      <span class="mot-tag" title="客队战意: knockout | λ×1.00" style="color:#c4bcb2">客 knockout 1.00</span>
       
     </div>
   </header>
 
   <div class="prob-visual">
     <div class="bar-container">
-      <div class="bar bar-h" style="width:41.9%"><span>42%</span></div>
-      <div class="bar bar-d" style="width:23.2%"><span>23%</span></div>
-      <div class="bar bar-a" style="width:34.9%"><span>35%</span></div>
+      <div class="bar bar-h" style="--w:39.9%"><span>40%</span></div>
+      <div class="bar bar-d" style="--w:22.9%"><span>23%</span></div>
+      <div class="bar bar-a" style="--w:37.1%"><span>37%</span></div>
     </div>
     <div class="bar-labels"><span>主让胜</span><span>平局</span><span>客让胜</span></div>
+  </div>
+  <div class="trend-wrap">
+    <div class="trend-hdr"><span>✨ 近12h让球盘概率走势</span><span class="trend-hint">👆 拖动查看历史</span></div>
+    <svg class="trend-svg" viewBox="0 0 560 96" preserveAspectRatio="none"
+         data-points='[{"t": "2026-07-02T14:19:26", "h": 0.3993, "d": 0.2295, "a": 0.3712, "x": 537.1}, {"t": "2026-07-02T14:33:44", "h": 0.3993, "d": 0.2295, "a": 0.3712, "x": 548.0}, {"t": "2026-07-02T14:44:08", "h": 0.3993, "d": 0.2295, "a": 0.3712, "x": 556.0}]'>
+      <defs><linearGradient id="fillH" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stop-color="#3ddc84" stop-opacity="0.45"/>
+          <stop offset="100%" stop-color="#3ddc84" stop-opacity="0"/>
+        </linearGradient>
+        <filter id="glowH" x="-50%" y="-50%" width="200%" height="200%">
+          <feGaussianBlur stdDeviation="2.2" result="blur"/>
+          <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+        </filter><linearGradient id="fillD" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stop-color="#ffd23d" stop-opacity="0.45"/>
+          <stop offset="100%" stop-color="#ffd23d" stop-opacity="0"/>
+        </linearGradient>
+        <filter id="glowD" x="-50%" y="-50%" width="200%" height="200%">
+          <feGaussianBlur stdDeviation="2.2" result="blur"/>
+          <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+        </filter><linearGradient id="fillA" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stop-color="#4fc3ff" stop-opacity="0.45"/>
+          <stop offset="100%" stop-color="#4fc3ff" stop-opacity="0"/>
+        </linearGradient>
+        <filter id="glowA" x="-50%" y="-50%" width="200%" height="200%">
+          <feGaussianBlur stdDeviation="2.2" result="blur"/>
+          <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+        </filter></defs>
+      <path d="M 537.1,96 L 537.1,10.0 L 548.0,10.0 L 556.0,10.0 L 556.0,96 Z" fill="url(#fillH)" class="trend-area trend-area-h"/><path d="M 537.1,96 L 537.1,86.0 L 548.0,86.0 L 556.0,86.0 L 556.0,96 Z" fill="url(#fillD)" class="trend-area trend-area-d"/><path d="M 537.1,96 L 537.1,22.6 L 548.0,22.6 L 556.0,22.6 L 556.0,96 Z" fill="url(#fillA)" class="trend-area trend-area-a"/>
+      <polyline points="537.1,10.0 548.0,10.0 556.0,10.0" fill="none" stroke="#1a1512" stroke-width="5.5" stroke-linecap="round" stroke-linejoin="round" opacity="0.5"/><polyline points="537.1,86.0 548.0,86.0 556.0,86.0" fill="none" stroke="#1a1512" stroke-width="5.5" stroke-linecap="round" stroke-linejoin="round" opacity="0.5"/><polyline points="537.1,22.6 548.0,22.6 556.0,22.6" fill="none" stroke="#1a1512" stroke-width="5.5" stroke-linecap="round" stroke-linejoin="round" opacity="0.5"/>
+      <polyline points="537.1,10.0 548.0,10.0 556.0,10.0" fill="none" stroke="#3ddc84" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round" filter="url(#glowH)" class="trend-line trend-h"/><polyline points="537.1,86.0 548.0,86.0 556.0,86.0" fill="none" stroke="#ffd23d" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round" filter="url(#glowD)" class="trend-line trend-d"/><polyline points="537.1,22.6 548.0,22.6 556.0,22.6" fill="none" stroke="#4fc3ff" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round" filter="url(#glowA)" class="trend-line trend-a"/>
+      <circle cx="556.0" cy="10.0" r="6" fill="#3ddc84" stroke="#fff" stroke-width="1.6" class="trend-dot trend-dot-live"/><circle cx="556.0" cy="86.0" r="6" fill="#ffd23d" stroke="#fff" stroke-width="1.6" class="trend-dot trend-dot-live"/><circle cx="556.0" cy="22.6" r="6" fill="#4fc3ff" stroke="#fff" stroke-width="1.6" class="trend-dot trend-dot-live"/>
+      <line class="trend-cursor" x1="0" y1="0" x2="0" y2="96" style="display:none"/>
+      <circle class="trend-cursor-dot" r="4" style="display:none"/>
+      <text x="554" y="12" text-anchor="end" class="trend-zoom-note">纵轴 23%~40%</text>
+    </svg>
+    <div class="trend-readout"></div>
   </div>
 
   <div class="data-grid">
@@ -1585,59 +1616,77 @@ footer.page-footer {
         <thead><tr><th></th><th>主让胜</th><th>平局</th><th>客让胜</th></tr></thead>
         <tbody>
           <tr><td class="row-label">模型</td>
-          <td class="num">46%</td><td class="num">23%</td><td class="num">30%</td></tr>
+          <td class="num">41%</td><td class="num">22%</td><td class="num">37%</td></tr>
           <tr><td class="row-label">市场</td>
             <td class="num">40%</td><td class="num">23%</td><td class="num">37%</td></tr>
           <tr class="posterior-row"><td class="row-label">后验</td>
-          <td class="num"><b>42%</b></td><td class="num"><b>23%</b></td><td class="num"><b>35%</b></td></tr>
+          <td class="num"><b>40%</b></td><td class="num"><b>23%</b></td><td class="num"><b>37%</b></td></tr>
         </tbody>
       </table>
     </div>
     
     
     <div class="market-section">
-      <div class="market-title">总进球 (TTG) · 市场最可能: <b>0球</b> (0%)</div>
+      <div class="market-title">总进球 (TTG) · 市场未开盘</div>
       <table>
         <thead><tr><th></th><th>0球</th><th>1球</th><th>2球</th><th>3球</th><th>4+球</th></tr></thead>
         <tbody>
           <tr><td class="row-label">模型</td>
-          <td class="num">8%</td><td class="num">15%</td><td class="num">26%</td><td class="num">22%</td><td class="num">28%</td></tr>
+          <td class="num">5%</td><td class="num">9%</td><td class="num">21%</td><td class="num">22%</td><td class="num">43%</td></tr>
           <tr><td class="row-label">市场</td>
-          <td class="num">0%</td><td class="num">0%</td><td class="num">0%</td><td class="num">0%</td><td class="num">0%</td></tr>
+          <td class="num" colspan="5">暂无市场数据</td></tr>
           <tr class="posterior-row"><td class="row-label">后验</td>
-          <td class="num"><b>0%</b></td><td class="num"><b>0%</b></td><td class="num"><b>0%</b></td><td class="num"><b>0%</b></td><td class="num"><b>0%</b></td></tr>
+          <td class="num" colspan="5">暂无市场数据, 后验退化为模型值(见上)</td></tr>
           <tr><td class="row-label">赔率</td>
-          <td class="num">20.00</td><td class="num">6.30</td><td class="num">4.00</td><td class="num">3.45</td><td class="num">1.98</td></tr>
+          <td class="num">18.00</td><td class="num">6.00</td><td class="num">4.00</td><td class="num">3.45</td><td class="num">2.04</td></tr>
         </tbody>
       </table>
     </div>
     <div class="params">
-      <span>Elo 1632 / 2144</span>
-      <span>λ 0.47 / 2.24</span>
+      <span>Elo 1823 / 2134</span>
+      <span>λ 0.67 / 2.70</span>
     </div>
   </div>
   
-    <div class="rec-section">
-      <div class="rec-title">体彩购买建议 (Top 1 of 1)</div>
-      <div class="rec-list"><div class="rec-chip" style="border-color:#60a5fa">
-              <div class="rec-market">让球+2.00 · <b>主让胜</b></div>
-              <div class="rec-odds">赔率 <b>2.22</b> · 模型 46% · 市场 40%</div>
-              <div class="rec-edge" style="color:#60a5fa">edge +6.5% · EV +3.1% · 凯利 0.6%</div>
-            </div></div>
-    </div>
   <div class="chips-row">
-    <span class="score-chip"><b>0-2</b> 17%</span><span class="score-chip"><b>0-1</b> 14%</span><span class="score-chip"><b>0-3</b> 12%</span><span class="score-chip"><b>1-1</b> 8%</span><span class="score-chip"><b>0-0</b> 8%</span>
+    <span class="score-chip"><b>0-2</b> 13%</span><span class="score-chip"><b>0-3</b> 11%</span><span class="score-chip"><b>1-2</b> 8%</span><span class="score-chip"><b>0-1</b> 8%</span><span class="score-chip"><b>0-4</b> 8%</span>
   </div>
-  <div class="insight">约旦定位球能力强(λ×1.032); 阿根廷定位球能力强(λ×1.113)</div>
+  <div class="insight">巴拉圭近况防守差[实采xGA](影响法国进攻 λ×1.18)</div>
+  
 </article>
+</div>
 
 <footer class="page-footer">
-  Elo锚定双泊松 · Dixon-Coles τ (ρ=-0.2) · 平局逻辑回归(8特征) · 风格相克 · 磨合度 · xG档案 · 角球能力<br>
+  Elo锚定双泊松 · Dixon-Coles τ (ρ=-0.2) · 平局逻辑回归(8特征) · 磨合度 · xG档案 · 定位球(仅限有真实角球数据的队)<br>
   让球盘对数池校准 (市场70% + 模型30%) · 数据: sporttery.cn · eloratings.net · open-meteo<br>
   仅供研究参考，不构成投注建议
 </footer>
 <script>
-  setTimeout(()=>location.reload(), 60000);
+  // 当前页面数据版本(predictions.json mtime). 轮询此值, 变化即有新盘口数据。
+  window.__VER__ = 1782974648;
+  function smoothReload() {
+    document.body.classList.add('fading');
+    setTimeout(() => location.reload(), 520);
+  }
+  function showToast(msg) {
+    const t = document.getElementById('toast');
+    if (!t) return;
+    t.textContent = msg;
+    t.style.display = 'block';
+  }
+  // 自动轮询: 每60s问后端版本号, 变化则提示+平滑刷新。静态托管(无api)则静默。
+  setInterval(() => {
+    fetch('api/version', {cache: 'no-store'})
+      .then(r => r.ok ? r.json() : null)
+      .then(d => {
+        if (d && d.version && d.version !== window.__VER__) {
+          showToast('⟳ 盘口已更新，正在刷新…');
+          setTimeout(smoothReload, 1400);
+        }
+      })
+      .catch(() => {});
+  }, 60000);
+  // 手动"重新抓取": 触发后端实时重算
   function doRefresh() {
     const btn = document.getElementById('fetchBtn');
     const st = document.getElementById('status');
@@ -1653,9 +1702,9 @@ footer.page-footer {
       })
       .then(() => {
         const sec = ((Date.now()-t0)/1000).toFixed(1);
-        st.textContent = `完成 (${sec}s)，3秒后刷新页面...`;
+        st.textContent = `完成 (${sec}s)，刷新中…`;
         st.className = 'status-msg success';
-        setTimeout(()=>location.reload(), 3000);
+        setTimeout(smoothReload, 800);
       })
       .catch(e => {
         st.textContent = '失败: 需启动 --serve 模式';
@@ -1664,5 +1713,71 @@ footer.page-footer {
         btn.style.opacity = '1';
       });
   }
+
+  // ── 趋势图拖动查看(纯前端插值, 数据已随HTML内嵌, 拖动不发请求) ──
+  function initTrendCharts() {
+    document.querySelectorAll('.trend-svg').forEach(svg => {
+      let pts;
+      try { pts = JSON.parse(svg.dataset.points || '[]'); } catch (e) { return; }
+      if (!pts.length) return;
+      const cursor = svg.querySelector('.trend-cursor');
+      const cursorDot = svg.querySelector('.trend-cursor-dot');
+      const readout = svg.parentElement.querySelector('.trend-readout');
+      const vbW = 560, vbH = 96;
+      function yOf(p) { return vbH - 8 - p * (vbH - 16); }
+
+      function fmtTime(iso) {
+        const d = new Date(iso);
+        return d.toLocaleString('zh-CN', {month:'2-digit', day:'2-digit', hour:'2-digit', minute:'2-digit'});
+      }
+
+      function updateAt(clientX) {
+        const rect = svg.getBoundingClientRect();
+        const relX = (clientX - rect.left) / rect.width * vbW;
+        // 找最近的两个点做线性插值, 让拖动手感连续而不是跳格
+        let lo = pts[0], hi = pts[pts.length - 1];
+        for (let i = 0; i < pts.length - 1; i++) {
+          if (pts[i].x <= relX && pts[i+1].x >= relX) { lo = pts[i]; hi = pts[i+1]; break; }
+        }
+        const span = hi.x - lo.x;
+        const frac = span > 0 ? Math.max(0, Math.min(1, (relX - lo.x) / span)) : 0;
+        const h = lo.h + (hi.h - lo.h) * frac;
+        const d = lo.d + (hi.d - lo.d) * frac;
+        const a = lo.a + (hi.a - lo.a) * frac;
+        const t = frac < 0.5 ? lo.t : hi.t;
+
+        cursor.setAttribute('x1', relX); cursor.setAttribute('x2', relX);
+        cursor.style.display = 'block';
+        cursorDot.setAttribute('cx', relX);
+        cursorDot.setAttribute('cy', yOf(h));
+        cursorDot.setAttribute('fill', '#ffd23d');
+        cursorDot.style.display = 'block';
+        readout.innerHTML =
+          `<span class="r-t">${fmtTime(t)}</span>` +
+          `<span class="r-h">主${(h*100).toFixed(0)}%</span>` +
+          `<span class="r-d">平${(d*100).toFixed(0)}%</span>` +
+          `<span class="r-a">客${(a*100).toFixed(0)}%</span>`;
+      }
+
+      function clear() {
+        cursor.style.display = 'none';
+        cursorDot.style.display = 'none';
+        const last = pts[pts.length - 1];
+        readout.innerHTML =
+          `<span class="r-t">最新 ${fmtTime(last.t)}</span>` +
+          `<span class="r-h">主${(last.h*100).toFixed(0)}%</span>` +
+          `<span class="r-d">平${(last.d*100).toFixed(0)}%</span>` +
+          `<span class="r-a">客${(last.a*100).toFixed(0)}%</span>`;
+      }
+
+      svg.addEventListener('mousemove', e => updateAt(e.clientX));
+      svg.addEventListener('mouseleave', clear);
+      svg.addEventListener('touchstart', e => { updateAt(e.touches[0].clientX); }, {passive: true});
+      svg.addEventListener('touchmove', e => { updateAt(e.touches[0].clientX); e.preventDefault(); }, {passive: false});
+      svg.addEventListener('touchend', clear);
+      clear();  // 初始显示"最新"读数
+    });
+  }
+  initTrendCharts();
 </script>
 </body></html>

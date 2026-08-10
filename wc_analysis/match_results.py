@@ -65,7 +65,19 @@ def _result_letter(hs, as_):
 
 
 def update_historical() -> int:
-    """Pull latest from martj42, deduplicate, return new matches count."""
+    """Pull latest from martj42, deduplicate, return new matches count.
+
+    (审计修复2026-07-02: data/ 不是独立git仓库(无.git, 无upstream跟踪分支),
+    git pull在这里实测每次都失败退出(returncode=1, "当前分支没有跟踪信息")。
+    此前不检查returncode就静默继续, 返回值直接用len(df_new)(CSV总行数,
+    实测始终=49477)冒充"新增比赛数"——self_evolving_loop.py::step5_learn()
+    每天调用一次, 日志上一直打印一个和"新增"毫无关系的静态总行数, 而
+    international_results.csv实际上从未真正更新过。
+    这里只做最小诚实修复: 检查真实returncode, 失败时打真实原因+返回0(不再
+    谎报总行数); 成功时用pull前后的行数差值算真正新增数。真正让这份历史
+    数据能持续更新(比如改成clone到独立目录、或接入其他数据源)是更大的
+    投入决策, 不在这次范围内, 记录留待后续评估。)
+    """
     csv_path = Path("data/international_results.csv")
     if not csv_path.exists():
         return 0
@@ -76,15 +88,19 @@ def update_historical() -> int:
         import shutil
         shutil.copy(csv_path, backup)
 
-    # Pull latest
-    subprocess.run(
+    n_before = len(pd.read_csv(csv_path))
+
+    result = subprocess.run(
         ["git", "pull", "--depth=1"],
         cwd="data", capture_output=True, text=True, timeout=60,
     )
+    if result.returncode != 0:
+        print(f"  ⚠ git pull失败(returncode={result.returncode}): "
+              f"{result.stderr.strip()[:200]}")
+        return 0
 
-    # Count new rows
     df_new = pd.read_csv(csv_path)
-    return len(df_new)
+    return max(0, len(df_new) - n_before)
 
 
 def fetch_today_fixtures() -> list:

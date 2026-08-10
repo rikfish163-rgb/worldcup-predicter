@@ -25,7 +25,7 @@
 from __future__ import annotations
 import hashlib, hmac, html, json, math, urllib.request, time, sys, os
 from pathlib import Path
-from datetime import datetime
+from datetime import datetime, timedelta
 from urllib.parse import quote, unquote, urlparse
 from http.server import HTTPServer, SimpleHTTPRequestHandler
 import threading
@@ -61,7 +61,9 @@ ELO_CACHE = DATA_DIR / "elo_cache"
 ELO_CACHE.mkdir(exist_ok=True)
 INJURIES_FILE = DATA_DIR / "injuries.json"
 COHESION_FILE = DATA_DIR / "cohesion.json"
+NEWS_FILE = DATA_DIR / "news_factors.json"
 CORNERS_FILE = DATA_DIR / "corners.json"
+SOFASCORE_FILE = DATA_DIR / "sofascore_features.json"
 PUBLIC_DATA_FILES = frozenset(
     {"groups_2026.json", "predictions.json", "standings.json", "top3_predictions.json"}
 )
@@ -93,17 +95,37 @@ def _admin_authorized(headers) -> bool:
         )
     )
 
-RHO = -0.20  # 交叉验证最优(2286场, 2020-2026)
-AVG_GOALS = 2.50  # 交叉验证最优
-HOME_ADV = 0.40  # 世界杯中立场仍有~40Elo主场效应; 联赛可设更高
+RHO = -0.20  # 交叉验证最优(2286场, 2020-2026); 会被params_override.json覆盖
+AVG_GOALS = 2.50  # 交叉验证最优; 会被params_override.json覆盖
+HOME_ADV = 0.40  # 世界杯中立场仍有~40Elo主场效应; 联赛可设更高; 会被params_override.json覆盖
 
-# 自进化参数覆盖(harness.py 诊断后自动写入)
+# 自进化参数覆盖(evolve_groupstage.py 诊断后自动写入 params_override.json)
 _PARAMS_OVERRIDE = DATA_DIR / "params_override.json"
-if _PARAMS_OVERRIDE.exists():
-    _po = __import__("json").loads(_PARAMS_OVERRIDE.read_text(encoding="utf-8"))
-    RHO = _po.get("rho", RHO)
-    AVG_GOALS = _po.get("avg_goals", AVG_GOALS)
-    HOME_ADV = _po.get("home_adv", HOME_ADV)
+
+
+def _reload_params_override() -> None:
+    """重新读取 params_override.json 覆盖 RHO/AVG_GOALS/HOME_ADV。
+
+    (审计修复2026-07-02: 此前这段逻辑只在模块import时执行一次, 写入全局变量后
+    再无任何地方重新读取。--serve长驻进程一旦启动, RHO/AVG_GOALS/HOME_ADV就
+    永久停留在启动那一刻读到的值——不管_auto_refresh_loop里evolve_groupstage
+    之后又诊断出多少次新参数并写入磁盘, 只要进程不重启, 内存里用的值就与磁盘
+    上的params_override.json静默漂移。现在把加载逻辑独立成函数, run_pipeline()
+    每次运行前都会调用它, 保证每一轮预测用的都是当前磁盘上最新的参数。)
+    """
+    global RHO, AVG_GOALS, HOME_ADV
+    if not _PARAMS_OVERRIDE.exists():
+        return
+    try:
+        _po = json.loads(_PARAMS_OVERRIDE.read_text(encoding="utf-8"))
+        RHO = _po.get("rho", RHO)
+        AVG_GOALS = _po.get("avg_goals", AVG_GOALS)
+        HOME_ADV = _po.get("home_adv", HOME_ADV)
+    except (json.JSONDecodeError, OSError):
+        pass  # 读取失败保留当前值, 不让坏文件打断启动/刷新
+
+
+_reload_params_override()
 
 # 中文队名 → eloratings 文件名 + 2字母代码
 TEAM_DB = {
@@ -134,6 +156,40 @@ TEAM_DB = {
     "委内瑞拉": ("Venezuela", "VE"), "秘鲁": ("Peru", "PE"),
     "智利": ("Chile", "CL"), "玻利维亚": ("Bolivia", "BO"),
 }
+
+
+class TeamRegistry:
+    """球队注册表抽象接口: 把"中文名"映射到该队伍在Elo数据源里的
+    (标识名, 队伍代码), 供get_elo()/_get_team_style()等函数使用。
+
+    多联赛阶段0铺路(2026-07-02, 全方位审查确认低风险): 世界杯当前用国家队
+    Elo(eloratings.net), 英超/中超要接俱乐部Elo(clubelo.com等), 两者的
+    队名映射表/数据源完全不同。这一步只是把"查表"这个动作抽成接口, 不改变
+    任何现有行为——EloRatingsRegistry原样桥接现有TEAM_DB字典。未来要支持
+    别的联赛, 只需要新写一个Registry子类实现elo_key(), 不需要改动
+    get_elo()/_get_team_style()等业务逻辑代码。战意/赛制/数据源适配等
+    工作量更大的部分(阶段1-4)未来若要做需要单独评估, 这次不做。
+    """
+
+    def elo_key(self, team_cn: str) -> tuple[str, str] | None:
+        """返回(标识名, 队伍代码), 查不到返回None。"""
+        raise NotImplementedError
+
+
+class EloRatingsRegistry(TeamRegistry):
+    """世界杯当前实现: 原样桥接现有TEAM_DB字典(中文名->(eloratings.net文件名, 2字母代码))。"""
+
+    def __init__(self, team_db: dict):
+        self._team_db = team_db
+
+    def elo_key(self, team_cn: str) -> tuple[str, str] | None:
+        return self._team_db.get(team_cn)
+
+
+# 模块级默认实例, 供全文件复用。未来切换/新增联赛只需要换这一行绑定的
+# Registry实现, 不需要改下面消费它的业务逻辑。
+TEAM_REGISTRY = EloRatingsRegistry(TEAM_DB)
+
 
 # ═══════════════════════════════════════════════════════════════════
 # 1. 体彩赔率
@@ -216,7 +272,7 @@ def _devig(odds: dict) -> dict:
 # ═══════════════════════════════════════════════════════════════════
 
 def get_elo(team_cn: str) -> float | None:
-    entry = TEAM_DB.get(team_cn)
+    entry = TEAM_REGISTRY.elo_key(team_cn)
     if not entry:
         return None
     fname, code = entry
@@ -269,7 +325,13 @@ def poisson_pmf(k: int, lam: float) -> float:
     return math.exp(-lam) * (lam ** k) / math.factorial(k)
 
 
-def score_matrix(lam_h: float, lam_a: float, rho: float = RHO, n: int = 8) -> np.ndarray:
+def score_matrix(lam_h: float, lam_a: float, rho: float | None = None, n: int = 8) -> np.ndarray:
+    # rho默认值不能写成"= RHO"(会在模块加载时把当时的RHO值固定绑死进函数签名,
+    # 之后_reload_params_override()更新全局RHO对已绑定的默认值毫无作用)。
+    # 两处调用方(predict_match/run_pipeline)都不显式传rho, 全靠这个默认值,
+    # 改成None+运行时读取全局变量, 才能让热重载真正影响到这里。
+    if rho is None:
+        rho = RHO
     mat = np.zeros((n, n))
     for i in range(n):
         for j in range(n):
@@ -290,27 +352,111 @@ def elo_to_lambdas(elo_h: float, elo_a: float) -> tuple[float, float]:
 
 
 _xg_cache = None
+_xg_cache_mtime = 0
 def _load_xg_profiles() -> dict:
-    global _xg_cache
-    if _xg_cache is not None:
-        return _xg_cache
+    """加载xG档案。
+    (审计修复2026-07-02: 此前"读一次永久缓存", --serve长驻进程永远看不到
+    xg_profiles.json后续更新, 与_load_motivation()已有的mtime校验模式不一致。
+    改统一成同款: 检查文件mtime, 变化才重新读。)"""
+    global _xg_cache, _xg_cache_mtime
     xg_file = DATA_DIR / "xg_profiles.json"
-    if xg_file.exists():
+    if not xg_file.exists():
+        _xg_cache = {}
+        return _xg_cache
+    mtime = xg_file.stat().st_mtime
+    if _xg_cache is not None and mtime == _xg_cache_mtime:
+        return _xg_cache
+    try:
         _xg_cache = json.loads(xg_file.read_text(encoding="utf-8"))
-    else:
+        _xg_cache_mtime = mtime
+    except (json.JSONDecodeError, OSError):
         _xg_cache = {}
     return _xg_cache
 
 
+def _xg_factor(xg_profiles: dict, team_cn: str) -> float:
+    """xG 进攻质量乘子(审计修复)。
+    返回 1.0(中性, 不改变 λ)当: 无档案 / 无 attack_xg90 / players_found<3(样本不可靠,
+    如刚果金1人、卡塔尔0人)。这样缺失/不可靠队与有效队走同一尺度路径, 消除原"缺失队跳过
+    整块、有效队被cap钳到-4.5%"的非对称偏差。有效时按 attack_xg90/0.35 缩放并封顶[0.7,1.4]。
+    """
+    prof = xg_profiles.get(team_cn)
+    if not prof:
+        return 1.0
+    axg = prof.get("attack_xg90")
+    if not axg or prof.get("players_found", 0) < 3:
+        return 1.0
+    return max(0.7, min(1.4, axg / 0.35))  # 0.35=联赛平均npxG/90(硬编码基准, 来源待补)
+
+
+# ─── SofaScore 防守质量特征 (def_xga90) ───
+# 价值验证裁决: 在 40+ SofaScore 候选指标中, 唯一与现有信号正交且经实采验证可落盘的是
+# 近N场场均"被预期进球"(xGA/90)。理由:
+#   · Elo 是整体净实力, 不区分攻/防; Understat 档案只有进攻端 attack_xg90 → 防守维空缺。
+#   · 真实 xGA 比"被进球数"更稳(去运气), 比体彩盘口更细颗粒(盘口不拆攻防)。
+# 集成方式 = 镜像已验证的 _xg_factor: 作为对手进攻 λ 的乘子, 防守好(低xGA)→ 压低对手 λ。
+# 数据诚实门控: matches_found < SOFA_MIN_MATCHES 即中性(1.0), 与缺数据队走同一尺度路径,
+# 杜绝"有数据队被调、无数据队跳过"的非对称偏差(corners/xG 审计同款教训)。
+SOFA_MIN_MATCHES = 5      # 少于5场样本不可靠 → 中性
+# 基准 = 实采 46 支过门队 def_xga90 的中位数(2026-06-30 采集, n=46, median=1.10)。
+# 用中位数而非拍脑袋值: 让因子在真实分布中心对称, 强防守队<1、弱防守队>1, 无系统性偏移。
+SOFA_LEAGUE_XGA = 1.10
+_sofa_cache = None
+_sofa_cache_mtime = 0
+
+
+def _load_sofascore() -> dict:
+    """加载SofaScore防守特征, 同_load_xg_profiles()的mtime校验修复。"""
+    global _sofa_cache, _sofa_cache_mtime
+    if not SOFASCORE_FILE.exists():
+        _sofa_cache = {}
+        return _sofa_cache
+    mtime = SOFASCORE_FILE.stat().st_mtime
+    if _sofa_cache is not None and mtime == _sofa_cache_mtime:
+        return _sofa_cache
+    try:
+        _sofa_cache = json.loads(SOFASCORE_FILE.read_text(encoding="utf-8"))
+        _sofa_cache_mtime = mtime
+    except (json.JSONDecodeError, OSError):
+        _sofa_cache = {}
+    return _sofa_cache
+
+
+def _sofa_defense_factor(team_cn: str) -> float:
+    """对手进攻 λ 的防守乘子。返回 1.0(中性) 当: 无数据 / matches_found<SOFA_MIN_MATCHES /
+    无 def_xga90。有效时 = def_xga90 / 基准, 封顶 [0.80, 1.20](防小样本极值, ±20%上限)。
+    >1 = 该队防守差(被xG高) → 放大对手进攻; <1 = 防守好 → 压低对手进攻。
+    """
+    sofa = _load_sofascore()
+    prof = sofa.get(team_cn)
+    if not isinstance(prof, dict):
+        return 1.0
+    if prof.get("matches_found", 0) < SOFA_MIN_MATCHES:
+        return 1.0
+    xga = prof.get("def_xga90")
+    if not xga or xga <= 0:
+        return 1.0
+    return max(0.80, min(1.20, xga / SOFA_LEAGUE_XGA))
+
+
 _draw_model = None
+_draw_model_mtime = 0
 def _predict_draw_prob(elo_h: float, elo_a: float, home_cn: str = None, away_cn: str = None) -> float | None:
-    """用训练好的逻辑回归预测平局概率(v2: 8特征含风格+交锋)。"""
-    global _draw_model
-    if _draw_model is None:
-        dm_file = DATA_DIR / "draw_model.json"
-        if not dm_file.exists():
-            return None
-        _draw_model = json.loads(dm_file.read_text(encoding="utf-8"))
+    """用训练好的逻辑回归预测平局概率(v2: 8特征含风格+交锋)。
+    同_load_xg_profiles()的mtime校验修复: 此前"读一次永久缓存", --serve长驻
+    进程永远看不到draw_model.json后续被重新训练产出的新权重。"""
+    global _draw_model, _draw_model_mtime
+    dm_file = DATA_DIR / "draw_model.json"
+    if not dm_file.exists():
+        return None
+    mtime = dm_file.stat().st_mtime
+    if _draw_model is None or mtime != _draw_model_mtime:
+        try:
+            _draw_model = json.loads(dm_file.read_text(encoding="utf-8"))
+            _draw_model_mtime = mtime
+        except (json.JSONDecodeError, OSError):
+            if _draw_model is None:
+                return None  # 从未成功加载过, 没有旧缓存可回退
     m = _draw_model
     n_feats = len(m["w"])
 
@@ -326,8 +472,8 @@ def _predict_draw_prob(elo_h: float, elo_a: float, home_cn: str = None, away_cn:
         low_score_tendency, avg_conceded, h2h_draw = 0.40, 1.2, 0.25
 
         if home_cn and away_cn:
-            h_entry = TEAM_DB.get(home_cn)
-            a_entry = TEAM_DB.get(away_cn)
+            h_entry = TEAM_REGISTRY.elo_key(home_cn)
+            a_entry = TEAM_REGISTRY.elo_key(away_cn)
             if h_entry and a_entry:
                 h_code, a_code = h_entry[1], a_entry[1]
                 h_stats = _get_team_style(home_cn)
@@ -351,17 +497,23 @@ def _predict_draw_prob(elo_h: float, elo_a: float, home_cn: str = None, away_cn:
     return 1.0 / (1.0 + math.exp(-max(-500, min(500, z))))
 
 
-_style_cache = {}
+_style_cache = {}  # team_cn -> (tsv_mtime, result)
 def _get_team_style(team_cn: str) -> dict | None:
-    if team_cn in _style_cache:
-        return _style_cache[team_cn]
-    entry = TEAM_DB.get(team_cn)
+    """(审计修复2026-07-02: 此前按team_cn缓存后永不失效, 但源头tsv文件
+    (ELO_CACHE/{team}.tsv)会被get_elo()每24h重新抓取更新, --serve长驻进程
+    缓存命中后就再也不会用新抓的比赛数据重算球队风格特征。改成对比tsv文件
+    mtime, 变了才重新计算, 跟其余缓存(_xg_cache等)统一到同一套模式。)"""
+    entry = TEAM_REGISTRY.elo_key(team_cn)
     if not entry:
         return None
     fname, code = entry
     tsv = ELO_CACHE / f"{fname}.tsv"
     if not tsv.exists():
         return None
+    mtime = tsv.stat().st_mtime
+    cached = _style_cache.get(team_cn)
+    if cached is not None and cached[0] == mtime:
+        return cached[1]
     recent = []
     for line in tsv.read_text(encoding="utf-8").strip().split("\n")[-25:]:
         parts = line.split("\t")
@@ -386,13 +538,13 @@ def _get_team_style(team_cn: str) -> dict | None:
         "tempo": sum(m["scored"] + m["conceded"] for m in recent) / len(recent),
         "low_block": sum(1 for m in recent if m["conceded"] <= 1) / len(recent),
     }
-    _style_cache[team_cn] = result
+    _style_cache[team_cn] = (mtime, result)
     return result
 
 
 def _get_h2h_draw_rate(home_cn: str, away_cn: str) -> float:
-    h_entry = TEAM_DB.get(home_cn)
-    a_entry = TEAM_DB.get(away_cn)
+    h_entry = TEAM_REGISTRY.elo_key(home_cn)
+    a_entry = TEAM_REGISTRY.elo_key(away_cn)
     if not h_entry or not a_entry:
         return 0.25
     h_code, a_code = h_entry[1], a_entry[1]
@@ -416,18 +568,29 @@ def _get_h2h_draw_rate(home_cn: str, away_cn: str) -> float:
     return sum(h2h) / len(h2h)
 
 
-def _get_cohesion_factor(team_cn: str) -> float:
-    """综合磨合度因子: 自动量化 + 手动录入。返回 λ 乘数。"""
+def _get_cohesion_factor(team_cn: str, knockout: bool = False) -> float:
+    """综合磨合度因子: 自动量化 + 手动录入。返回 λ 乘数。
+
+    (审计修复) 淘汰赛阶段(knockout=True)跳过 first_world_cup=true 的手动惩罚:
+    这些队已踢满3场小组赛, "首次世界杯/集训不足/未磨合"前提已被证伪, 继续惩罚等于
+    对刚证明前提错误的球队双重扣分。改为穿透到下方自动量化逻辑(随新赛果自适应)。
+    """
     factor = 1.0
 
     # 手动定性因子(优先级最高,人工判断)
     if COHESION_FILE.exists():
-        coh = json.loads(COHESION_FILE.read_text(encoding="utf-8"))
+        try:
+            coh = json.loads(COHESION_FILE.read_text(encoding="utf-8"))
+        except (json.JSONDecodeError, OSError):
+            coh = {}  # 文件损坏/并发写入截断时不让整条pipeline崩溃, 退化为跳过手动因子
         if team_cn in coh:
-            return coh[team_cn].get("lambda_factor", 1.0)
+            entry = coh[team_cn]
+            # 淘汰赛阶段忽略"首次世界杯"前提的磨合惩罚, 穿透到自动量化
+            if not (knockout and entry.get("first_world_cup")):
+                return entry.get("lambda_factor", 1.0)
 
     # 自动量化: 基于近期比赛数和一致性
-    entry = TEAM_DB.get(team_cn)
+    entry = TEAM_REGISTRY.elo_key(team_cn)
     if not entry:
         return 1.0
     fname, code = entry
@@ -475,7 +638,7 @@ def weighted_goals_rate(team_cn: str, days_back: int = 365) -> tuple[float, floa
     返回 (加权场均进球, 加权场均失球),若数据不足返回 None。
     """
     XI = 0.0065  # 半衰期约107天
-    entry = TEAM_DB.get(team_cn)
+    entry = TEAM_REGISTRY.elo_key(team_cn)
     if not entry:
         return None
     fname, code = entry
@@ -533,34 +696,125 @@ def weighted_goals_rate(team_cn: str, days_back: int = 365) -> tuple[float, floa
     return (weighted_scored / total_weight, weighted_conceded / total_weight)
 
 
-_motivation_cache = None
-def _load_motivation() -> dict:
-    """加载战意系数 (实时积分/出线情况 → 期望进球调整系数)。"""
-    global _motivation_cache
-    if _motivation_cache is not None:
-        return _motivation_cache
+# 小组赛专有战意标签 — 这些状态在淘汰赛(单场淘汰人人必拼)毫无意义,
+# 一旦阶段进入淘汰赛必须忽略, 否则会用过时的小组赛系数污染 λ。
+#
+# (修复2026-07-02: 白名单曾只列4个标签(qualified_top2/fighting_3rd/eliminated/
+#  near_qualified), 但 standings.json 里实际出现过 fighting_top2/must_win_3rd/
+#  fighting_3rd_top8 三个未被列入的标签(经查是历史上手动/脚本写入, standings.py
+#  当前版本反而不产出这几个) —— 白名单漏了它们, 一旦_is_knockout_stage()因数据
+#  不同步误判False, 这三个漏网标签会穿透到面板显示, 如"fighting_top2 1.05"。
+#  这是双重防御的第二层(第一层是_is_knockout_stage硬判定), 必须覆盖 standings.json
+#  历史上出现过的全部小组赛状态, 不能只跟着 standings.py 当前代码的4个硬编码值。)
+_GROUP_STAGE_STATUSES = {
+    "qualified_top2", "fighting_3rd", "eliminated", "near_qualified",
+    "fighting_top2", "must_win_3rd", "fighting_3rd_top8",
+}
+
+
+def _check_wc_results_staleness() -> None:
+    """wc_results.json(淘汰赛真实比分)完全没有自动更新机制(Wikipedia/体彩比分
+    接口都需要额外投入才能接, 见memory: [已废弃]小组赛自进化结果), 只能靠日志
+    告警提醒需要人工补充——这是本次全方位审查里唯一"尚未产生实际错误但即将
+    产生"的数据缺口: 淘汰赛持续进行, 若没人手动追加战报, evolve_groupstage的
+    自进化样本会静默停止增长, 且此前完全没有任何提示会告诉你这件事在发生。
+    (用户已确认: 先加这个低成本告警兜底, 暂不投入建真正的自动抓取。)
+    """
+    f = DATA_DIR / "wc_results.json"
+    if not f.exists():
+        return
+    age_days = (time.time() - f.stat().st_mtime) / 86400
+    if age_days > 2:
+        print(f"  ⚠ wc_results.json已{age_days:.1f}天未更新, 若近期有淘汰赛"
+              f"结果产生, evolve_groupstage的自进化样本会静默停止增长, "
+              f"建议人工补充最新战报")
+
+
+def _is_knockout_stage() -> bool:
+    """判定当前是否已进入淘汰赛阶段(硬保护)。
+    依据: (1) standings.json 显式写了 stage; (2) wc_results 完成场次 >= 72(48队×3÷2,
+    小组赛全部打完); (3) 当前 predictions.json 已生成淘汰赛对阵。任一成立即判定 knockout。
+    淘汰赛阶段下小组赛战意逻辑(出线/已淘汰/已晋级轮换)全部失效。"""
+    # (1) standings.json 显式 stage
     f = DATA_DIR / "standings.json"
     if f.exists():
         try:
             d = json.loads(f.read_text(encoding="utf-8"))
-            _motivation_cache = d.get("motivation", {})
+            if str(d.get("stage", "")).lower() == "knockout":
+                return True
         except Exception:
-            _motivation_cache = {}
-    else:
+            pass
+    # (2) 小组赛 72 场全部完成
+    rf = DATA_DIR / "wc_results.json"
+    if rf.exists():
+        try:
+            r = json.loads(rf.read_text(encoding="utf-8"))
+            results = r.get("results", r) if isinstance(r, dict) else r
+            if isinstance(results, list) and len(results) >= 72:
+                return True
+        except Exception:
+            pass
+    return False
+
+
+def _injuries_is_fresh() -> bool:
+    """injuries.json 是否仍然时效新鲜(审计修复)。
+    手动 injuries.json 无 as_of 字段, 以文件 mtime 对比 standings.json(随赛果更新)的
+    mtime: 若伤情文件早于最新赛果同步, 视为过时停用, 避免旧伤情污染 λ。"""
+    inj = INJURIES_FILE
+    st = DATA_DIR / "standings.json"
+    if not inj.exists():
+        return False
+    if not st.exists():
+        return True  # 无参照, 保守保留
+    try:
+        return inj.stat().st_mtime >= st.stat().st_mtime
+    except OSError:
+        return True
+
+
+_motivation_cache = None
+_motivation_mtime = 0
+def _load_motivation() -> dict:
+    """加载战意系数 (实时积分/出线情况 → 期望进球调整系数)。
+    每次检查文件 mtime, 如果 standings.json 更新了就重新加载。"""
+    global _motivation_cache, _motivation_mtime
+    f = DATA_DIR / "standings.json"
+    if not f.exists():
+        _motivation_cache = {}
+        return _motivation_cache
+    mtime = f.stat().st_mtime
+    if _motivation_cache is not None and mtime == _motivation_mtime:
+        return _motivation_cache  # 缓存有效
+    try:
+        d = json.loads(f.read_text(encoding="utf-8"))
+        _motivation_cache = d.get("motivation", {})
+        _motivation_mtime = mtime
+    except Exception:
         _motivation_cache = {}
     return _motivation_cache
 
 
 def _get_team_motivation(team_en: str) -> tuple[float, str]:
-    """根据球队英文名取战意系数和状态。返回 (motivation_factor, status_label)。"""
+    """根据球队英文名取战意系数和状态。返回 (motivation_factor, status_label)。
+
+    (审计修复) 淘汰赛阶段硬保护: 小组赛排名战意(出线/已淘汰/已晋级轮换)在单场淘汰
+    赛制下无意义, 且 standings.json 仍挂着过时的小组赛状态。淘汰赛阶段一律返回 1.0,
+    彻底关闭小组赛战意逻辑, 杜绝残留数据污染 λ。
+    """
     if not team_en:
         return 1.0, "unknown"
+    if _is_knockout_stage():
+        return 1.0, "knockout"
     m = _load_motivation()
     info = m.get(team_en)
     if not info:
         return 1.0, "unknown"
-    factor = float(info.get("motivation", 1.0))
     status = info.get("status", "fighting")
+    # 防御: 即便 key 命中, 若是小组赛专有标签也强制中性(双保险, 阶段判定之外再兜底)
+    if status in _GROUP_STAGE_STATUSES:
+        return 1.0, "knockout"
+    factor = float(info.get("motivation", 1.0))
     label_map = {
         "qualified_top2": "已出线(轮换)",
         "near_qualified": "接近出线",
@@ -600,25 +854,21 @@ def predict_match(elo_h: float, elo_a: float, adj_h: float = 1.0, adj_a: float =
         wgr_h = weighted_goals_rate(home_cn)
         if wgr_h is not None:
             hist_lam_h = wgr_h[0]
-            lam_h = 0.60 * lam_h + 0.25 * hist_lam_h
+            # (审计修复 BUG-1) Elo/历史权重归一: 原 0.60+0.25=0.85 会静默把 λ 缩小15%,
+            # 且 xG 块乘的是已缩水值无法补回。除以 0.85 复原尺度, 权重和=1.0。
+            lam_h = (0.60 * lam_h + 0.25 * hist_lam_h) / 0.85
             # xG 档案进攻质量微调
-            if home_cn in xg_profiles and xg_profiles[home_cn].get("attack_xg90"):
-                xg_factor = xg_profiles[home_cn]["attack_xg90"] / 0.35  # 0.35=联赛平均npxG/90
-                xg_factor = max(0.7, min(1.4, xg_factor))  # 封顶避免极端
-                lam_h = 0.85 * lam_h + 0.15 * (lam_h * xg_factor)
-        else:
-            lam_h = 0.70 * lam_h + 0.30 * lam_h  # 无历史数据不变
+            # (审计修复 BUG-2 + 门控) 仅当样本足够(players_found>=3)且有 attack_xg90 时启用;
+            # 否则中性(xg_factor=1.0, 不改变 λ), 使缺失队与有效队走同一尺度, 消除非对称偏差。
+            xg_factor = _xg_factor(xg_profiles, home_cn)
+            lam_h = 0.85 * lam_h + 0.15 * (lam_h * xg_factor)
     if away_cn:
         wgr_a = weighted_goals_rate(away_cn)
         if wgr_a is not None:
             hist_lam_a = wgr_a[0]
-            lam_a = 0.60 * lam_a + 0.25 * hist_lam_a
-            if away_cn in xg_profiles and xg_profiles[away_cn].get("attack_xg90"):
-                xg_factor = xg_profiles[away_cn]["attack_xg90"] / 0.35
-                xg_factor = max(0.7, min(1.4, xg_factor))
-                lam_a = 0.85 * lam_a + 0.15 * (lam_a * xg_factor)
-        else:
-            lam_a = 0.70 * lam_a + 0.30 * lam_a
+            lam_a = (0.60 * lam_a + 0.25 * hist_lam_a) / 0.85
+            xg_factor = _xg_factor(xg_profiles, away_cn)
+            lam_a = 0.85 * lam_a + 0.15 * (lam_a * xg_factor)
 
     lam_h = max(lam_h, 0.25)
     lam_a = max(lam_a, 0.25)
@@ -697,10 +947,19 @@ def predict_match(elo_h: float, elo_a: float, adj_h: float = 1.0, adj_a: float =
         hc_prior = {"h": round(hc_h, 4), "d": round(hc_d, 4), "a": round(hc_a, 4),
                     "line": "-1"}
 
-    # 总进球
+    # 总进球: 0..n-2球各自"恰好N球", 最后一档(n-1, 通常是"7")是市场约定的
+    # "N+球"开口档, 而非"恰好N球"。
+    # (审计修复2026-07-02: 此前最后一档只算"恰好7球", 且score_matrix用n=8
+    # 截断(每队最多算到7球), i+j>=8的所有组合(如4-4/4-5等)被完全丢弃, 既没
+    # 算进模型自己的分布也没暴露出来, 导致9场生产预测的ttg字典求和实测都<1
+    # (缺失0.46%~2.0%), 不是合法概率分布; 且市场盘口的这一档本身就是"N球或
+    # 以上"开口档, 用"恰好N球"的口径去跟市场devig概率算edge, 会系统性压低
+    # 这一档的edge(exact-N的概率天然小于N+的概率)。改为把所有i+j>=n-1的格子
+    # 折进最后一档, 使模型分布严格归一且与市场同口径。)
     ttg = {}
-    for g in range(n):
+    for g in range(n - 1):
         ttg[str(g)] = float(sum(mat[i, g-i] for i in range(n) if 0 <= g-i < n))
+    ttg[str(n - 1)] = float(sum(mat[i, j] for i in range(n) for j in range(n) if i + j >= n - 1))
     # 热门比分
     scores = [(f"{i}-{j}", float(mat[i, j])) for i in range(6) for j in range(6)]
     scores.sort(key=lambda x: -x[1])
@@ -740,39 +999,50 @@ def get_corner_boost(team: str) -> float:
     Returns:
         λ 加成(0-0.15),直接乘到 λ 上(如 λ × (1 + boost))
     """
-    # 1. 优先读 corners.json
+    # 仅对 corners.json 中有真实定位球数据的队伍加成。
+    # (审计修复) 删除原 Elo fallback: 用整体实力Elo冒充定位球能力是编造特征
+    # (强队≠定位球强队, 二者无统计关联), 且会给90%无数据队伍最高15%无依据加成。
+    # 无 corners.json 数据 → 返回 0.0 (不加成)。
     if CORNERS_FILE.exists():
         try:
             corners_data = json.loads(CORNERS_FILE.read_text(encoding="utf-8"))
             if team in corners_data:
                 entry = corners_data[team]
                 cpg = entry.get("corners_per_game", 0)  # 场均角球数
-                ctg = entry.get("corners_to_goals", 0)  # 角球转化率
+                ctg = entry.get("corners_to_goals", 0)  # 角球转化率(口径存疑, 见 corners.json)
 
-                # 综合评分: 场均角球数反映控制力,转化率反映效率
-                # 欧洲顶级队伍: cpg ~6-7, ctg ~0.10-0.12
-                # 归一化: cpg/7 × 0.5 + ctg/0.12 × 0.5, 上限 0.15
-                score = (min(cpg / 7.0, 1.0) * 0.5 + min(ctg / 0.12, 1.0) * 0.5) * 0.15
+                # 综合评分: 场均角球数反映控制力,转化率反映效率。
+                # 归一化基准用固定值(cpg/8, ctg/0.15)而非写死天花板队,
+                # 避免数据集中最强的队被人为顶到 min 上限(原 cpg/7、ctg/0.12 让德国撞顶)。
+                score = (min(cpg / 8.0, 1.0) * 0.5 + min(ctg / 0.15, 1.0) * 0.5) * 0.15
                 return round(score, 3)
         except (json.JSONDecodeError, KeyError, TypeError):
             pass
 
-    # 2. fallback: 用 Elo 估算
-    elo = get_elo(team)
-    if elo is None:
-        return 0.0
+    return 0.0
 
-    # Elo -> 角球能力映射
-    # 假设: Elo 2000+ → 0.12, Elo 1800 → 0.06, Elo 1500 → 0.0
-    # 线性映射: boost = max(0, (elo - 1500) / 500 * 0.12)
-    if elo >= 2000:
-        boost = 0.12
-    elif elo >= 1500:
-        boost = (elo - 1500) / 500 * 0.12
-    else:
-        boost = 0.0
 
-    return round(min(boost, 0.15), 3)
+def get_news_notices(home_cn: str, away_cn: str, match_date: str) -> list[dict]:
+    """
+    只读场外因素新闻(不触发网络抓取, 抓取由独立的 fetch_news.py 定时任务完成).
+
+    不做概率量化, 仅作为面板 notice 提醒, 让人自行判断影响。
+    """
+    if not NEWS_FILE.exists():
+        return []
+    try:
+        news = json.loads(NEWS_FILE.read_text(encoding="utf-8"))
+    except json.JSONDecodeError:
+        return []
+    match_key = f"{match_date}_{home_cn}_{away_cn}"
+    block = news.get(match_key)
+    if not block:
+        return []
+    out = []
+    for side, side_cn in (("home", home_cn), ("away", away_cn)):
+        for item in block.get(side, []):
+            out.append({**item, "team": side_cn})
+    return out
 
 
 def get_adjustments(home: str, away: str) -> tuple[float, float, list[str]]:
@@ -790,26 +1060,33 @@ def get_adjustments(home: str, away: str) -> tuple[float, float, list[str]]:
         adj_a *= (1.0 + corner_boost_a)
         notes.append(f"{away}定位球能力强(λ×{1+corner_boost_a:.3f})")
 
-    # 风格相克调整
-    h_style = _get_team_style(home)
-    a_style = _get_team_style(away)
-    if h_style and a_style:
-        # 进攻型 vs 防守型: 进攻方λ打折(被克制), 防守方λ不变
-        h_is_attacker = h_style["attack"] > 1.8 and h_style["tempo"] > 2.8
-        a_is_attacker = a_style["attack"] > 1.8 and a_style["tempo"] > 2.8
-        h_is_defensive = a_style["low_block"] > 0.65 and a_style["attack"] < 1.6
-        a_is_defensive = h_style["low_block"] > 0.65 and h_style["attack"] < 1.6
+    # SofaScore 防守质量 (def_xga90) — 对手防守好/差 → 压低/放大本队进攻 λ。
+    # 价值验证唯一裁定可集成的正交特征(Elo不分攻防、Understat仅进攻端)。
+    # 跨向乘子: away 的防守因子作用于 home 的 adj_h, 反之亦然。
+    # 数据诚实: 任一方无数据/样本<5 → 因子=1.0 中性, 不惩罚不加成。
+    sofa_def_h = _sofa_defense_factor(home)  # home 防守 → 影响 away 进攻
+    sofa_def_a = _sofa_defense_factor(away)  # away 防守 → 影响 home 进攻
+    if abs(sofa_def_a - 1.0) > 0.01:
+        adj_h *= sofa_def_a
+        verb = "差" if sofa_def_a > 1.0 else "强"
+        notes.append(f"{away}近况防守{verb}[实采xGA](影响{home}进攻 λ×{sofa_def_a:.2f})")
+    if abs(sofa_def_h - 1.0) > 0.01:
+        adj_a *= sofa_def_h
+        verb = "差" if sofa_def_h > 1.0 else "强"
+        notes.append(f"{home}近况防守{verb}[实采xGA](影响{away}进攻 λ×{sofa_def_h:.2f})")
 
-        if h_is_attacker and h_is_defensive:
-            adj_h *= 0.88
-            notes.append(f"风格相克: {home}进攻被{away}防反克制(λ×0.88)")
-        elif a_is_attacker and a_is_defensive:
-            adj_a *= 0.88
-            notes.append(f"风格相克: {away}进攻被{home}防反克制(λ×0.88)")
+    # 风格相克调整 — (审计修复) 已禁用。
+    # 该特征无任何真实战术数据: _get_team_style 仅用近25场比分结果反推"进攻型/防守型",
+    # 混入友谊赛/各洲预选, 指标反映赛程强度而非风格; 分类逻辑自相矛盾(强攻击队被判为防守队);
+    # 0.88 系数与 1.8/2.8/0.65 阈值均为无回测依据的拍脑袋值。带来噪声而非信号, 故移除。
+    # 如需恢复: 必须先用 backtest_v2 消融实验标定系数, 并改用真实 xG/控球/压迫数据。
 
     # 磨合度/经验因子 (自动量化 + 手动定性)
+    # (审计修复) 淘汰赛阶段跳过"首次世界杯未磨合"等小组赛前提的手动惩罚:
+    # 被罚队已踢满3场小组赛, "未磨合"前提被证伪; 让程序穿透到自动量化逻辑。
+    knockout = _is_knockout_stage()
     for team, adj_key in [(home, "adj_h"), (away, "adj_a")]:
-        cohesion_factor = _get_cohesion_factor(team)
+        cohesion_factor = _get_cohesion_factor(team, knockout=knockout)
         if cohesion_factor != 1.0:
             if adj_key == "adj_h":
                 adj_h *= cohesion_factor
@@ -819,8 +1096,14 @@ def get_adjustments(home: str, away: str) -> tuple[float, float, list[str]]:
                 notes.append(f"{team}磨合度低(λ×{cohesion_factor:.2f})")
 
     # 伤病 (从 injuries.json 读取)
-    if INJURIES_FILE.exists():
-        inj = json.loads(INJURIES_FILE.read_text(encoding="utf-8"))
+    # (审计修复) 时效门控: injuries.json 为手动维护且无 as_of 字段。若其 mtime 早于
+    # standings.json(最新赛果同步时间), 视为过时数据并停用 — 防止小组赛结束前的旧伤情
+    # (如"德容存疑"但其实已康复首发)继续以最高优先级污染 λ。
+    if INJURIES_FILE.exists() and _injuries_is_fresh():
+        try:
+            inj = json.loads(INJURIES_FILE.read_text(encoding="utf-8"))
+        except (json.JSONDecodeError, OSError):
+            inj = {}
         for team, adj_key in [(home, "adj_h"), (away, "adj_a")]:
             if team in inj:
                 factor = inj[team].get("lambda_factor", 1.0)
@@ -832,9 +1115,17 @@ def get_adjustments(home: str, away: str) -> tuple[float, float, list[str]]:
                     notes.append(f"{team}: {inj[team].get('reason','伤停')} (λ×{factor:.2f})")
 
     # 天气 (高温>33°C 或 湿度>85% 降总进球)
+    # (审计修复2026-07-02: 此前这里裸读取, 全文件唯一没有try/except保护的数据源
+    # ——corners.json/cohesion.json/sofascore都已有保护。get_adjustments被run_pipeline
+    # 对每场比赛调用一次, 且调用链上无外层try/except, weather.json一旦被并发写入
+    # 截断或写入非法JSON, 会直接抛出未捕获异常中止整条run_pipeline, predictions.json
+    # 不再更新, 而/api/refresh在此崩溃前已发送200, 客户端会误判"刷新成功"。)
     weather_file = DATA_DIR / "weather.json"
     if weather_file.exists():
-        w = json.loads(weather_file.read_text(encoding="utf-8"))
+        try:
+            w = json.loads(weather_file.read_text(encoding="utf-8"))
+        except (json.JSONDecodeError, OSError):
+            w = {}
         key = f"{home}vs{away}"
         if key in w and "temp_c" in w[key]:
             max_temp = max(w[key]["temp_c"])
@@ -1074,9 +1365,51 @@ def compute_recommendations(rec: dict, pred: dict) -> list[dict]:
     return out
 
 
+def _atomic_write_text(path: Path, content: str, encoding: str = "utf-8") -> None:
+    """原子写: 先写临时文件再os.replace()替换, 避免读者读到写入中途的半成品。
+
+    (审计修复2026-07-02: predictions.json/prediction_history.json/index.html
+    此前都是裸write_text(先truncate再写入新内容), 对于几万行的大json文件写入
+    有一定耗时。_pipeline_lock已经解决了"两个run_pipeline()互相踩写"的竞态,
+    但读者(如/data/predictions.json的HTTP请求, 或本地另一进程直接读文件)在
+    这个写入窗口期读, 仍可能读到被截断的不完整内容——这是读写竞态, 锁解决
+    不了(锁只保护写者之间, 不会让读者等待)。os.replace()在同一文件系统内
+    是原子操作, 读者只会看到"旧完整版本"或"新完整版本", 不会看到中间状态。)
+    """
+    tmp = path.parent / (path.name + ".tmp")
+    tmp.write_text(content, encoding=encoding)
+    os.replace(tmp, path)
+
+
 # ═══════════════════════════════════════════════════════════════════
 # 6. HTML 生成 (带刷新按钮 + 自动重载)
 # ═══════════════════════════════════════════════════════════════════
+
+def _pct3(*probs: float) -> list[int]:
+    """
+    把 n 个概率(和应为1.0)转成整数百分比, 保证总和恒等于100。
+
+    (修复2026-07-02: 用户报告"胜平负加起来概率大于1"。根因不是概率计算错误
+    ——排查确认 hc_prior/hhad_posterior/prior/had_posterior 等底层字段sum全部
+    精确=1.0000, 是渲染层用 {x:.0%} 对h/d/a各自独立四舍五入导致的: 例如
+    0.7852/0.1578/0.0570 独立round成79/16/6, 相加=101%。原始数字都对,
+    只是分别取整时产生的误差没有互相抵消。
+
+    用最大余数法(Largest Remainder Method)修复: 先都向下取整, 算出总共
+    "亏欠"的百分点数, 按小数部分从大到小补给对应的项, 数学上保证 sum(结果)
+    恒等于100, 且每一项的调整幅度不超过1个百分点(视觉上几乎不可察觉)。
+    """
+    n = len(probs)
+    scaled = [p * 100 for p in probs]
+    floors = [int(s) for s in scaled]
+    remainder = 100 - sum(floors)
+    # 按小数部分从大到小排序, 把亏欠的百分点分给最"该四舍五入向上"的项
+    order = sorted(range(n), key=lambda i: scaled[i] - floors[i], reverse=True)
+    result = floors[:]
+    for i in range(remainder):
+        result[order[i % n]] += 1
+    return result
+
 
 def _mot_color(motivation: float) -> str:
     """战意系数 → 颜色: 1.0=正常, <0.95=灰(轮换/淘汰), >1.05=绿(必拼)"""
@@ -1087,34 +1420,215 @@ def _mot_color(motivation: float) -> str:
     return "#c4bcb2"  # normal text
 
 
+_TREND_W, _TREND_H = 560, 96
+_TREND_PAD_L, _TREND_PAD_R = 4, 4
+
+
+def _render_trend_chart(points: list[dict]) -> str:
+    """
+    生成近12h概率趋势的可拖动SVG图。
+
+    x轴固定跨度12小时(不是"最早点到最晚点"), 这样比赛刚上架只有1-2个点时
+    图表右侧留白, 不会把稀疏数据拉伸成误导性的满幅曲线; 数据点随时间推进
+    自然从右侧长出来。
+
+    拖动交互由JS完成(见render_html的<script>): 鼠标/触摸移动时找最近的点,
+    移动竖线光标+更新读数框, 不重新请求数据(纯前端插值, 零成本)。
+    """
+    import json as _json
+    now = datetime.now()
+    window_start = now - timedelta(hours=12)
+
+    def x_of(t_iso: str) -> float:
+        t = datetime.fromisoformat(t_iso)
+        frac = (t - window_start).total_seconds() / (12 * 3600)
+        frac = max(0.0, min(1.0, frac))
+        return _TREND_PAD_L + frac * (_TREND_W - _TREND_PAD_L - _TREND_PAD_R)
+
+    # Y轴自适应缩放: 让球盘融合权重70%给市场, 市场半天不开新盘时概率常常
+    # 只微幅漂移(<2%), 若Y轴固定按0-100%整幅画, 0.5%的变化只占96px高的
+    # 不到1px, 肉眼看就是一条死直线 —— 这才是"全是水平线"的真实原因,
+    # 不是没记录到变化, 是变化被画图的固定量程压没了。
+    # 修复: 按当前窗口内 h/d/a 三条线的真实min/max定Y轴范围, 并强制保留
+    # 至少 MIN_SPAN 的可视幅度(避免真正持平时反而因除零/过度放大出现抖动假象)。
+    all_vals = [pt[k] for pt in points for k in ("h", "d", "a")]
+    v_min, v_max = min(all_vals), max(all_vals)
+    MIN_SPAN = 0.06  # 至少按6个百分点的幅度画, 小于这个视觉上已算"持平"
+    span = max(v_max - v_min, MIN_SPAN)
+    mid = (v_max + v_min) / 2
+    y_lo = max(0.0, mid - span / 2)
+    y_hi = min(1.0, y_lo + span)
+    if y_hi - y_lo < span:  # 撞到0或1的边界, 反向补回来
+        y_lo = max(0.0, y_hi - span)
+
+    def y_of(p: float) -> float:
+        frac = (p - y_lo) / (y_hi - y_lo) if y_hi > y_lo else 0.5
+        frac = max(0.0, min(1.0, frac))
+        return _TREND_H - 10 - frac * (_TREND_H - 20)  # 10px上下留白(给范围标注留空间)
+
+    series = {"h": [], "d": [], "a": []}
+    for pt in points:
+        x = x_of(pt["t"])
+        for k in ("h", "d", "a"):
+            series[k].append((x, y_of(pt[k])))
+
+    # 卡通配色: 高饱和荧光色, 在深色背景上要"跳出来"而不是融进去
+    colors = {"h": "#3ddc84", "d": "#ffd23d", "a": "#4fc3ff"}
+    glow_ids = {"h": "glowH", "d": "glowD", "a": "glowA"}
+
+    def _pts_str(k):
+        return " ".join(f"{x:.1f},{y:.1f}" for x, y in series[k])
+
+    # 面积填充(渐变到透明), 让曲线不再是"细线飘在黑洞里", 而是有体积感的色带
+    def _area_path(k):
+        pts = series[k]
+        top = " L ".join(f"{x:.1f},{y:.1f}" for x, y in pts)
+        return (f"M {pts[0][0]:.1f},{_TREND_H} L {top} "
+                f"L {pts[-1][0]:.1f},{_TREND_H} Z")
+
+    areas = "".join(
+        f'<path d="{_area_path(k)}" fill="url(#fill{k.upper()})" class="trend-area trend-area-{k}"/>'
+        for k in ("h", "d", "a")
+    )
+    # 曲线本体: 加发光滤镜+粗描边, 卡通描边质感(先画深色描边垫底,再叠亮色主线)
+    outlines = "".join(
+        f'<polyline points="{_pts_str(k)}" fill="none" stroke="#1a1512" '
+        f'stroke-width="5.5" stroke-linecap="round" stroke-linejoin="round" opacity="0.5"/>'
+        for k in ("h", "d", "a")
+    )
+    polylines = "".join(
+        f'<polyline points="{_pts_str(k)}" fill="none" stroke="{colors[k]}" '
+        f'stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round" '
+        f'filter="url(#{glow_ids[k]})" class="trend-line trend-{k}"/>'
+        for k in ("h", "d", "a")
+    )
+    # 数据点圆点: 白心+彩色描边的"糖豆"造型, 最后一点加呼吸动画表示"实时"
+    def _dot(k, cx, cy, live=False):
+        cls = "trend-dot trend-dot-live" if live else "trend-dot"
+        r = 6 if live else 4.5
+        return (f'<circle cx="{cx:.1f}" cy="{cy:.1f}" r="{r}" fill="{colors[k]}" '
+                f'stroke="#fff" stroke-width="1.6" class="{cls}"/>')
+    all_dots = "".join(
+        _dot(k, *series[k][-1], live=True) for k in ("h", "d", "a")
+    )
+    points_json = _json.dumps([
+        {"t": pt["t"], "h": pt["h"], "d": pt["d"], "a": pt["a"], "x": round(x_of(pt["t"]), 1)}
+        for pt in points
+    ], ensure_ascii=False)
+
+    defs = "".join(
+        f'''<linearGradient id="fill{k.upper()}" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stop-color="{colors[k]}" stop-opacity="0.45"/>
+          <stop offset="100%" stop-color="{colors[k]}" stop-opacity="0"/>
+        </linearGradient>
+        <filter id="{glow_ids[k]}" x="-50%" y="-50%" width="200%" height="200%">
+          <feGaussianBlur stdDeviation="2.2" result="blur"/>
+          <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+        </filter>'''
+        for k in ("h", "d", "a")
+    )
+
+    # Y轴范围提示: 缩放后曲线看起来波动很大, 必须标注真实量程, 否则会
+    # 把"其实只变了0.5%"误读成"剧烈波动"——这跟修复"看不出变化"同等重要。
+    zoom_note = (f"纵轴 {y_lo*100:.0f}%~{y_hi*100:.0f}%" if span > MIN_SPAN + 1e-6
+                 else "纵轴 0%~100%(变化<6pt, 已按最小量程显示)")
+
+    return f'''<div class="trend-wrap">
+    <div class="trend-hdr"><span>✨ 近12h让球盘概率走势</span><span class="trend-hint">👆 拖动查看历史</span></div>
+    <svg class="trend-svg" viewBox="0 0 {_TREND_W} {_TREND_H}" preserveAspectRatio="none"
+         data-points='{points_json}'>
+      <defs>{defs}</defs>
+      {areas}
+      {outlines}
+      {polylines}
+      {all_dots}
+      <line class="trend-cursor" x1="0" y1="0" x2="0" y2="{_TREND_H}" style="display:none"/>
+      <circle class="trend-cursor-dot" r="4" style="display:none"/>
+      <text x="{_TREND_W - 6}" y="12" text-anchor="end" class="trend-zoom-note">{zoom_note}</text>
+    </svg>
+    <div class="trend-readout"></div>
+  </div>'''
+
+
 def render_html(predictions: list[dict]) -> str:
     gen_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    try:
+        from odds_trend import get_trend
+    except Exception:
+        get_trend = lambda *a, **k: []
+    # 记分牌数据: 当前进化参数 + 最近回测命中率 + 版本号(predictions.json mtime, 供前端轮询)
+    _pf = DATA_DIR / "predictions.json"
+    page_version = int(_pf.stat().st_mtime) if _pf.exists() else 0
+    _hit_pct = ""
+    if _PARAMS_OVERRIDE.exists():
+        try:
+            _ov = __import__("json").loads(_PARAMS_OVERRIDE.read_text(encoding="utf-8"))
+            if _ov.get("hit_rate") is not None:
+                _hit_pct = f"{_ov['hit_rate']*100:.0f}%"
+        except Exception:
+            pass
     # 数据来源/新鲜度
+    # (审计修复2026-07-02: 此前只算了age_sec用于文字描述, 但LIVE绿点徽章硬编码
+    # 常亮, 跟数据实际年龄完全无关——fetch_sporttery()抓取失败会静默回退陈旧
+    # 缓存(已用真实断网事件push.log 2026-07-02 03:48:01验证过), 断网期间页面
+    # 仍显示绿色LIVE+呼吸动画, 用户无法从视觉上分辨"实时"还是"用户没告诉你的
+    # 陈旧数据"。现在统一记录data_age_sec, 按年龄分三档降级徽章样式, 超过阈值
+    # 再加顶部醒目banner, 不能只让用户自己读小字时间戳。)
     fresh = DATA_DIR / "odds_parsed_fresh.json"
     if fresh.exists():
-        age_sec = time.time() - fresh.stat().st_mtime
-        if age_sec < 3600:
-            data_source = f"4090 relay ({int(age_sec/60)}分钟前)"
+        data_age_sec = time.time() - fresh.stat().st_mtime
+        if data_age_sec < 3600:
+            data_source = f"4090 relay ({int(data_age_sec/60)}分钟前)"
         else:
-            data_source = f"4090 relay ({int(age_sec/3600)}小时前)"
+            data_source = f"4090 relay ({int(data_age_sec/3600)}小时前)"
     else:
         cache = DATA_DIR / "odds_parsed.json"
         if cache.exists():
-            age_sec = time.time() - cache.stat().st_mtime
-            data_source = f"本地缓存 ({int(age_sec/60)}分钟前)"
+            data_age_sec = time.time() - cache.stat().st_mtime
+            data_source = f"本地缓存 ({int(data_age_sec/60)}分钟前)"
         else:
+            data_age_sec = float("inf")
             data_source = "未知"
+
+    if data_age_sec < 2 * 3600:
+        freshness_cls, freshness_label = "live", "LIVE"
+    elif data_age_sec < 6 * 3600:
+        freshness_cls, freshness_label = "stale-warn", "数据滞后"
+    else:
+        freshness_cls, freshness_label = "stale-bad", "数据滞后"
+    freshness_banner = ""
+    if data_age_sec >= 4 * 3600:
+        hrs = "未知" if data_age_sec == float("inf") else f"{data_age_sec/3600:.1f}小时"
+        freshness_banner = (
+            f'<div class="freshness-banner">'
+            f'⚠ 盘口数据已 {hrs} 未更新, 当前展示的概率/购买建议可能已过时, 请谨慎参考'
+            f'</div>')
     cards_html = []
-    for p in predictions:
+    for _card_i, p in enumerate(predictions):
         # ═══ 主显示: 让球盘后验概率 ═══
         ph = p["hhad_posterior"]["h"]
         pd_ = p["hhad_posterior"]["d"]
         pa = p["hhad_posterior"]["a"]
         handicap_line = p.get("handicap_line", "-1")
-        # 概率条比例(百分比宽度)
+        # 概率条比例(百分比宽度, 用原始浮点数, 不受下面整数归一影响)
         bar_h = f"{ph*100:.1f}"
         bar_d = f"{pd_*100:.1f}"
         bar_a = f"{pa*100:.1f}"
+        # 整数百分比文字显示: 用最大余数法保证三者相加恒=100(见_pct3注释)
+        pct_h, pct_d, pct_a = _pct3(ph, pd_, pa)
+        hc_prior_pct = _pct3(p["hc_prior"]["h"], p["hc_prior"]["d"], p["hc_prior"]["a"])
+
+        # 近12h概率趋势图: 取历史采样点 + 追加当前值(确保曲线延伸到"现在"),
+        # 少于2个点(比赛刚上架, 还没积累趋势)则不渲染图表。
+        _trend_pts = get_trend(p["home"], p["away"], p.get("date", ""))
+        _now_pt = {"t": datetime.now().isoformat(timespec="seconds"),
+                   "h": round(ph, 4), "d": round(pd_, 4), "a": round(pa, 4)}
+        if not _trend_pts or _trend_pts[-1]["t"] != _now_pt["t"]:
+            _trend_pts = _trend_pts + [_now_pt]
+        if len(_trend_pts) >= 2:
+            trend_html = _render_trend_chart(_trend_pts)
+        else:
+            trend_html = '<div class="trend-empty">趋势积累中(每次刷新记一个点, 12小时后可看变化曲线)</div>'
 
         # 模型置信度: max(posterior) 越高越确信
         confidence = max(ph, pd_, pa)
@@ -1136,14 +1650,16 @@ def render_html(predictions: list[dict]) -> str:
         mkt_row = ""
         if p.get("hhad_market"):
             m = p["hhad_market"]
+            m_pct = _pct3(m.get("h", 0), m.get("d", 0), m.get("a", 0))
             mkt_row = f'''<tr><td class="row-label">市场</td>
-            <td class="num">{m["h"]:.0%}</td><td class="num">{m["d"]:.0%}</td><td class="num">{m["a"]:.0%}</td></tr>'''
+            <td class="num">{m_pct[0]}%</td><td class="num">{m_pct[1]}%</td><td class="num">{m_pct[2]}%</td></tr>'''
 
         # 常规盘胜率 (小字显示,仅供参考)
         had_ref = ""
         if p.get("had_posterior"):
             hp = p["had_posterior"]
-            had_ref = f'<div class="had-ref">常规盘参考: 主{hp["h"]:.0%} / 平{hp["d"]:.0%} / 客{hp["a"]:.0%}</div>'
+            _hr_pct = _pct3(hp["h"], hp["d"], hp["a"])
+            had_ref = f'<div class="had-ref">常规盘参考: 主{_hr_pct[0]}% / 平{_hr_pct[1]}% / 客{_hr_pct[2]}%</div>'
 
         # 热门比分
         scores = p.get("top_scores", [])[:5]
@@ -1161,6 +1677,27 @@ def render_html(predictions: list[dict]) -> str:
                 f'<div class="insight movement">{_safe_html(p["odds_movement"])}</div>'
             )
 
+        # 场外因素新闻 notice(不量化概率, 仅提醒人工判断)
+        # (审计修复2026-07-02: title/source/link来自Google News RSS抓取的外部内容,
+        # 此前直接拼接进HTML, 未做html.escape——link还被直接用在href=属性里, 存在
+        # 潜在XSS风险面(纵深防御: 即便Google News本身可信, 抓取链路上任何环节被
+        # 污染都会直接注入到面板)。全部字段渲染前统一转义。)
+        news_html = ""
+        for n in p.get("news_notices", []) or []:
+            title = html.escape(n.get("title", ""))
+            src = html.escape(n.get("source", ""))
+            link = html.escape(n.get("link", "#"), quote=True)
+            label = html.escape(n.get("label", ""))
+            team = html.escape(n.get("team", ""))
+            news_html += (
+                f'<div class="news-notice">'
+                f'<span class="news-tag">{label}</span>'
+                f'<span class="news-team">{team}</span>'
+                f'<a href="{link}" target="_blank" rel="noopener" class="news-title">{title}</a>'
+                f'<span class="news-src">{src}</span>'
+                f'</div>'
+            )
+
         # 让球线显示
         try:
             hc_line_display = f"让{float(handicap_line):+.1f}球" if handicap_line else "让-1球"
@@ -1175,6 +1712,9 @@ def render_html(predictions: list[dict]) -> str:
             hp = p["had_posterior"]
             ho = p["had_odds"]
             hm = p.get("had_market") or {}
+            prior_pct = _pct3(p["prior"]["h"], p["prior"]["d"], p["prior"]["a"])
+            hm_pct = _pct3(hm.get("h", 0), hm.get("d", 0), hm.get("a", 0))
+            hp_pct = _pct3(hp["h"], hp["d"], hp["a"])
             had_section = f'''
     <div class="market-section">
       <div class="market-title">胜平负 (HAD)</div>
@@ -1182,11 +1722,11 @@ def render_html(predictions: list[dict]) -> str:
         <thead><tr><th></th><th>主胜</th><th>平局</th><th>客胜</th></tr></thead>
         <tbody>
           <tr><td class="row-label">模型</td>
-          <td class="num">{p["prior"]["h"]:.0%}</td><td class="num">{p["prior"]["d"]:.0%}</td><td class="num">{p["prior"]["a"]:.0%}</td></tr>
+          <td class="num">{prior_pct[0]}%</td><td class="num">{prior_pct[1]}%</td><td class="num">{prior_pct[2]}%</td></tr>
           <tr><td class="row-label">市场</td>
-          <td class="num">{hm.get("h",0):.0%}</td><td class="num">{hm.get("d",0):.0%}</td><td class="num">{hm.get("a",0):.0%}</td></tr>
+          <td class="num">{hm_pct[0]}%</td><td class="num">{hm_pct[1]}%</td><td class="num">{hm_pct[2]}%</td></tr>
           <tr class="posterior-row"><td class="row-label">后验</td>
-          <td class="num"><b>{hp["h"]:.0%}</b></td><td class="num"><b>{hp["d"]:.0%}</b></td><td class="num"><b>{hp["a"]:.0%}</b></td></tr>
+          <td class="num"><b>{hp_pct[0]}%</b></td><td class="num"><b>{hp_pct[1]}%</b></td><td class="num"><b>{hp_pct[2]}%</b></td></tr>
           <tr><td class="row-label">赔率</td>
           <td class="num">{ho["h"]:.2f}</td><td class="num">{ho["d"]:.2f}</td><td class="num">{ho["a"]:.2f}</td></tr>
         </tbody>
@@ -1194,49 +1734,64 @@ def render_html(predictions: list[dict]) -> str:
     </div>'''
 
         # 2. 总进球 (TTG) - 显示模型概率 vs 市场概率
+        # (审计修复2026-07-02: 此前只检查ttg_odds/ttg是否存在, 没检查ttg_market/
+        # ttg_posterior——市场没开对应去水概率时这两者是空字典/None, ttg_mkt.get(...,0)
+        # 全部返回0, 渲染出一排"市场0% 0% 0% 0% 0%"的表格, 看起来像"模型认为这些
+        # 都不可能"而不是"这项数据缺失"(9场生产预测实测全部踩中, 因为市场概率来自
+        # devig计算, 某些盘口没开全)。分别判断市场/后验是否真的有数据, 没有就显示
+        # "暂无市场数据"文案而不是伪造的0%; 同时5档(0/1/2/3/4+)统一用_pct3()最大
+        # 余数法保证显示总和=100%, 之前这里跟修复前的胜平负一样是各自独立.0%取整。)
         ttg_section = ""
         if p.get("ttg_odds") and p.get("ttg"):
             ttg_o = p["ttg_odds"]
             ttg_mkt = p.get("ttg_market") or {}
             ttg_model = p["ttg"]
             ttg_post = p.get("ttg_posterior") or {}
-            # 找出最大概率的进球数
-            best_g = max(ttg_mkt.keys(), key=lambda k: ttg_mkt.get(k, 0)) if ttg_mkt else "0"
-            best_market_p = ttg_mkt.get(best_g, 0)
-            best_model_p = ttg_model.get(best_g, 0)
-            best_odds = ttg_o.get(best_g, 0)
-            best_post = ttg_post.get(best_g, 0) if ttg_post else 0
-            # 渲染 0-3 球 + 4+球
-            ttg_cells_model = "".join(
-                f'<td class="num">{ttg_model.get(str(g), 0):.0%}</td>'
-                for g in range(4))
-            ttg_cells_market = "".join(
-                f'<td class="num">{ttg_mkt.get(str(g), 0):.0%}</td>'
-                for g in range(4))
-            ttg_cells_post = "".join(
-                f'<td class="num"><b>{ttg_post.get(str(g), 0):.0%}</b></td>'
-                for g in range(4))
+            has_market = bool(ttg_mkt)
+            has_post = bool(ttg_post)
+
+            def _bucket5(d: dict) -> list[float]:
+                """把0/1/2/3/4+这5档从ttg字典里取出(4+ = 4..7档相加)。"""
+                b = [d.get(str(g), 0.0) for g in range(4)]
+                b.append(sum(d.get(str(g), 0.0) for g in range(4, 8)))
+                return b
+
+            model_vals = _bucket5(ttg_model)
+            model_pct = _pct3(*model_vals)
+            if has_market:
+                market_vals = _bucket5(ttg_mkt)
+                market_pct = _pct3(*market_vals)
+                best_g = max(ttg_mkt.keys(), key=lambda k: ttg_mkt.get(k, 0))
+                best_market_p = ttg_mkt.get(best_g, 0)
+                title_suffix = f" · 市场最可能: <b>{best_g}球</b> ({best_market_p:.0%})"
+                market_row = "".join(f'<td class="num">{x}%</td>' for x in market_pct)
+            else:
+                title_suffix = " · 市场未开盘"
+                market_row = '<td class="num" colspan="5">暂无市场数据</td>'
+            if has_post:
+                post_vals = _bucket5(ttg_post)
+                post_pct = _pct3(*post_vals)
+                post_row = "".join(f'<td class="num"><b>{x}%</b></td>' for x in post_pct)
+            else:
+                post_row = '<td class="num" colspan="5">暂无市场数据, 后验退化为模型值(见上)</td>'
+            ttg_cells_model = "".join(f'<td class="num">{x}%</td>' for x in model_pct)
             ttg_cells_odds = "".join(
                 f'<td class="num">{ttg_o.get(str(g), 0):.2f}</td>'
                 for g in range(4))
-            # 4+球合并
-            p4plus_m = sum(ttg_model.get(str(g), 0) for g in range(4, 8))
-            p4plus_k = sum(ttg_mkt.get(str(g), 0) for g in range(4, 8))
-            p4plus_post = sum(ttg_post.get(str(g), 0) for g in range(4, 8)) if ttg_post else 0
             o4plus_inv = sum(1.0/ttg_o.get(str(g), 999) for g in range(4, 8) if ttg_o.get(str(g)))
             o4plus = 1.0 / o4plus_inv if o4plus_inv > 0 else 0
             ttg_section = f'''
     <div class="market-section">
-      <div class="market-title">总进球 (TTG) · 市场最可能: <b>{best_g}球</b> ({best_market_p:.0%})</div>
+      <div class="market-title">总进球 (TTG){title_suffix}</div>
       <table>
         <thead><tr><th></th><th>0球</th><th>1球</th><th>2球</th><th>3球</th><th>4+球</th></tr></thead>
         <tbody>
           <tr><td class="row-label">模型</td>
-          {ttg_cells_model}<td class="num">{p4plus_m:.0%}</td></tr>
+          {ttg_cells_model}</tr>
           <tr><td class="row-label">市场</td>
-          {ttg_cells_market}<td class="num">{p4plus_k:.0%}</td></tr>
+          {market_row}</tr>
           <tr class="posterior-row"><td class="row-label">后验</td>
-          {ttg_cells_post}<td class="num"><b>{p4plus_post:.0%}</b></td></tr>
+          {post_row}</tr>
           <tr><td class="row-label">赔率</td>
           {ttg_cells_odds}<td class="num">{o4plus:.2f}</td></tr>
         </tbody>
@@ -1270,7 +1825,7 @@ def render_html(predictions: list[dict]) -> str:
     </div>'''
 
         # 主让球盘 (HHAD) - 总是显示
-        card = f'''<article class="match">
+        card = f'''<article class="match" style="--i:{_card_i}">
   <header>
     <div class="matchup">
       <span class="team home">{_safe_html(p["home"])}</span>
@@ -1290,12 +1845,13 @@ def render_html(predictions: list[dict]) -> str:
 
   <div class="prob-visual">
     <div class="bar-container">
-      <div class="bar bar-h" style="width:{bar_h}%"><span>{ph:.0%}</span></div>
-      <div class="bar bar-d" style="width:{bar_d}%"><span>{pd_:.0%}</span></div>
-      <div class="bar bar-a" style="width:{bar_a}%"><span>{pa:.0%}</span></div>
+      <div class="bar bar-h" style="--w:{bar_h}%"><span>{pct_h}%</span></div>
+      <div class="bar bar-d" style="--w:{bar_d}%"><span>{pct_d}%</span></div>
+      <div class="bar bar-a" style="--w:{bar_a}%"><span>{pct_a}%</span></div>
     </div>
     <div class="bar-labels"><span>主让胜</span><span>平局</span><span>客让胜</span></div>
   </div>
+  {trend_html}
 
   <div class="data-grid">
     <div class="market-section primary">
@@ -1304,10 +1860,10 @@ def render_html(predictions: list[dict]) -> str:
         <thead><tr><th></th><th>主让胜</th><th>平局</th><th>客让胜</th></tr></thead>
         <tbody>
           <tr><td class="row-label">模型</td>
-          <td class="num">{p["hc_prior"]["h"]:.0%}</td><td class="num">{p["hc_prior"]["d"]:.0%}</td><td class="num">{p["hc_prior"]["a"]:.0%}</td></tr>
+          <td class="num">{hc_prior_pct[0]}%</td><td class="num">{hc_prior_pct[1]}%</td><td class="num">{hc_prior_pct[2]}%</td></tr>
           {mkt_row}
           <tr class="posterior-row"><td class="row-label">后验</td>
-          <td class="num"><b>{ph:.0%}</b></td><td class="num"><b>{pd_:.0%}</b></td><td class="num"><b>{pa:.0%}</b></td></tr>
+          <td class="num"><b>{pct_h}%</b></td><td class="num"><b>{pct_d}%</b></td><td class="num"><b>{pct_a}%</b></td></tr>
         </tbody>
       </table>
     </div>
@@ -1323,6 +1879,7 @@ def render_html(predictions: list[dict]) -> str:
     {scores_chips}
   </div>
   {notes_html}
+  {news_html}
 </article>'''
         cards_html.append(card)
 
@@ -1359,11 +1916,21 @@ body {{
   background: var(--bg);
   color: var(--text-1);
   line-height: 1.5;
-  padding: 40px 20px;
-  max-width: 720px;
+  padding: 28px 36px 60px;
+  max-width: 1680px;
   margin: 0 auto;
   position: relative;
   z-index: 1;
+}}
+@keyframes cardIn {{ from {{ opacity:0; transform:translateY(18px) }} to {{ opacity:1; transform:none }} }}
+@keyframes barGrow {{ from {{ width:0 }} to {{ width:var(--w) }} }}
+@keyframes dotPulse {{ 0%,100% {{ opacity:1; box-shadow:0 0 0 0 var(--green) }} 50% {{ opacity:.55; box-shadow:0 0 0 5px transparent }} }}
+@keyframes toastIn {{ from {{ opacity:0; transform:translate(-50%,-16px) }} to {{ opacity:1; transform:translate(-50%,0) }} }}
+.match-grid {{
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(440px, 1fr));
+  gap: 20px;
+  align-items: start;
 }}
 body::before {{
   content: '';
@@ -1383,19 +1950,69 @@ body::after {{
   pointer-events: none;
 }}
 header.page-header {{
-  margin-bottom: 40px;
-  padding-bottom: 24px;
-  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 16px;
+  margin-bottom: 28px;
+  padding: 18px 22px;
+  background: var(--surface);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+}}
+header.page-header .brand {{
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
 }}
 header.page-header h1 {{
-  font-size: 1.1em;
-  font-weight: 600;
-  letter-spacing: -0.02em;
-  margin-bottom: 4px;
+  font-size: 1.35em;
+  font-weight: 700;
+  letter-spacing: -0.03em;
 }}
 header.page-header .tagline {{
-  font-size: .8em;
+  font-size: .72em;
   color: var(--text-3);
+}}
+.scoreboard {{
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}}
+.sb-badge {{
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--mono);
+  font-size: .72em;
+  font-weight: 500;
+  padding: 5px 11px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: var(--bg);
+  color: var(--text-2);
+  white-space: nowrap;
+}}
+.sb-badge.live {{ color: var(--green); border-color: var(--green); }}
+.sb-badge.live .dot {{
+  width: 7px; height: 7px; border-radius: 50%;
+  background: var(--green);
+  animation: dotPulse 1.6s ease-in-out infinite;
+}}
+.sb-badge.evo {{ color: var(--accent); border-color: var(--accent); }}
+.sb-badge.hit {{ color: var(--green); }}
+.sb-badge.stale-warn {{ color: var(--amber); border-color: var(--amber); }}
+.sb-badge.stale-warn .dot {{ width: 7px; height: 7px; border-radius: 50%; background: var(--amber); }}
+.sb-badge.stale-bad {{ color: var(--red); border-color: var(--red); }}
+.sb-badge.stale-bad .dot {{ width: 7px; height: 7px; border-radius: 50%; background: var(--red); }}
+.freshness-banner {{
+  background: var(--red-bg); color: var(--red); border: 1px solid var(--red);
+  border-radius: 8px; padding: 10px 16px; margin: 0 auto 16px; max-width: 1100px;
+  font-size: .85em; text-align: center;
 }}
 .controls {{
   display: flex;
@@ -1430,12 +2047,17 @@ header.page-header .tagline {{
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
   border: 1px solid var(--border);
-  border-radius: var(--radius);
+  border-radius: 14px;
   padding: 24px;
-  margin-bottom: 16px;
-  transition: border-color .2s;
+  transition: transform .25s cubic-bezier(.4,0,.2,1), box-shadow .25s, border-color .2s;
+  animation: cardIn .5s ease both;
+  animation-delay: calc(var(--i, 0) * 0.06s);
 }}
-.match:hover {{ border-color: var(--text-3); }}
+.match:hover {{
+  transform: translateY(-4px);
+  box-shadow: 0 12px 36px rgba(0,0,0,.45);
+  border-color: var(--accent);
+}}
 
 .match header {{
   margin-bottom: 16px;
@@ -1504,14 +2126,16 @@ header.page-header .tagline {{
   justify-content: center;
   font-family: var(--mono);
   font-size: .75em;
-  font-weight: 500;
-  transition: width .4s ease;
-  min-width: 30px;
+  font-weight: 600;
+  width: var(--w);
+  min-width: 32px;
+  animation: barGrow .85s cubic-bezier(.4,0,.2,1) both;
+  animation-delay: calc(var(--i, 0) * 0.06s + 0.25s);
 }}
-.bar span {{ opacity: .9; }}
-.bar-h {{ background: var(--green-bg); color: var(--green); }}
-.bar-d {{ background: var(--amber-bg); color: var(--amber); }}
-.bar-a {{ background: var(--blue-bg); color: var(--blue); }}
+.bar span {{ opacity: .95; }}
+.bar-h {{ background: var(--green-bg); color: var(--green); box-shadow: inset 0 0 12px -4px var(--green); }}
+.bar-d {{ background: var(--amber-bg); color: var(--amber); box-shadow: inset 0 0 12px -4px var(--amber); }}
+.bar-a {{ background: var(--blue-bg); color: var(--blue); box-shadow: inset 0 0 12px -4px var(--blue); }}
 .bar-labels {{
   display: flex;
   justify-content: space-between;
@@ -1519,6 +2143,78 @@ header.page-header .tagline {{
   color: var(--text-3);
   margin-top: 4px;
   padding: 0 4px;
+}}
+
+.trend-wrap {{ margin: 14px 0 16px; }}
+.trend-hdr {{
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  font-size: .72em;
+  font-weight: 600;
+  color: var(--text-2);
+  margin-bottom: 6px;
+}}
+.trend-hint {{
+  opacity: .85;
+  font-weight: 500;
+  color: var(--accent);
+  animation: trendHintBounce 1.8s ease-in-out infinite;
+}}
+@keyframes trendHintBounce {{ 0%,100% {{ transform: translateX(0); }} 50% {{ transform: translateX(3px); }} }}
+.trend-svg {{
+  width: 100%;
+  height: 88px;
+  display: block;
+  cursor: crosshair;
+  touch-action: none;
+  background:
+    radial-gradient(circle at 15% 20%, rgba(61,220,132,.10), transparent 55%),
+    radial-gradient(circle at 85% 75%, rgba(79,195,255,.10), transparent 55%),
+    linear-gradient(180deg, #23201c 0%, #17140f 100%);
+  border: 1.5px solid #3d3630;
+  border-radius: 12px;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.04), 0 3px 10px rgba(0,0,0,.35);
+}}
+.trend-line {{ opacity: 1; }}
+.trend-area {{ opacity: .9; }}
+.trend-dot {{ filter: drop-shadow(0 0 3px rgba(0,0,0,.5)); }}
+.trend-dot-live {{ animation: trendPulse 1.4s ease-in-out infinite; }}
+@keyframes trendPulse {{
+  0%,100% {{ r: 5.5; opacity: 1; }}
+  50% {{ r: 7.5; opacity: .75; }}
+}}
+.trend-cursor {{ stroke: #ffd23d; stroke-width: 1.5; stroke-dasharray: 4 4; opacity: .85; }}
+.trend-cursor-dot {{ stroke: #fff; stroke-width: 2; filter: drop-shadow(0 0 5px rgba(255,210,61,.8)); }}
+.trend-zoom-note {{ font-size: 8.5px; fill: var(--text-3); font-family: var(--mono); opacity: .8; }}
+.trend-readout {{
+  font-family: var(--mono);
+  font-size: .76em;
+  font-weight: 600;
+  color: var(--text-2);
+  min-height: 1.5em;
+  margin-top: 6px;
+  padding: 5px 10px;
+  background: #1c1917;
+  border: 1px solid #3d3630;
+  border-radius: 8px;
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}}
+.trend-readout .r-h {{ color: #3ddc84; text-shadow: 0 0 8px rgba(61,220,132,.5); }}
+.trend-readout .r-d {{ color: #ffd23d; text-shadow: 0 0 8px rgba(255,210,61,.5); }}
+.trend-readout .r-a {{ color: #4fc3ff; text-shadow: 0 0 8px rgba(79,195,255,.5); }}
+.trend-readout .r-t {{ color: var(--text-3); font-weight: 500; }}
+.trend-empty {{
+  font-size: .72em;
+  color: var(--text-3);
+  padding: 14px 10px;
+  text-align: center;
+  font-style: italic;
+  background: linear-gradient(180deg, #23201c 0%, #17140f 100%);
+  border: 1.5px dashed #3d3630;
+  border-radius: 12px;
 }}
 
 .data-grid {{ margin-bottom: 12px; }}
@@ -1667,6 +2363,23 @@ header.page-header .tagline {{
   border-color: var(--red);
   color: var(--red);
 }}
+.news-notice {{
+  margin-top: 8px;
+  padding: 7px 12px;
+  background: var(--blue-bg);
+  border-left: 3px solid var(--blue);
+  border-radius: 0 var(--radius) var(--radius) 0;
+  font-size: .72em;
+  display: flex;
+  align-items: baseline;
+  gap: 7px;
+  flex-wrap: wrap;
+}}
+.news-tag {{ font-weight: 600; color: var(--blue); white-space: nowrap; }}
+.news-team {{ color: var(--text-3); font-family: var(--mono); font-size: .9em; white-space: nowrap; }}
+.news-title {{ color: var(--text-2); text-decoration: none; flex: 1; min-width: 160px; }}
+.news-title:hover {{ color: var(--accent); text-decoration: underline; }}
+.news-src {{ color: var(--text-3); font-size: .85em; white-space: nowrap; }}
 
 footer.page-footer {{
   margin-top: 40px;
@@ -1676,16 +2389,53 @@ footer.page-footer {{
   color: var(--text-3);
   line-height: 1.7;
 }}
-@media (max-width: 500px) {{
-  body {{ padding: 20px 12px; }}
+#toast {{
+  position: fixed;
+  top: 20px; left: 50%;
+  transform: translate(-50%, 0);
+  z-index: 100;
+  background: var(--green);
+  color: #08120b;
+  font-weight: 600;
+  font-size: .82em;
+  padding: 10px 20px;
+  border-radius: 999px;
+  box-shadow: 0 6px 24px rgba(0,0,0,.4);
+  animation: toastIn .4s ease both;
+  display: none;
+}}
+.fading {{ transition: opacity .5s ease; opacity: 0 !important; }}
+@media (max-width: 920px) {{
+  .match-grid {{ grid-template-columns: 1fr; }}
+}}
+@media (max-width: 680px) {{
+  body {{ padding: 16px 12px 40px; }}
+  header.page-header {{ padding: 14px 16px; }}
+  header.page-header h1 {{ font-size: 1.15em; }}
   .match {{ padding: 16px; }}
   .matchup {{ flex-wrap: wrap; gap: 6px; }}
+  .scoreboard {{ gap: 6px; }}
+  .sb-badge {{ font-size: .66em; padding: 4px 9px; }}
+}}
+@media (prefers-reduced-motion: reduce) {{
+  *, .match, .bar, .sb-badge .dot {{ animation: none !important; transition: none !important; }}
+  .bar {{ width: var(--w); }}
 }}
 </style>
 </head><body>
+<div id="toast">⟳ 盘口已更新</div>
+{freshness_banner}
 <header class="page-header">
-  <h1>让球盘预测 (Asian Handicap Forecast)</h1>
-  <p class="tagline">Dixon-Coles + 体彩让球盘校准 · {gen_time} · 数据: {data_source}</p>
+  <div class="brand">
+    <h1>⚽ 世界杯让球盘预测</h1>
+    <span class="tagline">Dixon-Coles · {gen_time}</span>
+  </div>
+  <div class="scoreboard">
+    <span class="sb-badge {freshness_cls}"><span class="dot"></span>{freshness_label}</span>
+    <span class="sb-badge evo" title="自进化的Dixon-Coles相关系数">进化 ρ={RHO}</span>
+    {f'<span class="sb-badge hit" title="最近小组赛回测命中率">命中 {_hit_pct}</span>' if _hit_pct else ''}
+    <span class="sb-badge" title="数据来源/新鲜度">{data_source}</span>
+  </div>
 </header>
 
 <div class="controls">
@@ -1696,15 +2446,41 @@ footer.page-footer {{
   <span id="status" class="status-msg"></span>
 </div>
 
+<div class="match-grid">
 {"".join(cards_html)}
+</div>
 
 <footer class="page-footer">
-  Elo锚定双泊松 · Dixon-Coles τ (ρ={RHO}) · 平局逻辑回归(8特征) · 风格相克 · 磨合度 · xG档案 · 角球能力<br>
+  Elo锚定双泊松 · Dixon-Coles τ (ρ={RHO}) · 平局逻辑回归(8特征) · 磨合度 · xG档案 · 定位球(仅限有真实角球数据的队)<br>
   让球盘对数池校准 (市场70% + 模型30%) · 数据: sporttery.cn · eloratings.net · open-meteo<br>
   仅供研究参考，不构成投注建议
 </footer>
 <script>
-  setTimeout(()=>location.reload(), 60000);
+  // 当前页面数据版本(predictions.json mtime). 轮询此值, 变化即有新盘口数据。
+  window.__VER__ = {page_version};
+  function smoothReload() {{
+    document.body.classList.add('fading');
+    setTimeout(() => location.reload(), 520);
+  }}
+  function showToast(msg) {{
+    const t = document.getElementById('toast');
+    if (!t) return;
+    t.textContent = msg;
+    t.style.display = 'block';
+  }}
+  // 自动轮询: 每60s问后端版本号, 变化则提示+平滑刷新。静态托管(无api)则静默。
+  setInterval(() => {{
+    fetch('api/version', {{cache: 'no-store'}})
+      .then(r => r.ok ? r.json() : null)
+      .then(d => {{
+        if (d && d.version && d.version !== window.__VER__) {{
+          showToast('⟳ 盘口已更新，正在刷新…');
+          setTimeout(smoothReload, 1400);
+        }}
+      }})
+      .catch(() => {{}});
+  }}, 60000);
+  // 手动"重新抓取": 触发后端实时重算
   function doRefresh() {{
     const btn = document.getElementById('fetchBtn');
     const st = document.getElementById('status');
@@ -1720,9 +2496,9 @@ footer.page-footer {{
       }})
       .then(() => {{
         const sec = ((Date.now()-t0)/1000).toFixed(1);
-        st.textContent = `完成 (${{sec}}s)，3秒后刷新页面...`;
+        st.textContent = `完成 (${{sec}}s)，刷新中…`;
         st.className = 'status-msg success';
-        setTimeout(()=>location.reload(), 3000);
+        setTimeout(smoothReload, 800);
       }})
       .catch(e => {{
         st.textContent = '失败: 需启动 --serve 模式';
@@ -1731,6 +2507,72 @@ footer.page-footer {{
         btn.style.opacity = '1';
       }});
   }}
+
+  // ── 趋势图拖动查看(纯前端插值, 数据已随HTML内嵌, 拖动不发请求) ──
+  function initTrendCharts() {{
+    document.querySelectorAll('.trend-svg').forEach(svg => {{
+      let pts;
+      try {{ pts = JSON.parse(svg.dataset.points || '[]'); }} catch (e) {{ return; }}
+      if (!pts.length) return;
+      const cursor = svg.querySelector('.trend-cursor');
+      const cursorDot = svg.querySelector('.trend-cursor-dot');
+      const readout = svg.parentElement.querySelector('.trend-readout');
+      const vbW = 560, vbH = 96;
+      function yOf(p) {{ return vbH - 8 - p * (vbH - 16); }}
+
+      function fmtTime(iso) {{
+        const d = new Date(iso);
+        return d.toLocaleString('zh-CN', {{month:'2-digit', day:'2-digit', hour:'2-digit', minute:'2-digit'}});
+      }}
+
+      function updateAt(clientX) {{
+        const rect = svg.getBoundingClientRect();
+        const relX = (clientX - rect.left) / rect.width * vbW;
+        // 找最近的两个点做线性插值, 让拖动手感连续而不是跳格
+        let lo = pts[0], hi = pts[pts.length - 1];
+        for (let i = 0; i < pts.length - 1; i++) {{
+          if (pts[i].x <= relX && pts[i+1].x >= relX) {{ lo = pts[i]; hi = pts[i+1]; break; }}
+        }}
+        const span = hi.x - lo.x;
+        const frac = span > 0 ? Math.max(0, Math.min(1, (relX - lo.x) / span)) : 0;
+        const h = lo.h + (hi.h - lo.h) * frac;
+        const d = lo.d + (hi.d - lo.d) * frac;
+        const a = lo.a + (hi.a - lo.a) * frac;
+        const t = frac < 0.5 ? lo.t : hi.t;
+
+        cursor.setAttribute('x1', relX); cursor.setAttribute('x2', relX);
+        cursor.style.display = 'block';
+        cursorDot.setAttribute('cx', relX);
+        cursorDot.setAttribute('cy', yOf(h));
+        cursorDot.setAttribute('fill', '#ffd23d');
+        cursorDot.style.display = 'block';
+        readout.innerHTML =
+          `<span class="r-t">${{fmtTime(t)}}</span>` +
+          `<span class="r-h">主${{(h*100).toFixed(0)}}%</span>` +
+          `<span class="r-d">平${{(d*100).toFixed(0)}}%</span>` +
+          `<span class="r-a">客${{(a*100).toFixed(0)}}%</span>`;
+      }}
+
+      function clear() {{
+        cursor.style.display = 'none';
+        cursorDot.style.display = 'none';
+        const last = pts[pts.length - 1];
+        readout.innerHTML =
+          `<span class="r-t">最新 ${{fmtTime(last.t)}}</span>` +
+          `<span class="r-h">主${{(last.h*100).toFixed(0)}}%</span>` +
+          `<span class="r-d">平${{(last.d*100).toFixed(0)}}%</span>` +
+          `<span class="r-a">客${{(last.a*100).toFixed(0)}}%</span>`;
+      }}
+
+      svg.addEventListener('mousemove', e => updateAt(e.clientX));
+      svg.addEventListener('mouseleave', clear);
+      svg.addEventListener('touchstart', e => {{ updateAt(e.touches[0].clientX); }}, {{passive: true}});
+      svg.addEventListener('touchmove', e => {{ updateAt(e.touches[0].clientX); e.preventDefault(); }}, {{passive: false}});
+      svg.addEventListener('touchend', clear);
+      clear();  // 初始显示"最新"读数
+    }});
+  }}
+  initTrendCharts();
 </script>
 </body></html>'''
 
@@ -1740,6 +2582,8 @@ footer.page-footer {{
 # ═══════════════════════════════════════════════════════════════════
 
 def run_pipeline() -> list[dict]:
+    _reload_params_override()  # 每轮都读一次磁盘, 让evolve_groupstage进化出的新参数真正生效
+    _check_wc_results_staleness()  # 低成本告警兜底: wc_results.json太久没更新就提醒
     print(f"[{datetime.now():%H:%M:%S}] 抓取体彩盘口...")
     matches = fetch_sporttery()
     print(f"  {len(matches)} 场在售")
@@ -1769,6 +2613,9 @@ def run_pipeline() -> list[dict]:
             notes_parts.append(f"{m['away']}Elo未知")
         adj_h, adj_a, adj_notes = get_adjustments(m["home"], m["away"])
         notes_parts.extend(adj_notes)
+
+        # 场外因素新闻(只读缓存, 不量化概率, 面板notice提醒)
+        news_notices = get_news_notices(m["home"], m["away"], m.get("date", ""))
 
         # 盘口变动检测 (针对让球盘)
         match_key = f"{m['home']}vs{m['away']}_{m.get('date','')}"
@@ -1859,17 +2706,32 @@ def run_pipeline() -> list[dict]:
             "top_scores": pred["top_scores"],
             "odds_movement": odds_movement,
             "notes": "; ".join(notes_parts) if notes_parts else None,
+            "news_notices": news_notices,
         }
         # 体彩购买建议 (跨多玩法扫描)
-        rec["recommendations"] = compute_recommendations(m, pred)
+        # (审计修复2026-07-02: 此前直接传pred(predict_match的原始返回值), 其
+        # prior/hc_prior/ttg全部是未经市场校准的纯模型先验——compute_recommendations
+        # 内部用它们算edge_v = model_p - mkt_p 和凯利下注比例, 等于绕过了系统自己
+        # 引以为傲的对数池市场融合校准层, 直接拿"模型自己有多自信"当依据算真金白银
+        # 的购买建议, 而不是"融合市场信息后还剩多少edge"。改为显式传入刚计算好的
+        # 校准后验(had_post/hhad_post/ttg_post), 字段名保持一致, compute_recommendations
+        # 内部逻辑不用改。)
+        rec["recommendations"] = compute_recommendations(
+            m, {"prior": had_post, "hc_prior": hhad_post, "ttg": ttg_post})
         predictions.append(rec)
 
-    (DATA_DIR / "predictions.json").write_text(
-        json.dumps(predictions, ensure_ascii=False, indent=2), encoding="utf-8")
-    # 追加到历史预测日志(供 backtest.py 对比真实结果用)
+    _atomic_write_text(DATA_DIR / "predictions.json",
+        json.dumps(predictions, ensure_ascii=False, indent=2))
+    # 追加到历史预测日志(供 backtest.py 对比真实结果用, 每场比赛只留一条快照, 语义不可动)
     _append_prediction_log(predictions)
-    html = render_html(predictions)
-    (SITE_DIR / "index.html").write_text(html, encoding="utf-8")
+    # 追加到趋势序列(独立文件, 每场比赛多个时间点, 供前端画近12h概率变化图)
+    try:
+        from odds_trend import record_snapshot
+        record_snapshot(predictions)
+    except Exception as e:
+        print(f"  ⚠ 趋势记录失败: {e}")
+    html_out = render_html(predictions)
+    _atomic_write_text(SITE_DIR / "index.html", html_out)
     print(f"  ✅ {len(predictions)} 场预测 → site/index.html")
     return predictions
 
@@ -1901,9 +2763,17 @@ def _append_prediction_log(predictions: list[dict]):
             "elo_diff": p.get("elo_diff", 0),
             "predicted_at": ts,
         })
-    hist_file.write_text(json.dumps(history, ensure_ascii=False, indent=2), encoding="utf-8")
+    _atomic_write_text(hist_file, json.dumps(history, ensure_ascii=False, indent=2))
 
 
+# 审计修复2026-07-02: run_pipeline()此前完全无锁, /api/refresh(每个HTTP请求
+# 独立线程处理, 见下方ThreadedHTTPServer)与_auto_refresh_loop(后台daemon线程,
+# 默认10min一轮)可能同时各自调用一遍run_pipeline(), 两者都会读旧文件→内存
+# 计算→整份写回, 存在竞态(后写入的覆盖先写入的, 或读到另一线程写了一半的
+# 半成品json)。push_odds.sh的curl --max-time 90超时后不会取消服务端仍在跑的
+# run_pipeline(), 慢查询与下一轮cron/auto_refresh_loop重叠会放大这个风险。
+# 用一把全局锁保证任意时刻只有一次run_pipeline()在执行, 拿不到锁的请求直接
+# 返回"已有刷新在进行中"而不是并发跑一遍。
 _pipeline_lock = threading.Lock()
 
 
@@ -1942,6 +2812,18 @@ class RefreshHandler(SimpleHTTPRequestHandler):
         super().end_headers()
 
     def _handle_refresh(self):
+        """/api/refresh 的共享实现(GET/POST都会走这里)。
+
+        (审计修复2026-07-02: 此前do_GET/do_POST各自重复一份, 且都是先
+        send_response(200)再跑run_pipeline() —— 一旦run_pipeline()抛异常
+        (比如weather.json损坏, 已在get_adjustments里补了try/except但保留
+        这层作为最后防线), 响应头已经发出200, 客户端会拿到一个"成功"状态码
+        但空/不完整的body, 前端r.json()解析报错却又走不到"网络错误"分支,
+        错误现象和真实原因完全对不上。现在改成run_pipeline()跑完(或抛异常)
+        之后才决定发200还是500。
+        同时用_pipeline_lock防止/api/refresh与_auto_refresh_loop并发执行:
+        拿不到锁直接返回"已有刷新在进行中", 不会排队等锁导致请求堆积。
+        """
         if not _admin_authorized(self.headers):
             self.send_response(403)
             self.send_header("Content-Type", "application/json")
@@ -1977,6 +2859,16 @@ class RefreshHandler(SimpleHTTPRequestHandler):
             self.send_header("Content-Type", "application/json")
             self.end_headers()
             self.wfile.write(b'{"ok":false,"error":"use authenticated POST"}')
+        elif self.path == "/api/version":
+            # 轻量版本端点: 前端轮询此值, 变化即说明有新数据 -> 提示+平滑刷新
+            self.send_response(200)
+            self.send_header("Content-Type", "application/json")
+            self.send_header("Access-Control-Allow-Origin", "*")
+            self.send_header("Cache-Control", "no-store")
+            self.end_headers()
+            pf = DATA_DIR / "predictions.json"
+            ver = int(pf.stat().st_mtime) if pf.exists() else 0
+            self.wfile.write(json.dumps({"version": ver}).encode("utf-8"))
         elif self.path.startswith("/data/"):
             # Serve from wc_analysis/data directory
             target = _public_data_target(self.path)
@@ -2069,30 +2961,71 @@ class RefreshHandler(SimpleHTTPRequestHandler):
 
 def _auto_refresh_loop(interval: int = 600):
     """后台定时刷新: 每 interval 秒重跑一次 pipeline, 保持页面数据新鲜.
-    Also runs daily retrain (fusion weights + reconciliation)."""
+    每轮同时检测能否重训模型参数(防空转: 样本数没变化就跳过, 不在噪声里空转)。
+
+    (2026-07-02改动: 此前DC参数进化硬编码"每天14点一次", 用户反馈"场外因素/盘口
+    随时在变, 不该一天只用一个结果"。改为每轮循环(默认10min)都检测: 若已配对
+    样本数(真实完赛场次)相比上次检测有变化, 才重新跑一次诊断+调参; 样本数不变
+    则说明没有新的真实结果可学, 强行按固定时钟重算只会让参数在同一批数据的
+    浮点误差里空转, 没有信息增益还浪费算力, 因此跳过。
+    权重重训(step5_learn, 拉取最新历史比赛CSV)仍保留每日一次, 因为它的输入源
+    (international_results.csv)本身就是按天更新的GitHub仓库, 更高频没有意义。)"""
     import datetime
     last_retrain_date = None
+    last_evolution_n = None
     while True:
         time.sleep(interval)
         try:
-            run_pipeline()
-            # 每日北京时间 14 点触发权重重训
+            with _pipeline_lock:  # 与/api/refresh互斥, 避免同时跑两遍pipeline
+                run_pipeline()
             now = datetime.datetime.now()
+
+            # DC核心参数(RHO/HOME_ADV/AVG_GOALS)自进化: 每轮都检测样本是否变化
+            try:
+                from evolve_groupstage import run_evolution
+                probe = run_evolution(write=False)  # 先廉价探测,不落盘
+                n = probe.get("n", 0)
+                if n != last_evolution_n:
+                    prev_n = last_evolution_n  # 修复: 打印前先存旧值, 否则日志会显示"29→29"
+                    r = run_evolution(write=True)  # 样本真的变了才重新写override
+                    last_evolution_n = n
+                    tag = f"首次运行→{n}" if prev_n is None else f"样本{prev_n}→{n}"
+                    if r.get("written"):
+                        ep = r["evolved_params"]
+                        print(f"[{now:%Y-%m-%d %H:%M:%S}] 🧬 DC参数进化({tag}, "
+                              f"命中{r['hit_rate']:.1%}): RHO={ep['rho']} HOME_ADV={ep['home_adv']} AVG_GOALS={ep['avg_goals']}")
+                    else:
+                        print(f"[{now:%Y-%m-%d %H:%M:%S}] 🧬 DC参数({tag})但: {r.get('reason')}")
+                # n未变时静默跳过, 不刷日志噪声
+            except Exception as e:
+                print(f"  ⚠ DC参数进化检测失败: {e}")
+
+            # 权重重训(拉取历史CSV, 按天更新的数据源, 保留每日一次即可)
             if now.hour == 14 and (last_retrain_date is None or last_retrain_date != now.date()):
                 print(f"[{now:%Y-%m-%d %H:%M:%S}] 每日权重重训触发...")
                 try:
                     from self_evolving_loop import step5_learn
                     step5_learn()
-                    last_retrain_date = now.date()
                     print(f"  ✅ 权重重训完成")
                 except Exception as e:
                     print(f"  ⚠ 权重重训失败: {e}")
+                last_retrain_date = now.date()
         except Exception as e:
             print(f"  ⚠ 自动刷新失败: {e}")
 
 
 def main():
-    run_pipeline()
+    # 审计修复2026-07-02: 此前裸调用, 启动时若第一次run_pipeline()就抛异常
+    # (网络抖动/依赖缺失等), 会阻止HTTP服务绑定端口, systemd(Restart=always,
+    # RestartSec=5)检测到进程退出会持续重启, 若故障没解决就陷入快速重启循环。
+    # _auto_refresh_loop已经有同款try/except保护, 这里补上让二者一致: 首次
+    # 失败仅记录日志, --serve模式仍会启动HTTP服务(用已有的predictions.json/
+    # index.html兜底展示旧数据, 好于完全连不上服务)。
+    try:
+        run_pipeline()
+    except Exception as e:
+        print(f"  ⚠ 启动时首次pipeline执行失败: {e}")
+        print("  仍会启动HTTP服务, 用已有数据文件兜底展示(若存在)")
     if "--serve" in sys.argv:
         port = 8026
         print(f"\n🌐 http://localhost:{port}")

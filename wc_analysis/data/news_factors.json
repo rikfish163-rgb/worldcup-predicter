@@ -1,0 +1,47 @@
+{
+  "2026-07-04_澳大利亚_埃及": {
+    "date": "2026-07-04",
+    "home": [],
+    "away": [
+      {
+        "category": "injury_news",
+        "label": "🩹 伤停新闻(赛前确认)",
+        "title": "'The King is back' - Egypt's Salah resumes training after hamstring scare - Reuters",
+        "pub": "2026-07-01T01:05:00+00:00",
+        "source": "Reuters",
+        "link": "https://news.google.com/rss/articles/CBMiugFBVV95cUxQVWV2dVRQc2lIU3JQVk9qVFFMMTRRcGZqRUdMMkkwek1lbS01ZC04c2Z2UkhFcWduWkotVUFNSHNWRHJGNHJBQjRHc1ZydWZuWjRGVm8xOXF0U2JDUWd5WXAwNnBWREF4U2p1UmhCZzR5VnQ4dm5FR3hkcUg3a3R1NkowM1QwOE96bW9sWk9iMUg2ZU5QX3dtUXNyNE1nSDhDTjd2R3E5S3NTRkV4VHpuLUpfVmY4RlRXM0E?oc=5"
+      }
+    ],
+    "fetched_at": "2026-07-02T06:17:42.756830+00:00"
+  },
+  "2026-07-04_阿根廷_佛得角": {
+    "date": "2026-07-04",
+    "home": [
+      {
+        "category": "controversy",
+        "label": "🚩 争议/申诉",
+        "title": "Cape Verde captain under investigation for alleged rape as team faces Argentina - Miami Herald",
+        "pub": "2026-07-01T00:08:02+00:00",
+        "source": "Miami Herald",
+        "link": "https://news.google.com/rss/articles/CBMie0FVX3lxTFA3ekJ4NDh0QWd4Y013eTFtRER3WXJSZmc5Z1BQcExiWmtMTnJYd2FJR1dURmc3TXNtbmluOHFKOWNPVHJjbU5vX283T190UW16UW45QnlMSm82ZnlCakVBSnk2WlVvVDhRWXItRWxmRENjX2VPazhVVEFiSdIBe0FVX3lxTE1KSm00WjZsLXc2clNmR196M2RrVFZuUk5FRTJvSUNXSDZadnQ0NUt1dTVQeTY4eU81bXJoTFk5S0NPRVhRRWJqSk5xQ0ZYNGsyamRaY2Y1Z0xKd2ZMTS1lWUZYdmd5aU9ESDhnMldZUi1pZm85ZVNjYXJyZw?oc=5"
+      }
+    ],
+    "away": [
+      {
+        "category": "controversy",
+        "label": "🚩 争议/申诉",
+        "title": "Cape Verde captain under investigation for alleged rape as team faces Argentina - Miami Herald",
+        "pub": "2026-07-01T00:08:02+00:00",
+        "source": "Miami Herald",
+        "link": "https://news.google.com/rss/articles/CBMie0FVX3lxTFA3ekJ4NDh0QWd4Y013eTFtRER3WXJSZmc5Z1BQcExiWmtMTnJYd2FJR1dURmc3TXNtbmluOHFKOWNPVHJjbU5vX283T190UW16UW45QnlMSm82ZnlCakVBSnk2WlVvVDhRWXItRWxmRENjX2VPazhVVEFiSdIBe0FVX3lxTE1KSm00WjZsLXc2clNmR196M2RrVFZuUk5FRTJvSUNXSDZadnQ0NUt1dTVQeTY4eU81bXJoTFk5S0NPRVhRRWJqSk5xQ0ZYNGsyamRaY2Y1Z0xKd2ZMTS1lWUZYdmd5aU9ESDhnMldZUi1pZm85ZVNjYXJyZw?oc=5"
+      }
+    ],
+    "fetched_at": "2026-07-02T06:17:48.571308+00:00"
+  },
+  "2026-07-04_哥伦比亚_加纳": {
+    "date": "2026-07-04",
+    "home": [],
+    "away": [],
+    "fetched_at": "2026-07-02T06:17:55.868942+00:00"
+  }
+}
