@@ -170,7 +170,7 @@ def attach_current_data(
     fixture_competitions = {fixture.get("competition_id") for fixture in fixtures_from_source}
     platform_competitions = {item["id"] for item in payload["competitions"]}
     expected_competitions = set(live.get("expected_competitions", []))
-    if not expected_competitions or not expected_competitions <= platform_competitions:
+    if expected_competitions != platform_competitions:
         raise ValueError("live snapshot expected_competitions are invalid")
     if not fixtures_from_source:
         status = "unavailable"
