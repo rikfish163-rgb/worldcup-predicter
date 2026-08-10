@@ -204,6 +204,7 @@ def build_future_predictions(snapshot: dict) -> dict:
         current_features = fixture.get("current_features", {})
         home_feature = current_features.get("home")
         away_feature = current_features.get("away")
+        market_feature = current_features.get("market")
         if home_feature and away_feature:
             home_recent = (home_feature["xg_for"] + away_feature["xg_against"]) / 2
             away_recent = (away_feature["xg_for"] + home_feature["xg_against"]) / 2
@@ -217,6 +218,8 @@ def build_future_predictions(snapshot: dict) -> dict:
         providers = [fixture["source"]["name"], history[-1]["source"]["name"]]
         if home_feature and away_feature:
             providers.append("Understat")
+        if market_feature:
+            providers.extend([market_feature["source"]["name"], market_feature["provider"]])
         predictions.append(
             {
                 "fixture_id": fixture["id"],
@@ -227,13 +230,17 @@ def build_future_predictions(snapshot: dict) -> dict:
                 "as_of": as_of,
                 "training_cutoff": state["training_cutoff"],
                 "status": "research_only",
-                "quality_gate": "blocked_for_production_without_current_market_and_lineups",
+                "quality_gate": (
+                    "blocked_for_production_without_current_injuries_and_confirmed_lineups"
+                    if market_feature
+                    else "blocked_for_production_without_current_market_injuries_and_lineups"
+                ),
                 "providers": sorted(set(providers)),
                 "feature_coverage": {
                     "historical_matches_home": counts[fixture["home_team_id"]],
                     "historical_matches_away": counts[fixture["away_team_id"]],
                     "recent_xg": bool(home_feature and away_feature),
-                    "current_market": False,
+                    "current_market": bool(market_feature),
                     "lineups": False,
                 },
                 "elo_probability": {
@@ -246,6 +253,7 @@ def build_future_predictions(snapshot: dict) -> dict:
                     "draw": round(dc_probability[1], 6),
                     "away": round(dc_probability[2], 6),
                 },
+                "market_probability": (market_feature["probability"] if market_feature else None),
                 "expected_goals": {"home": round(home_rate, 4), "away": round(away_rate, 4)},
             }
         )

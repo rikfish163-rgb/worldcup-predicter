@@ -40,6 +40,9 @@ def attach_current_data(
     status = "fresh" if age <= freshness_limit else "stale"
 
     features = live.get("understat", {}).get("team_features", [])
+    markets = {
+        item["fixture_id"]: item for item in live.get("espn_markets", {}).get("markets", [])
+    }
     feature_team_ids = {team_id(item["competition_id"], item["team"]): item for item in features}
     fixtures = []
     for fixture in live.get("espn", {}).get("fixtures", []):
@@ -62,6 +65,7 @@ def attach_current_data(
                 "current_features": {
                     "home": feature_team_ids.get(home_id),
                     "away": feature_team_ids.get(away_id),
+                    "market": markets.get(fixture["id"]),
                 },
                 "source": fixture["source"],
             }
@@ -97,9 +101,11 @@ def attach_current_data(
         "roles": live.get("roles", {}),
         "provider_errors": {
             "espn": live.get("espn", {}).get("errors", []),
+            "espn_markets": live.get("espn_markets", {}).get("errors", []),
             "understat": live.get("understat", {}).get("errors", []),
         },
         "fixture_count": len(fixtures),
         "xg_team_count": len(features),
+        "market_count": len(markets),
     }
     return payload
