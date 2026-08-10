@@ -46,6 +46,13 @@ jobs:
         run: |
           python -m pytest tests/test_wc_analysis_0622.py -v --tb=short || echo "::warning::wc_analysis tests had failures (see log)"
 
+      - name: Restore and test Matchline platform
+        run: |
+          python -m league_platform.restore_data
+          python -m pytest tests/test_league_platform.py -v --tb=short
+          python -m compileall -q league_platform
+          node --check league_platform/site/app.js
+
       - name: Verify model files present
         run: |
           test -f wc_analysis/data/model_pytorch_rich.pt && echo "✅ Rich model present"

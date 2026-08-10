@@ -40,16 +40,20 @@ class PlatformHandler(SimpleHTTPRequestHandler):
             except ValueError:
                 self._send_json({"error": "limit and offset must be integers"}, status=400)
                 return
-            self._send_json(
-                self.store.matches(
+            try:
+                payload = self.store.matches(
                     competition_id=_first(params, "competition"),
                     season=_first(params, "season"),
                     status=_first(params, "status"),
+                    match_date=_first(params, "date"),
                     query=_first(params, "q"),
                     limit=limit,
                     offset=offset,
                 )
-            )
+            except ValueError as exc:
+                self._send_json({"error": str(exc)}, status=400)
+                return
+            self._send_json(payload)
             return
         if parsed.path == "/api/v1/health":
             self._send_json(self.store.health())
@@ -87,8 +91,8 @@ def _first(params: dict[str, list[str]], key: str) -> str | None:
     return value or None
 
 
-def create_server(host: str, port: int, data_dir: Path) -> ThreadingHTTPServer:
-    PlatformHandler.store = PlatformStore(data_dir)
+def create_server(host: str, port: int, data_dir: Path | str) -> ThreadingHTTPServer:
+    PlatformHandler.store = PlatformStore(Path(data_dir))
     return ThreadingHTTPServer((host, port), PlatformHandler)
 
 
