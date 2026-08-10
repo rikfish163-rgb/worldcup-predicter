@@ -22659,3 +22659,152 @@
 [2026-08-10 15:32:01] 抓到 3 场
 [2026-08-10 15:32:08] ✓ 11个数据文件已同步VPS(rsync -u, 仅推送更新过的)
 [2026-08-10 15:32:11] VPS重算: 200
+[2026-08-10 16:40:01] Traceback (most recent call last):
+[2026-08-10 16:40:01]   File "<string>", line 4, in <module>
+[2026-08-10 16:40:01]   File "/home/hetaisheng/soccerdata/wc_analysis/predict.py", line 210, in fetch_sporttery
+[2026-08-10 16:40:01]     return json.loads(fresh_cache.read_text(encoding="utf-8"))
+[2026-08-10 16:40:01]            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[2026-08-10 16:40:01]   File "/usr/lib/python3.12/json/__init__.py", line 346, in loads
+[2026-08-10 16:40:01]     return _default_decoder.decode(s)
+[2026-08-10 16:40:01]            ^^^^^^^^^^^^^^^^^^^^^^^^^^
+[2026-08-10 16:40:01]   File "/usr/lib/python3.12/json/decoder.py", line 337, in decode
+[2026-08-10 16:40:01]     obj, end = self.raw_decode(s, idx=_w(s, 0).end())
+[2026-08-10 16:40:01]                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[2026-08-10 16:40:01]   File "/usr/lib/python3.12/json/decoder.py", line 355, in raw_decode
+[2026-08-10 16:40:01]     raise JSONDecodeError("Expecting value", s, err.value) from None
+[2026-08-10 16:40:01] json.decoder.JSONDecodeError: Expecting value: line 1 column 1 (char 0)
+[2026-08-10 16:40:09] ✓ 11个数据文件已同步VPS(rsync -u, 仅推送更新过的)
+[2026-08-10 16:40:12] VPS重算: 200
+[2026-08-10 16:48:01] Traceback (most recent call last):
+[2026-08-10 16:48:01]   File "<string>", line 4, in <module>
+[2026-08-10 16:48:01]   File "/home/hetaisheng/soccerdata/wc_analysis/predict.py", line 210, in fetch_sporttery
+[2026-08-10 16:48:01]     return json.loads(fresh_cache.read_text(encoding="utf-8"))
+[2026-08-10 16:48:01]            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[2026-08-10 16:48:01]   File "/usr/lib/python3.12/json/__init__.py", line 346, in loads
+[2026-08-10 16:48:01]     return _default_decoder.decode(s)
+[2026-08-10 16:48:01]            ^^^^^^^^^^^^^^^^^^^^^^^^^^
+[2026-08-10 16:48:01]   File "/usr/lib/python3.12/json/decoder.py", line 337, in decode
+[2026-08-10 16:48:01]     obj, end = self.raw_decode(s, idx=_w(s, 0).end())
+[2026-08-10 16:48:01]                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[2026-08-10 16:48:01]   File "/usr/lib/python3.12/json/decoder.py", line 355, in raw_decode
+[2026-08-10 16:48:01]     raise JSONDecodeError("Expecting value", s, err.value) from None
+[2026-08-10 16:48:01] json.decoder.JSONDecodeError: Expecting value: line 1 column 1 (char 0)
+[2026-08-10 16:48:06] ✓ 11个数据文件已同步VPS(rsync -u, 仅推送更新过的)
+[2026-08-10 16:48:09] VPS重算: 200
+[2026-08-10 16:56:01] Traceback (most recent call last):
+[2026-08-10 16:56:01]   File "<string>", line 4, in <module>
+[2026-08-10 16:56:01]   File "/home/hetaisheng/soccerdata/wc_analysis/predict.py", line 210, in fetch_sporttery
+[2026-08-10 16:56:01]     return json.loads(fresh_cache.read_text(encoding="utf-8"))
+[2026-08-10 16:56:01]            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[2026-08-10 16:56:01]   File "/usr/lib/python3.12/json/__init__.py", line 346, in loads
+[2026-08-10 16:56:01]     return _default_decoder.decode(s)
+[2026-08-10 16:56:01]            ^^^^^^^^^^^^^^^^^^^^^^^^^^
+[2026-08-10 16:56:01]   File "/usr/lib/python3.12/json/decoder.py", line 337, in decode
+[2026-08-10 16:56:01]     obj, end = self.raw_decode(s, idx=_w(s, 0).end())
+[2026-08-10 16:56:01]                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[2026-08-10 16:56:01]   File "/usr/lib/python3.12/json/decoder.py", line 355, in raw_decode
+[2026-08-10 16:56:01]     raise JSONDecodeError("Expecting value", s, err.value) from None
+[2026-08-10 16:56:01] json.decoder.JSONDecodeError: Expecting value: line 1 column 1 (char 0)
+[2026-08-10 16:56:05] ✓ 11个数据文件已同步VPS(rsync -u, 仅推送更新过的)
+[2026-08-10 16:56:07] VPS重算: 200
+[2026-08-10 17:00:02] Traceback (most recent call last):
+[2026-08-10 17:00:02]   File "<string>", line 4, in <module>
+[2026-08-10 17:00:02]   File "/home/hetaisheng/soccerdata/wc_analysis/predict.py", line 210, in fetch_sporttery
+[2026-08-10 17:00:02]     return json.loads(fresh_cache.read_text(encoding="utf-8"))
+[2026-08-10 17:00:02]            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[2026-08-10 17:00:02]   File "/usr/lib/python3.12/json/__init__.py", line 346, in loads
+[2026-08-10 17:00:02]     return _default_decoder.decode(s)
+[2026-08-10 17:00:02]            ^^^^^^^^^^^^^^^^^^^^^^^^^^
+[2026-08-10 17:00:02]   File "/usr/lib/python3.12/json/decoder.py", line 337, in decode
+[2026-08-10 17:00:02]     obj, end = self.raw_decode(s, idx=_w(s, 0).end())
+[2026-08-10 17:00:02]                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[2026-08-10 17:00:02]   File "/usr/lib/python3.12/json/decoder.py", line 355, in raw_decode
+[2026-08-10 17:00:02]     raise JSONDecodeError("Expecting value", s, err.value) from None
+[2026-08-10 17:00:02] json.decoder.JSONDecodeError: Expecting value: line 1 column 1 (char 0)
+[2026-08-10 17:00:07] ✓ 11个数据文件已同步VPS(rsync -u, 仅推送更新过的)
+[2026-08-10 17:00:09] VPS重算: 200
+[2026-08-10 17:08:01] Traceback (most recent call last):
+[2026-08-10 17:08:01]   File "<string>", line 4, in <module>
+[2026-08-10 17:08:01]   File "/home/hetaisheng/soccerdata/wc_analysis/predict.py", line 210, in fetch_sporttery
+[2026-08-10 17:08:01]     return json.loads(fresh_cache.read_text(encoding="utf-8"))
+[2026-08-10 17:08:01]            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[2026-08-10 17:08:01]   File "/usr/lib/python3.12/json/__init__.py", line 346, in loads
+[2026-08-10 17:08:01]     return _default_decoder.decode(s)
+[2026-08-10 17:08:01]            ^^^^^^^^^^^^^^^^^^^^^^^^^^
+[2026-08-10 17:08:01]   File "/usr/lib/python3.12/json/decoder.py", line 337, in decode
+[2026-08-10 17:08:01]     obj, end = self.raw_decode(s, idx=_w(s, 0).end())
+[2026-08-10 17:08:01]                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[2026-08-10 17:08:01]   File "/usr/lib/python3.12/json/decoder.py", line 355, in raw_decode
+[2026-08-10 17:08:01]     raise JSONDecodeError("Expecting value", s, err.value) from None
+[2026-08-10 17:08:01] json.decoder.JSONDecodeError: Expecting value: line 1 column 1 (char 0)
+[2026-08-10 17:08:05] ✓ 11个数据文件已同步VPS(rsync -u, 仅推送更新过的)
+[2026-08-10 17:08:08] VPS重算: 200
+[2026-08-10 17:16:01] Traceback (most recent call last):
+[2026-08-10 17:16:01]   File "<string>", line 4, in <module>
+[2026-08-10 17:16:01]   File "/home/hetaisheng/soccerdata/wc_analysis/predict.py", line 210, in fetch_sporttery
+[2026-08-10 17:16:01]     return json.loads(fresh_cache.read_text(encoding="utf-8"))
+[2026-08-10 17:16:01]            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[2026-08-10 17:16:01]   File "/usr/lib/python3.12/json/__init__.py", line 346, in loads
+[2026-08-10 17:16:01]     return _default_decoder.decode(s)
+[2026-08-10 17:16:01]            ^^^^^^^^^^^^^^^^^^^^^^^^^^
+[2026-08-10 17:16:01]   File "/usr/lib/python3.12/json/decoder.py", line 337, in decode
+[2026-08-10 17:16:01]     obj, end = self.raw_decode(s, idx=_w(s, 0).end())
+[2026-08-10 17:16:01]                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[2026-08-10 17:16:01]   File "/usr/lib/python3.12/json/decoder.py", line 355, in raw_decode
+[2026-08-10 17:16:01]     raise JSONDecodeError("Expecting value", s, err.value) from None
+[2026-08-10 17:16:01] json.decoder.JSONDecodeError: Expecting value: line 1 column 1 (char 0)
+[2026-08-10 17:16:06] ✓ 11个数据文件已同步VPS(rsync -u, 仅推送更新过的)
+[2026-08-10 17:16:09] VPS重算: 200
+[2026-08-10 17:24:01] Traceback (most recent call last):
+[2026-08-10 17:24:01]   File "<string>", line 4, in <module>
+[2026-08-10 17:24:01]   File "/home/hetaisheng/soccerdata/wc_analysis/predict.py", line 210, in fetch_sporttery
+[2026-08-10 17:24:01]     return json.loads(fresh_cache.read_text(encoding="utf-8"))
+[2026-08-10 17:24:01]            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[2026-08-10 17:24:01]   File "/usr/lib/python3.12/json/__init__.py", line 346, in loads
+[2026-08-10 17:24:01]     return _default_decoder.decode(s)
+[2026-08-10 17:24:01]            ^^^^^^^^^^^^^^^^^^^^^^^^^^
+[2026-08-10 17:24:01]   File "/usr/lib/python3.12/json/decoder.py", line 337, in decode
+[2026-08-10 17:24:01]     obj, end = self.raw_decode(s, idx=_w(s, 0).end())
+[2026-08-10 17:24:01]                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[2026-08-10 17:24:01]   File "/usr/lib/python3.12/json/decoder.py", line 355, in raw_decode
+[2026-08-10 17:24:01]     raise JSONDecodeError("Expecting value", s, err.value) from None
+[2026-08-10 17:24:01] json.decoder.JSONDecodeError: Expecting value: line 1 column 1 (char 0)
+[2026-08-10 17:24:06] ✓ 11个数据文件已同步VPS(rsync -u, 仅推送更新过的)
+[2026-08-10 17:24:09] VPS重算: 200
+[2026-08-10 17:32:01] Traceback (most recent call last):
+[2026-08-10 17:32:01]   File "<string>", line 4, in <module>
+[2026-08-10 17:32:01]   File "/home/hetaisheng/soccerdata/wc_analysis/predict.py", line 210, in fetch_sporttery
+[2026-08-10 17:32:01]     return json.loads(fresh_cache.read_text(encoding="utf-8"))
+[2026-08-10 17:32:01]            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[2026-08-10 17:32:01]   File "/usr/lib/python3.12/json/__init__.py", line 346, in loads
+[2026-08-10 17:32:01]     return _default_decoder.decode(s)
+[2026-08-10 17:32:01]            ^^^^^^^^^^^^^^^^^^^^^^^^^^
+[2026-08-10 17:32:01]   File "/usr/lib/python3.12/json/decoder.py", line 337, in decode
+[2026-08-10 17:32:01]     obj, end = self.raw_decode(s, idx=_w(s, 0).end())
+[2026-08-10 17:32:01]                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[2026-08-10 17:32:01]   File "/usr/lib/python3.12/json/decoder.py", line 355, in raw_decode
+[2026-08-10 17:32:01]     raise JSONDecodeError("Expecting value", s, err.value) from None
+[2026-08-10 17:32:01] json.decoder.JSONDecodeError: Expecting value: line 1 column 1 (char 0)
+[2026-08-10 17:32:05] ✓ 11个数据文件已同步VPS(rsync -u, 仅推送更新过的)
+[2026-08-10 17:32:10] VPS重算: 200
+[2026-08-10 17:40:01] 抓到 3 场
+[2026-08-10 17:40:07] ✓ 11个数据文件已同步VPS(rsync -u, 仅推送更新过的)
+[2026-08-10 17:40:14] VPS重算: 200
+[2026-08-10 17:48:01] 抓到 3 场
+[2026-08-10 17:48:06] ✓ 11个数据文件已同步VPS(rsync -u, 仅推送更新过的)
+[2026-08-10 17:48:08] VPS重算: 200
+[2026-08-10 17:56:01] 抓到 3 场
+[2026-08-10 17:56:10] ✓ 11个数据文件已同步VPS(rsync -u, 仅推送更新过的)
+[2026-08-10 17:56:12] VPS重算: 200
+[2026-08-10 18:00:01] 抓到 3 场
+[2026-08-10 18:00:06] ✓ 11个数据文件已同步VPS(rsync -u, 仅推送更新过的)
+[2026-08-10 18:00:08] VPS重算: 200
+[2026-08-10 18:08:01] 抓到 3 场
+[2026-08-10 18:08:06] ✓ 11个数据文件已同步VPS(rsync -u, 仅推送更新过的)
+[2026-08-10 18:08:08] VPS重算: 200
+[2026-08-10 18:16:01] 抓到 3 场
+[2026-08-10 18:16:06] ✓ 11个数据文件已同步VPS(rsync -u, 仅推送更新过的)
+[2026-08-10 18:16:08] VPS重算: 200
+[2026-08-10 18:24:01] 抓到 3 场
+[2026-08-10 18:24:06] ✓ 11个数据文件已同步VPS(rsync -u, 仅推送更新过的)
+[2026-08-10 18:24:07] VPS重算: 200
