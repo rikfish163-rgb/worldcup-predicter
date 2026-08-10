@@ -1,5 +1,8 @@
 import math
+import io
 from pathlib import Path
+
+import pytest
 
 from wc_analysis import predict as legacy_predict
 from wc_analysis.worldcup_0622_analysis import (
@@ -32,6 +35,19 @@ def test_legacy_network_helpers_keep_tls_verification_and_loopback_binding():
     assert 'HTTPServer(("0.0.0.0", port)' not in sporttery_server
     for path in (Path("wc_analysis/build_groups.py"), Path("wc_analysis/fetch_pinnacle.py")):
         assert "CERT_NONE" not in path.read_text()
+
+
+def test_legacy_remote_reads_are_bounded_and_html_is_escaped():
+    with pytest.raises(ValueError, match="exceeds"):
+        legacy_predict._read_bounded(io.BytesIO(b"12345"), max_bytes=4)
+    assert legacy_predict._safe_html('<script>alert("x")</script>') == (
+        "&lt;script&gt;alert(&quot;x&quot;)&lt;/script&gt;"
+    )
+    predict_source = Path("wc_analysis/predict.py").read_text()
+    sporttery_source = next(Path("wc_analysis").glob("**/sporttery_server.py")).read_text()
+    assert "Content-Security-Policy" in predict_source
+    assert "json.loads(r.read())" not in predict_source
+    assert "json.loads(r.read())" not in sporttery_source
 
 
 def test_weighted_mean_uses_newer_matches_more_heavily():

@@ -24,6 +24,14 @@ DATA_DIR = Path(__file__).parent / "data"
 PARSED = DATA_DIR / "odds_parsed.json"
 RAW = DATA_DIR / "sporttery_raw.json"
 _refresh_lock = threading.Lock()
+MAX_REMOTE_BYTES = 20 * 1024 * 1024
+
+
+def _read_bounded(response, max_bytes: int = MAX_REMOTE_BYTES) -> bytes:
+    payload = response.read(max_bytes + 1)
+    if len(payload) > max_bytes:
+        raise ValueError(f"remote response exceeds {max_bytes} bytes")
+    return payload
 
 
 def fetch_sporttery_raw() -> dict:
@@ -41,7 +49,7 @@ def fetch_sporttery_raw() -> dict:
         "sec-fetch-site": "same-site",
     })
     with urllib.request.urlopen(req, timeout=30) as r:
-        return json.loads(r.read())
+        return json.loads(_read_bounded(r))
 
 
 def parse_matches(match_info: list[dict]) -> list[dict]:
