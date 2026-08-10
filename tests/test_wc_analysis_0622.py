@@ -1,11 +1,28 @@
 import math
 
+from wc_analysis import predict as legacy_predict
 from wc_analysis.worldcup_0622_analysis import (
     dixon_coles_tau,
     poisson_score_matrix,
     summarize_score_matrix,
     weighted_mean,
 )
+
+
+def test_legacy_data_route_rejects_absolute_and_traversal_paths():
+    assert legacy_predict._public_data_target("/data//etc/passwd") is None
+    assert legacy_predict._public_data_target("/data/%2e%2e/predict.py") is None
+    target = legacy_predict._public_data_target("/data/predictions.json")
+    assert target == (legacy_predict.DATA_DIR / "predictions.json").resolve()
+
+
+def test_legacy_mutation_routes_require_configured_bearer_token(monkeypatch):
+    monkeypatch.delenv("WC_ADMIN_TOKEN", raising=False)
+    assert not legacy_predict._admin_authorized({})
+    monkeypatch.setenv("WC_ADMIN_TOKEN", "test-only-token")
+    assert not legacy_predict._admin_authorized({})
+    assert not legacy_predict._admin_authorized({"Authorization": "Bearer wrong"})
+    assert legacy_predict._admin_authorized({"Authorization": "Bearer test-only-token"})
 
 
 def test_weighted_mean_uses_newer_matches_more_heavily():

@@ -91,6 +91,7 @@ class PlatformStore:
         stale = summary["stale_competitions"]
         evaluated = summary["evaluated_models"]
         research_predictions = len(self._predictions.get("predictions", []))
+        current_status = self._snapshot.get("current_data", {}).get("status", "unavailable")
         return {
             "status": (
                 "ok"
@@ -98,6 +99,7 @@ class PlatformStore:
                 and stale == 0
                 and fresh == len(self._snapshot["competitions"])
                 and evaluated == len(self._snapshot["competitions"])
+                and current_status == "fresh"
                 else "degraded"
             ),
             "generated_at": self._snapshot["generated_at"],

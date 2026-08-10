@@ -1,10 +1,14 @@
 from __future__ import annotations
 
-import json
 import gzip
+import json
+import math
 from datetime import datetime, timezone
 from pathlib import Path
 
+import pytest
+
+from league_platform.app import create_server
 from league_platform.catalog import LEAGUES, get_league
 from league_platform.current import attach_current_data
 from league_platform.dixon_coles import evaluate_dixon_coles
@@ -13,6 +17,7 @@ from league_platform.live_sources.espn_market import parse_espn_market
 from league_platform.live_sources.understat import (
     aggregate_understat_payload,
     decode_understat_payload,
+    fetch_understat_features,
 )
 from league_platform.identity import canonical_team_name, team_id
 from league_platform.future import build_future_predictions
@@ -24,6 +29,17 @@ from league_platform.sources.openfootball import OpenFootballSource
 
 
 EXPECTED_LEAGUES = {"premier-league", "la-liga", "bundesliga", "serie-a", "ligue-1", "csl"}
+TEST_SHA256 = "a" * 64
+
+
+def _espn_source(as_of: datetime, native_id: str) -> dict:
+    return {
+        "name": "ESPN",
+        "url": "https://site.api.espn.com/example",
+        "native_fixture_id": native_id,
+        "retrieved_at": as_of.isoformat(),
+        "raw_sha256": TEST_SHA256,
+    }
 
 
 def test_data_manifest_pins_all_six_league_inputs():
@@ -108,6 +124,30 @@ def test_espn_market_is_devigged_and_bound_to_native_fixture():
     assert market["source"]["raw_sha256"]
 
 
+def test_espn_market_rejects_non_finite_odds():
+    payload = json.dumps(
+        {
+            "pickcenter": [
+                {
+                    "homeTeamOdds": {"moneyLine": math.nan},
+                    "drawOdds": {"moneyLine": 300},
+                    "awayTeamOdds": {"moneyLine": 400},
+                }
+            ]
+        }
+    ).encode()
+
+    assert (
+        parse_espn_market(
+            payload,
+            fixture_id="espn:bad-market",
+            retrieved_at=datetime(2026, 8, 10, tzinfo=timezone.utc),
+            url="https://site.api.espn.com/example",
+        )
+        is None
+    )
+
+
 def test_understat_form_uses_only_results_before_as_of():
     dates = []
     for day in range(1, 8):
@@ -152,6 +192,31 @@ def test_understat_gzip_payload_can_be_decoded_before_aggregation():
     payload = gzip.compress(json.dumps({"dates": []}).encode())
 
     assert json.loads(decode_understat_payload(payload))["dates"] == []
+
+
+def test_understat_gzip_payload_has_decompressed_size_limit():
+    oversized = gzip.compress(b"x" * 1025)
+
+    with pytest.raises(ValueError, match="decompressed payload exceeded"):
+        decode_understat_payload(oversized, max_bytes=1024)
+
+
+def test_understat_bootstrap_failure_is_source_level_degradation():
+    class BrokenOpener:
+        def open(self, *_args, **_kwargs):
+            raise OSError("offline")
+
+    result = fetch_understat_features(
+        now=datetime(2026, 8, 10, tzinfo=timezone.utc), opener=BrokenOpener()
+    )
+
+    assert result["team_features"] == []
+    assert result["errors"][0]["stage"] == "cookie_bootstrap"
+
+
+def test_matchline_rejects_remote_bind_without_explicit_opt_in(tmp_path):
+    with pytest.raises(ValueError, match="remote binding requires"):
+        create_server("0.0.0.0", 0, tmp_path)
 
 
 def test_catalog_contains_big_five_and_chinese_super_league():
@@ -357,7 +422,9 @@ def test_current_snapshot_is_attached_with_as_of_and_feature_coverage(tmp_path):
                     "away_team": "Arsenal",
                     "status": "upcoming",
                     "score": None,
-                    "source": {"name": "ESPN", "retrieved_at": as_of.isoformat()},
+                    "home_provider_team_id": "1",
+                    "away_provider_team_id": "2",
+                    "source": _espn_source(as_of, "1"),
                 }
             ],
         },
@@ -368,6 +435,12 @@ def test_current_snapshot_is_attached_with_as_of_and_feature_coverage(tmp_path):
                     "competition_id": "premier-league",
                     "team": "Manchester City",
                     "sample_n": 5,
+                    "source": {
+                        "name": "Understat",
+                        "url": "https://understat.com/example",
+                        "retrieved_at": as_of.isoformat(),
+                        "raw_sha256": TEST_SHA256,
+                    },
                 }
             ],
         },
@@ -387,6 +460,15 @@ def test_current_snapshot_is_attached_with_as_of_and_feature_coverage(tmp_path):
     assert fixture["home_team_id"] == "premier-league:man-city"
     assert fixture["current_features"]["home"]["sample_n"] == 5
 
+    del live["espn"]["fixtures"][0]["source"]["raw_sha256"]
+    live_path.write_text(json.dumps(live), encoding="utf-8")
+    with pytest.raises(ValueError, match="content hash"):
+        attach_current_data(
+            build_platform_snapshot(Path("data/MatchHistory")),
+            live_path,
+            now=as_of,
+        )
+
 
 def test_future_predictions_only_use_post_as_of_fixtures_and_disclose_gates(tmp_path):
     as_of = datetime(2026, 8, 10, 1, 0, tzinfo=timezone.utc)
@@ -405,7 +487,9 @@ def test_future_predictions_only_use_post_as_of_fixtures_and_disclose_gates(tmp_
                     "away_team": "Arsenal",
                     "status": "upcoming",
                     "score": None,
-                    "source": {"name": "ESPN", "retrieved_at": as_of.isoformat()},
+                    "home_provider_team_id": "1",
+                    "away_provider_team_id": "2",
+                    "source": _espn_source(as_of, "future"),
                 }
             ],
         },
@@ -445,7 +529,9 @@ def test_future_predictions_block_model_parameters_fitted_after_as_of(tmp_path):
                     "away_team": "Arsenal",
                     "status": "upcoming",
                     "score": None,
-                    "source": {"name": "ESPN", "retrieved_at": as_of.isoformat()},
+                    "home_provider_team_id": "1",
+                    "away_provider_team_id": "2",
+                    "source": _espn_source(as_of, "future-leak-check"),
                 }
             ],
         },

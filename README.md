@@ -1,10 +1,10 @@
 # 赛线 Matchline：六联赛比赛与预测平台
 
-> 当前迁移状态：第一阶段已经建立英超、西甲、德甲、意甲、法甲和中超的统一联赛契约、
-> 只读 API、数据质量门禁与全新响应式比赛中心。五大联赛目前使用可校验恢复的
+> 当前迁移状态：已经建立英超、西甲、德甲、意甲、法甲和中超的统一联赛契约、
+> 只读 API、数据质量门禁与全新响应式比赛中心。五大联赛使用可校验恢复的
 > football-data.co.uk 2021/22–2023/24 历史缓存，以及 OpenFootball CC0 的中超
-> 2022–2024 历史结果；六个来源当前均已过期，只适合历史回测。2026 实时源尚未接入，
-> 不使用样例数据或欧洲联赛参数冒充当前预测。
+> 2022–2024 历史结果，这些旧数据只进入训练、校准和回测。未来赛程、近期 xG 与市场
+> 对照由独立当前源同步；缺少伤停和确认首发时，预测始终标记为 `research_only`。
 
 启动新平台：
 
@@ -14,6 +14,9 @@ cd /home/hetaisheng/soccerdata
 .venv/bin/python -m league_platform.app
 # http://127.0.0.1:8030
 ```
+
+Matchline 拒绝非 loopback 监听。远程部署必须由带 TLS、认证和限流的反向代理转发到本地
+`127.0.0.1:8030`，不能直接把内置开发服务器暴露到公网。
 
 首次干净检出时，按固定 URL 与 SHA-256 清单恢复历史输入（第三方数据本身不提交到 Git）：
 
@@ -207,6 +210,9 @@ bash wc_analysis/relay_sporttery.sh      # uses 4090 + SCP relay
 python wc_analysis/predict.py --serve
 # Open http://localhost:8026
 ```
+
+旧服务只监听 `127.0.0.1`。`/api/refresh`、`/api/retrain` 与会生成文件的 `/api/top3`
+要求请求头 `Authorization: Bearer $WC_ADMIN_TOKEN`；未配置令牌时管理端点保持关闭。
 
 Endpoints:
 

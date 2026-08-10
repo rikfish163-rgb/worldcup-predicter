@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import argparse
+import fcntl
 import json
 import tempfile
 from datetime import datetime, timezone
@@ -18,12 +19,14 @@ from league_platform.live_sources import (
 DEFAULT_OUTPUT = Path("data/live/current.json")
 
 
-def sync(output: Path = DEFAULT_OUTPUT, *, now: datetime | None = None) -> dict:
-    as_of = now or datetime.now(timezone.utc)
-    if as_of.tzinfo is None:
-        as_of = as_of.replace(tzinfo=timezone.utc)
-    espn = fetch_espn_fixtures(now=as_of)
-    espn_markets = fetch_espn_markets(espn["fixtures"], now=as_of)
+def _sync_unlocked(output: Path, *, now: datetime | None = None) -> dict:
+    reference_time = now
+    if reference_time is not None and reference_time.tzinfo is None:
+        reference_time = reference_time.replace(tzinfo=timezone.utc)
+    espn = fetch_espn_fixtures(now=reference_time)
+    espn_markets = fetch_espn_markets(espn["fixtures"], now=reference_time)
+    understat = fetch_understat_features(now=reference_time)
+    as_of = reference_time or datetime.now(timezone.utc)
     snapshot = {
         "schema_version": "1.0.0",
         "as_of": as_of.isoformat(),
@@ -36,7 +39,7 @@ def sync(output: Path = DEFAULT_OUTPUT, *, now: datetime | None = None) -> dict:
         },
         "espn": espn,
         "espn_markets": espn_markets,
-        "understat": fetch_understat_features(now=as_of),
+        "understat": understat,
     }
     output.parent.mkdir(parents=True, exist_ok=True)
     with tempfile.NamedTemporaryFile(
@@ -47,6 +50,17 @@ def sync(output: Path = DEFAULT_OUTPUT, *, now: datetime | None = None) -> dict:
         stream.write("\n")
     temporary.replace(output)
     return snapshot
+
+
+def sync(output: Path = DEFAULT_OUTPUT, *, now: datetime | None = None) -> dict:
+    output.parent.mkdir(parents=True, exist_ok=True)
+    lock_path = output.with_name(f"{output.name}.lock")
+    with lock_path.open("a", encoding="utf-8") as lock:
+        try:
+            fcntl.flock(lock, fcntl.LOCK_EX | fcntl.LOCK_NB)
+        except BlockingIOError as exc:
+            raise RuntimeError("another current-data sync is already running") from exc
+        return _sync_unlocked(output, now=now)
 
 
 def main() -> None:

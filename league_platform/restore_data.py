@@ -16,6 +16,18 @@ ALLOWED_HOSTS = {"www.football-data.co.uk", "raw.githubusercontent.com"}
 MAX_DOWNLOAD_BYTES = 20 * 1024 * 1024
 
 
+def _validate_download_url(url: str) -> None:
+    parsed = urlparse(url)
+    if parsed.scheme != "https" or parsed.hostname not in ALLOWED_HOSTS:
+        raise ValueError(f"unapproved manifest URL: {url}")
+
+
+class _AllowlistedRedirectHandler(urllib.request.HTTPRedirectHandler):
+    def redirect_request(self, req, fp, code, msg, headers, newurl):
+        _validate_download_url(newurl)
+        return super().redirect_request(req, fp, code, msg, headers, newurl)
+
+
 def _sha256(path: Path) -> str:
     digest = hashlib.sha256()
     with path.open("rb") as stream:
@@ -32,9 +44,7 @@ def restore(destination: Path) -> None:
         name = item["name"]
         if Path(name).name != name or "/" in name or "\\" in name:
             raise ValueError(f"unsafe manifest filename: {name}")
-        parsed_url = urlparse(item["url"])
-        if parsed_url.scheme != "https" or parsed_url.hostname not in ALLOWED_HOSTS:
-            raise ValueError(f"unapproved manifest URL: {item['url']}")
+        _validate_download_url(item["url"])
         target = destination / name
         if target.exists() and _sha256(target) == item["sha256"]:
             print(f"verified {target}")
@@ -43,7 +53,8 @@ def restore(destination: Path) -> None:
         try:
             with tempfile.NamedTemporaryFile(dir=destination, delete=False) as stream:
                 temporary = Path(stream.name)
-                with urllib.request.urlopen(item["url"], timeout=30) as response:  # noqa: S310
+                opener = urllib.request.build_opener(_AllowlistedRedirectHandler())
+                with opener.open(item["url"], timeout=30) as response:
                     downloaded = 0
                     for chunk in iter(lambda: response.read(1024 * 1024), b""):
                         downloaded += len(chunk)

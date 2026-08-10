@@ -19,7 +19,7 @@ const statusLabels = {
 };
 
 const sourceStatusLabels = {
-  fresh: "实时",
+  fresh: "新鲜（≤6小时）",
   delayed: "延迟",
   stale: "过期",
   unavailable: "不可用",
@@ -45,6 +45,17 @@ function formatDate(value) {
     year: "numeric",
     month: "2-digit",
     day: "2-digit",
+  }).format(new Date(value));
+}
+
+function formatDateTime(value) {
+  return new Intl.DateTimeFormat("zh-CN", {
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: false,
   }).format(new Date(value));
 }
 
@@ -124,14 +135,16 @@ function renderSummary() {
   $("#hero-coverage").textContent = `${summary.available_competitions} / ${competitions.length}`;
   $("#hero-freshness").textContent =
     current?.status === "fresh"
-      ? `当前赛程已同步 · 截至 ${formatDate(current.as_of)}`
+      ? `当前数据新鲜（≤6小时）· 截至 ${formatDateTime(current.as_of)} · 年龄 ${Math.floor(
+          current.age_seconds / 60,
+        )} 分钟`
       : current?.message || "没有可验证的当前赛程";
   $("#footer-version").textContent = `Schema ${state.snapshot.schema_version}`;
 
   const hasFresh = current?.status === "fresh";
   const header = $("#header-status");
   header.innerHTML = `<span class="status-dot ${hasFresh ? "" : "status-dot--stale"}"></span>${
-    hasFresh ? "当前赛程已同步" : "当前数据不可用"
+    hasFresh ? "当前数据新鲜（≤6小时）" : "当前数据不可用"
   }`;
 }
 
@@ -145,7 +158,10 @@ function marketBlock(match) {
       ["客", probabilities.away],
     ];
     return `
-      <span class="market-label">研究预测 · Dixon-Coles · as-of ${formatDate(prediction.as_of)}</span>
+      <span class="market-label">仅供研究 · research_only · Dixon-Coles</span>
+      <span class="market-label">预测截点 ${formatDateTime(prediction.as_of)} · 训练截止 ${formatDateTime(
+        prediction.training_cutoff,
+      )}</span>
       ${labels
         .map(
           ([label, value]) => `
@@ -164,11 +180,17 @@ function marketBlock(match) {
       }</span>
       <span class="market-label">${
         prediction.market_probability
-          ? `当前市场对照 主 ${(prediction.market_probability.home * 100).toFixed(1)}% · 平 ${(
+          ? `${escapeHtml(prediction.market_provider)} 市场对照（采集 ${formatDateTime(
+              prediction.market_retrieved_at,
+            )}）主 ${(prediction.market_probability.home * 100).toFixed(1)}% · 平 ${(
               prediction.market_probability.draw * 100
             ).toFixed(1)}% · 客 ${(prediction.market_probability.away * 100).toFixed(1)}%`
           : "没有可验证的当前市场快照；伤停与首发也未确认，生产门禁保持关闭"
       }</span>
+      <span class="market-label">来源 ${prediction.providers.map(escapeHtml).join(" · ")}</span>
+      <span class="market-label">缺失项：当前伤停、确认首发 · 生产门禁关闭（${escapeHtml(
+        prediction.quality_gate,
+      )}）</span>
     `;
   }
   if (state.blockedFixtures.has(match.id)) {

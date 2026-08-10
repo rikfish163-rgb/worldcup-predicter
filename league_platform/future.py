@@ -254,6 +254,7 @@ def build_future_predictions(snapshot: dict) -> dict:
                     "historical_matches_away": counts[fixture["away_team_id"]],
                     "recent_xg": bool(home_feature and away_feature),
                     "current_market": bool(market_feature),
+                    "injuries": False,
                     "lineups": False,
                 },
                 "elo_probability": {
@@ -267,6 +268,10 @@ def build_future_predictions(snapshot: dict) -> dict:
                     "away": round(dc_probability[2], 6),
                 },
                 "market_probability": (market_feature["probability"] if market_feature else None),
+                "market_provider": (market_feature["provider"] if market_feature else None),
+                "market_retrieved_at": (
+                    market_feature["retrieved_at"] if market_feature else None
+                ),
                 "expected_goals": {"home": round(home_rate, 4), "away": round(away_rate, 4)},
             }
         )

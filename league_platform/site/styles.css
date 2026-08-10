@@ -471,6 +471,12 @@ a {
   display: grid;
   align-content: center;
   gap: 11px;
+  min-width: 0;
+}
+
+.market-label,
+.source-tag {
+  overflow-wrap: anywhere;
 }
 
 .probability-line {

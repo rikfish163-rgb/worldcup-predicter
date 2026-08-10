@@ -77,7 +77,7 @@ jobs:
 
       - name: Verify Matchline
         run: |
-          python -m pytest tests/test_league_platform.py -v --tb=short
+          python -m pytest tests/test_league_platform.py tests/test_wc_analysis_0622.py -v --tb=short
           python -m compileall -q league_platform
           python -m ruff check league_platform tests/test_league_platform.py
           python -m ruff check --select S league_platform

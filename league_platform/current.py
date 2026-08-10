@@ -3,11 +3,74 @@
 from __future__ import annotations
 
 import json
+import math
 from copy import deepcopy
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
 from league_platform.identity import team_id
+
+
+def _validate_source(source: dict, as_of: datetime, *, hash_keys: tuple[str, ...]) -> None:
+    observed = datetime.fromisoformat(source["retrieved_at"])
+    if observed.tzinfo is None or observed.astimezone(timezone.utc) > as_of.astimezone(
+        timezone.utc
+    ):
+        raise ValueError(
+            "current source retrieved_at must be timezone-aware and no later than as_of"
+        )
+    if not source.get("url", "").startswith("https://"):
+        raise ValueError("current source URL must use HTTPS")
+    hashes = [source.get(key) for key in hash_keys]
+    if not any(isinstance(value, str) and len(value) == 64 for value in hashes):
+        raise ValueError("current source is missing a 64-character content hash")
+
+
+def _validate_live_snapshot(live: dict, as_of: datetime, competition_ids: set[str]) -> None:
+    valid_statuses = {"upcoming", "live", "finished", "postponed", "cancelled"}
+    fixtures = live.get("espn", {}).get("fixtures", [])
+    fixture_ids = {fixture.get("id") for fixture in fixtures}
+    for fixture in fixtures:
+        if fixture.get("competition_id") not in competition_ids:
+            raise ValueError("current fixture has unknown competition")
+        if fixture.get("status") not in valid_statuses:
+            raise ValueError("current fixture has invalid status")
+        kickoff = datetime.fromisoformat(fixture["kickoff_at"])
+        if kickoff.tzinfo is None:
+            raise ValueError("current fixture kickoff_at must be timezone-aware")
+        source = fixture["source"]
+        _validate_source(source, as_of, hash_keys=("raw_sha256",))
+        if (
+            not all(
+                fixture.get(key)
+                for key in ("id", "home_provider_team_id", "away_provider_team_id")
+            )
+            or source.get("native_fixture_id") is None
+        ):
+            raise ValueError("current fixture is missing provider-native IDs")
+    for feature in live.get("understat", {}).get("team_features", []):
+        if feature.get("competition_id") not in competition_ids:
+            raise ValueError("current feature has unknown competition")
+        _validate_source(
+            feature["source"],
+            as_of,
+            hash_keys=("content_sha256", "raw_sha256"),
+        )
+        for key in ("xg_for", "xg_against"):
+            if key in feature and not math.isfinite(float(feature[key])):
+                raise ValueError("current xG feature must be finite")
+    for market in live.get("espn_markets", {}).get("markets", []):
+        if market.get("fixture_id") not in fixture_ids or not market.get("provider"):
+            raise ValueError("current market is missing a known fixture or provider")
+        market_source = {**market["source"], "retrieved_at": market["retrieved_at"]}
+        _validate_source(market_source, as_of, hash_keys=("raw_sha256",))
+        values = market.get("probability", {}).values()
+        if len(market.get("probability", {})) != 3 or not all(
+            math.isfinite(float(value)) and 0 <= float(value) <= 1 for value in values
+        ):
+            raise ValueError("current market probabilities must be finite and bounded")
+        if abs(sum(float(value) for value in values) - 1) > 1e-5:
+            raise ValueError("current market probabilities must sum to one")
 
 
 def attach_current_data(
@@ -36,6 +99,8 @@ def attach_current_data(
         raise ValueError("live snapshot as_of must be timezone-aware")
     if as_of > checked_at + timedelta(minutes=5):
         raise ValueError("live snapshot as_of is in the future")
+    competition_ids = {item["id"] for item in payload["competitions"]}
+    _validate_live_snapshot(live, as_of, competition_ids)
     age = checked_at.astimezone(timezone.utc) - as_of.astimezone(timezone.utc)
     status = "fresh" if age <= freshness_limit else "stale"
 
