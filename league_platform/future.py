@@ -15,7 +15,7 @@ def _outcome(match: dict) -> float:
     return 1.0 if score["home"] > score["away"] else 0.5 if score["home"] == score["away"] else 0.0
 
 
-def _history(snapshot: dict, competition_id: str) -> list[dict]:
+def _history(snapshot: dict, competition_id: str, as_of: datetime) -> list[dict]:
     return sorted(
         (
             match
@@ -23,6 +23,7 @@ def _history(snapshot: dict, competition_id: str) -> list[dict]:
             if match["competition_id"] == competition_id
             and match["status"] == "finished"
             and match["score"] is not None
+            and datetime.fromisoformat(match["kickoff_at"]).astimezone(timezone.utc) < as_of
         ),
         key=lambda match: (match["kickoff_at"], match["id"]),
     )
@@ -105,7 +106,13 @@ def build_future_predictions(snapshot: dict) -> dict:
     states = {}
     for competition_id, competition in competitions.items():
         health = competition["model_health"]
-        history = _history(snapshot, competition_id)
+        data_cutoff = health.get("data_cutoff")
+        if (
+            not data_cutoff
+            or datetime.fromisoformat(data_cutoff).astimezone(timezone.utc) >= as_of_dt
+        ):
+            continue
+        history = _history(snapshot, competition_id, as_of_dt)
         if not history or health.get("status") != "evaluated":
             continue
         counts: dict[str, int] = defaultdict(int)
@@ -133,9 +140,15 @@ def build_future_predictions(snapshot: dict) -> dict:
             continue
         state = states.get(fixture["competition_id"])
         if state is None:
-            blocked.append(
-                {"fixture_id": fixture["id"], "reason": "historical_model_not_evaluated"}
+            health = competitions[fixture["competition_id"]]["model_health"]
+            data_cutoff = health.get("data_cutoff")
+            reason = (
+                "historical_model_not_causal"
+                if data_cutoff
+                and datetime.fromisoformat(data_cutoff).astimezone(timezone.utc) >= as_of_dt
+                else "historical_model_not_evaluated"
             )
+            blocked.append({"fixture_id": fixture["id"], "reason": reason})
             continue
         health = state["health"]
         history = state["history"]
