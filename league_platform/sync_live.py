@@ -9,6 +9,7 @@ import tempfile
 from datetime import datetime, timezone
 from pathlib import Path
 
+from league_platform.catalog import LEAGUES
 from league_platform.live_sources import (
     fetch_espn_fixtures,
     fetch_espn_markets,
@@ -30,6 +31,7 @@ def _sync_unlocked(output: Path, *, now: datetime | None = None) -> dict:
     snapshot = {
         "schema_version": "1.0.0",
         "as_of": as_of.isoformat(),
+        "expected_competitions": [league.id for league in LEAGUES],
         "roles": {
             "fixtures_and_results": "ESPN",
             "recent_xg_and_form": "Understat",

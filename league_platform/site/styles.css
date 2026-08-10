@@ -71,6 +71,18 @@ a {
   outline-offset: 3px;
 }
 
+html {
+  scroll-padding-top: 96px;
+}
+
+main,
+#match-center,
+#source-health,
+#model-health,
+#methodology {
+  scroll-margin-top: 96px;
+}
+
 .site-header {
   position: sticky;
   z-index: 20;
@@ -582,6 +594,7 @@ a {
 }
 
 .source-status--stale,
+.source-status--degraded,
 .source-status--unavailable {
   color: var(--danger);
 }
@@ -761,6 +774,18 @@ td {
 }
 
 @media (max-width: 760px) {
+  html {
+    scroll-padding-top: 280px;
+  }
+
+  main,
+  #match-center,
+  #source-health,
+  #model-health,
+  #methodology {
+    scroll-margin-top: 280px;
+  }
+
   .shell {
     width: min(100% - 28px, 1440px);
   }

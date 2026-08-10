@@ -1,4 +1,5 @@
 import math
+from pathlib import Path
 
 from wc_analysis import predict as legacy_predict
 from wc_analysis.worldcup_0622_analysis import (
@@ -23,6 +24,14 @@ def test_legacy_mutation_routes_require_configured_bearer_token(monkeypatch):
     assert not legacy_predict._admin_authorized({})
     assert not legacy_predict._admin_authorized({"Authorization": "Bearer wrong"})
     assert legacy_predict._admin_authorized({"Authorization": "Bearer test-only-token"})
+
+
+def test_legacy_network_helpers_keep_tls_verification_and_loopback_binding():
+    sporttery_server = next(Path("wc_analysis").glob("**/sporttery_server.py")).read_text()
+    assert 'HTTPServer(("127.0.0.1", port)' in sporttery_server
+    assert 'HTTPServer(("0.0.0.0", port)' not in sporttery_server
+    for path in (Path("wc_analysis/build_groups.py"), Path("wc_analysis/fetch_pinnacle.py")):
+        assert "CERT_NONE" not in path.read_text()
 
 
 def test_weighted_mean_uses_newer_matches_more_heavily():

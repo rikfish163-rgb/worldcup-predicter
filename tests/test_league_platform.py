@@ -3,7 +3,7 @@ from __future__ import annotations
 import gzip
 import json
 import math
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
 import pytest
@@ -408,9 +408,12 @@ def test_store_health_exposes_source_and_model_gates():
 def test_current_snapshot_is_attached_with_as_of_and_feature_coverage(tmp_path):
     as_of = datetime(2026, 8, 10, 1, 0, tzinfo=timezone.utc)
     live = {
+        "schema_version": "1.0.0",
         "as_of": as_of.isoformat(),
+        "expected_competitions": ["premier-league"],
         "roles": {"fixtures_and_results": "ESPN", "recent_xg_and_form": "Understat"},
         "espn": {
+            "provider": "ESPN",
             "errors": [],
             "fixtures": [
                 {
@@ -429,12 +432,15 @@ def test_current_snapshot_is_attached_with_as_of_and_feature_coverage(tmp_path):
             ],
         },
         "understat": {
+            "provider": "Understat",
             "errors": [],
             "team_features": [
                 {
                     "competition_id": "premier-league",
                     "team": "Manchester City",
                     "sample_n": 5,
+                    "xg_for": 1.5,
+                    "xg_against": 1.0,
                     "source": {
                         "name": "Understat",
                         "url": "https://understat.com/example",
@@ -443,6 +449,11 @@ def test_current_snapshot_is_attached_with_as_of_and_feature_coverage(tmp_path):
                     },
                 }
             ],
+        },
+        "espn_markets": {
+            "provider": "ESPN event summary",
+            "errors": [],
+            "markets": [],
         },
     }
     live_path = tmp_path / "current.json"
@@ -460,6 +471,20 @@ def test_current_snapshot_is_attached_with_as_of_and_feature_coverage(tmp_path):
     assert fixture["home_team_id"] == "premier-league:man-city"
     assert fixture["current_features"]["home"]["sample_n"] == 5
 
+    store = PlatformStore(Path("data/MatchHistory"), now=as_of, live_path=live_path)
+    store._clock = lambda: as_of + timedelta(hours=7)
+    assert store.predictions()["status"] == "unavailable"
+    assert store.health()["current_data"]["status"] == "stale"
+
+    valid_live = json.loads(json.dumps(live))
+    live["espn"]["fixtures"] = []
+    live_path.write_text(json.dumps(live), encoding="utf-8")
+    empty_snapshot = attach_current_data(
+        build_platform_snapshot(Path("data/MatchHistory")), live_path, now=as_of
+    )
+    assert empty_snapshot["current_data"]["status"] == "unavailable"
+
+    live = json.loads(json.dumps(valid_live))
     del live["espn"]["fixtures"][0]["source"]["raw_sha256"]
     live_path.write_text(json.dumps(live), encoding="utf-8")
     with pytest.raises(ValueError, match="content hash"):
@@ -469,13 +494,32 @@ def test_current_snapshot_is_attached_with_as_of_and_feature_coverage(tmp_path):
             now=as_of,
         )
 
+    live = json.loads(json.dumps(valid_live))
+    live["espn"]["fixtures"][0]["source"]["url"] = "https://evil.example/not-espn"
+    live_path.write_text(json.dumps(live), encoding="utf-8")
+    with pytest.raises(ValueError, match="allowlisted"):
+        attach_current_data(
+            build_platform_snapshot(Path("data/MatchHistory")), live_path, now=as_of
+        )
+
+    live = json.loads(json.dumps(valid_live))
+    live["espn"]["errors"] = [{"competition_id": "premier-league", "error": "offline"}]
+    live_path.write_text(json.dumps(live), encoding="utf-8")
+    degraded = attach_current_data(
+        build_platform_snapshot(Path("data/MatchHistory")), live_path, now=as_of
+    )
+    assert degraded["current_data"]["status"] == "degraded"
+
 
 def test_future_predictions_only_use_post_as_of_fixtures_and_disclose_gates(tmp_path):
     as_of = datetime(2026, 8, 10, 1, 0, tzinfo=timezone.utc)
     live = {
+        "schema_version": "1.0.0",
         "as_of": as_of.isoformat(),
+        "expected_competitions": ["premier-league"],
         "roles": {"fixtures_and_results": "ESPN", "recent_xg_and_form": "Understat"},
         "espn": {
+            "provider": "ESPN",
             "errors": [],
             "fixtures": [
                 {
@@ -493,7 +537,12 @@ def test_future_predictions_only_use_post_as_of_fixtures_and_disclose_gates(tmp_
                 }
             ],
         },
-        "understat": {"errors": [], "team_features": []},
+        "understat": {"provider": "Understat", "errors": [], "team_features": []},
+        "espn_markets": {
+            "provider": "ESPN event summary",
+            "errors": [],
+            "markets": [],
+        },
     }
     live_path = tmp_path / "current.json"
     live_path.write_text(json.dumps(live), encoding="utf-8")
@@ -515,9 +564,12 @@ def test_future_predictions_only_use_post_as_of_fixtures_and_disclose_gates(tmp_
 def test_future_predictions_block_model_parameters_fitted_after_as_of(tmp_path):
     as_of = datetime(2026, 8, 10, 1, 0, tzinfo=timezone.utc)
     live = {
+        "schema_version": "1.0.0",
         "as_of": as_of.isoformat(),
+        "expected_competitions": ["premier-league"],
         "roles": {"fixtures_and_results": "ESPN"},
         "espn": {
+            "provider": "ESPN",
             "errors": [],
             "fixtures": [
                 {
@@ -535,7 +587,12 @@ def test_future_predictions_block_model_parameters_fitted_after_as_of(tmp_path):
                 }
             ],
         },
-        "understat": {"errors": [], "team_features": []},
+        "understat": {"provider": "Understat", "errors": [], "team_features": []},
+        "espn_markets": {
+            "provider": "ESPN event summary",
+            "errors": [],
+            "markets": [],
+        },
     }
     live_path = tmp_path / "current.json"
     live_path.write_text(json.dumps(live), encoding="utf-8")

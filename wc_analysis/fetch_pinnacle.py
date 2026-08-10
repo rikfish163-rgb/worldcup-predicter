@@ -98,7 +98,6 @@ def compute_clv(
 def _direct_download_csv(league_code: str, season: str) -> Optional[pd.DataFrame]:
     """直接用 urllib 下载 CSV (绕过 tls_requests 的 503 问题)。"""
     import io
-    import ssl
     import urllib.request
 
     url = f"https://www.football-data.co.uk/mmz4281/{season}/{league_code}.csv"
@@ -110,14 +109,9 @@ def _direct_download_csv(league_code: str, season: str) -> Optional[pd.DataFrame
         "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
     }
 
-    # football-data.co.uk 的 SSL 配置有时不兼容,需要宽松模式
-    ctx = ssl.create_default_context()
-    ctx.check_hostname = False
-    ctx.verify_mode = ssl.CERT_NONE
-
     req = urllib.request.Request(url, headers=headers)
     try:
-        with urllib.request.urlopen(req, timeout=30, context=ctx) as resp:
+        with urllib.request.urlopen(req, timeout=30) as resp:
             raw = resp.read()
     except Exception as e:
         print(f"  [WARN] 直接下载失败 {url}: {e}", file=sys.stderr)

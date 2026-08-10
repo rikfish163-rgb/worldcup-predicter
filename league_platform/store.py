@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from copy import deepcopy
-from datetime import date, datetime
+from datetime import date, datetime, timezone
 from pathlib import Path
 
 from league_platform.snapshot import build_platform_snapshot
@@ -24,16 +24,23 @@ class PlatformStore:
         now: datetime | None = None,
         live_path: Path | None = None,
     ):
-        self._snapshot = build_platform_snapshot(data_dir, now=now)
-        if live_path is not None:
-            self._snapshot = attach_current_data(self._snapshot, live_path, now=now)
-        self._predictions = build_future_predictions(self._snapshot)
+        self._base_snapshot = build_platform_snapshot(data_dir, now=now)
+        self._live_path = live_path
+        self._clock = (lambda: now) if now is not None else (lambda: datetime.now(timezone.utc))
+
+    def _current_view(self) -> tuple[dict, dict]:
+        snapshot = deepcopy(self._base_snapshot)
+        if self._live_path is not None:
+            snapshot = attach_current_data(snapshot, self._live_path, now=self._clock())
+        return snapshot, build_future_predictions(snapshot)
 
     def snapshot(self) -> dict:
-        return deepcopy(self._snapshot)
+        snapshot, _ = self._current_view()
+        return snapshot
 
     def competitions(self) -> list[dict]:
-        return deepcopy(self._snapshot["competitions"])
+        snapshot, _ = self._current_view()
+        return deepcopy(snapshot["competitions"])
 
     def matches(
         self,
@@ -46,8 +53,9 @@ class PlatformStore:
         limit: int = 100,
         offset: int = 0,
     ) -> dict:
-        matches = self._snapshot["matches"]
-        competition_ids = {item["id"] for item in self._snapshot["competitions"]}
+        snapshot, _ = self._current_view()
+        matches = snapshot["matches"]
+        competition_ids = {item["id"] for item in snapshot["competitions"]}
         if competition_id and competition_id not in competition_ids:
             raise ValueError(f"unknown competition: {competition_id}")
         if status and status not in MATCH_STATUSES:
@@ -85,24 +93,25 @@ class PlatformStore:
         }
 
     def health(self) -> dict:
-        summary = self._snapshot["summary"]
+        snapshot, predictions = self._current_view()
+        summary = snapshot["summary"]
         unavailable = summary["unavailable_competitions"]
         fresh = summary["fresh_competitions"]
         stale = summary["stale_competitions"]
         evaluated = summary["evaluated_models"]
-        research_predictions = len(self._predictions.get("predictions", []))
-        current_status = self._snapshot.get("current_data", {}).get("status", "unavailable")
+        research_predictions = len(predictions.get("predictions", []))
+        current_status = snapshot.get("current_data", {}).get("status", "unavailable")
         return {
             "status": (
                 "ok"
                 if unavailable == 0
                 and stale == 0
-                and fresh == len(self._snapshot["competitions"])
-                and evaluated == len(self._snapshot["competitions"])
+                and fresh == len(snapshot["competitions"])
+                and evaluated == len(snapshot["competitions"])
                 and current_status == "fresh"
                 else "degraded"
             ),
-            "generated_at": self._snapshot["generated_at"],
+            "generated_at": snapshot["generated_at"],
             "sources": {
                 "available": summary["available_competitions"],
                 "fresh": fresh,
@@ -116,20 +125,21 @@ class PlatformStore:
                     "research_predictions_available_production_blocked"
                     if research_predictions
                     else "historical_baselines_evaluated_current_predictions_blocked"
-                    if evaluated == len(self._snapshot["competitions"])
+                    if evaluated == len(snapshot["competitions"])
                     else "blocked_until_walk_forward_validation"
                 ),
             },
             "current_data": deepcopy(
-                self._snapshot.get("current_data", {"status": "unavailable", "as_of": None})
+                snapshot.get("current_data", {"status": "unavailable", "as_of": None})
             ),
         }
 
     def model_evaluations(self) -> list[dict]:
         return [
             {"competition_id": item["id"], **deepcopy(item["model_health"])}
-            for item in self._snapshot["competitions"]
+            for item in self._base_snapshot["competitions"]
         ]
 
     def predictions(self) -> dict:
-        return deepcopy(self._predictions)
+        _, predictions = self._current_view()
+        return predictions

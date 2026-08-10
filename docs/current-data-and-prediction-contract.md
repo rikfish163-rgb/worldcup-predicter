@@ -7,7 +7,8 @@
    fixture 和构造预测时点特征。每个 HTTP 响应在实际收到后记录 `retrieved_at`，最终 `as_of`
    在全部来源完成后生成；因此所有被采用的观察都满足 `retrieved_at <= as_of`。
 
-历史比赛不会因为仍在本地而被标成“当前”，当前快照超过 6 小时后预测 API 自动变为 unavailable。
+历史比赛不会因为仍在本地而被标成“当前”。服务会在每次 snapshot/health/predictions 请求时重新
+读取并校验当前快照；超过 6 小时后预测 API 自动变为 unavailable，不依赖进程重启。
 
 ## 多源职责
 
@@ -22,6 +23,8 @@
 
 ESPN JSON 保存响应内容 SHA-256；Understat 同时保存压缩传输字节的 `wire_sha256` 与解压内容的
 `content_sha256`。任一来源启动失败会记录结构化错误并降级，不会丢弃其他已成功来源。
+空赛程、来源错误、联赛覆盖不完整、非 allowlist 主机、非有限数值或不完整比分都会使快照降级、
+不可用或直接拒绝，不能仅凭一个新的 `as_of` 冒充 fresh。
 
 同步命令：
 
