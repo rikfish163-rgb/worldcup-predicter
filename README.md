@@ -15,6 +15,10 @@ cd /home/hetaisheng/soccerdata
 # http://127.0.0.1:8030
 ```
 
+`sync_live` 会抓取 ESPN 近 45 天结果与未来 45 天赛程、Understat 近况、公开 RSS 与按联赛限频的 Google News RSS 新闻发现、
+Open-Meteo 天气、SofaScore 赛前事件/首发/缺阵和当前赔率；每次完整快照会追加到
+`data/live/archive/`，原始内容按 SHA-256 去重。公开源失败会保留结构化错误并降级，不绕过登录、验证码或访问控制。
+
 Matchline 拒绝非 loopback 监听。远程部署必须由带 TLS、认证和限流的反向代理转发到本地
 `127.0.0.1:8030`，不能直接把内置开发服务器暴露到公网。
 

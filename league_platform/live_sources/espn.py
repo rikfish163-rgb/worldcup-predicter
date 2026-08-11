@@ -77,13 +77,15 @@ def fetch_espn_fixtures(
     *,
     now: datetime | None = None,
     horizon_days: int = 45,
+    lookback_days: int = 45,
     opener: Callable[..., object] = urllib.request.urlopen,
 ) -> dict:
     reference_time = now or datetime.now(timezone.utc)
     if reference_time.tzinfo is None:
         reference_time = reference_time.replace(tzinfo=timezone.utc)
+    start = reference_time - timedelta(days=lookback_days)
     end = reference_time + timedelta(days=horizon_days)
-    date_range = f"{reference_time:%Y%m%d}-{end:%Y%m%d}"
+    date_range = f"{start:%Y%m%d}-{end:%Y%m%d}"
     fixtures = []
     errors = []
     observation_times = []
@@ -118,6 +120,7 @@ def fetch_espn_fixtures(
         "provider": "ESPN",
         "retrieved_at": max(observation_times, default=reference_time).isoformat(),
         "horizon_days": horizon_days,
+        "lookback_days": lookback_days,
         "fixtures": fixtures,
         "errors": errors,
     }

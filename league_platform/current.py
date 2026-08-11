@@ -11,14 +11,18 @@ from pathlib import Path
 from urllib.parse import urlparse
 
 from league_platform.identity import team_id
+from league_platform.live_sources.news import ALLOWED_NEWS_HOSTS
+from league_platform.live_sources.open_meteo import OPEN_METEO_HOST, OPEN_METEO_PATH
+from league_platform.live_sources.sofascore import SOFASCORE_HOST
 
 EXPECTED_SOURCE_ROLES = {
     "fixtures_and_results": "ESPN",
     "recent_xg_and_form": "Understat",
     "historical_training": ["football-data.co.uk", "OpenFootball"],
     "current_market": "ESPN event summary / named bookmaker",
-    "injuries_and_lineups": None,
+    "injuries_and_lineups": "SofaScore provider-reported; not authoritative",
 }
+LEGACY_SOURCE_ROLES = {**EXPECTED_SOURCE_ROLES, "injuries_and_lineups": None}
 
 
 def _validate_source(
@@ -128,6 +132,104 @@ def _validate_live_snapshot(live: dict, as_of: datetime, competition_ids: set[st
         if abs(sum(float(value) for value in values) - 1) > 1e-5:
             raise ValueError("current market probabilities must sum to one")
 
+    news = live.get("news")
+    if news is not None:
+        if (
+            not isinstance(news, dict)
+            or news.get("provider") != "Public RSS"
+            or not isinstance(news.get("feeds"), list)
+            or not isinstance(news.get("errors"), list)
+            or not isinstance(news.get("item_count"), int)
+        ):
+            raise ValueError("current news provider contract is invalid")
+        observed_items = 0
+        for feed in news["feeds"]:
+            if (
+                not isinstance(feed, dict)
+                or not isinstance(feed.get("name"), str)
+                or not isinstance(feed.get("items"), list)
+            ):
+                raise ValueError("current news feed contract is invalid")
+            parsed_url = urlparse(feed.get("url", ""))
+            if parsed_url.hostname not in ALLOWED_NEWS_HOSTS:
+                raise ValueError("current news URL or host is not allowlisted")
+            _validate_source(
+                feed,
+                as_of,
+                hash_keys=("raw_sha256",),
+                expected_name=feed["name"],
+                allowed_hosts=ALLOWED_NEWS_HOSTS,
+            )
+            for item in feed["items"]:
+                if (
+                    not isinstance(item, dict)
+                    or not isinstance(item.get("title"), str)
+                    or not isinstance(item.get("link"), str)
+                    or not item["link"].startswith("https://")
+                ):
+                    raise ValueError("current news item contract is invalid")
+            observed_items += len(feed["items"])
+        if news["item_count"] != observed_items:
+            raise ValueError("current news item_count is inconsistent")
+
+    weather = live.get("weather")
+    if weather is not None:
+        if (
+            not isinstance(weather, dict)
+            or weather.get("provider") != "Open-Meteo"
+            or not isinstance(weather.get("weather"), list)
+            or not isinstance(weather.get("errors"), list)
+        ):
+            raise ValueError("current weather provider contract is invalid")
+        for observation in weather["weather"]:
+            if not isinstance(observation, dict) or not observation.get("fixture_id"):
+                raise ValueError("current weather observation contract is invalid")
+            if observation["fixture_id"] not in fixture_ids:
+                raise ValueError("current weather references an unknown fixture")
+            source = observation.get("source")
+            if not isinstance(source, dict):
+                raise ValueError("current weather observation is missing provenance")
+            _validate_source(
+                source,
+                as_of,
+                hash_keys=("raw_sha256",),
+                expected_name="Open-Meteo",
+                allowed_hosts={OPEN_METEO_HOST},
+            )
+            if urlparse(source.get("url", "")).path != OPEN_METEO_PATH:
+                raise ValueError("current weather URL path is not allowlisted")
+
+    sofascore = live.get("sofascore")
+    if sofascore is None:
+        return
+    if (
+        not isinstance(sofascore, dict)
+        or sofascore.get("provider") != "SofaScore"
+        or not isinstance(sofascore.get("events"), list)
+        or not isinstance(sofascore.get("errors"), list)
+    ):
+        raise ValueError("current SofaScore provider contract is invalid")
+    for observation in sofascore["events"]:
+        if not isinstance(observation, dict) or not observation.get("fixture_id"):
+            raise ValueError("current SofaScore observation contract is invalid")
+        if observation["fixture_id"] not in fixture_ids:
+            raise ValueError("current SofaScore references an unknown fixture")
+        for source_key in ("source", "lineups_source"):
+            source = observation.get(source_key)
+            if source is None:
+                continue
+            if not isinstance(source, dict):
+                raise ValueError("current SofaScore provenance is invalid")
+            _validate_source(
+                source,
+                as_of,
+                hash_keys=("raw_sha256",),
+                expected_name="SofaScore",
+                allowed_hosts={SOFASCORE_HOST},
+            )
+            if not urlparse(source.get("url", "")).path.startswith("/api/v1/"):
+                raise ValueError("current SofaScore URL path is not allowlisted")
+
 
 def attach_current_data(
     snapshot: dict,
@@ -150,7 +252,10 @@ def attach_current_data(
         return payload
 
     live = json.loads(live_path.read_text(encoding="utf-8"))
-    if live.get("schema_version") != "1.0.0" or live.get("roles") != EXPECTED_SOURCE_ROLES:
+    if live.get("schema_version") != "1.0.0" or live.get("roles") not in (
+        EXPECTED_SOURCE_ROLES,
+        LEGACY_SOURCE_ROLES,
+    ):
         raise ValueError("live snapshot schema_version or roles are invalid")
     provider_contracts = {
         "espn": ("ESPN", "fixtures"),
@@ -166,6 +271,12 @@ def attach_current_data(
             or not isinstance(source_payload.get("errors"), list)
         ):
             raise ValueError("live snapshot provider contract is invalid")
+    if "news" in live and not isinstance(live["news"], dict):
+        raise ValueError("live snapshot news provider contract is invalid")
+    if "weather" in live and not isinstance(live["weather"], dict):
+        raise ValueError("live snapshot weather provider contract is invalid")
+    if "sofascore" in live and not isinstance(live["sofascore"], dict):
+        raise ValueError("live snapshot SofaScore provider contract is invalid")
     as_of = datetime.fromisoformat(live["as_of"])
     if as_of.tzinfo is None:
         raise ValueError("live snapshot as_of must be timezone-aware")
@@ -178,6 +289,9 @@ def attach_current_data(
         "espn": live.get("espn", {}).get("errors", []),
         "espn_markets": live.get("espn_markets", {}).get("errors", []),
         "understat": live.get("understat", {}).get("errors", []),
+        "news": live.get("news", {}).get("errors", []) if live.get("news") else [],
+        "weather": live.get("weather", {}).get("errors", []) if live.get("weather") else [],
+        "sofascore": live.get("sofascore", {}).get("errors", []) if live.get("sofascore") else [],
     }
     fixtures_from_source = live.get("espn", {}).get("fixtures", [])
     fixture_competitions = {fixture.get("competition_id") for fixture in fixtures_from_source}
@@ -187,7 +301,9 @@ def attach_current_data(
         raise ValueError("live snapshot expected_competitions are invalid")
     if not fixtures_from_source:
         status = "unavailable"
-    elif any(provider_errors.values()) or fixture_competitions != expected_competitions:
+    elif any(
+        provider_errors[key] for key in ("espn", "espn_markets", "understat")
+    ) or fixture_competitions != expected_competitions:
         status = "degraded"
     else:
         status = "fresh" if age <= freshness_limit else "stale"
@@ -196,6 +312,18 @@ def attach_current_data(
     markets = {
         item["fixture_id"]: item for item in live.get("espn_markets", {}).get("markets", [])
     }
+    weather = live.get("weather")
+    weather_by_fixture = (
+        {item["fixture_id"]: item for item in weather.get("weather", [])}
+        if weather
+        else {}
+    )
+    sofascore = live.get("sofascore")
+    sofascore_by_fixture = (
+        {item["fixture_id"]: item for item in sofascore.get("events", [])}
+        if sofascore
+        else {}
+    )
     feature_team_ids = {team_id(item["competition_id"], item["team"]): item for item in features}
     fixtures = []
     for fixture in live.get("espn", {}).get("fixtures", []):
@@ -219,6 +347,8 @@ def attach_current_data(
                     "home": feature_team_ids.get(home_id),
                     "away": feature_team_ids.get(away_id),
                     "market": markets.get(fixture["id"]),
+                    "weather": weather_by_fixture.get(fixture["id"]),
+                    "sofascore": sofascore_by_fixture.get(fixture["id"]),
                 },
                 "source": fixture["source"],
             }
@@ -238,6 +368,7 @@ def attach_current_data(
             item["competition_id"] == competition_id for item in features
         )
 
+    news = live.get("news")
     payload["matches"].extend(fixtures)
     payload["matches"].sort(key=lambda item: item["kickoff_at"], reverse=True)
     payload["summary"]["current_fixture_count"] = len(fixtures)
@@ -256,5 +387,36 @@ def attach_current_data(
         "fixture_count": len(fixtures),
         "xg_team_count": len(features),
         "market_count": len(markets),
+        "news_status": (
+            "fresh"
+            if news and news.get("feeds") and not news.get("errors")
+            else "degraded"
+            if news and news.get("feeds")
+            else "unavailable"
+        ),
+        "news_feed_count": len(news.get("feeds", [])) if news else 0,
+        "news_item_count": news.get("item_count", 0) if news else 0,
+        "weather_status": (
+            "fresh"
+            if weather and weather.get("weather") and not weather.get("errors")
+            else "degraded"
+            if weather and weather.get("weather")
+            else "unavailable"
+        ),
+        "weather_count": len(weather.get("weather", [])) if weather else 0,
+        "sofascore_status": (
+            "fresh"
+            if sofascore and sofascore.get("events") and not sofascore.get("errors")
+            else "degraded"
+            if sofascore and sofascore.get("events")
+            else "unavailable"
+        ),
+        "sofascore_event_count": len(sofascore.get("events", [])) if sofascore else 0,
     }
+    if news is not None:
+        payload["news"] = news
+    if weather is not None:
+        payload["weather"] = weather
+    if sofascore is not None:
+        payload["sofascore"] = sofascore
     return payload

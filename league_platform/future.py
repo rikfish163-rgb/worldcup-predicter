@@ -218,6 +218,10 @@ def build_future_predictions(snapshot: dict) -> dict:
         home_feature = current_features.get("home")
         away_feature = current_features.get("away")
         market_feature = current_features.get("market")
+        weather_feature = current_features.get("weather")
+        sofascore_feature = current_features.get("sofascore")
+        lineup_feature = sofascore_feature.get("lineups") if sofascore_feature else None
+        injury_feature = sofascore_feature.get("injuries") if sofascore_feature else None
         if home_feature and away_feature:
             home_recent = (home_feature["xg_for"] + away_feature["xg_against"]) / 2
             away_recent = (away_feature["xg_for"] + home_feature["xg_against"]) / 2
@@ -233,6 +237,10 @@ def build_future_predictions(snapshot: dict) -> dict:
             providers.append("Understat")
         if market_feature:
             providers.extend([market_feature["source"]["name"], market_feature["provider"]])
+        if weather_feature:
+            providers.append(weather_feature["source"]["name"])
+        if sofascore_feature:
+            providers.append(sofascore_feature["source"]["name"])
         predictions.append(
             {
                 "fixture_id": fixture["id"],
@@ -245,8 +253,8 @@ def build_future_predictions(snapshot: dict) -> dict:
                 "status": "research_only",
                 "quality_gate": (
                     "blocked_for_production_without_current_injuries_and_confirmed_lineups"
-                    if market_feature
-                    else "blocked_for_production_without_current_market_injuries_and_lineups"
+                    if not (lineup_feature and lineup_feature.get("available") and injury_feature and injury_feature.get("available"))
+                    else "blocked_for_production_model_features_not_validated"
                 ),
                 "providers": sorted(set(providers)),
                 "feature_coverage": {
@@ -254,8 +262,9 @@ def build_future_predictions(snapshot: dict) -> dict:
                     "historical_matches_away": counts[fixture["away_team_id"]],
                     "recent_xg": bool(home_feature and away_feature),
                     "current_market": bool(market_feature),
-                    "injuries": False,
-                    "lineups": False,
+                    "weather": bool(weather_feature),
+                    "injuries": bool(injury_feature and injury_feature.get("available")),
+                    "lineups": bool(lineup_feature and lineup_feature.get("available")),
                 },
                 "elo_probability": {
                     "home": round(elo_probability[0], 6),
