@@ -1,0 +1,12 @@
+[Unit]
+Description=Synchronize raw-backed Matchline facts every 15 minutes
+
+[Timer]
+OnBootSec=9min
+OnUnitActiveSec=15min
+Persistent=true
+AccuracySec=30s
+Unit=matchline-sites-sync-facts.service
+
+[Install]
+WantedBy=timers.target

@@ -1,0 +1,36 @@
+[Unit]
+Description=Synchronize raw-backed Matchline facts to Sites
+Wants=network-online.target
+After=network-online.target matchline-raw-artifact-upload.service
+RequiresMountsFor=/media/hetaisheng/044A81D94A81C83E/soccerdata-live-runtime
+ConditionPathExists=%h/.config/matchline/matchline-sites.env
+ConditionPathExists=/media/hetaisheng/044A81D94A81C83E/soccerdata-live-runtime/openfootball-raw/manifest.jsonl
+ConditionPathExists=/dev/shm/matchline-live-runtime/current.json
+
+[Service]
+Type=oneshot
+WorkingDirectory=/home/hetaisheng/soccerdata
+UMask=0077
+Environment=PYTHONDONTWRITEBYTECODE=1
+Environment=PYTHONUNBUFFERED=1
+Environment=TMPDIR=/dev/shm
+Environment=MATCHLINE_RUNTIME_DIR=/dev/shm/matchline-live-runtime
+Environment=MATCHLINE_OPENFOOTBALL_RAW_ARCHIVE_DIR=/media/hetaisheng/044A81D94A81C83E/soccerdata-live-runtime/openfootball-raw
+Environment=MATCHLINE_RESEARCH_FIXTURE_SNAPSHOT=/dev/shm/matchline-live-runtime/current.json
+Environment=MATCHLINE_SITES_SYNC_STATE_DIR=/media/hetaisheng/044A81D94A81C83E/soccerdata-live-runtime/sites-sync-state
+EnvironmentFile=%h/.config/matchline/matchline-sites.env
+EnvironmentFile=-/etc/matchline/matchline-runtime.env
+EnvironmentFile=-%h/.config/matchline/matchline-runtime.env
+# Facts-only is intentionally independent from locks, predictions, and strict reports.
+# The receipt/cursor are written only after every raw/research ACK succeeds.
+ExecStart=/home/hetaisheng/soccerdata/.venv/bin/python -m league_platform.publish_sites_sync \
+  --lane research_facts_only \
+  --mode incremental \
+  --archive-root ${MATCHLINE_OPENFOOTBALL_RAW_ARCHIVE_DIR} \
+  --snapshot ${MATCHLINE_RESEARCH_FIXTURE_SNAPSHOT} \
+  --raw-endpoint ${MATCHLINE_RAW_ARTIFACT_ENDPOINT} \
+  --research-endpoint ${MATCHLINE_RESEARCH_FIXTURE_ENDPOINT} \
+  --receipt ${MATCHLINE_SITES_SYNC_STATE_DIR}/facts-completed.json \
+  --cursor ${MATCHLINE_SITES_SYNC_STATE_DIR}/facts-cursor.json
+TimeoutStartSec=20min
+TimeoutStopSec=60s
