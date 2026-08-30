@@ -1,0 +1,56 @@
+[Unit]
+Description=Matchline local production workbench preview
+Wants=network-online.target
+Requires=matchline-runtime-restore.service
+After=network-online.target matchline-runtime-restore.service
+RequiresMountsFor=/media/hetaisheng/044A81D94A81C83E/matchline-sites-deps-2026-08-19/node_modules
+ConditionPathExists=/home/hetaisheng/soccerdata/matchline_sites/app/offline_snapshot.data.json
+ConditionPathExists=/home/hetaisheng/soccerdata/matchline_sites/dist/server/index.js
+[Service]
+Type=simple
+WorkingDirectory=/home/hetaisheng/soccerdata/matchline_sites
+Environment=NODE_ENV=production
+# The build wrapper verifies this marker before writing its resource receipt;
+# keep the local preview fail-closed if an older server bundle is selected.
+ExecCondition=/usr/bin/grep -Fq static_snapshot_not_public /home/hetaisheng/soccerdata/matchline_sites/dist/server/index.js
+# Keep Wrangler/Miniflare's disposable state off the repository filesystem;
+# the local preview has no reason to retain it between restarts.
+Environment=MATCHLINE_LOCAL_STATE_DIR=/dev/shm/matchline-sites-local-state
+# The live-only route reads this changing file directly.  The compiled
+# offline snapshot is refreshed by restarting this local preview only after a
+# successful read-model build; neither path is a public deployment channel.
+Environment=MATCHLINE_LIVE_OVERLAY_PATH=/dev/shm/matchline-live-runtime/live_overlay.json
+ExecStart=/usr/bin/node /home/hetaisheng/soccerdata/matchline_sites/node_modules/vinext/dist/cli.js start --hostname 127.0.0.1 --port 3000
+Restart=on-failure
+RestartSec=5s
+KillMode=control-group
+TimeoutStartSec=30s
+TimeoutStopSec=15s
+UMask=0077
+
+# This is a read-only local preview.  It needs the built repository, external
+# dependency tree and the host runtime overlay, but no privilege escalation,
+# devices, host temporary files or writable system/home paths.
+NoNewPrivileges=true
+PrivateTmp=true
+PrivateDevices=true
+BindReadOnlyPaths=/dev/shm/matchline-live-runtime
+ProtectSystem=strict
+ProtectHome=read-only
+ProtectClock=true
+ProtectControlGroups=true
+ProtectHostname=true
+ProtectKernelLogs=true
+ProtectKernelModules=true
+ProtectKernelTunables=true
+CapabilityBoundingSet=
+AmbientCapabilities=
+LockPersonality=true
+RestrictNamespaces=true
+RestrictRealtime=true
+RestrictSUIDSGID=true
+RestrictAddressFamilies=AF_UNIX AF_INET AF_INET6
+SystemCallArchitectures=native
+
+[Install]
+WantedBy=default.target
