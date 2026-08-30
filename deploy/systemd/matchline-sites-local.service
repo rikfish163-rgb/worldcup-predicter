@@ -16,9 +16,9 @@ ExecCondition=/usr/bin/grep -Fq static_snapshot_not_public /home/hetaisheng/socc
 # Keep Wrangler/Miniflare's disposable state off the repository filesystem;
 # the local preview has no reason to retain it between restarts.
 Environment=MATCHLINE_LOCAL_STATE_DIR=/dev/shm/matchline-sites-local-state
-# The live-only route reads this changing file directly.  The compiled
-# offline snapshot is refreshed by restarting this local preview only after a
-# successful read-model build; neither path is a public deployment channel.
+# The live-only route reads this changing file directly.  The server-only
+# offline snapshot is pinned into the build and checked by the wrapper;
+# neither path is a public deployment channel.
 Environment=MATCHLINE_LIVE_OVERLAY_PATH=/dev/shm/matchline-live-runtime/live_overlay.json
 ExecStart=/usr/bin/node /home/hetaisheng/soccerdata/matchline_sites/node_modules/vinext/dist/cli.js start --hostname 127.0.0.1 --port 3000
 Restart=on-failure
