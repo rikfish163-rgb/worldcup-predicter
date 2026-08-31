@@ -102,6 +102,7 @@ if [ "${status}" -eq 0 ]; then
   public_snapshot="${project_dir}/public/${forbidden_snapshot_name}"
   built_client_snapshot="${project_dir}/dist/client/${forbidden_snapshot_name}"
   worker_bundle="${project_dir}/dist/server/index.js"
+  route_manifest="${project_dir}/dist/server/.vite/manifest.json"
   if [ ! -f "${source_snapshot}" ] || [ ! -f "${worker_bundle}" ]; then
     echo "Sites build snapshot verification failed: server-only snapshot or Worker bundle is missing" >&2
     status=1
@@ -111,6 +112,32 @@ if [ "${status}" -eq 0 ]; then
     status=1
   elif ! grep -Fq "static_snapshot_not_public" "${worker_bundle}"; then
     echo "Sites build snapshot verification failed: compiled Worker static-path guard is missing" >&2
+    status=1
+  elif [ ! -f "${route_manifest}" ]; then
+    echo "Sites build snapshot verification failed: server route manifest is missing" >&2
+    status=1
+  elif ! ROUTE_MANIFEST="${route_manifest}" /usr/bin/node --input-type=module <<'NODE'
+import { readFile } from "node:fs/promises";
+
+const manifestPath = process.env.ROUTE_MANIFEST;
+if (!manifestPath) process.exit(2);
+const manifest = JSON.parse(await readFile(manifestPath, "utf8"));
+const route = manifest["app/api/matches/route.ts"];
+if (!route || typeof route !== "object") {
+  console.error("matches route is absent from the Vite server manifest");
+  process.exit(1);
+}
+const dependencies = [
+  ...(Array.isArray(route.imports) ? route.imports : []),
+  ...(Array.isArray(route.dynamicImports) ? route.dynamicImports : []),
+];
+if (dependencies.some((entry) => typeof entry === "string" && entry.includes("offline-snapshot"))) {
+  console.error("matches route still depends on the bundled offline snapshot chunk");
+  process.exit(1);
+}
+NODE
+  then
+    echo "Sites build snapshot verification failed: matches route still bundles the offline snapshot" >&2
     status=1
   fi
   if [ "${status}" -ne 0 ]; then

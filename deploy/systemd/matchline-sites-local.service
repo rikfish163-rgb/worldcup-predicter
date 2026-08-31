@@ -3,9 +3,10 @@ Description=Matchline local production workbench preview
 Wants=network-online.target
 Requires=matchline-runtime-restore.service
 After=network-online.target matchline-runtime-restore.service
-RequiresMountsFor=/media/hetaisheng/044A81D94A81C83E/matchline-sites-deps-2026-08-19/node_modules
+RequiresMountsFor=/media/hetaisheng/044A81D94A81C83E/matchline-sites-deps-2026-08-28/node_modules
 ConditionPathExists=/home/hetaisheng/soccerdata/matchline_sites/app/offline_snapshot.data.json
 ConditionPathExists=/home/hetaisheng/soccerdata/matchline_sites/dist/server/index.js
+ConditionPathExists=/dev/shm/matchline-live-runtime/offline_snapshot.json
 [Service]
 Type=simple
 WorkingDirectory=/home/hetaisheng/soccerdata/matchline_sites
@@ -16,10 +17,13 @@ ExecCondition=/usr/bin/grep -Fq static_snapshot_not_public /home/hetaisheng/socc
 # Keep Wrangler/Miniflare's disposable state off the repository filesystem;
 # the local preview has no reason to retain it between restarts.
 Environment=MATCHLINE_LOCAL_STATE_DIR=/dev/shm/matchline-sites-local-state
-# The live-only route reads this changing file directly.  The server-only
-# offline snapshot is pinned into the build and checked by the wrapper;
-# neither path is a public deployment channel.
+# The live-only route reads this changing file directly.  The optional
+# server-side DR adapter reads the compact snapshot from the runtime root;
+# neither path is a public deployment channel and the source-checkout JSON is
+# never imported into the route bundle.
 Environment=MATCHLINE_LIVE_OVERLAY_PATH=/dev/shm/matchline-live-runtime/live_overlay.json
+Environment=MATCHLINE_SERVER_DR_FALLBACK=1
+Environment=MATCHLINE_SERVER_DR_SNAPSHOT_PATH=/dev/shm/matchline-live-runtime/offline_snapshot.json
 ExecStart=/usr/bin/node /home/hetaisheng/soccerdata/matchline_sites/node_modules/vinext/dist/cli.js start --hostname 127.0.0.1 --port 3000
 Restart=on-failure
 RestartSec=5s
