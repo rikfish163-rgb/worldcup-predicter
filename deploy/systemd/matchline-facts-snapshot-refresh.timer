@@ -1,0 +1,12 @@
+[Unit]
+Description=Refresh Matchline facts snapshot every 15 minutes
+
+[Timer]
+OnBootSec=6min
+OnUnitInactiveSec=15min
+Persistent=true
+AccuracySec=30s
+Unit=matchline-facts-snapshot-refresh.service
+
+[Install]
+WantedBy=timers.target

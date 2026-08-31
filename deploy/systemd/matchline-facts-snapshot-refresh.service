@@ -1,0 +1,37 @@
+[Unit]
+Description=Refresh Matchline facts snapshot without entering the model lane
+Wants=network-online.target
+After=network-online.target
+OnSuccess=matchline-raw-artifact-upload.service
+OnSuccess=matchline-sites-sync-facts.service
+RequiresMountsFor=/media/hetaisheng/044A81D94A81C83E/soccerdata-live-runtime
+ConditionPathExists=/media/hetaisheng/044A81D94A81C83E/soccerdata-live-runtime/openfootball-raw/manifest.jsonl
+
+[Service]
+Type=oneshot
+WorkingDirectory=/home/hetaisheng/soccerdata
+UMask=0077
+Environment=PYTHONDONTWRITEBYTECODE=1
+Environment=PYTHONUNBUFFERED=1
+Environment=TMPDIR=/dev/shm
+Environment=PYTHONPATH=/media/hetaisheng/044A81D94A81C83E/soccerdata-live-runtime/python-deps-no-deps
+Environment=XDG_CACHE_HOME=/dev/shm/matchline-facts-refresh-xdg-cache
+Environment=XDG_CONFIG_HOME=/dev/shm/matchline-facts-refresh-xdg-config
+Environment=XDG_STATE_HOME=/dev/shm/matchline-facts-refresh-xdg-state
+Environment=MATCHLINE_RUNTIME_DIR=/dev/shm/matchline-live-runtime
+Environment=MATCHLINE_OPENFOOTBALL_RAW_ARCHIVE_DIR=/media/hetaisheng/044A81D94A81C83E/soccerdata-live-runtime/openfootball-raw
+Environment=MATCHLINE_FACTS_CYCLE_LOCK=/dev/shm/matchline-live-runtime/prospective-cycle.lock
+EnvironmentFile=-/etc/matchline/matchline-runtime.env
+EnvironmentFile=-%h/.config/matchline/matchline-runtime.env
+# Facts refresh is intentionally independent from prospective/model locks. It
+# writes one atomically replaced current pointer; raw evidence stays on the
+# durable archive and the OnSuccess uploaders send only bounded server-side
+# facts projections.
+ExecStart=/usr/bin/python3 -m league_platform.facts_snapshot_refresh \
+  --output ${MATCHLINE_RUNTIME_DIR}/current.json \
+  --archive-dir ${MATCHLINE_RUNTIME_DIR}/archive \
+  --openfootball-raw-archive-dir ${MATCHLINE_OPENFOOTBALL_RAW_ARCHIVE_DIR} \
+  --intelligence-ledger ${MATCHLINE_RUNTIME_DIR}/intelligence/observations.jsonl \
+  --cycle-lock ${MATCHLINE_FACTS_CYCLE_LOCK}
+TimeoutStartSec=20min
+TimeoutStopSec=60s
