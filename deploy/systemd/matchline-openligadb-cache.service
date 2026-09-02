@@ -1,0 +1,18 @@
+[Unit]
+Description=Refresh the isolated OpenLigaDB current display in Sites R2
+Wants=network-online.target
+After=network-online.target
+ConditionPathExists=%h/.config/matchline/matchline-sites.env
+
+[Service]
+Type=oneshot
+WorkingDirectory=/home/hetaisheng/soccerdata
+UMask=0077
+Environment=PYTHONDONTWRITEBYTECODE=1
+Environment=PYTHONUNBUFFERED=1
+EnvironmentFile=%h/.config/matchline/matchline-sites.env
+EnvironmentFile=-/etc/matchline/matchline-runtime.env
+EnvironmentFile=-%h/.config/matchline/matchline-runtime.env
+ExecStart=/home/hetaisheng/soccerdata/.venv/bin/python -m league_platform.publish_openligadb_cache
+TimeoutStartSec=90s
+TimeoutStopSec=30s
