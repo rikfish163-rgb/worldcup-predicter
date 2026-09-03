@@ -1,0 +1,9 @@
+[Unit]
+Description=Matchline facts-only source refresh (isolated)
+Wants=network-online.target
+After=network-online.target
+
+[Service]
+Type=oneshot
+UMask=0077
+ExecStart=/usr/bin/python3 /home/ubuntu/matchline-facts/collector.py --output /home/ubuntu/matchline-facts/current.json

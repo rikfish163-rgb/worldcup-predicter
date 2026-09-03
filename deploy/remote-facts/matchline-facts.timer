@@ -1,0 +1,11 @@
+[Unit]
+Description=Refresh Matchline facts-only source cache
+
+[Timer]
+OnBootSec=2min
+OnUnitActiveSec=30min
+Persistent=true
+Unit=matchline-facts.service
+
+[Install]
+WantedBy=timers.target
