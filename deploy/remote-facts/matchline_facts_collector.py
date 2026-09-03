@@ -30,6 +30,13 @@ MAX_OPENLIGADB_ROWS = 2_000
 MAX_WIKIDATA_ENTITIES = 12
 USER_AGENT = "MatchlineFactsCollector/1.0 (+facts-only; no-model-data)"
 
+OPENLIGADB_LEAGUES: dict[str, dict[str, str]] = {
+    "bl1": {"name": "OpenLigaDB Bundesliga", "competitionId": "bundesliga"},
+    "bl2": {"name": "OpenLigaDB 2. Bundesliga", "competitionId": "bundesliga-2"},
+    "bl3": {"name": "OpenLigaDB 3. Liga", "competitionId": "bundesliga-3"},
+}
+DEFAULT_OPENLIGADB_LEAGUES = ("bl1", "bl2", "bl3")
+
 OPENLIGADB_LICENSE_URL = "https://www.openligadb.de/lizenz"
 WIKIDATA_LICENSE_URL = "https://www.wikidata.org/wiki/Wikidata:Licensing"
 MET_LICENSE_URL = "https://creativecommons.org/licenses/by/4.0/"
@@ -158,14 +165,20 @@ def _source_status(
     return result
 
 
-def collect_openligadb(season: int, retrieved_at: str) -> tuple[dict[str, object], list[dict[str, object]]]:
-    url = f"https://api.openligadb.de/getmatchdata/bl1/{season}"
+def _collect_openligadb_league(
+    season: int,
+    retrieved_at: str,
+    shortcut: str,
+) -> tuple[dict[str, object], list[dict[str, object]]]:
+    config = OPENLIGADB_LEAGUES[shortcut]
+    url = f"https://api.openligadb.de/getmatchdata/{shortcut}/{season}"
+    source_id = "openligadb_secondary_results" if shortcut == "bl1" else f"openligadb_secondary_results_{shortcut}"
     status, body, payload = _http_json(url)
     if status != 200 or not isinstance(payload, list):
         return (
             _source_status(
-                source_id="openligadb_secondary_results",
-                name="OpenLigaDB Bundesliga",
+                source_id=source_id,
+                name=config["name"],
                 url=url,
                 retrieved_at=retrieved_at,
                 status="unavailable" if status == 0 else "failed",
@@ -182,6 +195,9 @@ def collect_openligadb(season: int, retrieved_at: str) -> tuple[dict[str, object
     seen: set[str] = set()
     for value in payload[:MAX_OPENLIGADB_ROWS]:
         if not isinstance(value, Mapping):
+            continue
+        raw_shortcut = value.get("leagueShortcut", value.get("LeagueShortcut"))
+        if raw_shortcut is not None and str(raw_shortcut).strip().lower() != shortcut:
             continue
         match_id = value.get("matchID", value.get("MatchID"))
         if isinstance(match_id, bool) or not isinstance(match_id, (int, str)):
@@ -200,9 +216,12 @@ def collect_openligadb(season: int, retrieved_at: str) -> tuple[dict[str, object
             continue
         finished = value.get("matchIsFinished", value.get("MatchIsFinished")) is True
         row: dict[str, object] = {
-            "id": f"openligadb:{match_token}",
+            "id": f"openligadb:{shortcut}:{match_token}",
             "provider": "OpenLigaDB",
-            "competitionId": "bundesliga",
+            "league": shortcut,
+            "competition": config["name"],
+            "competitionId": config["competitionId"],
+            "providerMatchId": match_token,
             "kickoffAt": kickoff,
             "homeTeam": home,
             "awayTeam": away,
@@ -225,8 +244,8 @@ def collect_openligadb(season: int, retrieved_at: str) -> tuple[dict[str, object
         seen.add(match_token)
     rows.sort(key=lambda item: (str(item["kickoffAt"]), str(item["id"])))
     source = _source_status(
-        source_id="openligadb_secondary_results",
-        name="OpenLigaDB Bundesliga",
+        source_id=source_id,
+        name=config["name"],
         url=url,
         retrieved_at=retrieved_at,
         status="fresh" if rows else "observed_empty",
@@ -237,6 +256,30 @@ def collect_openligadb(season: int, retrieved_at: str) -> tuple[dict[str, object
         body=body,
     )
     return source, rows
+
+
+def collect_openligadb(
+    season: int,
+    retrieved_at: str,
+    league_shortcuts: Sequence[str] = DEFAULT_OPENLIGADB_LEAGUES,
+) -> tuple[list[dict[str, object]], list[dict[str, object]]]:
+    selected = tuple(dict.fromkeys(league_shortcuts))
+    if not selected or any(shortcut not in OPENLIGADB_LEAGUES for shortcut in selected):
+        raise ValueError("openligadb_league_not_allowlisted")
+    sources: list[dict[str, object]] = []
+    rows: list[dict[str, object]] = []
+    seen: set[str] = set()
+    for shortcut in selected:
+        source, league_rows = _collect_openligadb_league(season, retrieved_at, shortcut)
+        sources.append(source)
+        for row in league_rows:
+            identity = f"{row['league']}:{row['providerMatchId']}"
+            if identity in seen:
+                continue
+            seen.add(identity)
+            rows.append(row)
+    rows.sort(key=lambda item: (str(item["kickoffAt"]), str(item["id"])))
+    return sources, rows
 
 
 def collect_wikidata(retrieved_at: str) -> tuple[dict[str, object], list[dict[str, object]]]:
@@ -393,11 +436,11 @@ def load_coordinates(raw: str | None) -> Mapping[str, object] | None:
 
 def collect(*, season: int, coordinates: Mapping[str, object] | None) -> dict[str, object]:
     retrieved_at = iso()
-    openligadb_source, matches = collect_openligadb(season, retrieved_at)
+    openligadb_sources, matches = collect_openligadb(season, retrieved_at)
     wikidata_source, entities = collect_wikidata(retrieved_at)
     met_source, weather = collect_met(retrieved_at, coordinates)
     sources = [
-        openligadb_source,
+        *openligadb_sources,
         wikidata_source,
         met_source,
         probe_provider(
@@ -421,7 +464,20 @@ def collect(*, season: int, coordinates: Mapping[str, object] | None) -> dict[st
         "predictions": [],
         "odds": [],
         "sources": sources,
-        "openligadb": {"season": season, "matches": matches},
+        "openligadb": {
+            "season": season,
+            "leagues": [
+                {
+                    "shortcut": source["sourceId"].removeprefix("openligadb_secondary_results_")
+                    if source["sourceId"] != "openligadb_secondary_results" else "bl1",
+                    "sourceId": source["sourceId"],
+                    "status": source["status"],
+                    "recordCount": source["recordCount"],
+                }
+                for source in openligadb_sources
+            ],
+            "matches": matches,
+        },
         "wikidata": {"entities": entities},
         "metNorway": {"observations": weather},
     }

@@ -4,7 +4,8 @@ This directory is a small, dependency-free collector for the separate VPS
 `ubuntu@170.106.198.250`. It is deliberately not part of the legacy
 `wc-predict` service.
 
-The collector fetches bounded, display-only facts from OpenLigaDB and Wikidata,
+The collector fetches bounded, display-only facts from the allowlisted OpenLigaDB
+Bundesliga, 2. Bundesliga, and 3. Liga endpoints, plus Wikidata,
 optionally MET Norway forecasts when coordinates are explicitly configured,
 and records policy/transport diagnostics for ESPN and SofaScore. It writes one
 atomically replaced JSON file and contains no prediction, odds, model, or
