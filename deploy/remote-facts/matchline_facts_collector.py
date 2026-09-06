@@ -464,6 +464,78 @@ def _source_status(
     return result
 
 
+def _non_negative_int(value: object, *, maximum: int = 999) -> int | None:
+    if isinstance(value, bool):
+        return None
+    try:
+        parsed = int(value)
+    except (TypeError, ValueError):
+        return None
+    return parsed if 0 <= parsed <= maximum else None
+
+
+def _openligadb_goals(value: object) -> list[dict[str, object]]:
+    """Keep the provider's explicit goal incidents, never infer shots/cards."""
+
+    if not isinstance(value, list):
+        return []
+    goals: list[dict[str, object]] = []
+    for index, item in enumerate(value[:80]):
+        if not isinstance(item, Mapping):
+            continue
+        minute = _non_negative_int(item.get("matchMinute", item.get("MatchMinute")), maximum=150)
+        home_score = _non_negative_int(item.get("scoreTeam1", item.get("ScoreTeam1")), maximum=99)
+        away_score = _non_negative_int(item.get("scoreTeam2", item.get("ScoreTeam2")), maximum=99)
+        if minute is None or home_score is None or away_score is None:
+            continue
+        goal_id = _non_negative_int(item.get("goalID", item.get("GoalID")), maximum=2_000_000_000)
+        player_id = _non_negative_int(item.get("goalGetterID", item.get("GoalGetterID")), maximum=2_000_000_000)
+        team_id = _non_negative_int(item.get("scoringTeamId", item.get("ScoringTeamId")), maximum=2_000_000_000)
+        name = text(item.get("goalGetterName", item.get("GoalGetterName")), 160)
+        comment = text(item.get("comment", item.get("Comment")), 240)
+        row: dict[str, object] = {
+            "id": str(goal_id if goal_id is not None else index + 1),
+            "minute": minute,
+            "score": {"home": home_score, "away": away_score},
+            "playerId": str(player_id) if player_id is not None else None,
+            "playerName": name,
+            "teamId": str(team_id) if team_id is not None else None,
+            "isPenalty": item.get("isPenalty", item.get("IsPenalty")) is True,
+            "isOwnGoal": item.get("isOwnGoal", item.get("IsOwnGoal")) is True,
+            "isOvertime": item.get("isOvertime", item.get("IsOvertime")) is True,
+            "comment": comment,
+        }
+        goals.append({key: item for key, item in row.items() if item is not None})
+    return goals
+
+
+def _openligadb_halftime_score(value: object) -> dict[str, int] | None:
+    if not isinstance(value, list):
+        return None
+    for item in value:
+        if not isinstance(item, Mapping):
+            continue
+        name = str(item.get("resultName", item.get("ResultName", ""))).strip().lower()
+        kind = str(item.get("resultTypeKind", item.get("ResultTypeKind", ""))).strip().lower()
+        if name not in {"halbzeit", "half-time", "half time", "halftime"} and kind not in {"halftime", "half-time", "half time"}:
+            continue
+        home = _non_negative_int(item.get("pointsTeam1", item.get("PointsTeam1")), maximum=99)
+        away = _non_negative_int(item.get("pointsTeam2", item.get("PointsTeam2")), maximum=99)
+        if home is not None and away is not None:
+            return {"home": home, "away": away}
+    return None
+
+
+def _openligadb_venue(value: object) -> dict[str, str] | None:
+    if not isinstance(value, Mapping):
+        return None
+    city = text(value.get("locationCity", value.get("LocationCity")), 120)
+    stadium = text(value.get("locationStadium", value.get("LocationStadium")), 160)
+    if not city and not stadium:
+        return None
+    return {key: item for key, item in {"city": city, "name": stadium}.items() if item}
+
+
 def _collect_openligadb_league(
     season: int,
     retrieved_at: str,
@@ -539,6 +611,15 @@ def _collect_openligadb_league(
                     break
             if score is not None:
                 row["score"] = score
+        halftime_score = _openligadb_halftime_score(results)
+        if halftime_score is not None:
+            row["halftimeScore"] = halftime_score
+        goals = _openligadb_goals(value.get("goals", value.get("Goals")))
+        if goals:
+            row["goals"] = goals
+        venue = _openligadb_venue(value.get("location", value.get("Location")))
+        if venue:
+            row["venue"] = venue
         rows.append(row)
         seen.add(match_token)
     rows.sort(key=lambda item: (str(item["kickoffAt"]), str(item["id"])))

@@ -23,6 +23,35 @@ def _row(match_id: int, shortcut: str) -> dict[str, object]:
     }
 
 
+def _finished_row(match_id: int, shortcut: str) -> dict[str, object]:
+    value = _row(match_id, shortcut)
+    value.update(
+        {
+            "matchIsFinished": True,
+            "matchResults": [
+                {"resultName": "Halbzeit", "pointsTeam1": 1, "pointsTeam2": 0},
+                {"resultName": "Endergebnis", "pointsTeam1": 2, "pointsTeam2": 1},
+            ],
+            "goals": [
+                {
+                    "goalID": 77,
+                    "scoreTeam1": 1,
+                    "scoreTeam2": 0,
+                    "matchMinute": 12,
+                    "goalGetterID": 501,
+                    "goalGetterName": "Home scorer",
+                    "scoringTeamId": match_id,
+                    "isPenalty": False,
+                    "isOwnGoal": False,
+                    "isOvertime": False,
+                }
+            ],
+            "location": {"locationCity": "Test City", "locationStadium": "Test Ground"},
+        }
+    )
+    return value
+
+
 def test_openligadb_collector_fetches_only_allowlisted_leagues(monkeypatch):
     calls: list[str] = []
 
@@ -83,6 +112,31 @@ def test_openligadb_collector_quarantines_wrong_shortcut_rows(monkeypatch):
     assert rows == []
     assert all(source["recordCount"] == 0 for source in sources)
     assert all(source["errorCode"] == "no_valid_matches" for source in sources)
+
+
+def test_openligadb_collector_keeps_explicit_goal_and_venue_facts(monkeypatch):
+    monkeypatch.setattr(
+        collector,
+        "_http_json",
+        lambda _url: (200, b"payload", [_finished_row(93000, "bl1")]),
+    )
+    _sources, rows = collector.collect_openligadb(2026, "2026-09-03T00:00:00Z", ["bl1"])
+    assert len(rows) == 1
+    row = rows[0]
+    assert row["score"] == {"home": 2, "away": 1}
+    assert row["halftimeScore"] == {"home": 1, "away": 0}
+    assert row["goals"] == [{
+        "id": "77",
+        "minute": 12,
+        "score": {"home": 1, "away": 0},
+        "playerId": "501",
+        "playerName": "Home scorer",
+        "teamId": "93000",
+        "isPenalty": False,
+        "isOwnGoal": False,
+        "isOvertime": False,
+    }]
+    assert row["venue"] == {"city": "Test City", "name": "Test Ground"}
 
 
 def test_openfootball_collector_fetches_all_fixed_current_leagues(monkeypatch):
