@@ -1,0 +1,15 @@
+[Unit]
+Description=Matchline facts-only source collector
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+User=ubuntu
+Group=ubuntu
+# Keep the collector's bounded, non-secret source configuration on the VPS.
+# Without this file the MET weather adapter is correctly explicit as
+# `not_configured`, even though coordinates are available to the service.
+EnvironmentFile=-/home/ubuntu/matchline-facts/collector.env
+ExecStart=/usr/bin/python3 /home/ubuntu/matchline-facts/collector.py --output /home/ubuntu/matchline-facts/current.json
+UMask=0077

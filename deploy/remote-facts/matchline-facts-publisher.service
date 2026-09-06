@@ -1,0 +1,12 @@
+[Unit]
+Description=Publish the latest facts-only Matchline VPS snapshot
+Wants=network-online.target
+After=network-online.target matchline-facts-collector.service
+
+[Service]
+Type=oneshot
+User=ubuntu
+Group=ubuntu
+WorkingDirectory=/home/ubuntu/matchline-facts
+EnvironmentFile=/home/ubuntu/matchline-facts/publisher.env
+ExecStart=/usr/bin/python3 /home/ubuntu/matchline-facts/publish_remote_facts.py --input /home/ubuntu/matchline-facts/current.json
