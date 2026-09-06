@@ -1,0 +1,12 @@
+[Unit]
+Description=Publish Matchline facts-only snapshot every 15 minutes
+
+[Timer]
+OnBootSec=3min
+OnUnitActiveSec=15min
+RandomizedDelaySec=45s
+Persistent=true
+Unit=matchline-facts-publisher.service
+
+[Install]
+WantedBy=timers.target

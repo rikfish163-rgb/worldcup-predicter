@@ -1,0 +1,11 @@
+[Unit]
+Description=Refresh Matchline facts-only source snapshot
+
+[Timer]
+OnBootSec=2min
+OnUnitActiveSec=15min
+Persistent=true
+Unit=matchline-facts-collector.service
+
+[Install]
+WantedBy=timers.target
