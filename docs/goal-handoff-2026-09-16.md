@@ -13,14 +13,14 @@
 
 | 证据 | 位置/摘要 |
 |---|---|
-| 逐源机器报告 | `docs/evidence/source-research-2026-09-16.json`，schema `matchline.source_research.v1`，47 条；JSON SHA `902b82d72ae4cb161da545f9ade13ceab8784cc061bffedfb6610cda5682a023`；快照 SHA `b064d56c32cd588ccf134bb155876b418d52bb6407d0502250ff5072defacf89` |
-| 逐源可读报告 | `docs/source-research-2026-09-16.md`；Markdown SHA `433f6888aa03d5a718a24eaa1601dc8de3eb328f3f547726ce4876d900bb73ac` |
+| 逐源机器报告 | `docs/evidence/source-research-2026-09-16.json`，schema `matchline.source_research.v1`，47 条；JSON SHA `3d07b47e143c67c06e3e0d97948d4b545add9095cc46ea1517ffe6d9934bbc27`；快照 SHA `b064d56c32cd588ccf134bb155876b418d52bb6407d0502250ff5072defacf89` |
+| 逐源可读报告 | `docs/source-research-2026-09-16.md`；Markdown SHA `9f51461e257928c76c20d287a4f85b315f91b8bf3caf2bb7751300215cf5b510` |
 | 固定端点 probe | `docs/evidence/source-probe-evidence-2026-09-16.json`，4 条 probe；SHA `ca5d608b04dc37549598c3bf1345278f01e0c6977c26cc3e9b6a60cec6ac0c35` |
 | 可复核 snapshot 副本 | `docs/evidence/source-research-snapshot-2026-09-16.json`，SHA `b064d56c32cd588ccf134bb155876b418d52bb6407d0502250ff5072defacf89` |
 | 当前研究评估 | `/dev/shm/matchline-live-runtime/runtime-only-evaluation-current.json`；外部最新 checkpoint `checkpoint-a6513c94d839ebde7785` 同步保存关键 ledger |
 | 最新本地 D1 审计上传 | `auditId=335`、`currentFreezeCount=338`、`scoredN=158`、`pendingN=180`、`requests=1`、`productionAllowed=false`、ACK status `ok` |
 | 当前模型锁 | `/media/hetaisheng/044A81D94A81C83E/soccerdata-live-runtime/candidate-locks/prospective-model-lock-v260-20260904T-luna-max-current-v2.json`，SHA `8578af943bf842f2e084bbfebfaac6cb5bd86023efdbceb06f6ee2f956b37fc6` |
-| VPS release/演练回执 | `docs/evidence/vps-release-drill-2026-09-16.json`；远端 final release `/home/ubuntu/matchline-releases/matchline-research-20260915T2050Z-b351e9-r3`；archive SHA `658bb142…`，restore `restored`，release `active=false` |
+| VPS release/演练回执 | `docs/evidence/vps-release-drill-2026-09-16.json`；远端 final release `/home/ubuntu/matchline-releases/matchline-research-20260915T2120Z-faa8ff8-r4`；archive SHA `8e06d992…`，restore `restored`，release `active=false` |
 | 当前模型版本 | SHA `357a2d4c1082552ef8515e4fee327e75243f5dca4aa69d0047b4ffba32fef584` |
 
 ## Acceptance criteria 逐条验收
@@ -73,7 +73,7 @@
 已完成：
 
 - 本地周期成功完成 checkpoint；最新关键 ledger 在外部 `checkpoint-a6513c94d839ebde7785` 保存。
-- VPS final release `drill` 完成真实 runtime-only 周期（OpenFootball `1257` rows、OpenLigaDB `306` rows、`result_admission.quarantined_rows=0`），并完成 `runtime_archive`→SHA verify→`runtime_restore`：`120` files、`31,667,679` bytes、archive SHA `658bb142f38f2496cf7a45b73a986e3a3f58c0508db9795e2e2ff538c177c649`，restore status `restored`。
+- VPS final release `drill` 完成真实 runtime-only 周期（OpenFootball `1257` rows、OpenLigaDB `306` rows、`result_admission.quarantined_rows=0`），并完成 `runtime_archive`→SHA verify→`runtime_restore`：`120` files、`31,675,120` bytes、archive SHA `8e06d9928fa456d57169540fd5c6a69064b5285c93a2e24af63808c5143274e5`，restore status `restored`。
 - 不完整 archive drill 被 restore 正确拒绝（缺 `current.json`），失败回执保留。
 - VPS final release 无服务激活，旧 facts 目录仍存在；因此“VPS 上唯一明确的当前研究写入者”尚未成立，不能宣称跨重启生产运行。
 
@@ -84,7 +84,7 @@
 - Python：最终全套 `PYTHONDONTWRITEBYTECODE=1 .venv/bin/python -m pytest -q`：`1513 passed, 72 skipped, 0 failed`，耗时约 09:40；4 个既有 multiprocessing warning。
 - Sites：`npm run typecheck`、`npm test`：`807/807 passed`；build 和 32 项 build-asset verification 通过。
 - `systemd-analyze verify` 目标 history service/timer 返回 0；仅有系统内其他 unit 的既有 warning。
-- VPS final release：source tar SHA `97ffb9ab2aa8a2b0e1f4fd784d59bd72bcdc4605d4c54bcb735d69dd6568b1cf`、model lock SHA `8578af...`、raw bundle SHA `4f7f20d414f760b95fab3dd0ddfdff63512f22e05d7f45e6dd8bc8d72027880c`，final source report 47 条校验通过。
+- VPS final release：source tar SHA `b8a8bab2707da86d389f4e20c5e3ee339ab3372c3a1509f4f4bae71b0f230bab`、model lock SHA `8578af...`、raw bundle SHA `4f7f20d414f760b95fab3dd0ddfdff63512f22e05d7f45e6dd8bc8d72027880c`，final source report 47 条校验通过。
 
 未完成：
 
@@ -109,7 +109,7 @@
 PYTHONDONTWRITEBYTECODE=1 .venv/bin/python -m league_platform.source_research \
   --snapshot docs/evidence/source-research-snapshot-2026-09-16.json \
   --probe-evidence docs/evidence/source-probe-evidence-2026-09-16.json \
-  --observed-at 2026-09-16T04:30:31+08:00 \
+  --observed-at 2026-09-16T05:08:43+08:00 \
   --output-json docs/evidence/source-research-2026-09-16.json \
   --output-markdown docs/source-research-2026-09-16.md
 

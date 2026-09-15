@@ -64,7 +64,6 @@ def test_report_covers_registry_and_policy_inventory_without_unknown_values():
     report = build_source_research_report(
         _snapshot(),
         snapshot_sha256="a" * 64,
-        snapshot_path="fixture/current.json",
         observed_at="2026-09-16T00:01:00+00:00",
     )
 
@@ -306,7 +305,7 @@ def test_validator_recomputes_referenced_snapshot_and_probe_file_hashes(tmp_path
     )
     validate_source_research_report(report)
     snapshot_path.write_text('{"as_of":"2026-09-16T00:00:00+00:00","changed":true}', encoding="utf-8")
-    with pytest.raises(ValueError, match="snapshot file bytes"):
+    with pytest.raises(ValueError, match="snapshot file.*bytes"):
         validate_source_research_report(report)
 
 

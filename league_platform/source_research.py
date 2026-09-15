@@ -1192,9 +1192,9 @@ def validate_source_research_report(report: Mapping[str, Any]) -> None:
         raise ValueError("snapshot path must be a string")
     if snapshot_path is not None and not _valid_digest(snapshot_sha := snapshot.get("sha256")):
         raise ValueError("snapshot path requires a valid snapshot SHA-256")
-    if isinstance(snapshot_path, str) and Path(snapshot_path).exists():
+    if isinstance(snapshot_path, str):
         if not Path(snapshot_path).is_file() or hashlib.sha256(Path(snapshot_path).read_bytes()).hexdigest() != snapshot_sha:
-            raise ValueError("snapshot file bytes do not match snapshot SHA-256")
+            raise ValueError("snapshot file is missing or bytes do not match snapshot SHA-256")
     probe_meta = report.get("probe_evidence")
     if not isinstance(probe_meta, Mapping) or probe_meta.get("schema_version") != PROBE_SCHEMA_VERSION:
         raise ValueError("probe evidence metadata is missing")
@@ -1203,9 +1203,9 @@ def validate_source_research_report(report: Mapping[str, Any]) -> None:
         raise ValueError("probe evidence path must be a string")
     if probe_path is not None and not _valid_digest(probe_meta.get("sha256")):
         raise ValueError("probe evidence path requires a valid SHA-256")
-    if isinstance(probe_path, str) and Path(probe_path).exists():
+    if isinstance(probe_path, str):
         if not Path(probe_path).is_file() or hashlib.sha256(Path(probe_path).read_bytes()).hexdigest() != probe_meta.get("sha256"):
-            raise ValueError("probe evidence file bytes do not match probe SHA-256")
+            raise ValueError("probe evidence file is missing or bytes do not match probe SHA-256")
     if not isinstance(probe_meta.get("row_count"), int) or probe_meta["row_count"] < 0:
         raise ValueError("probe evidence row_count is invalid")
     for row in source_rows:
