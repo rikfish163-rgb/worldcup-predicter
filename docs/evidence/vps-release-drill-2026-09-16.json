@@ -4,7 +4,7 @@
   "host": "170.106.198.250",
   "release_id": "matchline-research-20260915T2120Z-faa8ff8-r4",
   "release_root": "/home/ubuntu/matchline-releases/matchline-research-20260915T2120Z-faa8ff8-r4",
-  "source_commit": "b351e9bd74257a6f7a79c36d51fb4f4b62268b23",
+  "source_commit": "07219178a7885fb7577c35ce375ea6676ebb9fdc",
   "source_tar_sha256": "b8a8bab2707da86d389f4e20c5e3ee339ab3372c3a1509f4f4bae71b0f230bab",
   "model_lock_sha256": "8578af943bf842f2e084bbfebfaac6cb5bd86023efdbceb06f6ee2f956b37fc6",
   "openfootball_raw_bundle_sha256": "4f7f20d414f760b95fab3dd0ddfdff63512f22e05d7f45e6dd8bc8d72027880c",

@@ -90,7 +90,7 @@
 
 - final VPS release 保持 `active=false`，没有安装/启用当前研究 timer；VPS 只有旧 facts timer，不能提供“发布后的 current research service state”。
 - 本轮未用 final VPS release 对真实 D1 endpoint 执行上传；本地现有 runtime 的真实上传 `auditId=335` 已成功，但它不是 final release 的远端 active service ACK。
-- GitHub 父仓库非 `main` 分支已提交并推送：`codex/crawl4ai-source-adapters` → `27d0b1c1446c5351ccc5656bf349a70444820e55`；Sites 子仓库本地 commit `dd8e80d` 已创建，但 `sites` 远程因缺少认证未推送。
+- GitHub 父仓库非 `main` 分支已推送并包含代码绑定 commit：`codex/crawl4ai-source-adapters` → `07219178a7885fb7577c35ce375ea6676ebb9fdc`；Sites 子仓库本地 commit `dd8e80d` 已创建，但 `sites` 远程因缺少认证未推送。
 
 ### 8. 交接资料 — **Met**
 
