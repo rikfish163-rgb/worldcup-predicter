@@ -20,7 +20,7 @@
 | 当前研究评估 | `/dev/shm/matchline-live-runtime/runtime-only-evaluation-current.json`；外部 checkpoint `checkpoint-908bcf63872802fc740d` 同步保存关键 ledger |
 | 最新本地 D1 审计上传 | `auditId=333`、`currentFreezeCount=336`、`scoredN=158`、`pendingN=178`、`requests=1`、`productionAllowed=false`、ACK status `ok` |
 | 当前模型锁 | `/media/hetaisheng/044A81D94A81C83E/soccerdata-live-runtime/candidate-locks/prospective-model-lock-v260-20260904T-luna-max-current-v2.json`，SHA `8578af943bf842f2e084bbfebfaac6cb5bd86023efdbceb06f6ee2f956b37fc6` |
-| VPS release/演练回执 | `docs/evidence/vps-release-drill-2026-09-16.json`；远端 final release `/home/ubuntu/matchline-releases/matchline-research-20260915T1955Z-3e30030-final`；archive SHA `85c1cf44…`，restore `restored`，release `active=false` |
+| VPS release/演练回执 | `docs/evidence/vps-release-drill-2026-09-16.json`；远端 final release `/home/ubuntu/matchline-releases/matchline-research-20260915T2010Z-1bb179c-final`；archive SHA `57dad18a…`，restore `restored`，release `active=false` |
 | 当前模型版本 | SHA `357a2d4c1082552ef8515e4fee327e75243f5dca4aa69d0047b4ffba32fef584` |
 
 ## Acceptance criteria 逐条验收
@@ -73,7 +73,7 @@
 已完成：
 
 - 本地周期成功完成 checkpoint；最新关键 ledger 在外部 `checkpoint-908bcf63872802fc740d` 保存。
-- VPS final release `drill` 完成真实 runtime-only 周期（OpenFootball `1257` rows、OpenLigaDB `306` rows、`result_admission.quarantined_rows=0`），并完成 `runtime_archive`→SHA verify→`runtime_restore`：`120` files、`31,667,679` bytes、archive SHA `85c1cf44efde6b609150963f138f6a321bdd7482032e5644a6f9a265c486e1af`，restore status `restored`。
+- VPS final release `drill` 完成真实 runtime-only 周期（OpenFootball `1257` rows、OpenLigaDB `306` rows、`result_admission.quarantined_rows=0`），并完成 `runtime_archive`→SHA verify→`runtime_restore`：`120` files、`31,667,679` bytes、archive SHA `57dad18a2a5a8ac9b011be3d51a844d9f7fb362b6ba7a7935395d7f4a2267af0`，restore status `restored`。
 - 不完整 archive drill 被 restore 正确拒绝（缺 `current.json`），失败回执保留。
 - VPS final release 无服务激活，旧 facts 目录仍存在；因此“VPS 上唯一明确的当前研究写入者”尚未成立，不能宣称跨重启生产运行。
 
@@ -84,13 +84,13 @@
 - Python：最终全套 `PYTHONDONTWRITEBYTECODE=1 .venv/bin/python -m pytest -q`：`1510 passed, 72 skipped, 0 failed`，耗时约 7:06。
 - Sites：`npm run typecheck`、`npm test`：`807/807 passed`；build 和 32 项 build-asset verification 通过。
 - `systemd-analyze verify` 目标 history service/timer 返回 0；仅有系统内其他 unit 的既有 warning。
-- VPS final release：source tar SHA `b58bf3729b9a0dd3989496ca10cad9fbbc83e9e81a2be2c35faad93af8675f2b`、model lock SHA `8578af...`、raw bundle SHA `f14b7eae16d4a819c46091b3fa1304cb2f51bfed3c141e3920d92473b70d17e1`，final source report 47 条校验通过。
+- VPS final release：source tar SHA `901a46584ca9a6ac88c011529f7fee2124c9527c439852d7e766c5b479d957ca`、model lock SHA `8578af...`、raw bundle SHA `f14b7eae16d4a819c46091b3fa1304cb2f51bfed3c141e3920d92473b70d17e1`，final source report 47 条校验通过。
 
 未完成：
 
 - final VPS release 保持 `active=false`，没有安装/启用当前研究 timer；VPS 只有旧 facts timer，不能提供“发布后的 current research service state”。
 - 本轮未用 final VPS release 对真实 D1 endpoint 执行上传；本地现有 runtime 的真实上传 `auditId=333` 已成功，但它不是 final release 的远端 active service ACK。
-- GitHub 父仓库非 `main` 分支已提交并推送：`codex/crawl4ai-source-adapters` → `72de8ebd4c384356a89510fc28009a72ae234e2f`；Sites 子仓库本地 commit `dd8e80d` 已创建，但 `sites` 远程因缺少认证未推送。
+- GitHub 父仓库非 `main` 分支已提交并推送：`codex/crawl4ai-source-adapters` → `1bb179c696541dbecbcd417b2476de558bfe8cc3`；Sites 子仓库本地 commit `dd8e80d` 已创建，但 `sites` 远程因缺少认证未推送。
 
 ### 8. 交接资料 — **Met**
 

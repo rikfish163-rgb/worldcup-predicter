@@ -1,11 +1,11 @@
 {
   "schema_version": "matchline.vps_release_drill.v1",
-  "observed_at": "2026-09-15T19:57:36.939647+00:00",
+  "observed_at": "2026-09-15T20:19:39.779241+00:00",
   "host": "170.106.198.250",
-  "release_id": "matchline-research-20260915T1955Z-3e30030-final",
-  "release_root": "/home/ubuntu/matchline-releases/matchline-research-20260915T1955Z-3e30030-final",
-  "source_commit": "72de8ebd4c384356a89510fc28009a72ae234e2f",
-  "source_tar_sha256": "b58bf3729b9a0dd3989496ca10cad9fbbc83e9e81a2be2c35faad93af8675f2b",
+  "release_id": "matchline-research-20260915T2010Z-1bb179c-final",
+  "release_root": "/home/ubuntu/matchline-releases/matchline-research-20260915T2010Z-1bb179c-final",
+  "source_commit": "1bb179c696541dbecbcd417b2476de558bfe8cc3",
+  "source_tar_sha256": "901a46584ca9a6ac88c011529f7fee2124c9527c439852d7e766c5b479d957ca",
   "model_lock_sha256": "8578af943bf842f2e084bbfebfaac6cb5bd86023efdbceb06f6ee2f956b37fc6",
   "openfootball_raw_bundle_sha256": "f14b7eae16d4a819c46091b3fa1304cb2f51bfed3c141e3920d92473b70d17e1",
   "training_bundle_sha256": "f4c3527ca0e73d62d319eb70e661b460039affe13b0e96a20b0a3f1ed1062050",
@@ -23,8 +23,8 @@
   },
   "runtime_only_drill": {
     "status": "pending_prospective_window",
-    "started_at": "2026-09-15T19:56:51.946571+00:00",
-    "finished_at": "2026-09-15T19:57:33.705810+00:00",
+    "started_at": "2026-09-15T20:18:53.869813+00:00",
+    "finished_at": "2026-09-15T20:19:36.379230+00:00",
     "sync_fixture_count": 1257,
     "sync_openligadb_count": 306,
     "capture_predictions": 0,
@@ -38,8 +38,8 @@
     "archive_status": "archived",
     "archive_verify_status": "verified",
     "restore_status": "restored",
-    "archive_file": "runtime-snapshot-cece192143768c48edd3.tar.gz",
-    "archive_sha256": "85c1cf44efde6b609150963f138f6a321bdd7482032e5644a6f9a265c486e1af",
+    "archive_file": "runtime-snapshot-8ee531f7162e5990cba8.tar.gz",
+    "archive_sha256": "57dad18a2a5a8ac9b011be3d51a844d9f7fb362b6ba7a7935395d7f4a2267af0",
     "archive_member_files": 120,
     "restored_file_count": 120,
     "restored_bytes": 31667679
@@ -62,6 +62,6 @@
   "old_facts_sentinel": {
     "path": "/home/ubuntu/matchline-facts/current.json",
     "present_after_drill": true,
-    "current_observed_sha256": "87d42e07c4f2e4de5717e386da2086dc6dc69db76809ccf2f061f80b52de1897"
+    "current_observed_sha256": "29ac9db04e577cbda09b16519c5d9879d1c8ecbcc2464538b58284731f4a6aef"
   }
 }
