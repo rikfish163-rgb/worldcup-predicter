@@ -81,7 +81,7 @@
 
 已通过：
 
-- Python：最终全套 `PYTHONDONTWRITEBYTECODE=1 .venv/bin/python -m pytest -q`：`1510 passed, 72 skipped, 0 failed`，耗时约 7:06。
+- Python：最终全套 `PYTHONDONTWRITEBYTECODE=1 .venv/bin/python -m pytest -q`：`1513 passed, 72 skipped, 0 failed`，耗时约 09:40；4 个既有 multiprocessing warning。
 - Sites：`npm run typecheck`、`npm test`：`807/807 passed`；build 和 32 项 build-asset verification 通过。
 - `systemd-analyze verify` 目标 history service/timer 返回 0；仅有系统内其他 unit 的既有 warning。
 - VPS final release：source tar SHA `97ffb9ab2aa8a2b0e1f4fd784d59bd72bcdc4605d4c54bcb735d69dd6568b1cf`、model lock SHA `8578af...`、raw bundle SHA `4f7f20d414f760b95fab3dd0ddfdff63512f22e05d7f45e6dd8bc8d72027880c`，final source report 47 条校验通过。
