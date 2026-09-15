@@ -4,7 +4,7 @@
 
 ## 结论摘要
 
-- **技术研究闭环：已成立。** 本地 runtime-only 周期在现有候选锁下产生了真实完赛评分：`scored_n=158`，`pending_n=178`，无结果冲突；OpenFootball fixture identity、cutoff、结果观察和 SHA provenance 均保留。
+- **技术研究闭环：已成立。** 本地 runtime-only 周期在现有候选锁下产生了真实完赛评分：`scored_n=158`，`pending_n=180`，无结果冲突；OpenFootball fixture identity、cutoff、结果观察和 SHA provenance 均保留。
 - **逐源审计：已落地。** 新报告覆盖 registry 与 `SourceId` 并集共 47 条来源/执行层记录；每条均有权利结论、条款/许可证引用、robots/access、allowlist/redirect/size/timeout、限速、解析、字段 declared/observed/missing、实体联结、双时钟、SHA 策略、实际状态、替代方案和 eligibility。
 - **正式生产门槛：未通过且继续关闭。** 当前评估明确为 `production_allowed=false` / `promotion_eligible=false`，没有以改门槛、补零或历史回放伪造通过。
 - **VPS：已完成隔离 staging 与演练，未激活。** 新 release 已上传并通过 SHA、私有 venv、report CLI、runtime-only、archive、verify、restore；旧 `/home/ubuntu/matchline-facts` 未覆盖。VPS 没有当前研究 service 的 active writer，因此尚未宣称服务器自主生产运行。
@@ -17,8 +17,8 @@
 | 逐源可读报告 | `docs/source-research-2026-09-16.md`；Markdown SHA `433f6888aa03d5a718a24eaa1601dc8de3eb328f3f547726ce4876d900bb73ac` |
 | 固定端点 probe | `docs/evidence/source-probe-evidence-2026-09-16.json`，4 条 probe；SHA `ca5d608b04dc37549598c3bf1345278f01e0c6977c26cc3e9b6a60cec6ac0c35` |
 | 可复核 snapshot 副本 | `docs/evidence/source-research-snapshot-2026-09-16.json`，SHA `b064d56c32cd588ccf134bb155876b418d52bb6407d0502250ff5072defacf89` |
-| 当前研究评估 | `/dev/shm/matchline-live-runtime/runtime-only-evaluation-current.json`；外部 checkpoint `checkpoint-908bcf63872802fc740d` 同步保存关键 ledger |
-| 最新本地 D1 审计上传 | `auditId=333`、`currentFreezeCount=336`、`scoredN=158`、`pendingN=178`、`requests=1`、`productionAllowed=false`、ACK status `ok` |
+| 当前研究评估 | `/dev/shm/matchline-live-runtime/runtime-only-evaluation-current.json`；外部最新 checkpoint `checkpoint-a6513c94d839ebde7785` 同步保存关键 ledger |
+| 最新本地 D1 审计上传 | `auditId=335`、`currentFreezeCount=338`、`scoredN=158`、`pendingN=180`、`requests=1`、`productionAllowed=false`、ACK status `ok` |
 | 当前模型锁 | `/media/hetaisheng/044A81D94A81C83E/soccerdata-live-runtime/candidate-locks/prospective-model-lock-v260-20260904T-luna-max-current-v2.json`，SHA `8578af943bf842f2e084bbfebfaac6cb5bd86023efdbceb06f6ee2f956b37fc6` |
 | VPS release/演练回执 | `docs/evidence/vps-release-drill-2026-09-16.json`；远端 final release `/home/ubuntu/matchline-releases/matchline-research-20260915T2050Z-b351e9-r3`；archive SHA `658bb142…`，restore `restored`，release `active=false` |
 | 当前模型版本 | SHA `357a2d4c1082552ef8515e4fee327e75243f5dca4aa69d0047b4ffba32fef584` |
@@ -47,8 +47,8 @@
 
 ### 4. 真实前瞻闭环 — **Met**
 
-- 最新本地 runtime-only 周期结束于 `2026-09-15T19:33:00.097522+00:00`，评估生成于 `2026-09-15T19:32:21.319787+00:00`。
-- 当前锁下 `scored_n=158`，`pending_n=178`，`archive_conflicts=0`，`result_conflicts=0`。
+- 最新本地 runtime-only 周期结束于 `2026-09-15T21:02:53.669599+00:00`，评估生成于 `2026-09-15T21:02:14.398355+00:00`。
+- 当前锁下 `scored_n=158`，`pending_n=180`，`archive_conflicts=0`，`result_conflicts=0`。
 - 158 条可评分行与 OpenFootball 完赛结果精确联结；示例：`openfootball:bundesliga:72a51641d41799204d13603c`，开球 `2026-09-04T18:30:00Z`，冻结 cutoff `2026-09-04T12:30:00Z`，fixture 首次观察 `2026-09-04T12:10:10Z`，赛果 `4-1`，原始源 SHA 保留。
 - 评估输出有效 three-way/total-goals/scoreline/half-full metrics；没有使用赛果做模型选择。
 - 该技术闭环仍是 research-only，不代表生产门槛通过。
@@ -72,7 +72,7 @@
 
 已完成：
 
-- 本地周期成功完成 checkpoint；最新关键 ledger 在外部 `checkpoint-908bcf63872802fc740d` 保存。
+- 本地周期成功完成 checkpoint；最新关键 ledger 在外部 `checkpoint-a6513c94d839ebde7785` 保存。
 - VPS final release `drill` 完成真实 runtime-only 周期（OpenFootball `1257` rows、OpenLigaDB `306` rows、`result_admission.quarantined_rows=0`），并完成 `runtime_archive`→SHA verify→`runtime_restore`：`120` files、`31,667,679` bytes、archive SHA `658bb142f38f2496cf7a45b73a986e3a3f58c0508db9795e2e2ff538c177c649`，restore status `restored`。
 - 不完整 archive drill 被 restore 正确拒绝（缺 `current.json`），失败回执保留。
 - VPS final release 无服务激活，旧 facts 目录仍存在；因此“VPS 上唯一明确的当前研究写入者”尚未成立，不能宣称跨重启生产运行。
@@ -89,7 +89,7 @@
 未完成：
 
 - final VPS release 保持 `active=false`，没有安装/启用当前研究 timer；VPS 只有旧 facts timer，不能提供“发布后的 current research service state”。
-- 本轮未用 final VPS release 对真实 D1 endpoint 执行上传；本地现有 runtime 的真实上传 `auditId=333` 已成功，但它不是 final release 的远端 active service ACK。
+- 本轮未用 final VPS release 对真实 D1 endpoint 执行上传；本地现有 runtime 的真实上传 `auditId=335` 已成功，但它不是 final release 的远端 active service ACK。
 - GitHub 父仓库非 `main` 分支已提交并推送：`codex/crawl4ai-source-adapters` → `27d0b1c1446c5351ccc5656bf349a70444820e55`；Sites 子仓库本地 commit `dd8e80d` 已创建，但 `sites` 远程因缺少认证未推送。
 
 ### 8. 交接资料 — **Met**

@@ -54,11 +54,11 @@
   },
   "local_real_upload_ack": {
     "status": "ok",
-    "audit_id": 333,
+    "audit_id": 335,
     "requests": 1,
-    "current_freeze_count": 336,
+    "current_freeze_count": 338,
     "scored_n": 158,
-    "pending_n": 178,
+    "pending_n": 180,
     "production_allowed": false
   },
   "old_facts_sentinel": {
