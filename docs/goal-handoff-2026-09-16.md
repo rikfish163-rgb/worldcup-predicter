@@ -90,7 +90,7 @@
 
 - final VPS release 保持 `active=false`，没有安装/启用当前研究 timer；VPS 只有旧 facts timer，不能提供“发布后的 current research service state”。
 - 本轮未用 final VPS release 对真实 D1 endpoint 执行上传；本地现有 runtime 的真实上传 `auditId=333` 已成功，但它不是 final release 的远端 active service ACK。
-- GitHub 非 `main` 分支尚未提交/推送本轮新增文件；当前本地分支仍为 `codex/crawl4ai-source-adapters`，HEAD `3e300304...`。
+- GitHub 父仓库非 `main` 分支已提交并推送：`codex/crawl4ai-source-adapters` → `72de8ebd4c384356a89510fc28009a72ae234e2f`；Sites 子仓库本地 commit `dd8e80d` 已创建，但 `sites` 远程因缺少认证未推送。
 
 ### 8. 交接资料 — **Met**
 
@@ -100,7 +100,7 @@
 2. 继续当前锁的真实前瞻窗口，直到四类目标及各联赛样本达到固定门槛；不能用历史回测替代。
 3. 将 VPS release 放入持久 ext4/XFS runtime root，安装正确的 systemd environment，完成 restore→runtime-only→archive→upload→rollback 后再停本地 writer。
 4. 为最终 release 配置真实、受保护的 D1 audit endpoint/token，执行一次真实 ACK，并确认线上源码 SHA 与 final source tar 一致。
-5. 只把本报告、审计工具、证据和必要的 history/systemd 修复提交到 GitHub 非 `main` 分支；不能把其余未提交父仓库改动全量 add。
+5. 如需同步 Sites 子仓库的两项相对日期测试修复，先配置 `sites` 远程认证，再推送其 `codex/goal-research-loop-20260916` 分支；父仓库其余未提交改动仍不得全量 add。
 
 ## 可复现命令
 
