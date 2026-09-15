@@ -19,7 +19,9 @@
     "status": "passed",
     "source_id_count": 47,
     "snapshot_sha256": "b064d56c32cd588ccf134bb155876b418d52bb6407d0502250ff5072defacf89",
-    "probe_count": 4
+    "probe_count": 4,
+    "local_report_json_sha256": "902b82d72ae4cb161da545f9ade13ceab8784cc061bffedfb6610cda5682a023",
+    "local_report_markdown_sha256": "433f6888aa03d5a718a24eaa1601dc8de3eb328f3f547726ce4876d900bb73ac"
   },
   "runtime_only_drill": {
     "status": "pending_prospective_window",

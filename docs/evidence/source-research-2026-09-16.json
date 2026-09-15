@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-09-16T03:43:00+08:00",
+  "generated_at": "2026-09-16T04:30:31+08:00",
   "method": {
     "missing_values": "explicit non-success semantics; no false zero or fresh inference",
     "network_performed_by_report_generator": false,
@@ -188,7 +188,7 @@
         "raw_hashes_truncated": false,
         "record_count": null,
         "reported_record_count": 0,
-        "state": "not_observed",
+        "state": "not_attempted",
         "status": "unavailable",
         "status_codes": []
       },
@@ -639,7 +639,7 @@
         "raw_hashes_truncated": false,
         "record_count": null,
         "reported_record_count": 0,
-        "state": "failed",
+        "state": "not_attempted",
         "status": "unavailable",
         "status_codes": []
       },
@@ -1773,7 +1773,7 @@
         "raw_hashes_truncated": false,
         "record_count": null,
         "reported_record_count": 0,
-        "state": "failed",
+        "state": "not_attempted",
         "status": "unavailable",
         "status_codes": []
       },
@@ -1883,7 +1883,7 @@
         "raw_hashes_truncated": false,
         "record_count": null,
         "reported_record_count": 0,
-        "state": "not_observed",
+        "state": "not_attempted",
         "status": "unavailable",
         "status_codes": []
       },
@@ -1995,7 +1995,7 @@
         "raw_hashes_truncated": false,
         "record_count": null,
         "reported_record_count": 0,
-        "state": "not_observed",
+        "state": "not_attempted",
         "status": "unavailable",
         "status_codes": []
       },
@@ -2325,7 +2325,7 @@
         "raw_hashes_truncated": false,
         "record_count": null,
         "reported_record_count": 0,
-        "state": "not_observed",
+        "state": "not_attempted",
         "status": "unavailable",
         "status_codes": []
       },
@@ -3050,7 +3050,7 @@
         "raw_hashes_truncated": false,
         "record_count": null,
         "reported_record_count": 0,
-        "state": "not_observed",
+        "state": "not_attempted",
         "status": "unavailable",
         "status_codes": []
       },
@@ -4480,7 +4480,7 @@
         "raw_hashes_truncated": false,
         "record_count": null,
         "reported_record_count": 0,
-        "state": "not_observed",
+        "state": "not_attempted",
         "status": "unavailable",
         "status_codes": []
       },
@@ -4708,7 +4708,7 @@
         "raw_hashes_truncated": false,
         "record_count": null,
         "reported_record_count": 0,
-        "state": "not_observed",
+        "state": "not_attempted",
         "status": "unavailable",
         "status_codes": []
       },
@@ -5365,7 +5365,7 @@
         "raw_hashes_truncated": false,
         "record_count": null,
         "reported_record_count": 0,
-        "state": "not_observed",
+        "state": "not_attempted",
         "status": "unavailable",
         "status_codes": []
       },

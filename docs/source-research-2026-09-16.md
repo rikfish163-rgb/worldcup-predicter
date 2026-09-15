@@ -1,9 +1,9 @@
-# Matchline 逐源抓取可行性审计（2026-09-15）
+# Matchline 逐源抓取可行性审计（2026-09-16）
 
 > 本报告由 `league_platform.source_research` 从 registry 与 `SourceId` 并集生成。报告生成器不联网；所有无证据项均保留为明确的未尝试、未配置、权利未验证或隔离状态。
 
 - Schema：`matchline.source_research.v1`
-- 生成时间：`2026-09-16T03:43:00+08:00`（由调用方显式传入）
+- 生成时间：`2026-09-16T04:30:31+08:00`（由调用方显式传入）
 - 快照 `as_of`：`2026-09-15T19:03:30.341536+00:00`
 - 快照 SHA-256：`b064d56c32cd588ccf134bb155876b418d52bb6407d0502250ff5072defacf89`
 - 覆盖来源数：`47`
@@ -77,7 +77,7 @@
 - 实体联结：provider-native identity plus exact competition/team/time where available; ambiguity quarantined
 - 时间：observed_at is mandatory; missing effective time is explicitly non-model and non-publication
 - 原始哈希：`{"algorithm": "SHA-256", "deduplicate": "same raw bytes deduplicated; conflicting payloads retained", "missing_hash_meaning": "not_recorded_by_adapter_or_no_payload; never infer a hash", "observed_hash_count": 0, "observed_hashes": [], "observed_hashes_truncated": false, "required": true}`
-- 实际 HTTP/运行：`{"attempted": false, "content_type_observation": "not_recorded_by_adapter", "content_types": [], "error_count": 0, "errors": [], "evidence": ["snapshot.runtime.bundesliga_public_pages"], "network_opened": false, "raw_hash_count": 0, "raw_hashes": [], "raw_hashes_truncated": false, "record_count": null, "reported_record_count": 0, "state": "not_observed", "status": "unavailable", "status_codes": []}`
+- 实际 HTTP/运行：`{"attempted": false, "content_type_observation": "not_recorded_by_adapter", "content_types": [], "error_count": 0, "errors": [], "evidence": ["snapshot.runtime.bundesliga_public_pages"], "network_opened": false, "raw_hash_count": 0, "raw_hashes": [], "raw_hashes_truncated": false, "record_count": null, "reported_record_count": 0, "state": "not_attempted", "status": "unavailable", "status_codes": []}`
 - 状态/失败：`{"reason": "runtime payload or diagnostics are present; see errors and coverage", "runtime_error_count": 0, "runtime_errors": [], "runtime_key": null, "state": "unavailable"}`
 - 替代方案：OpenFootball for exact fixture/result facts; obtain a documented license or keep this field unavailable
 - Eligibility：display=`blocked_pending_terms_review`，model=`blocked`，publication=`blocked`
@@ -145,7 +145,7 @@
 - 实体联结：declared source_id is mandatory; final URL must remain same-host allowlist; no aggregate page-to-source relabeling
 - 时间：observed_at is mandatory; missing effective time is explicitly non-model and non-publication
 - 原始哈希：`{"algorithm": "SHA-256", "deduplicate": "same raw bytes deduplicated; conflicting payloads retained", "missing_hash_meaning": "not_recorded_by_adapter_or_no_payload; never infer a hash", "observed_hash_count": 0, "observed_hashes": [], "observed_hashes_truncated": false, "required": true}`
-- 实际 HTTP/运行：`{"attempted": false, "content_type_observation": "not_recorded_by_adapter", "content_types": [], "error_count": 1, "errors": [{"enters_model": false, "error": "Crawl4AI evidence archive path is volatile", "model_eligible": false, "network_opened": false, "stage": "archive_policy"}], "evidence": ["snapshot.runtime.crawl4ai"], "network_opened": false, "raw_hash_count": 0, "raw_hashes": [], "raw_hashes_truncated": false, "record_count": null, "reported_record_count": 0, "state": "failed", "status": "unavailable", "status_codes": []}`
+- 实际 HTTP/运行：`{"attempted": false, "content_type_observation": "not_recorded_by_adapter", "content_types": [], "error_count": 1, "errors": [{"enters_model": false, "error": "Crawl4AI evidence archive path is volatile", "model_eligible": false, "network_opened": false, "stage": "archive_policy"}], "evidence": ["snapshot.runtime.crawl4ai"], "network_opened": false, "raw_hash_count": 0, "raw_hashes": [], "raw_hashes_truncated": false, "record_count": null, "reported_record_count": 0, "state": "not_attempted", "status": "unavailable", "status_codes": []}`
 - 状态/失败：`{"reason": "runtime payload or diagnostics are present; see errors and coverage", "runtime_error_count": 1, "runtime_errors": [{"enters_model": false, "error": "Crawl4AI evidence archive path is volatile", "model_eligible": false, "network_opened": false, "stage": "archive_policy"}], "runtime_key": "crawl4ai", "state": "unavailable"}`
 - 替代方案：OpenFootball for exact fixture/result facts; obtain a documented license or keep this field unavailable
 - Eligibility：display=`conditional_per_declared_page`，model=`blocked_by_default`，publication=`blocked_by_default`
@@ -315,7 +315,7 @@
 - 实体联结：provider-native identity plus exact competition/team/time where available; ambiguity quarantined
 - 时间：observed_at is mandatory; missing effective time is explicitly non-model and non-publication
 - 原始哈希：`{"algorithm": "SHA-256", "deduplicate": "same raw bytes deduplicated; conflicting payloads retained", "missing_hash_meaning": "not_recorded_by_adapter_or_no_payload; never infer a hash", "observed_hash_count": 0, "observed_hashes": [], "observed_hashes_truncated": false, "required": true}`
-- 实际 HTTP/运行：`{"attempted": false, "content_type_observation": "not_recorded_by_adapter", "content_types": [], "error_count": 1, "errors": [{"error": "match_directory_diagnostic_missing"}], "evidence": ["snapshot.runtime.laliga_official"], "network_opened": false, "raw_hash_count": 0, "raw_hashes": [], "raw_hashes_truncated": false, "record_count": null, "reported_record_count": 0, "state": "failed", "status": "unavailable", "status_codes": []}`
+- 实际 HTTP/运行：`{"attempted": false, "content_type_observation": "not_recorded_by_adapter", "content_types": [], "error_count": 1, "errors": [{"error": "match_directory_diagnostic_missing"}], "evidence": ["snapshot.runtime.laliga_official"], "network_opened": false, "raw_hash_count": 0, "raw_hashes": [], "raw_hashes_truncated": false, "record_count": null, "reported_record_count": 0, "state": "not_attempted", "status": "unavailable", "status_codes": []}`
 - 状态/失败：`{"reason": "runtime payload or diagnostics are present; see errors and coverage", "runtime_error_count": 1, "runtime_errors": [{"error": "match_directory_diagnostic_missing"}], "runtime_key": "laliga_official", "state": "unavailable"}`
 - 替代方案：OpenFootball for exact fixture/result facts; obtain a documented license or keep this field unavailable
 - Eligibility：display=`blocked_pending_rights_review`，model=`blocked`，publication=`blocked`
@@ -332,7 +332,7 @@
 - 实体联结：explicit fixture/team reference and article timestamp; otherwise global source-health evidence only
 - 时间：observed_at is mandatory; missing effective time is explicitly non-model and non-publication
 - 原始哈希：`{"algorithm": "SHA-256", "deduplicate": "same raw bytes deduplicated; conflicting payloads retained", "missing_hash_meaning": "not_recorded_by_adapter_or_no_payload; never infer a hash", "observed_hash_count": 0, "observed_hashes": [], "observed_hashes_truncated": false, "required": true}`
-- 实际 HTTP/运行：`{"attempted": false, "content_type_observation": "not_recorded_by_adapter", "content_types": [], "error_count": 0, "errors": [], "evidence": ["snapshot.runtime.laliga_official_news"], "network_opened": false, "raw_hash_count": 0, "raw_hashes": [], "raw_hashes_truncated": false, "record_count": null, "reported_record_count": 0, "state": "not_observed", "status": "unavailable", "status_codes": []}`
+- 实际 HTTP/运行：`{"attempted": false, "content_type_observation": "not_recorded_by_adapter", "content_types": [], "error_count": 0, "errors": [], "evidence": ["snapshot.runtime.laliga_official_news"], "network_opened": false, "raw_hash_count": 0, "raw_hashes": [], "raw_hashes_truncated": false, "record_count": null, "reported_record_count": 0, "state": "not_attempted", "status": "unavailable", "status_codes": []}`
 - 状态/失败：`{"reason": "runtime payload or diagnostics are present; see errors and coverage", "runtime_error_count": 0, "runtime_errors": [], "runtime_key": null, "state": "unavailable"}`
 - 替代方案：OpenFootball for exact fixture/result facts; obtain a documented license or keep this field unavailable
 - Eligibility：display=`blocked_pending_terms_review`，model=`blocked`，publication=`blocked`
@@ -349,7 +349,7 @@
 - 实体联结：provider-native identity plus exact competition/team/time where available; ambiguity quarantined
 - 时间：observed_at is mandatory; missing effective time is explicitly non-model and non-publication
 - 原始哈希：`{"algorithm": "SHA-256", "deduplicate": "same raw bytes deduplicated; conflicting payloads retained", "missing_hash_meaning": "not_recorded_by_adapter_or_no_payload; never infer a hash", "observed_hash_count": 0, "observed_hashes": [], "observed_hashes_truncated": false, "required": true}`
-- 实际 HTTP/运行：`{"attempted": false, "content_type_observation": "not_recorded_by_adapter", "content_types": [], "error_count": 0, "errors": [], "evidence": ["snapshot.runtime.laliga_public_pages"], "network_opened": false, "raw_hash_count": 0, "raw_hashes": [], "raw_hashes_truncated": false, "record_count": null, "reported_record_count": 0, "state": "not_observed", "status": "unavailable", "status_codes": []}`
+- 实际 HTTP/运行：`{"attempted": false, "content_type_observation": "not_recorded_by_adapter", "content_types": [], "error_count": 0, "errors": [], "evidence": ["snapshot.runtime.laliga_public_pages"], "network_opened": false, "raw_hash_count": 0, "raw_hashes": [], "raw_hashes_truncated": false, "record_count": null, "reported_record_count": 0, "state": "not_attempted", "status": "unavailable", "status_codes": []}`
 - 状态/失败：`{"reason": "runtime payload or diagnostics are present; see errors and coverage", "runtime_error_count": 0, "runtime_errors": [], "runtime_key": null, "state": "unavailable"}`
 - 替代方案：OpenFootball for exact fixture/result facts; obtain a documented license or keep this field unavailable
 - Eligibility：display=`blocked_pending_terms_review`，model=`blocked`，publication=`blocked`
@@ -400,7 +400,7 @@
 - 实体联结：explicit fixture/team reference and article timestamp; otherwise global source-health evidence only
 - 时间：observed_at is mandatory; missing effective time is explicitly non-model and non-publication
 - 原始哈希：`{"algorithm": "SHA-256", "deduplicate": "same raw bytes deduplicated; conflicting payloads retained", "missing_hash_meaning": "not_recorded_by_adapter_or_no_payload; never infer a hash", "observed_hash_count": 0, "observed_hashes": [], "observed_hashes_truncated": false, "required": true}`
-- 实际 HTTP/运行：`{"attempted": false, "content_type_observation": "not_recorded_by_adapter", "content_types": [], "error_count": 0, "errors": [], "evidence": ["snapshot.runtime.ligue1_official_news"], "network_opened": false, "raw_hash_count": 0, "raw_hashes": [], "raw_hashes_truncated": false, "record_count": null, "reported_record_count": 0, "state": "not_observed", "status": "unavailable", "status_codes": []}`
+- 实际 HTTP/运行：`{"attempted": false, "content_type_observation": "not_recorded_by_adapter", "content_types": [], "error_count": 0, "errors": [], "evidence": ["snapshot.runtime.ligue1_official_news"], "network_opened": false, "raw_hash_count": 0, "raw_hashes": [], "raw_hashes_truncated": false, "record_count": null, "reported_record_count": 0, "state": "not_attempted", "status": "unavailable", "status_codes": []}`
 - 状态/失败：`{"reason": "runtime payload or diagnostics are present; see errors and coverage", "runtime_error_count": 0, "runtime_errors": [], "runtime_key": null, "state": "unavailable"}`
 - 替代方案：OpenFootball for exact fixture/result facts; obtain a documented license or keep this field unavailable
 - Eligibility：display=`blocked_pending_terms_review`，model=`blocked`，publication=`blocked`
@@ -502,7 +502,7 @@
 - 实体联结：same competition + exact kickoff + explicit canonical home/away pair + native match ID; complete bilateral XI required
 - 时间：observed_at must precede kickoff/freeze cutoff for model use; publication/effective time is not inferred from request time
 - 原始哈希：`{"algorithm": "SHA-256", "deduplicate": "same raw bytes deduplicated; conflicting payloads retained", "missing_hash_meaning": "not_recorded_by_adapter_or_no_payload; never infer a hash", "observed_hash_count": 0, "observed_hashes": [], "observed_hashes_truncated": false, "required": true}`
-- 实际 HTTP/运行：`{"attempted": false, "content_type_observation": "not_recorded_by_adapter", "content_types": [], "error_count": 0, "errors": [], "evidence": ["snapshot.runtime.official_league_lineups"], "network_opened": false, "raw_hash_count": 0, "raw_hashes": [], "raw_hashes_truncated": false, "record_count": null, "reported_record_count": 0, "state": "not_observed", "status": "unavailable", "status_codes": []}`
+- 实际 HTTP/运行：`{"attempted": false, "content_type_observation": "not_recorded_by_adapter", "content_types": [], "error_count": 0, "errors": [], "evidence": ["snapshot.runtime.official_league_lineups"], "network_opened": false, "raw_hash_count": 0, "raw_hashes": [], "raw_hashes_truncated": false, "record_count": null, "reported_record_count": 0, "state": "not_attempted", "status": "unavailable", "status_codes": []}`
 - 状态/失败：`{"reason": "runtime payload or diagnostics are present; see errors and coverage", "runtime_error_count": 0, "runtime_errors": [], "runtime_key": null, "state": "unavailable"}`
 - 替代方案：Operator-provided licensed official feed; until then no lineup confirmation and no inferred XI
 - Eligibility：display=`blocked_pending_terms_review`，model=`blocked`，publication=`blocked`
@@ -706,7 +706,7 @@
 - 实体联结：provider-native identity plus exact competition/team/time where available; ambiguity quarantined
 - 时间：observed_at is mandatory; missing effective time is explicitly non-model and non-publication
 - 原始哈希：`{"algorithm": "SHA-256", "deduplicate": "same raw bytes deduplicated; conflicting payloads retained", "missing_hash_meaning": "not_recorded_by_adapter_or_no_payload; never infer a hash", "observed_hash_count": 0, "observed_hashes": [], "observed_hashes_truncated": false, "required": true}`
-- 实际 HTTP/运行：`{"attempted": false, "content_type_observation": "not_recorded_by_adapter", "content_types": [], "error_count": 0, "errors": [], "evidence": ["snapshot.runtime.premier_league_public_pages"], "network_opened": false, "raw_hash_count": 0, "raw_hashes": [], "raw_hashes_truncated": false, "record_count": null, "reported_record_count": 0, "state": "not_observed", "status": "unavailable", "status_codes": []}`
+- 实际 HTTP/运行：`{"attempted": false, "content_type_observation": "not_recorded_by_adapter", "content_types": [], "error_count": 0, "errors": [], "evidence": ["snapshot.runtime.premier_league_public_pages"], "network_opened": false, "raw_hash_count": 0, "raw_hashes": [], "raw_hashes_truncated": false, "record_count": null, "reported_record_count": 0, "state": "not_attempted", "status": "unavailable", "status_codes": []}`
 - 状态/失败：`{"reason": "runtime payload or diagnostics are present; see errors and coverage", "runtime_error_count": 0, "runtime_errors": [], "runtime_key": null, "state": "unavailable"}`
 - 替代方案：OpenFootball for exact fixture/result facts; obtain a documented license or keep this field unavailable
 - Eligibility：display=`blocked_pending_terms_review`，model=`blocked`，publication=`blocked`
@@ -740,7 +740,7 @@
 - 实体联结：provider-native identity plus exact competition/team/time where available; ambiguity quarantined
 - 时间：observed_at is mandatory; missing effective time is explicitly non-model and non-publication
 - 原始哈希：`{"algorithm": "SHA-256", "deduplicate": "same raw bytes deduplicated; conflicting payloads retained", "missing_hash_meaning": "not_recorded_by_adapter_or_no_payload; never infer a hash", "observed_hash_count": 0, "observed_hashes": [], "observed_hashes_truncated": false, "required": true}`
-- 实际 HTTP/运行：`{"attempted": false, "content_type_observation": "not_recorded_by_adapter", "content_types": [], "error_count": 0, "errors": [], "evidence": ["snapshot.runtime.seriea_public_pages"], "network_opened": false, "raw_hash_count": 0, "raw_hashes": [], "raw_hashes_truncated": false, "record_count": null, "reported_record_count": 0, "state": "not_observed", "status": "unavailable", "status_codes": []}`
+- 实际 HTTP/运行：`{"attempted": false, "content_type_observation": "not_recorded_by_adapter", "content_types": [], "error_count": 0, "errors": [], "evidence": ["snapshot.runtime.seriea_public_pages"], "network_opened": false, "raw_hash_count": 0, "raw_hashes": [], "raw_hashes_truncated": false, "record_count": null, "reported_record_count": 0, "state": "not_attempted", "status": "unavailable", "status_codes": []}`
 - 状态/失败：`{"reason": "runtime payload or diagnostics are present; see errors and coverage", "runtime_error_count": 0, "runtime_errors": [], "runtime_key": null, "state": "unavailable"}`
 - 替代方案：OpenFootball for exact fixture/result facts; obtain a documented license or keep this field unavailable
 - Eligibility：display=`blocked_pending_terms_review`，model=`blocked`，publication=`blocked`
@@ -842,7 +842,7 @@
 - 实体联结：provider-native identity plus exact competition/team/time where available; ambiguity quarantined
 - 时间：observed_at is mandatory; missing effective time is explicitly non-model and non-publication
 - 原始哈希：`{"algorithm": "SHA-256", "deduplicate": "same raw bytes deduplicated; conflicting payloads retained", "missing_hash_meaning": "not_recorded_by_adapter_or_no_payload; never infer a hash", "observed_hash_count": 0, "observed_hashes": [], "observed_hashes_truncated": false, "required": true}`
-- 实际 HTTP/运行：`{"attempted": false, "content_type_observation": "not_recorded_by_adapter", "content_types": [], "error_count": 0, "errors": [], "evidence": ["snapshot.runtime.whoscored_public_pages"], "network_opened": false, "raw_hash_count": 0, "raw_hashes": [], "raw_hashes_truncated": false, "record_count": null, "reported_record_count": 0, "state": "not_observed", "status": "unavailable", "status_codes": []}`
+- 实际 HTTP/运行：`{"attempted": false, "content_type_observation": "not_recorded_by_adapter", "content_types": [], "error_count": 0, "errors": [], "evidence": ["snapshot.runtime.whoscored_public_pages"], "network_opened": false, "raw_hash_count": 0, "raw_hashes": [], "raw_hashes_truncated": false, "record_count": null, "reported_record_count": 0, "state": "not_attempted", "status": "unavailable", "status_codes": []}`
 - 状态/失败：`{"reason": "runtime payload or diagnostics are present; see errors and coverage", "runtime_error_count": 0, "runtime_errors": [], "runtime_key": null, "state": "unavailable"}`
 - 替代方案：Use OpenFootball historical/current facts or obtain provider permission; do not bypass robots/WAF/TLS policy
 - Eligibility：display=`blocked_pending_rights_review`，model=`blocked`，publication=`blocked`

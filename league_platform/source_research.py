@@ -723,6 +723,9 @@ def _collect_http_details(
     elif status in _BLOCKED_STATUSES or status.startswith("blocked"):
         state = "not_attempted"
         attempted = False
+    elif not network_opened and status in {"unavailable", "blocked_storage"}:
+        state = "not_attempted"
+        attempted = False
     else:
         state = "failed" if errors else "not_observed"
         attempted = network_opened
@@ -807,6 +810,14 @@ def _probe_map(probe_evidence: Mapping[str, Any] | None) -> dict[str, Mapping[st
         for field in ("attempted", "network_opened"):
             if not isinstance(row.get(field), bool):
                 raise ValueError(f"probe evidence {field} must be bool: {source_id}")
+        attempted = row.get("attempted")
+        network_opened = row.get("network_opened")
+        if attempted is True and network_opened is not True:
+            raise ValueError(f"probe attempted without an opened network: {source_id}")
+        if network_opened is True and attempted is not True:
+            raise ValueError(f"probe opened a network without an attempt: {source_id}")
+        if state in {"success", "failed"} and not (attempted and network_opened):
+            raise ValueError(f"probe outcome lacks a real attempt: {source_id}")
         if row.get("network_opened") is True and source_id not in _NETWORK_ALLOWED_SOURCE_IDS:
             raise ValueError(f"probe evidence opens a blocked source: {source_id}")
         codes = row.get("status_codes", [])
@@ -1174,14 +1185,27 @@ def validate_source_research_report(report: Mapping[str, Any]) -> None:
         raise ValueError("snapshot metadata is missing")
     snapshot_as_of = snapshot.get("as_of")
     snapshot_time = _parse_iso(snapshot_as_of, field="snapshot.as_of") if snapshot_as_of is not None else None
-    snapshot_sha = snapshot.get("sha256")
-    if snapshot.get("path") is not None and not _valid_digest(snapshot_sha):
+    if snapshot_time is not None and snapshot_time > generated_at:
+        raise ValueError("snapshot as_of is newer than report generated_at")
+    snapshot_path = snapshot.get("path")
+    if snapshot_path is not None and not isinstance(snapshot_path, str):
+        raise ValueError("snapshot path must be a string")
+    if snapshot_path is not None and not _valid_digest(snapshot_sha := snapshot.get("sha256")):
         raise ValueError("snapshot path requires a valid snapshot SHA-256")
+    if isinstance(snapshot_path, str) and Path(snapshot_path).exists():
+        if not Path(snapshot_path).is_file() or hashlib.sha256(Path(snapshot_path).read_bytes()).hexdigest() != snapshot_sha:
+            raise ValueError("snapshot file bytes do not match snapshot SHA-256")
     probe_meta = report.get("probe_evidence")
     if not isinstance(probe_meta, Mapping) or probe_meta.get("schema_version") != PROBE_SCHEMA_VERSION:
         raise ValueError("probe evidence metadata is missing")
-    if probe_meta.get("path") is not None and not _valid_digest(probe_meta.get("sha256")):
+    probe_path = probe_meta.get("path")
+    if probe_path is not None and not isinstance(probe_path, str):
+        raise ValueError("probe evidence path must be a string")
+    if probe_path is not None and not _valid_digest(probe_meta.get("sha256")):
         raise ValueError("probe evidence path requires a valid SHA-256")
+    if isinstance(probe_path, str) and Path(probe_path).exists():
+        if not Path(probe_path).is_file() or hashlib.sha256(Path(probe_path).read_bytes()).hexdigest() != probe_meta.get("sha256"):
+            raise ValueError("probe evidence file bytes do not match probe SHA-256")
     if not isinstance(probe_meta.get("row_count"), int) or probe_meta["row_count"] < 0:
         raise ValueError("probe evidence row_count is invalid")
     for row in source_rows:
@@ -1201,11 +1225,17 @@ def validate_source_research_report(report: Mapping[str, Any]) -> None:
         attempted = observed.get("attempted")
         if not isinstance(network_opened, bool) or not isinstance(attempted, bool):
             raise ValueError(f"source research network/attempt flags must be bool: {source_id}")
+        if attempted and not network_opened:
+            raise ValueError(f"source research attempted without opened network: {source_id}")
+        if network_opened and not attempted:
+            raise ValueError(f"source research opened network without attempt: {source_id}")
         status = str(status_meta["state"])
         if (status in _BLOCKED_STATUSES or status.startswith("blocked")) and network_opened:
             raise ValueError(f"blocked source claims an opened network: {source_id}")
         if network_opened and source_id not in _NETWORK_ALLOWED_SOURCE_IDS:
             raise ValueError(f"source outside allowed network inventory was opened: {source_id}")
+        if observed["state"] in {"success", "failed"} and not (attempted and network_opened):
+            raise ValueError(f"source HTTP outcome lacks a real attempt: {source_id}")
         if not attempted and observed.get("record_count") is not None:
             raise ValueError(f"unattempted source claims an observed record count: {source_id}")
         coverage = row.get("field_coverage")
@@ -1216,7 +1246,17 @@ def validate_source_research_report(report: Mapping[str, Any]) -> None:
         missing_fields = coverage.get("missing")
         if not all(isinstance(value, list) for value in (declared, observed_fields, missing_fields)):
             raise ValueError(f"source field coverage lists are invalid: {source_id}")
-        if len(set(declared)) != len(declared) or set(declared) != set(observed_fields) | set(missing_fields) or set(observed_fields) & set(missing_fields):
+        if not isinstance(source_id, str) or declared != _fields(source_id):
+            raise ValueError(f"source field declaration does not match adapter contract: {source_id}")
+        if any(not isinstance(value, str) for value in (*declared, *observed_fields, *missing_fields)):
+            raise ValueError(f"source field coverage values are invalid: {source_id}")
+        if (
+            len(set(declared)) != len(declared)
+            or len(set(observed_fields)) != len(observed_fields)
+            or len(set(missing_fields)) != len(missing_fields)
+            or set(declared) != set(observed_fields) | set(missing_fields)
+            or set(observed_fields) & set(missing_fields)
+        ):
             raise ValueError(f"source field coverage is inconsistent: {source_id}")
         eligibility = row.get("eligibility")
         if not isinstance(eligibility, Mapping) or set(eligibility) != {"display", "model", "publication"}:
@@ -1262,7 +1302,7 @@ def load_probe_evidence(path: Path | None) -> dict[str, Any] | None:
 def render_markdown(report: Mapping[str, Any]) -> str:
     validate_source_research_report(report)
     snapshot = report.get("snapshot") if isinstance(report.get("snapshot"), Mapping) else {}
-    report_date = _parse_iso(report["generated_at"], field="generated_at").date().isoformat()
+    report_date = datetime.fromisoformat(report["generated_at"].replace("Z", "+00:00")).date().isoformat()
     lines = [
         f"# Matchline 逐源抓取可行性审计（{report_date}）",
         "",

@@ -13,8 +13,8 @@
 
 | 证据 | 位置/摘要 |
 |---|---|
-| 逐源机器报告 | `docs/evidence/source-research-2026-09-16.json`，schema `matchline.source_research.v1`，47 条；快照 SHA `b064d56c32cd588ccf134bb155876b418d52bb6407d0502250ff5072defacf89` |
-| 逐源可读报告 | `docs/source-research-2026-09-16.md` |
+| 逐源机器报告 | `docs/evidence/source-research-2026-09-16.json`，schema `matchline.source_research.v1`，47 条；JSON SHA `902b82d72ae4cb161da545f9ade13ceab8784cc061bffedfb6610cda5682a023`；快照 SHA `b064d56c32cd588ccf134bb155876b418d52bb6407d0502250ff5072defacf89` |
+| 逐源可读报告 | `docs/source-research-2026-09-16.md`；Markdown SHA `433f6888aa03d5a718a24eaa1601dc8de3eb328f3f547726ce4876d900bb73ac` |
 | 固定端点 probe | `docs/evidence/source-probe-evidence-2026-09-16.json`，4 条 probe；SHA `ca5d608b04dc37549598c3bf1345278f01e0c6977c26cc3e9b6a60cec6ac0c35` |
 | 可复核 snapshot 副本 | `docs/evidence/source-research-snapshot-2026-09-16.json`，SHA `b064d56c32cd588ccf134bb155876b418d52bb6407d0502250ff5072defacf89` |
 | 当前研究评估 | `/dev/shm/matchline-live-runtime/runtime-only-evaluation-current.json`；外部 checkpoint `checkpoint-908bcf63872802fc740d` 同步保存关键 ledger |
@@ -109,7 +109,7 @@
 PYTHONDONTWRITEBYTECODE=1 .venv/bin/python -m league_platform.source_research \
   --snapshot docs/evidence/source-research-snapshot-2026-09-16.json \
   --probe-evidence docs/evidence/source-probe-evidence-2026-09-16.json \
-  --observed-at 2026-09-16T03:43:00+08:00 \
+  --observed-at 2026-09-16T04:30:31+08:00 \
   --output-json docs/evidence/source-research-2026-09-16.json \
   --output-markdown docs/source-research-2026-09-16.md
 

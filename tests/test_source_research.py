@@ -286,3 +286,67 @@ def test_hash_collection_exposes_truncation_without_dropping_count():
     assert row["raw_hash_policy"]["observed_hash_count"] == 12
     assert row["raw_hash_policy"]["observed_hashes_truncated"] is True
     assert len(row["raw_hash_policy"]["observed_hashes"]) == 8
+def test_validator_recomputes_referenced_snapshot_and_probe_file_hashes(tmp_path):
+    snapshot_path = tmp_path / "current.json"
+    snapshot_path.write_text('{"as_of":"2026-09-16T00:00:00+00:00"}', encoding="utf-8")
+    probe_path = tmp_path / "probe.json"
+    probe_path.write_text('{"schema_version":"matchline.source_probe_evidence.v1","probes":[]}', encoding="utf-8")
+    import hashlib
+
+    snapshot_sha = hashlib.sha256(snapshot_path.read_bytes()).hexdigest()
+    probe_sha = hashlib.sha256(probe_path.read_bytes()).hexdigest()
+    report = build_source_research_report(
+        {"as_of": "2026-09-16T00:00:00+00:00"},
+        snapshot_sha256=snapshot_sha,
+        snapshot_path=str(snapshot_path),
+        probe_evidence={"schema_version": "matchline.source_probe_evidence.v1", "probes": []},
+        probe_evidence_path=str(probe_path),
+        probe_evidence_sha256=probe_sha,
+        observed_at="2026-09-16T00:01:00+00:00",
+    )
+    validate_source_research_report(report)
+    snapshot_path.write_text('{"as_of":"2026-09-16T00:00:00+00:00","changed":true}', encoding="utf-8")
+    with pytest.raises(ValueError, match="snapshot file bytes"):
+        validate_source_research_report(report)
+
+
+def test_probe_success_requires_an_actual_opened_network_attempt():
+    probe = {
+        "schema_version": "matchline.source_probe_evidence.v1",
+        "probes": [
+            {
+                "source_id": "wikidata_entities",
+                "attempted": False,
+                "state": "success",
+                "status": "ok",
+                "network_opened": False,
+                "status_codes": [200],
+                "content_types": ["application/json"],
+                "raw_hashes": [_DIGEST],
+            }
+        ],
+    }
+    with pytest.raises(ValueError, match="real attempt"):
+        build_source_research_report(
+            _snapshot(),
+            snapshot_sha256="8" * 64,
+            observed_at="2026-09-16T00:01:00+00:00",
+            probe_evidence=probe,
+        )
+
+
+def test_future_snapshot_and_field_contract_drift_are_rejected():
+    with pytest.raises(ValueError, match="newer than report"):
+        build_source_research_report(
+            {"as_of": "2026-09-16T00:02:00+00:00"},
+            snapshot_sha256="9" * 64,
+            observed_at="2026-09-16T00:01:00+00:00",
+        )
+    report = build_source_research_report(
+        _snapshot(),
+        snapshot_sha256="a" * 64,
+        observed_at="2026-09-16T00:01:00+00:00",
+    )
+    report["sources"][0]["field_coverage"]["declared"] = ["tampered_field"]
+    with pytest.raises(ValueError, match="field declaration"):
+        validate_source_research_report(report)
