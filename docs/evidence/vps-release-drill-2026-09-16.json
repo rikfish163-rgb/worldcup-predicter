@@ -1,0 +1,67 @@
+{
+  "schema_version": "matchline.vps_release_drill.v1",
+  "observed_at": "2026-09-15T19:57:36.939647+00:00",
+  "host": "170.106.198.250",
+  "release_id": "matchline-research-20260915T1955Z-3e30030-final",
+  "release_root": "/home/ubuntu/matchline-releases/matchline-research-20260915T1955Z-3e30030-final",
+  "source_commit": "3e300304ed767a54fe84cf2be24d331bc1af7814",
+  "source_tar_sha256": "b58bf3729b9a0dd3989496ca10cad9fbbc83e9e81a2be2c35faad93af8675f2b",
+  "model_lock_sha256": "8578af943bf842f2e084bbfebfaac6cb5bd86023efdbceb06f6ee2f956b37fc6",
+  "openfootball_raw_bundle_sha256": "f14b7eae16d4a819c46091b3fa1304cb2f51bfed3c141e3920d92473b70d17e1",
+  "training_bundle_sha256": "f4c3527ca0e73d62d319eb70e661b460039affe13b0e96a20b0a3f1ed1062050",
+  "release_manifest": {
+    "active": false,
+    "previous_facts_root": "/home/ubuntu/matchline-facts",
+    "previous_facts_untouched": true,
+    "activation": "not-installed; no service or timer points here"
+  },
+  "source_report_validation": {
+    "status": "passed",
+    "source_id_count": 47,
+    "snapshot_sha256": "b064d56c32cd588ccf134bb155876b418d52bb6407d0502250ff5072defacf89",
+    "probe_count": 4
+  },
+  "runtime_only_drill": {
+    "status": "pending_prospective_window",
+    "started_at": "2026-09-15T19:56:51.946571+00:00",
+    "finished_at": "2026-09-15T19:57:33.705810+00:00",
+    "sync_fixture_count": 1257,
+    "sync_openligadb_count": 306,
+    "capture_predictions": 0,
+    "capture_blocked": 9,
+    "result_admission_quarantined_rows": 0,
+    "oddstorm_network_opened": false,
+    "lock_promoted": false,
+    "reason": "no causal freeze cutoff was observed yet for the future fixtures"
+  },
+  "archive_restore_drill": {
+    "archive_status": "archived",
+    "archive_verify_status": "verified",
+    "restore_status": "restored",
+    "archive_file": "runtime-snapshot-cece192143768c48edd3.tar.gz",
+    "archive_sha256": "85c1cf44efde6b609150963f138f6a321bdd7482032e5644a6f9a265c486e1af",
+    "archive_member_files": 120,
+    "restored_file_count": 120,
+    "restored_bytes": 31667679
+  },
+  "upload_drill": {
+    "status": "not_executed",
+    "mode": "dry_run_not_completed",
+    "reason": "empty prediction JSONL is rejected by the current publisher contract; no fabricated row was inserted",
+    "network_opened": false
+  },
+  "local_real_upload_ack": {
+    "status": "ok",
+    "audit_id": 333,
+    "requests": 1,
+    "current_freeze_count": 336,
+    "scored_n": 158,
+    "pending_n": 178,
+    "production_allowed": false
+  },
+  "old_facts_sentinel": {
+    "path": "/home/ubuntu/matchline-facts/current.json",
+    "present_after_drill": true,
+    "current_observed_sha256": "87d42e07c4f2e4de5717e386da2086dc6dc69db76809ccf2f061f80b52de1897"
+  }
+}

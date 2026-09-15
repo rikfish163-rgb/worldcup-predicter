@@ -1,0 +1,113 @@
+{
+  "schema_version": "matchline.source_probe_evidence.v1",
+  "captured_scope": "合规固定端点探测；不包含任何受限来源请求，不包含代理、UA轮换、WAF/robots绕过或页面枚举。",
+  "probes": [
+    {
+      "source_id": "wikidata_entities",
+      "attempted": true,
+      "state": "success",
+      "status": "ok",
+      "network_opened": true,
+      "request_started_at": "2026-09-15T18:55:27.612759+00:00",
+      "response_observed_at": "2026-09-15T18:55:33.970425+00:00",
+      "status_codes": [200],
+      "content_types": ["application/json; charset=utf-8"],
+      "content_encoding": "gzip",
+      "wire_bytes": 268,
+      "content_bytes": 508,
+      "wire_sha256": "6abac3b8d343bd255592a74a271b064303a0ac65006d07df23864ac56f7cb9a1",
+      "content_sha256": "1b617dcce5ac91f9825f23d9aaeeef6029aa8b393c70f834aa003547729e2d40",
+      "raw_hashes": [
+        "1b617dcce5ac91f9825f23d9aaeeef6029aa8b393c70f834aa003547729e2d40",
+        "2ff669629ea4b14af4da0f29182e375e05c0d95831d6b0b20c22e7afba318872",
+        "86a69c2e936cc8921c4df085d6d1567ea811454f54786133b484e5cce526a0b8",
+        "acb1483457b41c072ace1528eba1efa5343be995f69a302e5b781bafb43bcc93",
+        "d01a3a9c89b5df5caf89542a175d99a9011c7a75b28c4e1580b31bb8580d734a"
+      ],
+      "record_count": 1,
+      "error_count": 0,
+      "evidence": [
+        "https://www.wikidata.org/w/api.php?action=wbsearchentities&search=FC%20Utrecht&language=en&format=json&limit=1"
+      ],
+      "adapter_run": {
+        "observed_at": "2026-09-15T18:17:21.326847+00:00",
+        "status": "ok",
+        "network_opened": true,
+        "request_count": 6,
+        "record_count": 2,
+        "error_count": 0,
+        "venue_entities": ["Q1675996", "Q720983"],
+        "venue_raw_sha256": [
+          "86a69c2e936cc8921c4df085d6d1567ea811454f54786133b484e5cce526a0b8",
+          "acb1483457b41c072ace1528eba1efa5343be995f69a302e5b781bafb43bcc93"
+        ],
+        "model_eligible": false,
+        "reason": "medium-confidence venue coordinates are display-only"
+      }
+    },
+    {
+      "source_id": "met_norway_weather",
+      "attempted": true,
+      "state": "failed",
+      "status": "unavailable",
+      "network_opened": true,
+      "request_started_at": "2026-09-15T18:37:12.259037+00:00",
+      "response_observed_at": "2026-09-15T18:37:12.259037+00:00",
+      "status_codes": [],
+      "content_types": ["application/json body parsed by adapter; HTTP header not exported"],
+      "raw_hashes": [],
+      "record_count": null,
+      "error_count": 1,
+      "errors": [
+        {
+          "fixture_id": "openfootball:eredivisie:a9d16d2d12664c4597d5dab5",
+          "reason": "MET Norway response has no exact forecast hour 2026-09-20T10:00:00+00:00"
+        }
+      ],
+      "evidence": [
+        "https://api.met.no/weatherapi/locationforecast/2.0/compact"
+      ],
+      "parser_boundary": "response reached JSON parser but exact target hour was absent; no weather row was admitted"
+    },
+    {
+      "source_id": "openfootball_current",
+      "attempted": true,
+      "state": "success",
+      "status": "ok",
+      "network_opened": true,
+      "request_started_at": "2026-09-15T19:41:55.871267+00:00",
+      "response_observed_at": "2026-09-15T19:41:56.531521+00:00",
+      "status_codes": [200],
+      "content_types": ["text/plain; charset=utf-8"],
+      "content_encoding": null,
+      "wire_bytes": 54565,
+      "content_bytes": 54565,
+      "wire_sha256": "1feef8cdd2e7c3aeadbe05154083ec3f87cb1f8c90af6cd26b0d63f5711c9380",
+      "content_sha256": "1feef8cdd2e7c3aeadbe05154083ec3f87cb1f8c90af6cd26b0d63f5711c9380",
+      "raw_hashes": ["1feef8cdd2e7c3aeadbe05154083ec3f87cb1f8c90af6cd26b0d63f5711c9380"],
+      "record_count": null,
+      "error_count": 0,
+      "evidence": ["https://raw.githubusercontent.com/openfootball/football.json/master/2026-27/en.1.json"]
+    },
+    {
+      "source_id": "openligadb_secondary_results",
+      "attempted": true,
+      "state": "success",
+      "status": "ok",
+      "network_opened": true,
+      "request_started_at": "2026-09-15T19:41:56.531658+00:00",
+      "response_observed_at": "2026-09-15T19:42:01.441288+00:00",
+      "status_codes": [200],
+      "content_types": ["application/json; charset=utf-8"],
+      "content_encoding": null,
+      "wire_bytes": 278640,
+      "content_bytes": 278640,
+      "wire_sha256": "1d64d3f9473abf28dfc0db3f3e6a9f2257562982580774eefa32e10768156508",
+      "content_sha256": "1d64d3f9473abf28dfc0db3f3e6a9f2257562982580774eefa32e10768156508",
+      "raw_hashes": ["1d64d3f9473abf28dfc0db3f3e6a9f2257562982580774eefa32e10768156508"],
+      "record_count": null,
+      "error_count": 0,
+      "evidence": ["https://api.openligadb.de/getmatchdata/bl1/2026"]
+    }
+  ]
+}

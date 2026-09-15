@@ -1,0 +1,20 @@
+[Unit]
+Description=Matchline durable OpenFootball historical raw-evidence refresh
+Wants=network-online.target
+After=network-online.target
+
+[Service]
+Type=oneshot
+WorkingDirectory=/home/hetaisheng/soccerdata
+Environment=PYTHONDONTWRITEBYTECODE=1
+Environment=PYTHONUNBUFFERED=1
+Environment=TMPDIR=/dev/shm
+Environment=MATCHLINE_RUNTIME_DIR=/media/hetaisheng/044A81D94A81C83E/soccerdata-live-runtime
+Environment=MATCHLINE_OPENFOOTBALL_RAW_ARCHIVE_DIR=/media/hetaisheng/044A81D94A81C83E/soccerdata-live-runtime/openfootball-raw
+EnvironmentFile=-/etc/matchline/matchline-runtime.env
+EnvironmentFile=-%h/.config/matchline/matchline-runtime.env
+# This producer writes raw observations plus a verified receipt only. It does
+# not admit training data, publish a model, write Sites/D1, or mutate a lock.
+ExecStart=/usr/bin/python3 -m league_platform.openfootball_history_sync --raw-archive-dir=${MATCHLINE_OPENFOOTBALL_RAW_ARCHIVE_DIR} --receipt=${MATCHLINE_RUNTIME_DIR}/openfootball-history-refresh-current.json
+TimeoutStartSec=45min
+TimeoutStopSec=60s
