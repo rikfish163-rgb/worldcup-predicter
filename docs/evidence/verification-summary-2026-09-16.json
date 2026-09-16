@@ -1,7 +1,8 @@
 {
   "commits": {
-    "parent_github_remote_observed": "18c1bfa5175ade8c39623ccebb1b0a9ce642b602",
-    "parent_local": "18c1bfa5175ade8c39623ccebb1b0a9ce642b602",
+    "parent_code_commit": "18c1bfa5175ade8c39623ccebb1b0a9ce642b602",
+    "parent_github_remote_observed": "bcfbbeec809d08b640767b67a300b764911cd43d",
+    "parent_local": "bcfbbeec809d08b640767b67a300b764911cd43d",
     "sites_local": "9d424d0e9a3dc6c2dfac02ca0696356f08625ed9",
     "sites_remote": "not_verified_missing_git_auth"
   },

@@ -25,7 +25,7 @@
 | VPS raw archive/restore/rollback | `docs/evidence/vps-r9-archive-restore-rollback-2026-09-16.json` | `8a507ae7228986ae027ce72defb06ceb95835ba987b1f026a09c30833dd9f866`；55 receipts；restore match `True`；upload HTTP `201` |
 | 前瞻评估 | `docs/evidence/prospective-evaluation-runtime-only-2026-09-16.json` | `2939bbf5eae7d95c70f8cfd6152b030faf8712ec0f2230eca9a5eec3c3d62b36` |
 | 评分审计 | `docs/evidence/prospective-audit-scored-2026-09-16.json` | `83b0518849ea5ab6055978b87aef7f4b72f1980247767887b5711c0cf7248df7` |
-| 机器验证摘要 | `docs/evidence/verification-summary-2026-09-16.json` | `e6c35bfd3e03105d5baeb837018ff77217a601465c65843e8d75be19b8811dd0` |
+| 机器验证摘要 | `docs/evidence/verification-summary-2026-09-16.json` | `ef316e89f3446b4c17c7c4110575f48cd61baef9d56f2c55cafdeed90d65e848` |
 
 ## Acceptance criteria 逐条验收
 
@@ -119,7 +119,7 @@
 
 - Python 全套：`1516 passed, 72 skipped, 0 failed`；新增 collector/publisher 回归 `22 passed`；Sites `npm run typecheck` 通过，`npm test` `808 passed, 0 failed`；父/Sites `git diff --check` 通过；r9 systemd units `systemd-analyze verify` 通过.
 - VPS 已有真实 facts publish/readback：最新 facts readback HTTP 200，包含 finished OpenLigaDB 案例与 blocked source catalog 案例；formal probabilities false。
-- 父 GitHub 非 main 分支已确认 `18c1bfa`；Sites `9d424d0` 未推送（远端缺 Git 认证），Cloudflare deploy 未执行（token expired/missing）。
+- 父 GitHub 非 main 分支已确认最终 handoff `bcfbbee`（代码提交 `18c1bfa` 为其祖先）；Sites `9d424d0` 未推送（远端缺 Git 认证），Cloudflare deploy 未执行（token expired/missing）。
 
 ### 8. 交接资料 — **Met**
 
@@ -134,7 +134,7 @@
 ## 仍未解决问题
 
 1. Sites 子仓库远端认证缺失，无法推送 `9d424d0`；Cloudflare API token 缺失，无法部署该 Sites 修复。
-2. Sites 子仓库 `9d424d0` 仍未推送；父仓库 `c9d43bf` 已推送并可审阅。
+2. Sites 子仓库 `9d424d0` 仍未推送；父仓库 `bcfbbee` 已推送并可审阅。
 3. 正式生产门槛仍缺足够 untouched prospective samples、lineup confirmation replay 和独立 market baseline；正式概率必须继续关闭。
 4. r9 已完成允许来源逐响应 raw archive；后续新增来源必须先通过同等 rights/host/raw archive gate。
 5. r9 release 已激活 facts-only writer；prospective audit 仍独立于 facts publisher，正式预测未发布，线上 prospective status 继续保持关闭，符合不伪造原则。
