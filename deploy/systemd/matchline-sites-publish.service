@@ -1,0 +1,90 @@
+[Unit]
+Description=Publish Matchline research ledger to Sites D1
+Wants=network-online.target
+After=network-online.target matchline-prospective-cycle.service
+RequiresMountsFor=/media/hetaisheng/044A81D94A81C83E/soccerdata-live-runtime
+ConditionPathExists=/etc/matchline/matchline-sites.env
+
+[Service]
+Type=oneshot
+WorkingDirectory=/home/hetaisheng/soccerdata
+Environment=PYTHONDONTWRITEBYTECODE=1
+# The file is operator-managed and must be chmod 600. It is intentionally
+# not checked in: MATCHLINE_INGEST_TOKEN is a runtime secret.
+EnvironmentFile=-/etc/matchline/matchline-sites.env
+# Keep publication on the same append-only runtime root as the prospective
+# cycle. An operator-managed matchline-runtime.env may override this after
+# verifying a migration, but the default must not fall back to the stale
+# project-local data/live tree.
+Environment=MATCHLINE_RUNTIME_DIR=/media/hetaisheng/044A81D94A81C83E/soccerdata-live-runtime
+Environment=MATCHLINE_PROSPECTIVE_LOCK=/home/hetaisheng/soccerdata/docs/evidence/prospective-model-lock-current.json
+EnvironmentFile=-/etc/matchline/matchline-runtime.env
+Environment=MATCHLINE_OPENFOOTBALL_RAW_ARCHIVE_DIR=/media/hetaisheng/044A81D94A81C83E/soccerdata-live-runtime/openfootball-raw
+# Publication must fail fast on the same interpreter as the prospective
+# cycle.  The external project venv can hang before its bounded network and
+# storage guards when the NTFS runtime is under I/O pressure.
+# This is enforcement, not the ordinary audit lane: systemd will not invoke
+# publish_cycle when the current strict report, three-hash-bound platform
+# receipt, or its 30-minute freshness contract is blocked.
+ExecStartPre=/usr/bin/python3 -m league_platform.platform_verification \
+  --strict-report ${MATCHLINE_RUNTIME_DIR}/strict-backtest-current.json \
+  --prospective-lock ${MATCHLINE_PROSPECTIVE_LOCK} \
+  --cycle ${MATCHLINE_RUNTIME_DIR}/prospective-cycle-latest.json \
+  --evaluation ${MATCHLINE_RUNTIME_DIR}/prospective-evaluation-current.json \
+  --offline-snapshot ${MATCHLINE_RUNTIME_DIR}/offline_snapshot.json \
+  --sites-build-evidence /home/hetaisheng/soccerdata/matchline_sites/.runtime/sites-build-resource.json \
+  --test-evidence /home/hetaisheng/soccerdata/docs/evidence/platform-test-evidence-current.json \
+  --publication-audit /home/hetaisheng/soccerdata/docs/evidence/publication-audit-current.json \
+  --live-snapshot ${MATCHLINE_RUNTIME_DIR}/current.json \
+  --publication-diagnostic ${MATCHLINE_RUNTIME_DIR}/current.publication.json \
+  --runtime-root ${MATCHLINE_RUNTIME_DIR} \
+  --test-evidence-root /home/hetaisheng/soccerdata/docs/evidence \
+  --code-root /home/hetaisheng/soccerdata \
+  --output ${MATCHLINE_RUNTIME_DIR}/platform-verification-current.json \
+  --archive-dir ${MATCHLINE_RUNTIME_DIR}/platform-verifications
+ExecStartPre=/usr/bin/python3 -m league_platform.maturity_validator \
+  --strict-report ${MATCHLINE_RUNTIME_DIR}/strict-backtest-current.json \
+  --platform-verification ${MATCHLINE_RUNTIME_DIR}/platform-verification-current.json \
+  --prospective-lock ${MATCHLINE_PROSPECTIVE_LOCK} \
+  --cycle ${MATCHLINE_RUNTIME_DIR}/prospective-cycle-latest.json \
+  --evaluation ${MATCHLINE_RUNTIME_DIR}/prospective-evaluation-current.json \
+  --live-snapshot ${MATCHLINE_RUNTIME_DIR}/current.json \
+  --prediction-archive ${MATCHLINE_RUNTIME_DIR}/prospective_predictions.jsonl \
+  --offline-snapshot ${MATCHLINE_RUNTIME_DIR}/offline_snapshot.json \
+  --sites-build-evidence /home/hetaisheng/soccerdata/matchline_sites/.runtime/sites-build-resource.json \
+  --test-evidence /home/hetaisheng/soccerdata/docs/evidence/platform-test-evidence-current.json \
+  --publication-audit /home/hetaisheng/soccerdata/docs/evidence/publication-audit-current.json \
+  --publication-diagnostic ${MATCHLINE_RUNTIME_DIR}/current.publication.json \
+  --runtime-root ${MATCHLINE_RUNTIME_DIR} \
+  --repository-root /home/hetaisheng/soccerdata \
+  --output ${MATCHLINE_RUNTIME_DIR}/publication-maturity-gate-current.json \
+  --max-platform-age-seconds 1800 \
+  --require-passed
+ExecStart=/usr/bin/python3 -m league_platform.publish_cycle \
+  --publication-epoch=${MATCHLINE_PUBLICATION_EPOCH} \
+  --snapshot ${MATCHLINE_RUNTIME_DIR}/current.json \
+  --openfootball-raw-archive-dir ${MATCHLINE_OPENFOOTBALL_RAW_ARCHIVE_DIR} \
+  --ledger ${MATCHLINE_RUNTIME_DIR}/intelligence/observations.jsonl \
+  --archive ${MATCHLINE_RUNTIME_DIR}/prospective_predictions.jsonl \
+  --fixtures-receipts ${MATCHLINE_RUNTIME_DIR}/sites/fixtures-receipts.jsonl \
+  --intelligence-receipts ${MATCHLINE_RUNTIME_DIR}/sites/intelligence-receipts.jsonl \
+  --source-health-receipts ${MATCHLINE_RUNTIME_DIR}/sites/source-health-receipts.jsonl \
+  --lineup-diagnostics-receipts ${MATCHLINE_RUNTIME_DIR}/sites/lineup-diagnostics-receipts.jsonl \
+  --forecast-receipts ${MATCHLINE_RUNTIME_DIR}/sites/forecast-receipts.jsonl \
+  --stage-evaluations-receipts ${MATCHLINE_RUNTIME_DIR}/sites/stage-evaluations-receipts.jsonl \
+  --stage-lock ${MATCHLINE_PROSPECTIVE_LOCK} \
+  --cycle-evidence ${MATCHLINE_RUNTIME_DIR}/prospective-cycle-latest.json \
+  --maturity-receipt ${MATCHLINE_RUNTIME_DIR}/publication-maturity-gate-current.json \
+  --maturity-runtime-root ${MATCHLINE_RUNTIME_DIR} \
+  --maturity-platform-verification ${MATCHLINE_RUNTIME_DIR}/platform-verification-current.json \
+  --maturity-strict-report ${MATCHLINE_RUNTIME_DIR}/strict-backtest-current.json \
+  --maturity-evaluation ${MATCHLINE_RUNTIME_DIR}/prospective-evaluation-current.json \
+  --maturity-offline-snapshot ${MATCHLINE_RUNTIME_DIR}/offline_snapshot.json \
+  --maturity-sites-build-evidence /home/hetaisheng/soccerdata/matchline_sites/.runtime/sites-build-resource.json \
+  --maturity-test-evidence /home/hetaisheng/soccerdata/docs/evidence/platform-test-evidence-current.json \
+  --maturity-publication-audit /home/hetaisheng/soccerdata/docs/evidence/publication-audit-current.json \
+  --maturity-prediction-archive ${MATCHLINE_RUNTIME_DIR}/prospective_predictions.jsonl \
+  --maturity-repository-root /home/hetaisheng/soccerdata \
+  --max-snapshot-age-seconds 1800 \
+  --require-publication-diagnostic
+TimeoutStartSec=10min

@@ -1,0 +1,2071 @@
+{
+  "as_of": "2026-09-15T21:42:50.038371+00:00",
+  "met_norway_weather": {
+    "attribution_required": true,
+    "error_count": 79,
+    "errors": [
+      {
+        "count": 63,
+        "reason": "venue_coordinates_missing"
+      },
+      {
+        "count": 16,
+        "reason": "additional_errors_omitted"
+      }
+    ],
+    "license": "CC-BY-4.0",
+    "license_url": "https://creativecommons.org/licenses/by/4.0/",
+    "network_opened": true,
+    "provider": "MET Norway Locationforecast",
+    "retrieved_at": "2026-09-15T21:42:50.038371+00:00",
+    "source_id": "met_norway_weather",
+    "status": "partial",
+    "terms_url": "https://api.met.no/doc/TermsOfService",
+    "weather": [
+      {
+        "coordinate_confidence": "high",
+        "coordinate_model_eligible": true,
+        "fixture_id": "openfootball:la-liga:fba51e17d3676ba9a5cb65c6",
+        "forecast_at": "2026-09-16T17:00:00+00:00",
+        "humidity_percent": 37.9,
+        "latitude": 40.4361,
+        "longitude": -3.5994,
+        "precipitation_mm": 0.0,
+        "source": {
+          "attribution_required": true,
+          "hash": "sha256:4dae057565bdad83783710a03e32066d04bc5ecc7b72380047b9365fdb0a11fc",
+          "license": "CC-BY-4.0",
+          "license_url": "https://creativecommons.org/licenses/by/4.0/",
+          "name": "MET Norway Locationforecast",
+          "raw_sha256": "4dae057565bdad83783710a03e32066d04bc5ecc7b72380047b9365fdb0a11fc",
+          "retrieved_at": "2026-09-15T21:42:50.038371+00:00",
+          "source_id": "met_norway_weather",
+          "terms_url": "https://api.met.no/doc/TermsOfService",
+          "url": "https://api.met.no/weatherapi/locationforecast/2.0/compact?lat=40.4361&lon=-3.5994"
+        },
+        "symbol_code": "partlycloudy_day",
+        "temperature_c": 24.8,
+        "wind_direction_deg": 36.4,
+        "wind_speed_mps": 5.8
+      },
+      {
+        "coordinate_confidence": "medium",
+        "coordinate_model_eligible": false,
+        "fixture_id": "openfootball:la-liga:fbcf919518486d43393f244a",
+        "forecast_at": "2026-09-16T17:00:00+00:00",
+        "humidity_percent": 59.7,
+        "latitude": 43.3687,
+        "longitude": -8.4174,
+        "precipitation_mm": 0.0,
+        "source": {
+          "attribution_required": true,
+          "hash": "sha256:2535cdefe10b8b9dab51915728d0b1710b6198f1c8a7d55f38c25029405012b6",
+          "license": "CC-BY-4.0",
+          "license_url": "https://creativecommons.org/licenses/by/4.0/",
+          "name": "MET Norway Locationforecast",
+          "raw_sha256": "2535cdefe10b8b9dab51915728d0b1710b6198f1c8a7d55f38c25029405012b6",
+          "retrieved_at": "2026-09-15T21:42:50.038371+00:00",
+          "source_id": "met_norway_weather",
+          "terms_url": "https://api.met.no/doc/TermsOfService",
+          "url": "https://api.met.no/weatherapi/locationforecast/2.0/compact?lat=43.3687&lon=-8.4174"
+        },
+        "symbol_code": "partlycloudy_day",
+        "temperature_c": 19.8,
+        "wind_direction_deg": 18.8,
+        "wind_speed_mps": 7.5
+      },
+      {
+        "coordinate_confidence": "high",
+        "coordinate_model_eligible": true,
+        "fixture_id": "openfootball:la-liga:aa561480143e70f57207d058",
+        "forecast_at": "2026-09-16T19:00:00+00:00",
+        "humidity_percent": 95.3,
+        "latitude": 41.3808,
+        "longitude": 2.1228,
+        "precipitation_mm": 1.0,
+        "source": {
+          "attribution_required": true,
+          "hash": "sha256:2ae2c3ab7c3e09e503dda84a3a309369b340200fd3ce6503d903b83098d7c24d",
+          "license": "CC-BY-4.0",
+          "license_url": "https://creativecommons.org/licenses/by/4.0/",
+          "name": "MET Norway Locationforecast",
+          "raw_sha256": "2ae2c3ab7c3e09e503dda84a3a309369b340200fd3ce6503d903b83098d7c24d",
+          "retrieved_at": "2026-09-15T21:42:50.038371+00:00",
+          "source_id": "met_norway_weather",
+          "terms_url": "https://api.met.no/doc/TermsOfService",
+          "url": "https://api.met.no/weatherapi/locationforecast/2.0/compact?lat=41.3808&lon=2.1228"
+        },
+        "symbol_code": "heavyrainshowers_night",
+        "temperature_c": 20.0,
+        "wind_direction_deg": 298.2,
+        "wind_speed_mps": 3.4
+      },
+      {
+        "coordinate_confidence": "medium",
+        "coordinate_model_eligible": false,
+        "fixture_id": "openfootball:la-liga:11caafd3f211b8c82dc5e5a0",
+        "forecast_at": "2026-09-17T17:00:00+00:00",
+        "humidity_percent": 39.3,
+        "latitude": 37.3564,
+        "longitude": -5.9816,
+        "precipitation_mm": 0.0,
+        "source": {
+          "attribution_required": true,
+          "hash": "sha256:6a3a43b69eeb3f4f5d99ffd0d2aa7ac9d6b11b317ff3696a7fab9d23ff94e034",
+          "license": "CC-BY-4.0",
+          "license_url": "https://creativecommons.org/licenses/by/4.0/",
+          "name": "MET Norway Locationforecast",
+          "raw_sha256": "6a3a43b69eeb3f4f5d99ffd0d2aa7ac9d6b11b317ff3696a7fab9d23ff94e034",
+          "retrieved_at": "2026-09-15T21:42:50.038371+00:00",
+          "source_id": "met_norway_weather",
+          "terms_url": "https://api.met.no/doc/TermsOfService",
+          "url": "https://api.met.no/weatherapi/locationforecast/2.0/compact?lat=37.3564&lon=-5.9816"
+        },
+        "symbol_code": "clearsky_day",
+        "temperature_c": 29.9,
+        "wind_direction_deg": 221.7,
+        "wind_speed_mps": 4.9
+      },
+      {
+        "coordinate_confidence": "medium",
+        "coordinate_model_eligible": false,
+        "fixture_id": "openfootball:la-liga:e1d06c8807bef1eab651140a",
+        "forecast_at": "2026-09-17T19:00:00+00:00",
+        "humidity_percent": 86.6,
+        "latitude": 36.7341,
+        "longitude": -4.4264,
+        "precipitation_mm": 0.0,
+        "source": {
+          "attribution_required": true,
+          "hash": "sha256:b34066e0e9a7783a15b712bb581a26189157650dd41b745e4e4c197caa311f61",
+          "license": "CC-BY-4.0",
+          "license_url": "https://creativecommons.org/licenses/by/4.0/",
+          "name": "MET Norway Locationforecast",
+          "raw_sha256": "b34066e0e9a7783a15b712bb581a26189157650dd41b745e4e4c197caa311f61",
+          "retrieved_at": "2026-09-15T21:42:50.038371+00:00",
+          "source_id": "met_norway_weather",
+          "terms_url": "https://api.met.no/doc/TermsOfService",
+          "url": "https://api.met.no/weatherapi/locationforecast/2.0/compact?lat=36.7341&lon=-4.4264"
+        },
+        "symbol_code": "fair_night",
+        "temperature_c": 21.7,
+        "wind_direction_deg": 116.3,
+        "wind_speed_mps": 3.3
+      }
+    ]
+  },
+  "openfootball_current": {
+    "errors": [],
+    "fixtures": [
+      {
+        "away_team": "SBV Excelsior",
+        "competition_id": "eredivisie",
+        "halftime_score": {
+          "away": 3,
+          "home": 0
+        },
+        "home_team": "SC Cambuur-Leeuwarden",
+        "id": "openfootball:eredivisie:a7588270e281724717948382",
+        "kickoff_at": "2026-08-07T18:00:00+00:00",
+        "kickoff_date": "2026-08-07",
+        "kickoff_time_quality": "exact",
+        "kickoff_time_source": "explicit",
+        "kickoff_timezone": "Europe/Amsterdam",
+        "lineage": {
+          "date_inherited": true,
+          "hash": "sha256:99884bc3bd1fec6ed69d03a613eb739f14426fe2ddaec83ea5fd10224a196513",
+          "license": "CC0-1.0",
+          "line_number": 11,
+          "parser": "openfootball_football_txt_v1",
+          "raw_sha256": "99884bc3bd1fec6ed69d03a613eb739f14426fe2ddaec83ea5fd10224a196513",
+          "record_index": 0,
+          "record_path": "L11",
+          "retrieved_at": "2026-09-15T21:42:50.038371+00:00",
+          "source_id": "openfootball:europe:netherlands:2026-27-nl1",
+          "source_row_id": "openfootball:europe:netherlands:2026-27-nl1#L11",
+          "time_inherited": false,
+          "url": "https://raw.githubusercontent.com/openfootball/europe/master/netherlands/2026-27_nl1.txt"
+        },
+        "provider_fixture_ids": {
+          "OpenFootball": "openfootball:eredivisie:a7588270e281724717948382"
+        },
+        "result_scope": "regulation_90",
+        "round": "Matchday 1",
+        "score": {
+          "away": 4,
+          "home": 0
+        },
+        "season": "2026-27",
+        "source": {
+          "hash": "sha256:99884bc3bd1fec6ed69d03a613eb739f14426fe2ddaec83ea5fd10224a196513",
+          "license": "CC0-1.0",
+          "name": "OpenFootball",
+          "raw_sha256": "99884bc3bd1fec6ed69d03a613eb739f14426fe2ddaec83ea5fd10224a196513",
+          "retrieved_at": "2026-09-15T21:42:50.038371+00:00",
+          "source_id": "openfootball:europe:netherlands:2026-27-nl1",
+          "url": "https://raw.githubusercontent.com/openfootball/europe/master/netherlands/2026-27_nl1.txt"
+        },
+        "status": "finished"
+      },
+      {
+        "away_team": "FC Famalicão",
+        "competition_id": "primeira-liga",
+        "halftime_score": {
+          "away": 1,
+          "home": 0
+        },
+        "home_team": "GD Estoril Praia",
+        "id": "openfootball:primeira-liga:e1ebb3158cf8c73a798e3557",
+        "kickoff_at": "2026-08-07T19:15:00+00:00",
+        "kickoff_date": "2026-08-07",
+        "kickoff_time_quality": "exact",
+        "kickoff_time_source": "explicit",
+        "kickoff_timezone": "Europe/Lisbon",
+        "lineage": {
+          "date_inherited": true,
+          "hash": "sha256:eeaf54cf2737fd32b92b7ccc6d37f643702c1c091f1dd93be7b2cacd6582f188",
+          "license": "CC0-1.0",
+          "line_number": 11,
+          "parser": "openfootball_football_txt_v1",
+          "raw_sha256": "eeaf54cf2737fd32b92b7ccc6d37f643702c1c091f1dd93be7b2cacd6582f188",
+          "record_index": 0,
+          "record_path": "L11",
+          "retrieved_at": "2026-09-15T21:42:50.038371+00:00",
+          "source_id": "openfootball:europe:portugal:2026-27-pt1",
+          "source_row_id": "openfootball:europe:portugal:2026-27-pt1#L11",
+          "time_inherited": false,
+          "url": "https://raw.githubusercontent.com/openfootball/europe/master/portugal/2026-27_pt1.txt"
+        },
+        "provider_fixture_ids": {
+          "OpenFootball": "openfootball:primeira-liga:e1ebb3158cf8c73a798e3557"
+        },
+        "result_scope": "regulation_90",
+        "round": "Matchday 1",
+        "score": {
+          "away": 1,
+          "home": 1
+        },
+        "season": "2026-27",
+        "source": {
+          "hash": "sha256:eeaf54cf2737fd32b92b7ccc6d37f643702c1c091f1dd93be7b2cacd6582f188",
+          "license": "CC0-1.0",
+          "name": "OpenFootball",
+          "raw_sha256": "eeaf54cf2737fd32b92b7ccc6d37f643702c1c091f1dd93be7b2cacd6582f188",
+          "retrieved_at": "2026-09-15T21:42:50.038371+00:00",
+          "source_id": "openfootball:europe:portugal:2026-27-pt1",
+          "url": "https://raw.githubusercontent.com/openfootball/europe/master/portugal/2026-27_pt1.txt"
+        },
+        "status": "finished"
+      },
+      {
+        "away_team": "Telstar 1963",
+        "competition_id": "eredivisie",
+        "halftime_score": {
+          "away": 2,
+          "home": 0
+        },
+        "home_team": "NEC",
+        "id": "openfootball:eredivisie:a9e98628a67d469a7f9edb67",
+        "kickoff_at": "2026-08-08T14:30:00+00:00",
+        "kickoff_date": "2026-08-08",
+        "kickoff_time_quality": "exact",
+        "kickoff_time_source": "explicit",
+        "kickoff_timezone": "Europe/Amsterdam",
+        "lineage": {
+          "date_inherited": true,
+          "hash": "sha256:99884bc3bd1fec6ed69d03a613eb739f14426fe2ddaec83ea5fd10224a196513",
+          "license": "CC0-1.0",
+          "line_number": 13,
+          "parser": "openfootball_football_txt_v1",
+          "raw_sha256": "99884bc3bd1fec6ed69d03a613eb739f14426fe2ddaec83ea5fd10224a196513",
+          "record_index": 1,
+          "record_path": "L13",
+          "retrieved_at": "2026-09-15T21:42:50.038371+00:00",
+          "source_id": "openfootball:europe:netherlands:2026-27-nl1",
+          "source_row_id": "openfootball:europe:netherlands:2026-27-nl1#L13",
+          "time_inherited": false,
+          "url": "https://raw.githubusercontent.com/openfootball/europe/master/netherlands/2026-27_nl1.txt"
+        },
+        "provider_fixture_ids": {
+          "OpenFootball": "openfootball:eredivisie:a9e98628a67d469a7f9edb67"
+        },
+        "result_scope": "regulation_90",
+        "round": "Matchday 1",
+        "score": {
+          "away": 2,
+          "home": 1
+        },
+        "season": "2026-27",
+        "source": {
+          "hash": "sha256:99884bc3bd1fec6ed69d03a613eb739f14426fe2ddaec83ea5fd10224a196513",
+          "license": "CC0-1.0",
+          "name": "OpenFootball",
+          "raw_sha256": "99884bc3bd1fec6ed69d03a613eb739f14426fe2ddaec83ea5fd10224a196513",
+          "retrieved_at": "2026-09-15T21:42:50.038371+00:00",
+          "source_id": "openfootball:europe:netherlands:2026-27-nl1",
+          "url": "https://raw.githubusercontent.com/openfootball/europe/master/netherlands/2026-27_nl1.txt"
+        },
+        "status": "finished"
+      },
+      {
+        "away_team": "Casa Pia AC",
+        "competition_id": "primeira-liga",
+        "halftime_score": {
+          "away": 0,
+          "home": 0
+        },
+        "home_team": "CS Marítimo",
+        "id": "openfootball:primeira-liga:1d4c0f86b763a34e7d47897e",
+        "kickoff_at": "2026-08-08T14:30:00+00:00",
+        "kickoff_date": "2026-08-08",
+        "kickoff_time_quality": "exact",
+        "kickoff_time_source": "explicit",
+        "kickoff_timezone": "Europe/Lisbon",
+        "lineage": {
+          "date_inherited": true,
+          "hash": "sha256:eeaf54cf2737fd32b92b7ccc6d37f643702c1c091f1dd93be7b2cacd6582f188",
+          "license": "CC0-1.0",
+          "line_number": 13,
+          "parser": "openfootball_football_txt_v1",
+          "raw_sha256": "eeaf54cf2737fd32b92b7ccc6d37f643702c1c091f1dd93be7b2cacd6582f188",
+          "record_index": 1,
+          "record_path": "L13",
+          "retrieved_at": "2026-09-15T21:42:50.038371+00:00",
+          "source_id": "openfootball:europe:portugal:2026-27-pt1",
+          "source_row_id": "openfootball:europe:portugal:2026-27-pt1#L13",
+          "time_inherited": false,
+          "url": "https://raw.githubusercontent.com/openfootball/europe/master/portugal/2026-27_pt1.txt"
+        },
+        "provider_fixture_ids": {
+          "OpenFootball": "openfootball:primeira-liga:1d4c0f86b763a34e7d47897e"
+        },
+        "result_scope": "regulation_90",
+        "round": "Matchday 1",
+        "score": {
+          "away": 0,
+          "home": 1
+        },
+        "season": "2026-27",
+        "source": {
+          "hash": "sha256:eeaf54cf2737fd32b92b7ccc6d37f643702c1c091f1dd93be7b2cacd6582f188",
+          "license": "CC0-1.0",
+          "name": "OpenFootball",
+          "raw_sha256": "eeaf54cf2737fd32b92b7ccc6d37f643702c1c091f1dd93be7b2cacd6582f188",
+          "retrieved_at": "2026-09-15T21:42:50.038371+00:00",
+          "source_id": "openfootball:europe:portugal:2026-27-pt1",
+          "url": "https://raw.githubusercontent.com/openfootball/europe/master/portugal/2026-27_pt1.txt"
+        },
+        "status": "finished"
+      }
+    ],
+    "provider": "OpenFootball",
+    "raw_archive_admission": {
+      "admission_sha256": "3e8cb6e1221b2afdf65192ec9357296ab0040395c31c449d482530ff9f693004",
+      "observed_before": "2026-09-15T21:42:50.038371+00:00",
+      "parser_contract_sha256": "51cf163b2ba26f9eedc3d6953257342c3a6374ca3e9f6804f8bb8ded541a7c31",
+      "policy_version": "v260",
+      "row_count": 2916,
+      "rows_sha256": "527cacb7d08cc49f0cda52293001630dd6ed3a53df63b4082a3518daf8e9b3f5",
+      "schema_version": "matchline.openfootball_raw_admission.v1",
+      "selected_records": [
+        {
+          "raw_sha256": "8a10a8af352fbe1f298fdf948117522d08bf0d8953af109ce46e348194430aef",
+          "record_sha256": "5059b868e68384828c319c4f41d9a1793fb26037b3cfcd3c3a8d001027cffe98",
+          "retrieved_at": "2026-09-15T21:42:50.038371+00:00",
+          "source_id": "openfootball:deutschland:2026-27:1-bundesliga"
+        },
+        {
+          "raw_sha256": "623cf5bdfeb96cbb2b058e113ba17f800b789f72caefd4800ebb422a7c15a6d1",
+          "record_sha256": "30a16439e37c19e032458a23691aea3e47cebadf0111e923eba8d8f7648dff99",
+          "retrieved_at": "2026-09-15T21:42:50.038371+00:00",
+          "source_id": "openfootball:espana:2026-27:1-liga"
+        },
+        {
+          "raw_sha256": "16fafb2278e99bf41f9aa6753e9e8ae19f8eb2702151fe1379ad07fc4abe41f3",
+          "record_sha256": "b8228f80b80d1ba4c62bf642168f221eea1d12382d2aa7efb99521dca292f020",
+          "retrieved_at": "2026-09-15T21:42:50.038371+00:00",
+          "source_id": "openfootball:europe:france:2026-27-fr1"
+        },
+        {
+          "raw_sha256": "99884bc3bd1fec6ed69d03a613eb739f14426fe2ddaec83ea5fd10224a196513",
+          "record_sha256": "e99e7bb5162ddd77c822da3f8946e46f40b3dad19b4cd0e6158ad62ecae789c7",
+          "retrieved_at": "2026-09-15T21:42:50.038371+00:00",
+          "source_id": "openfootball:europe:netherlands:2026-27-nl1"
+        },
+        {
+          "raw_sha256": "eeaf54cf2737fd32b92b7ccc6d37f643702c1c091f1dd93be7b2cacd6582f188",
+          "record_sha256": "c620089eb399ac54c758d338a61a32279c49ab3035442d7ab6e481507b07341f",
+          "retrieved_at": "2026-09-15T21:42:50.038371+00:00",
+          "source_id": "openfootball:europe:portugal:2026-27-pt1"
+        },
+        {
+          "raw_sha256": "1feef8cdd2e7c3aeadbe05154083ec3f87cb1f8c90af6cd26b0d63f5711c9380",
+          "record_sha256": "d0ccf1631f27f225c5529309d1aa7219b1c755ff5b15b527ac17387e80fa9385",
+          "retrieved_at": "2026-09-15T21:42:50.038371+00:00",
+          "source_id": "openfootball:football.json:2026-27:en.1"
+        },
+        {
+          "raw_sha256": "826a5bf648a4fe10d99bd7b03c96134f50658411e9cb973c9cfcc2753fdcedda",
+          "record_sha256": "5a25bb91e811892364336aebd44c4e1ced1de97d7dc5e4629ffc644d0ebfd882",
+          "retrieved_at": "2026-09-15T21:42:50.038371+00:00",
+          "source_id": "openfootball:football.json:2026-27:en.2"
+        },
+        {
+          "raw_sha256": "bf4142f96c92bde7e0dacd8cb59fa071edce6b89ce3e7dd3b8ab51f40b9248ca",
+          "record_sha256": "bc77f383824aa834c3e68fa5aa1da8575d56b1d76b06f32c6b1b8d3a55e6a051",
+          "retrieved_at": "2026-09-15T21:42:50.038371+00:00",
+          "source_id": "openfootball:italy:2026-27:1-seriea"
+        }
+      ],
+      "source_ids": [
+        "openfootball:deutschland:2026-27:1-bundesliga",
+        "openfootball:espana:2026-27:1-liga",
+        "openfootball:europe:france:2026-27-fr1",
+        "openfootball:europe:netherlands:2026-27-nl1",
+        "openfootball:europe:portugal:2026-27-pt1",
+        "openfootball:football.json:2026-27:en.1",
+        "openfootball:football.json:2026-27:en.2",
+        "openfootball:italy:2026-27:1-seriea"
+      ],
+      "source_manifest_sha256": "97c98b0ff4a2b74835d549290f9110cd628061a6694822f7d9949539cd261958",
+      "status": "verified_current_raw"
+    },
+    "retrieved_at": "2026-09-15T21:42:50.038371+00:00",
+    "source_contract": {
+      "admission_status": "verified_current_raw",
+      "fact_source": "OpenFootball",
+      "license": "CC0-1.0",
+      "rights": {
+        "access_allowed": true,
+        "attribution_required": false,
+        "commercial_reuse_verified": true,
+        "decision": "allow",
+        "ignored_inputs": [],
+        "license_url": "https://github.com/openfootball/football.json/blob/master/LICENSE.md",
+        "model_eligible": true,
+        "network_opened": false,
+        "policy_version": "v260",
+        "reason": "OpenFootball CC0 is verified for every v260 use case.",
+        "rights_status": "verified_cc0",
+        "share_alike_required": false,
+        "source_id": "openfootball_current",
+        "terms_url": null,
+        "use_case": "network_fetch"
+      },
+      "source_ids": [
+        "openfootball:deutschland:2026-27:1-bundesliga",
+        "openfootball:espana:2026-27:1-liga",
+        "openfootball:europe:france:2026-27-fr1",
+        "openfootball:europe:netherlands:2026-27-nl1",
+        "openfootball:europe:portugal:2026-27-pt1",
+        "openfootball:football.json:2026-27:en.1",
+        "openfootball:football.json:2026-27:en.2",
+        "openfootball:italy:2026-27:1-seriea"
+      ]
+    },
+    "status": "ok"
+  },
+  "openligadb": {
+    "errors": [],
+    "matches": [
+      {
+        "away_provider_team_id": "16",
+        "away_team": "VfB Stuttgart",
+        "competition_id": "bundesliga",
+        "display_lane": "isolated_current_only",
+        "enters_model": false,
+        "goals": [
+          {
+            "away_score": 0,
+            "comment": null,
+            "home_score": 1,
+            "minute": 21,
+            "overtime": false,
+            "own_goal": false,
+            "penalty": false,
+            "provider_goal_id": "146249",
+            "provider_scorer_id": "19198",
+            "provider_scoring_team_id": "40",
+            "scorer": "D. Upamecano"
+          },
+          {
+            "away_score": 1,
+            "comment": null,
+            "home_score": 1,
+            "minute": 52,
+            "overtime": false,
+            "own_goal": false,
+            "penalty": false,
+            "provider_goal_id": "146252",
+            "provider_scorer_id": "18488",
+            "provider_scoring_team_id": "16",
+            "scorer": "J. Vagnoman"
+          },
+          {
+            "away_score": 1,
+            "comment": null,
+            "home_score": 2,
+            "minute": 55,
+            "overtime": false,
+            "own_goal": false,
+            "penalty": false,
+            "provider_goal_id": "146253",
+            "provider_scorer_id": "23135",
+            "provider_scoring_team_id": "40",
+            "scorer": "M. Olise"
+          },
+          {
+            "away_score": 1,
+            "comment": null,
+            "home_score": 3,
+            "minute": 57,
+            "overtime": false,
+            "own_goal": true,
+            "penalty": false,
+            "provider_goal_id": "146254",
+            "provider_scorer_id": "18488",
+            "provider_scoring_team_id": "40",
+            "scorer": "J. Vagnoman"
+          },
+          {
+            "away_score": 1,
+            "comment": null,
+            "home_score": 4,
+            "minute": 82,
+            "overtime": false,
+            "own_goal": false,
+            "penalty": false,
+            "provider_goal_id": "146257",
+            "provider_scorer_id": "24759",
+            "provider_scoring_team_id": "40",
+            "scorer": "Aleksandar Pavlovic"
+          },
+          {
+            "away_score": 1,
+            "comment": null,
+            "home_score": 5,
+            "minute": 92,
+            "overtime": true,
+            "own_goal": false,
+            "penalty": false,
+            "provider_goal_id": "146259",
+            "provider_scorer_id": "18880",
+            "provider_scoring_team_id": "40",
+            "scorer": "Luis Díaz"
+          }
+        ],
+        "halftime_score": {
+          "away": 0,
+          "home": 1
+        },
+        "home_provider_team_id": "40",
+        "home_team": "FC Bayern München",
+        "id": "openligadb:83156",
+        "kickoff_at": "2026-08-28T18:30:00+00:00",
+        "model_eligible": false,
+        "provider_match_id": "83156",
+        "provider_updated_at": null,
+        "redistribution_allowed": false,
+        "score": {
+          "away": 1,
+          "home": 5
+        },
+        "season": "2026",
+        "source": {
+          "attribution_required": true,
+          "license": "ODbL-1.0",
+          "license_url": "https://www.openligadb.de/lizenz",
+          "name": "OpenLigaDB",
+          "raw_sha256": "1d64d3f9473abf28dfc0db3f3e6a9f2257562982580774eefa32e10768156508",
+          "retrieved_at": "2026-09-15T21:42:50.038371+00:00",
+          "share_alike_required": true,
+          "source_kind": "community_fixture_and_result",
+          "url": "https://api.openligadb.de/getmatchdata/bl1/2026"
+        },
+        "status": "finished",
+        "training_eligible": false,
+        "venue": null
+      },
+      {
+        "away_provider_team_id": "87",
+        "away_team": "Borussia Mönchengladbach",
+        "competition_id": "bundesliga",
+        "display_lane": "isolated_current_only",
+        "enters_model": false,
+        "goals": [
+          {
+            "away_score": 0,
+            "comment": null,
+            "home_score": 1,
+            "minute": 26,
+            "overtime": false,
+            "own_goal": false,
+            "penalty": false,
+            "provider_goal_id": "146327",
+            "provider_scorer_id": "18516",
+            "provider_scoring_team_id": "1635",
+            "scorer": "R. Baku"
+          },
+          {
+            "away_score": 0,
+            "comment": null,
+            "home_score": 2,
+            "minute": 49,
+            "overtime": false,
+            "own_goal": false,
+            "penalty": false,
+            "provider_goal_id": "146331",
+            "provider_scorer_id": "22891",
+            "provider_scoring_team_id": "1635",
+            "scorer": "A. Nusa"
+          },
+          {
+            "away_score": 0,
+            "comment": null,
+            "home_score": 3,
+            "minute": 66,
+            "overtime": false,
+            "own_goal": false,
+            "penalty": false,
+            "provider_goal_id": "146334",
+            "provider_scorer_id": "20828",
+            "provider_scoring_team_id": "1635",
+            "scorer": "R. Reitz"
+          }
+        ],
+        "halftime_score": {
+          "away": 0,
+          "home": 1
+        },
+        "home_provider_team_id": "1635",
+        "home_team": "RB Leipzig",
+        "id": "openligadb:83158",
+        "kickoff_at": "2026-08-29T13:30:00+00:00",
+        "model_eligible": false,
+        "provider_match_id": "83158",
+        "provider_updated_at": null,
+        "redistribution_allowed": false,
+        "score": {
+          "away": 0,
+          "home": 3
+        },
+        "season": "2026",
+        "source": {
+          "attribution_required": true,
+          "license": "ODbL-1.0",
+          "license_url": "https://www.openligadb.de/lizenz",
+          "name": "OpenLigaDB",
+          "raw_sha256": "1d64d3f9473abf28dfc0db3f3e6a9f2257562982580774eefa32e10768156508",
+          "retrieved_at": "2026-09-15T21:42:50.038371+00:00",
+          "share_alike_required": true,
+          "source_kind": "community_fixture_and_result",
+          "url": "https://api.openligadb.de/getmatchdata/bl1/2026"
+        },
+        "status": "finished",
+        "training_eligible": false,
+        "venue": null
+      },
+      {
+        "away_provider_team_id": "31",
+        "away_team": "SC Paderborn 07",
+        "competition_id": "bundesliga",
+        "display_lane": "isolated_current_only",
+        "enters_model": false,
+        "goals": [],
+        "halftime_score": {
+          "away": 0,
+          "home": 0
+        },
+        "home_provider_team_id": "81",
+        "home_team": "1. FSV Mainz 05",
+        "id": "openligadb:83161",
+        "kickoff_at": "2026-08-29T13:30:00+00:00",
+        "model_eligible": false,
+        "provider_match_id": "83161",
+        "provider_updated_at": null,
+        "redistribution_allowed": false,
+        "score": {
+          "away": 0,
+          "home": 0
+        },
+        "season": "2026",
+        "source": {
+          "attribution_required": true,
+          "license": "ODbL-1.0",
+          "license_url": "https://www.openligadb.de/lizenz",
+          "name": "OpenLigaDB",
+          "raw_sha256": "1d64d3f9473abf28dfc0db3f3e6a9f2257562982580774eefa32e10768156508",
+          "retrieved_at": "2026-09-15T21:42:50.038371+00:00",
+          "share_alike_required": true,
+          "source_kind": "community_fixture_and_result",
+          "url": "https://api.openligadb.de/getmatchdata/bl1/2026"
+        },
+        "status": "finished",
+        "training_eligible": false,
+        "venue": null
+      },
+      {
+        "away_provider_team_id": "91",
+        "away_team": "Eintracht Frankfurt",
+        "competition_id": "bundesliga",
+        "display_lane": "isolated_current_only",
+        "enters_model": false,
+        "goals": [
+          {
+            "away_score": 0,
+            "comment": null,
+            "home_score": 1,
+            "minute": 3,
+            "overtime": false,
+            "own_goal": false,
+            "penalty": false,
+            "provider_goal_id": "146319",
+            "provider_scorer_id": "27262",
+            "provider_scoring_team_id": "80",
+            "scorer": "Emmanuel Latte Lath"
+          },
+          {
+            "away_score": 1,
+            "comment": null,
+            "home_score": 1,
+            "minute": 10,
+            "overtime": false,
+            "own_goal": false,
+            "penalty": false,
+            "provider_goal_id": "146322",
+            "provider_scorer_id": "23685",
+            "provider_scoring_team_id": "91",
+            "scorer": "Younes Ebnoutalib"
+          },
+          {
+            "away_score": 2,
+            "comment": null,
+            "home_score": 1,
+            "minute": 11,
+            "overtime": false,
+            "own_goal": false,
+            "penalty": false,
+            "provider_goal_id": "146323",
+            "provider_scorer_id": "23685",
+            "provider_scoring_team_id": "91",
+            "scorer": "Younes Ebnoutalib"
+          },
+          {
+            "away_score": 3,
+            "comment": null,
+            "home_score": 1,
+            "minute": 67,
+            "overtime": false,
+            "own_goal": false,
+            "penalty": false,
+            "provider_goal_id": "146336",
+            "provider_scorer_id": "23685",
+            "provider_scoring_team_id": "91",
+            "scorer": "Younes Ebnoutalib"
+          },
+          {
+            "away_score": 3,
+            "comment": null,
+            "home_score": 2,
+            "minute": 79,
+            "overtime": false,
+            "own_goal": false,
+            "penalty": false,
+            "provider_goal_id": "146340",
+            "provider_scorer_id": "23572",
+            "provider_scoring_team_id": "80",
+            "scorer": "L. Querfeld"
+          },
+          {
+            "away_score": 3,
+            "comment": null,
+            "home_score": 3,
+            "minute": 92,
+            "overtime": true,
+            "own_goal": false,
+            "penalty": false,
+            "provider_goal_id": "146344",
+            "provider_scorer_id": "18299",
+            "provider_scoring_team_id": "80",
+            "scorer": "T. Skarke"
+          }
+        ],
+        "halftime_score": {
+          "away": 2,
+          "home": 1
+        },
+        "home_provider_team_id": "80",
+        "home_team": "1. FC Union Berlin",
+        "id": "openligadb:83162",
+        "kickoff_at": "2026-08-29T13:30:00+00:00",
+        "model_eligible": false,
+        "provider_match_id": "83162",
+        "provider_updated_at": null,
+        "redistribution_allowed": false,
+        "score": {
+          "away": 3,
+          "home": 3
+        },
+        "season": "2026",
+        "source": {
+          "attribution_required": true,
+          "license": "ODbL-1.0",
+          "license_url": "https://www.openligadb.de/lizenz",
+          "name": "OpenLigaDB",
+          "raw_sha256": "1d64d3f9473abf28dfc0db3f3e6a9f2257562982580774eefa32e10768156508",
+          "retrieved_at": "2026-09-15T21:42:50.038371+00:00",
+          "share_alike_required": true,
+          "source_kind": "community_fixture_and_result",
+          "url": "https://api.openligadb.de/getmatchdata/bl1/2026"
+        },
+        "status": "finished",
+        "training_eligible": false,
+        "venue": null
+      }
+    ],
+    "provider": "OpenLigaDB",
+    "retrieved_at": "2026-09-15T21:42:50.038371+00:00",
+    "status": "ok"
+  },
+  "schema_version": "1.0.0",
+  "source_registry": [
+    {
+      "access_policy": "public_https_no_redirect_no_proxy",
+      "adapter": "league_platform.live_sources.sports_lottery",
+      "github_reference": "wc_analysis/scrape_sporttery.py parser and multi-market shape only",
+      "hosts": [
+        "webapi.sporttery.cn"
+      ],
+      "id": "sports_lottery_official",
+      "model_policy": "eligible_for_purchase_odds_baseline_after_strict_join",
+      "name": "中国体育彩票公开赛程与赔率",
+      "polling": {
+        "near_kickoff_minutes": 5,
+        "normal_minutes": 30
+      },
+      "runtime": {
+        "checked_at": "2026-09-15T21:42:50.038371+00:00",
+        "error_count": 0,
+        "errors": [],
+        "fresh_record_count": 0,
+        "network_opened": false,
+        "record_count": 0,
+        "retrieved_at": null,
+        "rights_status": "blocked_rights_not_verified",
+        "stale_record_count": 0,
+        "status": "rights_blocked",
+        "terms_url": null
+      },
+      "source_tier": "official",
+      "status": "enabled"
+    },
+    {
+      "access_policy": "fixed_cc0_urls_https_no_redirect_bounded_parallelism",
+      "adapter": "league_platform.live_sources.openfootball_live",
+      "attribution_required": false,
+      "github_reference": "Six fixed 2026-27 OpenFootball JSON/TXT source URLs; date-only rows remain quarantined",
+      "hosts": [
+        "raw.githubusercontent.com"
+      ],
+      "id": "openfootball_current",
+      "license": "CC0-1.0",
+      "license_url": "https://github.com/openfootball/football.json/blob/master/LICENSE.md",
+      "model_policy": "eligible_for_fixture_identity_and_causal_results_with_exact_kickoff_only",
+      "name": "OpenFootball 当前赛程与赛果",
+      "polling": {
+        "near_kickoff_minutes": 10,
+        "normal_minutes": 30
+      },
+      "runtime": {
+        "error_count": 0,
+        "errors": [],
+        "fresh_record_count": 1257,
+        "record_count": 1257,
+        "retrieved_at": "2026-09-15T21:42:50.038371+00:00",
+        "stale_record_count": 0,
+        "status": "fresh"
+      },
+      "source_tier": "open_data_provider",
+      "status": "enabled"
+    },
+    {
+      "access_policy": "official_public_frontend_api_https_no_redirect_bounded_reads",
+      "adapter": "league_platform.live_sources.cfl_official",
+      "commercial_reuse_verified": false,
+      "github_reference": "None; first-party CFL web interface discovered and independently contract-tested",
+      "hosts": [
+        "api.cfl-china.cn"
+      ],
+      "id": "cfl_official_current",
+      "license": "not_published",
+      "model_policy": "eligible_for_fixture_identity_and_causal_results_under_project_public_fact_policy; commercial_reuse_gate_remains_blocked",
+      "name": "中足联官方中超当前赛程与赛果",
+      "official_page_url": "https://www.cfl-china.cn/zh/fixtures/list.html?competition_code=CSL",
+      "polling": {
+        "near_kickoff_minutes": 10,
+        "normal_minutes": 30
+      },
+      "rights_status": "public_first_party_access_reuse_terms_unverified",
+      "runtime": {
+        "checked_at": "2026-09-15T21:42:50.038371+00:00",
+        "error_count": 0,
+        "errors": [],
+        "fresh_record_count": 0,
+        "network_opened": false,
+        "record_count": 0,
+        "retrieved_at": null,
+        "rights_status": "blocked_rights_not_verified",
+        "stale_record_count": 0,
+        "status": "rights_blocked",
+        "terms_url": null
+      },
+      "source_tier": "official_first_party_public_interface",
+      "status": "enabled"
+    },
+    {
+      "access_policy": "provider_terms_block_unlicensed_automated_access_and_commercial_use",
+      "adapter": "league_platform.live_sources.espn",
+      "github_reference": "Legacy parser and archives are retained only for authorized fixtures and audit replay",
+      "hosts": [
+        "site.api.espn.com",
+        "site.web.api.espn.com"
+      ],
+      "id": "espn_schedule_summary",
+      "model_policy": "never_fetch_or_publish_without_express_written_permission",
+      "name": "ESPN 赛程、赛果与事件摘要",
+      "polling": {
+        "near_kickoff_minutes": 0,
+        "normal_minutes": 0
+      },
+      "runtime": {
+        "checked_at": "2026-09-15T21:42:50.038371+00:00",
+        "error_count": 0,
+        "errors": [],
+        "fresh_record_count": 0,
+        "network_opened": false,
+        "record_count": 0,
+        "retrieved_at": null,
+        "rights_status": "blocked_pending_express_written_permission",
+        "stale_record_count": 0,
+        "status": "rights_blocked",
+        "terms_url": null
+      },
+      "source_tier": "public_provider",
+      "status": "forbidden",
+      "terms_url": "https://disneytermsofuse.com/english/"
+    },
+    {
+      "access_policy": "provider_terms_block_unlicensed_automated_access_and_commercial_use",
+      "adapter": "league_platform.live_sources.espn_roster",
+      "github_reference": "Legacy parser retained for authorized/test fixtures only; no current polling",
+      "hosts": [
+        "site.web.api.espn.com"
+      ],
+      "id": "espn_team_rosters",
+      "model_policy": "never_fetch_or_publish_without_express_written_permission",
+      "name": "ESPN 公开球队名单",
+      "polling": {
+        "near_kickoff_minutes": 0,
+        "normal_minutes": 0
+      },
+      "runtime": {
+        "checked_at": "2026-09-15T21:42:50.038371+00:00",
+        "error_count": 0,
+        "errors": [],
+        "fresh_record_count": 0,
+        "network_opened": false,
+        "record_count": 0,
+        "retrieved_at": null,
+        "rights_status": "blocked_pending_express_written_permission",
+        "stale_record_count": 0,
+        "status": "rights_blocked",
+        "terms_url": null
+      },
+      "source_tier": "public_provider",
+      "status": "forbidden",
+      "terms_url": "https://disneytermsofuse.com/english/"
+    },
+    {
+      "access_policy": "provider_terms_block_unlicensed_automated_access_and_commercial_use",
+      "adapter": "league_platform.live_sources.espn_market",
+      "github_reference": "Legacy parser retained for authorized/test fixtures only; no current polling",
+      "hosts": [
+        "site.api.espn.com"
+      ],
+      "id": "espn_market_summary",
+      "model_policy": "never_fetch_or_publish_without_express_written_permission",
+      "name": "ESPN 事件摘要市场与名单",
+      "polling": {
+        "near_kickoff_minutes": 0,
+        "normal_minutes": 0
+      },
+      "runtime": {
+        "checked_at": "2026-09-15T21:42:50.038371+00:00",
+        "error_count": 0,
+        "errors": [],
+        "fresh_record_count": 0,
+        "network_opened": false,
+        "record_count": 0,
+        "retrieved_at": null,
+        "rights_status": "blocked_pending_express_written_permission",
+        "stale_record_count": 0,
+        "status": "rights_blocked",
+        "terms_url": null
+      },
+      "source_tier": "public_provider",
+      "status": "forbidden",
+      "terms_url": "https://disneytermsofuse.com/english/"
+    },
+    {
+      "access_policy": "provider_terms_block_unlicensed_automated_access_and_commercial_use",
+      "adapter": "league_platform.live_sources.espn_injuries",
+      "github_reference": "Parser retained for authorized/test fixtures only; endpoint accessibility is not an access license",
+      "hosts": [
+        "site.api.espn.com",
+        "site.web.api.espn.com"
+      ],
+      "id": "espn_injury_reports",
+      "model_policy": "never_fetch_or_publish_without_express_written_permission",
+      "name": "ESPN 公开联盟伤停报告",
+      "polling": {
+        "near_kickoff_minutes": 5,
+        "normal_minutes": 30
+      },
+      "runtime": {
+        "access_allowed": false,
+        "authorization_required": null,
+        "checked_at": "2026-09-15T21:42:50.038371+00:00",
+        "coverage_semantics": "missing_team_bucket_is_unknown_not_healthy",
+        "error_count": 0,
+        "errors": [],
+        "healthy_team_count": null,
+        "network_opened": false,
+        "observed_competition_count": 0,
+        "observed_empty_competition_count": 0,
+        "record_count": 0,
+        "reported_player_count": 0,
+        "retrieved_at": null,
+        "rights_status": "blocked_pending_express_written_permission",
+        "status": "rights_blocked",
+        "terms_url": null
+      },
+      "source_tier": "public_provider",
+      "status": "forbidden",
+      "terms_url": "https://disneytermsofuse.com/english/"
+    },
+    {
+      "access_policy": "public_https_bounded_requests",
+      "adapter": "league_platform.live_sources.understat",
+      "github_reference": "project README source catalog; no hard-coded xG defaults adopted",
+      "hosts": [
+        "understat.com"
+      ],
+      "id": "understat_xg",
+      "model_policy": "eligible_when_observed_before_freeze",
+      "name": "Understat 近期 xG 与球队状态",
+      "polling": {
+        "near_kickoff_minutes": 60,
+        "normal_minutes": 360
+      },
+      "runtime": {
+        "checked_at": "2026-09-15T21:42:50.038371+00:00",
+        "error_count": 0,
+        "errors": [],
+        "fresh_record_count": 0,
+        "network_opened": false,
+        "record_count": 0,
+        "retrieved_at": null,
+        "rights_status": "blocked_rights_not_verified",
+        "stale_record_count": 0,
+        "status": "rights_blocked",
+        "terms_url": null
+      },
+      "source_tier": "public_provider",
+      "status": "enabled"
+    },
+    {
+      "access_policy": "public_https_strict_fixture_join",
+      "adapter": "league_platform.live_sources.{premier_league,laliga,bundesliga,seriea,ligue1}",
+      "github_reference": "project lineup/source separation retained; official feeds supersede generic pages; Ligue 1 API is the public interface referenced by the official web client",
+      "hosts": [
+        "premierleague.com",
+        "laliga.com",
+        "bundesliga.com",
+        "api-sdp.legaseriea.it",
+        "ma-api.ligue1.fr"
+      ],
+      "id": "official_league_lineups",
+      "model_policy": "eligible_only_complete_pre_kickoff_xi",
+      "name": "英超/西甲/德甲/意甲/法甲官方比赛中心与首发",
+      "polling": {
+        "near_kickoff_minutes": 2,
+        "normal_minutes": 30
+      },
+      "runtime": {
+        "available_count": 0,
+        "confirmed_count": 0,
+        "error_count": 0,
+        "errors": [],
+        "fixture_count": 0,
+        "model_eligible_count": 0,
+        "not_published_count": 0,
+        "record_count": 0,
+        "retrieved_at": null,
+        "status": "unavailable"
+      },
+      "source_tier": "official",
+      "status": "enabled"
+    },
+    {
+      "access_policy": "public_https_bounded_no_redirect",
+      "adapter": "league_platform.live_sources.laliga",
+      "github_reference": "LaLiga public-service match directory discovers exact official match pages; it never infers a lineup",
+      "hosts": [
+        "apim.laliga.com"
+      ],
+      "id": "laliga_official_match_directory",
+      "model_policy": "eligible_for_fixture_identity_and_official_page_discovery_no_lineup_inference",
+      "name": "西甲官方公开比赛目录",
+      "polling": {
+        "near_kickoff_minutes": 2,
+        "normal_minutes": 30
+      },
+      "runtime": {
+        "error_count": 1,
+        "errors": [
+          {
+            "error": "match_directory_diagnostic_missing"
+          }
+        ],
+        "match_discovery": {
+          "matched_count": 0,
+          "page_count": 0,
+          "records_seen": 0,
+          "status": "unavailable",
+          "truncated": null
+        },
+        "record_count": 0,
+        "retrieved_at": null,
+        "status": "unavailable"
+      },
+      "source_tier": "official",
+      "status": "enabled"
+    },
+    {
+      "access_policy": "public_https_bounded_requests",
+      "adapter": "league_platform.live_sources.sofascore",
+      "github_reference": "project README source catalog; provider-reported fields remain non-authoritative",
+      "hosts": [
+        "api.sofascore.com"
+      ],
+      "id": "sofascore_prematch",
+      "model_policy": "eligible_only_high_confidence_provider_facts",
+      "name": "SofaScore 赛前事件、伤停与阵容线索",
+      "polling": {
+        "near_kickoff_minutes": 5,
+        "normal_minutes": 30
+      },
+      "runtime": {
+        "checked_at": "2026-09-15T21:42:50.038371+00:00",
+        "error_count": 0,
+        "errors": [],
+        "fresh_record_count": 0,
+        "network_opened": false,
+        "record_count": 0,
+        "retrieved_at": null,
+        "rights_status": "blocked_rights_not_verified",
+        "stale_record_count": 0,
+        "status": "rights_blocked",
+        "terms_url": null
+      },
+      "source_tier": "public_provider",
+      "status": "enabled"
+    },
+    {
+      "access_policy": "public_https_rss_only",
+      "adapter": "league_platform.live_sources.news",
+      "github_reference": "project README RSS/Google News catalog; sentiment is not model input",
+      "hosts": [
+        "feeds.bbci.co.uk",
+        "www.skysports.com",
+        "news.google.com"
+      ],
+      "id": "public_rss_news",
+      "model_policy": "display_and_structured_fact_after_verification",
+      "name": "BBC/Sky/Google News RSS 事实线索",
+      "polling": {
+        "near_kickoff_minutes": 10,
+        "normal_minutes": 30
+      },
+      "runtime": {
+        "checked_at": "2026-09-15T21:42:50.038371+00:00",
+        "error_count": 0,
+        "errors": [],
+        "fresh_record_count": 0,
+        "network_opened": false,
+        "record_count": 0,
+        "retrieved_at": null,
+        "rights_status": "blocked_rights_not_verified",
+        "stale_record_count": 0,
+        "status": "rights_blocked",
+        "terms_url": null
+      },
+      "source_tier": "reliable_media_and_lead_source",
+      "status": "enabled"
+    },
+    {
+      "access_policy": "public_https_bounded_requests",
+      "adapter": "league_platform.live_sources.open_meteo",
+      "github_reference": "project environmental-feature idea retained with explicit venue/time join",
+      "hosts": [
+        "geocoding-api.open-meteo.com",
+        "api.open-meteo.com"
+      ],
+      "id": "open_meteo",
+      "model_policy": "eligible_when_venue_join_and_time_bound_pass",
+      "name": "Open-Meteo 天气与场地环境",
+      "polling": {
+        "near_kickoff_minutes": 30,
+        "normal_minutes": 180
+      },
+      "runtime": {
+        "checked_at": "2026-09-15T21:42:50.038371+00:00",
+        "error_count": 0,
+        "errors": [],
+        "fresh_record_count": 0,
+        "network_opened": false,
+        "record_count": 0,
+        "retrieved_at": null,
+        "rights_status": "blocked_rights_not_verified",
+        "stale_record_count": 0,
+        "status": "rights_blocked",
+        "terms_url": null
+      },
+      "source_tier": "public_provider",
+      "status": "enabled"
+    },
+    {
+      "access_policy": "public_https_identified_cached_bounded_requests",
+      "adapter": "league_platform.live_sources.wikidata",
+      "attribution_required": false,
+      "github_reference": "Wikibase API entity search and claims; ambiguous joins remain quarantined",
+      "hosts": [
+        "www.wikidata.org"
+      ],
+      "id": "wikidata_entities",
+      "license": "CC0-1.0",
+      "license_url": "https://www.wikidata.org/wiki/Wikidata:Licensing",
+      "model_policy": "eligible_only_exact_team_preferred_venue_coordinate_chain",
+      "name": "Wikidata 结构化球队与场馆实体",
+      "polling": {
+        "near_kickoff_minutes": 60,
+        "normal_minutes": 360
+      },
+      "runtime": {
+        "error_count": 2,
+        "errors": [
+          {
+            "count": 1,
+            "reason": "team_entity_ambiguous"
+          },
+          {
+            "count": 1,
+            "reason": "wikidata_request_budget_exhausted"
+          }
+        ],
+        "fresh_record_count": 5,
+        "record_count": 5,
+        "retrieved_at": "2026-09-15T21:42:50.038371+00:00",
+        "stale_record_count": 0,
+        "status": "degraded"
+      },
+      "source_tier": "open_structured_data_cc0",
+      "status": "enabled"
+    },
+    {
+      "access_policy": "public_https_identified_cached_bounded_requests",
+      "adapter": "league_platform.live_sources.met_norway",
+      "attribution_required": true,
+      "github_reference": "official MET Norway global Locationforecast; requires identifying User-Agent, caching, rate limits and attribution",
+      "hosts": [
+        "api.met.no"
+      ],
+      "id": "met_norway_weather",
+      "license": "CC-BY-4.0",
+      "license_url": "https://creativecommons.org/licenses/by/4.0/",
+      "model_policy": "eligible_only_with_exact_coordinates_and_time_bound",
+      "name": "MET Norway Locationforecast 天气",
+      "polling": {
+        "near_kickoff_minutes": 30,
+        "normal_minutes": 180
+      },
+      "runtime": {
+        "error_count": 79,
+        "errors": [
+          {
+            "count": 63,
+            "reason": "venue_coordinates_missing"
+          },
+          {
+            "count": 16,
+            "reason": "additional_errors_omitted"
+          }
+        ],
+        "fresh_record_count": 5,
+        "record_count": 5,
+        "retrieved_at": "2026-09-15T21:42:50.038371+00:00",
+        "stale_record_count": 0,
+        "status": "degraded"
+      },
+      "source_tier": "public_weather_cc_by",
+      "status": "enabled",
+      "terms_url": "https://api.met.no/doc/TermsOfService"
+    },
+    {
+      "access_policy": "provider_terms_forbid_automated_scraping_mirroring_redistribution_and_resale",
+      "adapter": "league_platform.live_sources.oddstorm",
+      "github_reference": "Parser retained for authorized fixtures only; public visibility is not permission to automate or redistribute",
+      "hosts": [
+        "www.oddstorm.com"
+      ],
+      "id": "oddstorm_market_comparison",
+      "model_policy": "never_fetch_or_publish_without_express_written_permission",
+      "name": "OddStorm 市场对照（授权阻断）",
+      "polling": {
+        "near_kickoff_minutes": 0,
+        "normal_minutes": 0
+      },
+      "rights_status": "blocked_pending_express_written_permission",
+      "runtime": {
+        "checked_at": "2026-09-15T21:42:50.038371+00:00",
+        "error_count": 0,
+        "errors": [],
+        "fresh_record_count": 0,
+        "network_opened": false,
+        "record_count": 0,
+        "retrieved_at": null,
+        "rights_status": "blocked_pending_express_written_permission",
+        "stale_record_count": 0,
+        "status": "rights_blocked",
+        "terms_url": "https://www.oddstorm.com/terms"
+      },
+      "source_tier": "independent_market_comparison",
+      "status": "forbidden",
+      "terms_reviewed_at": "2026-08-24",
+      "terms_url": "https://www.oddstorm.com/terms"
+    },
+    {
+      "access_policy": "public_https_bounded_requests",
+      "adapter": "league_platform.live_sources.openligadb",
+      "attribution_required": true,
+      "github_reference": "project historical-result catalog; never replaces canonical fixture identity",
+      "hosts": [
+        "api.openligadb.de"
+      ],
+      "id": "openligadb_secondary_results",
+      "license": "ODbL-1.0",
+      "license_url": "https://www.openligadb.de/lizenz",
+      "model_policy": "result_enrichment_only_after_exact_join",
+      "name": "OpenLigaDB 赛果二次核验",
+      "polling": {
+        "near_kickoff_minutes": 10,
+        "normal_minutes": 60
+      },
+      "runtime": {
+        "error_count": 0,
+        "errors": [],
+        "fresh_record_count": 306,
+        "record_count": 306,
+        "retrieved_at": "2026-09-15T21:42:50.038371+00:00",
+        "stale_record_count": 0,
+        "status": "fresh"
+      },
+      "share_alike_database_obligation": true,
+      "source_tier": "public_secondary_result",
+      "status": "enabled"
+    },
+    {
+      "access_policy": "public_https_csv_training_only",
+      "adapter": "league_platform.data_manifest",
+      "github_reference": "project league_platform/data_manifest.json; historical rows never become future observations",
+      "hosts": [
+        "www.football-data.co.uk"
+      ],
+      "id": "football_data_historical",
+      "model_policy": "training_and_backtest_only_never_current_pre_match",
+      "name": "Football-Data.co.uk 历史赛果与赔率 CSV",
+      "polling": {
+        "near_kickoff_minutes": 0,
+        "normal_minutes": 1440
+      },
+      "runtime": {
+        "error_count": 0,
+        "errors": [],
+        "record_count": 0,
+        "retrieved_at": null,
+        "status": "training_only"
+      },
+      "source_tier": "public_historical_archive",
+      "status": "enabled"
+    },
+    {
+      "access_policy": "public_https_current_probe_403",
+      "adapter": "league_platform.live_sources.crawl4ai",
+      "github_reference": "soccerdata/fbref.py and wc_analysis/fetch_fbref_form.py; current page probe returned 403",
+      "hosts": [
+        "fbref.com"
+      ],
+      "id": "fbref_public_stats",
+      "model_policy": "display_only_until_access_and_parser_are_verified",
+      "name": "FBref 公共球队与球员统计",
+      "polling": {
+        "near_kickoff_minutes": 0,
+        "normal_minutes": 0
+      },
+      "runtime": {
+        "error_count": 0,
+        "errors": [],
+        "record_count": 0,
+        "retrieved_at": null,
+        "status": "quarantined"
+      },
+      "source_tier": "public_stats_candidate",
+      "status": "quarantined"
+    },
+    {
+      "access_policy": "explicit_path_robots_allowlist_required",
+      "adapter": "league_platform.live_sources.crawl4ai",
+      "github_reference": "soccerdata/whoscored.py; only robots-allowed paths may be considered",
+      "hosts": [
+        "www.whoscored.com"
+      ],
+      "id": "whoscored_public_pages",
+      "model_policy": "display_only_until_source_parser_terms_and_entity_time_gates_pass",
+      "name": "WhoScored 公开比赛预览页",
+      "polling": {
+        "near_kickoff_minutes": 0,
+        "normal_minutes": 0
+      },
+      "runtime": {
+        "checked_at": "2026-09-15T21:42:50.038371+00:00",
+        "error_count": 0,
+        "errors": [],
+        "extracted_record_count": 0,
+        "fresh_record_count": 0,
+        "model_eligible_count": 0,
+        "network_opened": false,
+        "page_summaries": [],
+        "record_count": 0,
+        "retrieved_at": null,
+        "rights_status": null,
+        "stale_record_count": 0,
+        "status": "rights_blocked",
+        "terms_url": null,
+        "tls_runtime": {
+          "reason": "snapshot has no Crawl4AI TLS launch-argument attestation",
+          "status": "unverified"
+        }
+      },
+      "source_tier": "public_page_candidate",
+      "status": "opt_in"
+    },
+    {
+      "access_policy": "explicit_path_robots_allowlist_required",
+      "adapter": "league_platform.live_sources.crawl4ai",
+      "github_reference": "official public match pages are captured by Crawl4AI only after explicit robots/path checks",
+      "hosts": [
+        "www.premierleague.com"
+      ],
+      "id": "premier_league_public_pages",
+      "model_policy": "display_only_until_source_parser_terms_and_entity_time_gates_pass",
+      "name": "英超官方公开比赛页",
+      "polling": {
+        "near_kickoff_minutes": 10,
+        "normal_minutes": 60
+      },
+      "runtime": {
+        "checked_at": "2026-09-15T21:42:50.038371+00:00",
+        "error_count": 0,
+        "errors": [],
+        "extracted_record_count": 0,
+        "fresh_record_count": 0,
+        "model_eligible_count": 0,
+        "network_opened": false,
+        "page_summaries": [],
+        "record_count": 0,
+        "retrieved_at": null,
+        "rights_status": null,
+        "stale_record_count": 0,
+        "status": "rights_blocked",
+        "terms_url": null,
+        "tls_runtime": {
+          "reason": "snapshot has no Crawl4AI TLS launch-argument attestation",
+          "status": "unverified"
+        }
+      },
+      "source_tier": "official",
+      "status": "opt_in"
+    },
+    {
+      "access_policy": "explicit_path_robots_allowlist_required",
+      "adapter": "league_platform.live_sources.crawl4ai",
+      "github_reference": "official public match pages are captured by Crawl4AI only after explicit robots/path checks",
+      "hosts": [
+        "www.laliga.com"
+      ],
+      "id": "laliga_public_pages",
+      "model_policy": "display_only_until_source_parser_terms_and_entity_time_gates_pass",
+      "name": "西甲官方公开比赛页",
+      "polling": {
+        "near_kickoff_minutes": 10,
+        "normal_minutes": 60
+      },
+      "runtime": {
+        "checked_at": "2026-09-15T21:42:50.038371+00:00",
+        "error_count": 0,
+        "errors": [],
+        "extracted_record_count": 0,
+        "fresh_record_count": 0,
+        "model_eligible_count": 0,
+        "network_opened": false,
+        "page_summaries": [],
+        "record_count": 0,
+        "retrieved_at": null,
+        "rights_status": null,
+        "stale_record_count": 0,
+        "status": "rights_blocked",
+        "terms_url": null,
+        "tls_runtime": {
+          "reason": "snapshot has no Crawl4AI TLS launch-argument attestation",
+          "status": "unverified"
+        }
+      },
+      "source_tier": "official",
+      "status": "opt_in"
+    },
+    {
+      "access_policy": "explicit_path_robots_allowlist_required",
+      "adapter": "league_platform.live_sources.crawl4ai",
+      "github_reference": "LaLiga first-party NewsArticle JSON-LD projected by Crawl4AI; headline evidence is not a lineup or injury fact",
+      "hosts": [
+        "www.laliga.com"
+      ],
+      "id": "laliga_official_news",
+      "model_policy": "display_only_until_article_parser_fixture_or_team_join_and_time_gates_pass",
+      "name": "西甲官方公开新闻页",
+      "polling": {
+        "near_kickoff_minutes": 10,
+        "normal_minutes": 60
+      },
+      "runtime": {
+        "checked_at": "2026-09-15T21:42:50.038371+00:00",
+        "error_count": 0,
+        "errors": [],
+        "extracted_record_count": 0,
+        "fresh_record_count": 0,
+        "model_eligible_count": 0,
+        "network_opened": false,
+        "page_summaries": [],
+        "record_count": 0,
+        "retrieved_at": null,
+        "rights_status": null,
+        "stale_record_count": 0,
+        "status": "rights_blocked",
+        "terms_url": null,
+        "tls_runtime": {
+          "reason": "snapshot has no Crawl4AI TLS launch-argument attestation",
+          "status": "unverified"
+        }
+      },
+      "source_tier": "official",
+      "status": "opt_in"
+    },
+    {
+      "access_policy": "explicit_path_robots_allowlist_required",
+      "adapter": "league_platform.live_sources.crawl4ai",
+      "github_reference": "Bundesliga SportsEvent JSON-LD is captured by Crawl4AI only after explicit robots/path checks",
+      "hosts": [
+        "bundesliga.com"
+      ],
+      "id": "bundesliga_public_pages",
+      "model_policy": "display_only_until_source_parser_terms_and_entity_time_gates_pass",
+      "name": "德甲官方公开比赛页",
+      "polling": {
+        "near_kickoff_minutes": 10,
+        "normal_minutes": 60
+      },
+      "runtime": {
+        "checked_at": "2026-09-15T21:42:50.038371+00:00",
+        "error_count": 0,
+        "errors": [],
+        "extracted_record_count": 0,
+        "fresh_record_count": 0,
+        "model_eligible_count": 0,
+        "network_opened": false,
+        "page_summaries": [],
+        "record_count": 0,
+        "retrieved_at": null,
+        "rights_status": null,
+        "stale_record_count": 0,
+        "status": "rights_blocked",
+        "terms_url": null,
+        "tls_runtime": {
+          "reason": "snapshot has no Crawl4AI TLS launch-argument attestation",
+          "status": "unverified"
+        }
+      },
+      "source_tier": "official",
+      "status": "opt_in"
+    },
+    {
+      "access_policy": "explicit_path_robots_allowlist_required",
+      "adapter": "league_platform.live_sources.crawl4ai",
+      "github_reference": "Lega Serie A public match-card links captured by Crawl4AI; source records remain display-only until strict fixture/time join",
+      "hosts": [
+        "en.legaseriea.it"
+      ],
+      "id": "seriea_public_pages",
+      "model_policy": "display_only_until_source_parser_fixture_join_license_and_time_gates_pass",
+      "name": "意甲官方公开比赛页",
+      "polling": {
+        "near_kickoff_minutes": 10,
+        "normal_minutes": 60
+      },
+      "runtime": {
+        "checked_at": "2026-09-15T21:42:50.038371+00:00",
+        "error_count": 0,
+        "errors": [],
+        "extracted_record_count": 0,
+        "fresh_record_count": 0,
+        "model_eligible_count": 0,
+        "network_opened": false,
+        "page_summaries": [],
+        "record_count": 0,
+        "retrieved_at": null,
+        "rights_status": null,
+        "stale_record_count": 0,
+        "status": "rights_blocked",
+        "terms_url": null,
+        "tls_runtime": {
+          "reason": "snapshot has no Crawl4AI TLS launch-argument attestation",
+          "status": "unverified"
+        }
+      },
+      "source_tier": "official",
+      "status": "opt_in"
+    },
+    {
+      "access_policy": "explicit_path_robots_allowlist_required",
+      "adapter": "league_platform.live_sources.crawl4ai",
+      "github_reference": "Ligue 1 public news surface captured by Crawl4AI; headline evidence is not a lineup or injury fact",
+      "hosts": [
+        "ligue1.com"
+      ],
+      "id": "ligue1_official_news",
+      "model_policy": "display_only_until_article_parser_fixture_or_team_join_and_time_gates_pass",
+      "name": "法甲官方公开新闻页",
+      "polling": {
+        "near_kickoff_minutes": 10,
+        "normal_minutes": 60
+      },
+      "runtime": {
+        "checked_at": "2026-09-15T21:42:50.038371+00:00",
+        "error_count": 0,
+        "errors": [],
+        "extracted_record_count": 0,
+        "fresh_record_count": 0,
+        "model_eligible_count": 0,
+        "network_opened": false,
+        "page_summaries": [],
+        "record_count": 0,
+        "retrieved_at": null,
+        "rights_status": null,
+        "stale_record_count": 0,
+        "status": "rights_blocked",
+        "terms_url": null,
+        "tls_runtime": {
+          "reason": "snapshot has no Crawl4AI TLS launch-argument attestation",
+          "status": "unverified"
+        }
+      },
+      "source_tier": "official",
+      "status": "opt_in"
+    },
+    {
+      "access_policy": "public_https_bounded_probe_only",
+      "adapter": "league_platform.live_sources.crawl4ai",
+      "github_reference": "soccerdata/clubelo.py; current TLS probe timed out",
+      "hosts": [
+        "www.clubelo.com"
+      ],
+      "id": "clubelo_public_ratings",
+      "model_policy": "display_only_until_source_health_and_time_contract_pass",
+      "name": "ClubElo 公共评级",
+      "polling": {
+        "near_kickoff_minutes": 60,
+        "normal_minutes": 360
+      },
+      "runtime": {
+        "error_count": 0,
+        "errors": [],
+        "record_count": 0,
+        "retrieved_at": null,
+        "status": "quarantined"
+      },
+      "source_tier": "public_rating_candidate",
+      "status": "quarantined"
+    },
+    {
+      "access_policy": "robots_api_disallowed",
+      "adapter": "league_platform.live_sources.crawl4ai",
+      "github_reference": "soccerdata/sofifa.py; robots disallows /api/ and reserves AI training",
+      "hosts": [
+        "sofifa.com"
+      ],
+      "id": "sofifa_public_reference",
+      "model_policy": "forbidden_until_policy_and_model_input_rights_change",
+      "name": "SoFIFA 公共球员参考",
+      "polling": {
+        "near_kickoff_minutes": 0,
+        "normal_minutes": 0
+      },
+      "runtime": {
+        "error_count": 0,
+        "errors": [],
+        "record_count": 0,
+        "retrieved_at": null,
+        "status": "blocked_by_robots"
+      },
+      "source_tier": "public_reference_candidate",
+      "status": "blocked_by_robots"
+    },
+    {
+      "access_policy": "explicit_allowlist_robots_fail_closed_same_host_redirect",
+      "adapter": "league_platform.live_sources.crawl4ai",
+      "fact_source": false,
+      "github_reference": "project scraper architecture considered; no arbitrary-site discovery",
+      "hosts": [],
+      "id": "crawl4ai_allowlisted_pages",
+      "model_policy": "runtime_only_never_a_fact_source; page source identity is required",
+      "name": "Crawl4AI 抓取引擎（白名单网页运行时）",
+      "polling": {
+        "near_kickoff_minutes": 10,
+        "normal_minutes": 60
+      },
+      "role": "fetch_runtime",
+      "runtime": {
+        "checked_at": "2026-09-15T21:42:50.038371+00:00",
+        "error_count": 0,
+        "errors": [],
+        "execution_layer_count": 1,
+        "extracted_record_count": 0,
+        "fact_source_count": 0,
+        "fanout": {
+          "capture_engine": "Crawl4AI",
+          "declared_source_count": 0,
+          "declared_source_ids": [],
+          "pages_by_source": {},
+          "rule": "one_runtime_to_many_declared_source_ids",
+          "unidentified_page_count": 0
+        },
+        "fanout_source_count": 0,
+        "fresh_record_count": 0,
+        "model_eligible_count": 0,
+        "network_opened": false,
+        "page_summaries": [],
+        "record_count": 0,
+        "retrieved_at": null,
+        "rights_status": null,
+        "stale_record_count": 0,
+        "status": "rights_blocked",
+        "terms_url": null,
+        "tls_runtime": {
+          "reason": "snapshot has no Crawl4AI TLS launch-argument attestation",
+          "status": "unverified"
+        }
+      },
+      "source_tier": "fetch_runtime",
+      "status": "opt_in"
+    },
+    {
+      "access_policy": "public_https_bounded_requests",
+      "adapter": "league_platform.live_sources.lazq",
+      "github_reference": "project mirror/odds idea; lineage is not sufficient for model use",
+      "hosts": [
+        "api.lazq.com"
+      ],
+      "id": "lazq_public_mirror",
+      "model_policy": "display_only_not_official_not_purchase_eligible",
+      "name": "Lazq 公开镜像赔率",
+      "polling": {
+        "near_kickoff_minutes": 10,
+        "normal_minutes": 60
+      },
+      "runtime": {
+        "error_count": 0,
+        "errors": [],
+        "record_count": 0,
+        "retrieved_at": null,
+        "status": "quarantined"
+      },
+      "source_tier": "unverified_mirror",
+      "status": "quarantined"
+    },
+    {
+      "access_policy": "robots_disallowed",
+      "adapter": "league_platform.live_sources.fotmob",
+      "github_reference": "project schedule/lineup source catalog; no robots bypass",
+      "hosts": [
+        "www.fotmob.com"
+      ],
+      "id": "fotmob_public_api",
+      "model_policy": "forbidden_until_robots_policy_changes",
+      "name": "FotMob 公共 API",
+      "polling": {
+        "near_kickoff_minutes": 0,
+        "normal_minutes": 0
+      },
+      "runtime": {
+        "error_count": 0,
+        "errors": [],
+        "record_count": 0,
+        "retrieved_at": null,
+        "status": "blocked_by_robots"
+      },
+      "source_tier": "public_provider",
+      "status": "blocked_by_robots"
+    },
+    {
+      "access_policy": "would_bypass_access_controls",
+      "adapter": "external-archive:cleanup-v276-2026-08-26/legacy-entrypoints/wc_analysis/relay_sporttery.sh",
+      "github_reference": "cleanup-v276 external archive; retained only as a negative audit record",
+      "hosts": [],
+      "id": "legacy_anti_waf_relay",
+      "model_policy": "never_execute",
+      "name": "旧项目 relay_sporttery.sh / 4090 中转",
+      "polling": {
+        "near_kickoff_minutes": 0,
+        "normal_minutes": 0
+      },
+      "runtime": {
+        "error_count": 0,
+        "errors": [],
+        "record_count": 0,
+        "retrieved_at": null,
+        "status": "forbidden"
+      },
+      "source_tier": "forbidden",
+      "status": "forbidden"
+    }
+  ],
+  "source_status_summary": {
+    "bundesliga_public_pages": "rights_blocked",
+    "cfl_official_current": "rights_blocked",
+    "clubelo_public_ratings": "quarantined",
+    "crawl4ai_allowlisted_pages": "rights_blocked",
+    "espn_injury_reports": "rights_blocked",
+    "espn_market_summary": "rights_blocked",
+    "espn_schedule_summary": "rights_blocked",
+    "espn_team_rosters": "rights_blocked",
+    "fbref_public_stats": "quarantined",
+    "football_data_historical": "training_only",
+    "fotmob_public_api": "blocked_by_robots",
+    "laliga_official_match_directory": "unavailable",
+    "laliga_official_news": "rights_blocked",
+    "laliga_public_pages": "rights_blocked",
+    "lazq_public_mirror": "quarantined",
+    "legacy_anti_waf_relay": "forbidden",
+    "ligue1_official_news": "rights_blocked",
+    "met_norway_weather": "degraded",
+    "oddstorm_market_comparison": "rights_blocked",
+    "official_league_lineups": "unavailable",
+    "open_meteo": "rights_blocked",
+    "openfootball_current": "fresh",
+    "openligadb_secondary_results": "fresh",
+    "premier_league_public_pages": "rights_blocked",
+    "public_rss_news": "rights_blocked",
+    "seriea_public_pages": "rights_blocked",
+    "sofascore_prematch": "rights_blocked",
+    "sofifa_public_reference": "blocked_by_robots",
+    "sports_lottery_official": "rights_blocked",
+    "understat_xg": "rights_blocked",
+    "whoscored_public_pages": "rights_blocked",
+    "wikidata_entities": "degraded"
+  },
+  "wikidata_entities": {
+    "attribution_required": false,
+    "error_count": 2,
+    "errors": [
+      {
+        "count": 1,
+        "reason": "team_entity_ambiguous"
+      },
+      {
+        "count": 1,
+        "reason": "wikidata_request_budget_exhausted"
+      }
+    ],
+    "license": "CC0-1.0",
+    "license_url": "https://www.wikidata.org/wiki/Wikidata:Licensing",
+    "model_eligible": true,
+    "network_opened": true,
+    "provider": "Wikidata structured data",
+    "record_count": 5,
+    "request_count": 16,
+    "retrieved_at": "2026-09-15T21:42:50.038371+00:00",
+    "source_id": "wikidata_entities",
+    "status": "partial",
+    "venues": [
+      {
+        "fixture_id": "openfootball:la-liga:fba51e17d3676ba9a5cb65c6",
+        "venue": {
+          "claim_rank": "preferred",
+          "confidence": "high",
+          "latitude": 40.436111,
+          "lineage": {
+            "club_raw_sha256": "9869433ae9d39a568fe855d7ccbd6d236012f403ac7751cb3953669daf99d24c",
+            "search_raw_sha256": "c556e8bd96eb03f694fb908000a548386dd625ff7e6dc15c8889f81c4209fea5",
+            "team_name": "Club Atlético de Madrid",
+            "team_wikidata_id": "Q8701",
+            "venue_raw_sha256": "518ff4b174ceff21bb71e268d98766f278b43f819fc77d79ccdf69954592dfe0",
+            "venue_wikidata_id": "Q1369687"
+          },
+          "longitude": -3.599444,
+          "model_eligible": true,
+          "name": "Metropolitano Stadium",
+          "source": {
+            "attribution_required": false,
+            "license": "CC0-1.0",
+            "license_url": "https://www.wikidata.org/wiki/Wikidata:Licensing",
+            "name": "Wikidata structured data",
+            "raw_sha256": "518ff4b174ceff21bb71e268d98766f278b43f819fc77d79ccdf69954592dfe0",
+            "retrieved_at": "2026-09-15T21:42:50.038371+00:00",
+            "source_id": "wikidata_entities",
+            "url": "https://www.wikidata.org/w/api.php?action=wbgetentities&ids=Q1369687&props=claims%7Clabels%7Cdescriptions&languages=en&format=json"
+          },
+          "wikidata_id": "Q1369687"
+        }
+      },
+      {
+        "fixture_id": "openfootball:la-liga:fbcf919518486d43393f244a",
+        "venue": {
+          "claim_rank": "normal",
+          "confidence": "medium",
+          "latitude": 43.368667,
+          "lineage": {
+            "club_raw_sha256": "b565875eacfe0eda5870801bbba476acfb348aea768bfdd79d30436727725dfc",
+            "search_raw_sha256": "3b8cb463ad6b7349558e72ca0160ffa1c07134da6efe6e44deda527932d2dff4",
+            "team_name": "RC Deportivo La Coruña",
+            "team_wikidata_id": "Q8760",
+            "venue_raw_sha256": "c4f2d6e9e6b124639f5f7edfece6db6aea66617aea591d9636123a2206f971e2",
+            "venue_wikidata_id": "Q22130"
+          },
+          "longitude": -8.417372,
+          "model_eligible": false,
+          "name": "Estadio Municipal de Abanca Riazor",
+          "source": {
+            "attribution_required": false,
+            "license": "CC0-1.0",
+            "license_url": "https://www.wikidata.org/wiki/Wikidata:Licensing",
+            "name": "Wikidata structured data",
+            "raw_sha256": "c4f2d6e9e6b124639f5f7edfece6db6aea66617aea591d9636123a2206f971e2",
+            "retrieved_at": "2026-09-15T21:42:50.038371+00:00",
+            "source_id": "wikidata_entities",
+            "url": "https://www.wikidata.org/w/api.php?action=wbgetentities&ids=Q22130&props=claims%7Clabels%7Cdescriptions&languages=en&format=json"
+          },
+          "wikidata_id": "Q22130"
+        }
+      },
+      {
+        "fixture_id": "openfootball:la-liga:aa561480143e70f57207d058",
+        "venue": {
+          "claim_rank": "preferred",
+          "confidence": "high",
+          "latitude": 41.380833333333335,
+          "lineage": {
+            "club_raw_sha256": "b087a49c54b6cf5034bf321ac3834400e61487da09a5a82dc1ae67d05820d9f0",
+            "search_raw_sha256": "28de15e2c779c8506ac439adbb3bd0088982a3e71ede123e8b212601fb897a9d",
+            "team_name": "FC Barcelona",
+            "team_wikidata_id": "Q7156",
+            "venue_raw_sha256": "ec349530747d97d4ad7963f5f977c3a3a9b4c891fcbe18e79ded3248ff295068",
+            "venue_wikidata_id": "Q159848"
+          },
+          "longitude": 2.122777777777778,
+          "model_eligible": true,
+          "name": "Camp Nou",
+          "source": {
+            "attribution_required": false,
+            "license": "CC0-1.0",
+            "license_url": "https://www.wikidata.org/wiki/Wikidata:Licensing",
+            "name": "Wikidata structured data",
+            "raw_sha256": "ec349530747d97d4ad7963f5f977c3a3a9b4c891fcbe18e79ded3248ff295068",
+            "retrieved_at": "2026-09-15T21:42:50.038371+00:00",
+            "source_id": "wikidata_entities",
+            "url": "https://www.wikidata.org/w/api.php?action=wbgetentities&ids=Q159848&props=claims%7Clabels%7Cdescriptions&languages=en&format=json"
+          },
+          "wikidata_id": "Q159848"
+        }
+      },
+      {
+        "fixture_id": "openfootball:la-liga:11caafd3f211b8c82dc5e5a0",
+        "venue": {
+          "claim_rank": "normal",
+          "confidence": "medium",
+          "latitude": 37.356403,
+          "lineage": {
+            "club_raw_sha256": "27640455cbcd7eb28a06b59c598876a4b418b92097b8e7892d267ac99d148c6b",
+            "search_raw_sha256": "114e72b68a69bb2014eb7d8ba5bf1accaa1473f7d3973ddfac9c91a7b4c039cb",
+            "team_name": "Real Betis Balompié",
+            "team_wikidata_id": "Q8723",
+            "venue_raw_sha256": "0d9de26a0480268729d6c6b055785ab4ce4e104b3c978075ee5b43f8902c8e00",
+            "venue_wikidata_id": "Q126844"
+          },
+          "longitude": -5.981611,
+          "model_eligible": false,
+          "name": "Estadio Benito Villamarín",
+          "source": {
+            "attribution_required": false,
+            "license": "CC0-1.0",
+            "license_url": "https://www.wikidata.org/wiki/Wikidata:Licensing",
+            "name": "Wikidata structured data",
+            "raw_sha256": "0d9de26a0480268729d6c6b055785ab4ce4e104b3c978075ee5b43f8902c8e00",
+            "retrieved_at": "2026-09-15T21:42:50.038371+00:00",
+            "source_id": "wikidata_entities",
+            "url": "https://www.wikidata.org/w/api.php?action=wbgetentities&ids=Q126844&props=claims%7Clabels%7Cdescriptions&languages=en&format=json"
+          },
+          "wikidata_id": "Q126844"
+        }
+      },
+      {
+        "fixture_id": "openfootball:la-liga:e1d06c8807bef1eab651140a",
+        "venue": {
+          "claim_rank": "normal",
+          "confidence": "medium",
+          "latitude": 36.734092,
+          "lineage": {
+            "club_raw_sha256": "534f8aa580b3f0400479dd8aa0777f1a5bfcffbba01a7593ee8d2a64c115edb9",
+            "search_raw_sha256": "c909ccc50ae5c0d7991aed1e3d0b286f8e75ec8f8f9a9e73f329eac6beb3d184",
+            "team_name": "Málaga CF",
+            "team_wikidata_id": "Q8857",
+            "venue_raw_sha256": "5c7531e8eb1c6d70e4ed47fc0b19c92df260992e4822932c142a9b2dac2cd38d",
+            "venue_wikidata_id": "Q695879"
+          },
+          "longitude": -4.426422,
+          "model_eligible": false,
+          "name": "La Rosaleda Stadium",
+          "source": {
+            "attribution_required": false,
+            "license": "CC0-1.0",
+            "license_url": "https://www.wikidata.org/wiki/Wikidata:Licensing",
+            "name": "Wikidata structured data",
+            "raw_sha256": "5c7531e8eb1c6d70e4ed47fc0b19c92df260992e4822932c142a9b2dac2cd38d",
+            "retrieved_at": "2026-09-15T21:42:50.038371+00:00",
+            "source_id": "wikidata_entities",
+            "url": "https://www.wikidata.org/w/api.php?action=wbgetentities&ids=Q695879&props=claims%7Clabels%7Cdescriptions&languages=en&format=json"
+          },
+          "wikidata_id": "Q695879"
+        }
+      }
+    ]
+  }
+}

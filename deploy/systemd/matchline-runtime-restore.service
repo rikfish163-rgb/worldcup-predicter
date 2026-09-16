@@ -1,0 +1,29 @@
+[Unit]
+Description=Verify and restore Matchline volatile runtime after boot
+Wants=network-online.target
+After=network-online.target
+Before=matchline-prospective-cycle-runtime-only.service matchline-live-overlay.service matchline-runtime-readmodel.service matchline-runtime-archive.service
+RequiresMountsFor=/media/hetaisheng/044A81D94A81C83E/soccerdata-live-archive/recovery-snapshots
+RequiresMountsFor=/media/hetaisheng/044A81D94A81C83E/matchline-runtime-critical-checkpoints
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+WorkingDirectory=/home/hetaisheng/soccerdata
+Environment=PYTHONDONTWRITEBYTECODE=1
+Environment=PYTHONUNBUFFERED=1
+Environment=TMPDIR=/dev/shm
+Environment=MATCHLINE_RUNTIME_DIR=/dev/shm/matchline-live-runtime
+Environment=MATCHLINE_CHECKPOINT_DIR=/media/hetaisheng/044A81D94A81C83E/matchline-runtime-critical-checkpoints
+EnvironmentFile=-/etc/matchline/matchline-runtime.env
+# The archive hash, member paths, types and complete file inventory are
+# verified in a same-filesystem staging directory before an atomic rename.
+# An incomplete post-boot directory is preserved under recovery/boot-partials.
+ExecStart=/usr/bin/python3 -m league_platform.runtime_restore \
+  --manifest=/media/hetaisheng/044A81D94A81C83E/soccerdata-live-archive/recovery-snapshots/runtime-archive-manifest.json \
+  --destination=${MATCHLINE_RUNTIME_DIR} \
+  --checkpoint-root=${MATCHLINE_CHECKPOINT_DIR} \
+  --min-free-bytes=536870912 \
+  --quarantine-incomplete-target
+TimeoutStartSec=20min
+TimeoutStopSec=30s

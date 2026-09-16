@@ -9,6 +9,7 @@ from datetime import datetime, timezone
 import pytest
 
 from league_platform.live_sources.open_meteo import (
+    DEFAULT_HORIZON_DAYS,
     fetch_open_meteo_weather,
     parse_open_meteo_payload,
 )
@@ -20,6 +21,10 @@ from league_platform.live_sources.sofascore import (
 
 
 AS_OF = datetime(2026, 8, 10, 12, 0, tzinfo=timezone.utc)
+
+
+def test_open_meteo_default_horizon_stays_inside_public_forecast_window():
+    assert DEFAULT_HORIZON_DAYS == 15
 
 
 class _Response:
@@ -53,6 +58,20 @@ class _Routes:
         if route is None:
             raise AssertionError(f"unexpected URL: {request.full_url}")
         return _Response(route, request.full_url)
+
+
+class _FlakyWeatherOpener:
+    def __init__(self, payload: bytes):
+        self.payload = payload
+        self.calls: list[tuple[str, float]] = []
+        self.failures = 1
+
+    def open(self, request, timeout):
+        self.calls.append((request.full_url, timeout))
+        if self.failures:
+            self.failures -= 1
+            raise OSError("temporary weather transport failure")
+        return _Response(self.payload, request.full_url)
 
 
 def _weather_payload() -> bytes:
@@ -94,7 +113,7 @@ def test_open_meteo_parser_keeps_exact_hour_and_raw_hash():
     assert observation["source"]["raw_sha256"] == hashlib.sha256(payload).hexdigest()
 
 
-def test_open_meteo_fetch_isolates_missing_coordinates_and_network_errors():
+def test_open_meteo_fetch_is_rights_blocked_before_input_and_network_handling():
     routes = _Routes({"/v1/forecast?": OSError("offline")})
     fixtures = [
         {
@@ -113,9 +132,35 @@ def test_open_meteo_fetch_isolates_missing_coordinates_and_network_errors():
 
     result = fetch_open_meteo_weather(fixtures, now=AS_OF, opener=routes)
 
+    assert result["status"] == "rights_blocked"
     assert result["weather"] == []
-    assert {error["stage"] for error in result["errors"]} == {"coordinates", "fetch"}
-    assert routes.calls and routes.calls[0][1] == 10.0
+    assert result["rights"]["source_id"] == "open_meteo_weather"
+    assert result["network_opened"] is False
+    assert result["errors"] == []
+    assert routes.calls == []
+
+
+def test_open_meteo_rights_gate_precedes_transport_and_option_validation():
+    opener = _FlakyWeatherOpener(_weather_payload())
+    result = fetch_open_meteo_weather(
+        [
+            {
+                "id": "weather-retry",
+                "kickoff_at": "2026-08-11T12:00:00+00:00",
+                "status": "upcoming",
+                "latitude": 51.5,
+                "longitude": -0.1,
+            }
+        ],
+        now=AS_OF,
+        opener=opener,
+        horizon_days=-1,
+    )
+
+    assert result["status"] == "rights_blocked"
+    assert result["weather"] == []
+    assert result["errors"] == []
+    assert opener.calls == []
 
 
 def test_open_meteo_rejects_non_allowlisted_source_url():
@@ -150,7 +195,12 @@ def _lineups_payload() -> bytes:
             "home": {
                 "formation": "4-3-3",
                 "players": [
-                    {"player": {"id": 1, "name": "Keeper"}, "starter": True},
+                    {
+                        "player": {"id": 1, "name": "Keeper"},
+                        "position": "GK",
+                        "starter": True,
+                        "expectedMinutes": 90,
+                    },
                     {"player": {"id": 2, "name": "Bench"}, "substitute": True},
                 ],
                 "missingPlayers": [
@@ -174,6 +224,9 @@ def test_sofascore_lineups_parser_distinguishes_missing_players_from_empty_data(
 
     assert observation["lineups"]["confirmed"] is True
     assert observation["lineups"]["home"]["players"][0]["name"] == "Keeper"
+    assert observation["lineups"]["home"]["players"][0]["expected_minutes"] == 90
+    assert observation["lineups"]["home"]["players"][0]["status"] == "starter"
+    assert observation["lineups"]["home"]["players"][0]["position"] == "GK"
     assert observation["injuries"]["home"][0]["reason"] == "injury"
     assert observation["source"]["raw_sha256"] == hashlib.sha256(payload).hexdigest()
 
@@ -202,7 +255,7 @@ def test_sofascore_schedule_parser_hashes_original_schedule_response():
     assert events[0]["source"]["raw_sha256"] == hashlib.sha256(payload).hexdigest()
 
 
-def test_sofascore_fetch_returns_event_when_lineups_are_unavailable():
+def test_sofascore_fetch_is_rights_blocked_before_direct_event_lookup():
     event = _event_payload()
     routes = _Routes({"/event/777": event, "/event/777/lineups": OSError("not published")})
     fixture = {
@@ -216,15 +269,15 @@ def test_sofascore_fetch_returns_event_when_lineups_are_unavailable():
 
     result = fetch_sofascore_prematch([fixture], now=AS_OF, opener=routes)
 
-    assert len(result["events"]) == 1
-    assert result["events"][0]["event"]["event_id"] == "777"
-    assert result["events"][0]["lineups"] is None
-    assert result["events"][0]["injuries"] is None
-    assert result["status"] == "degraded"
-    assert any(error["stage"] == "lineups" for error in result["errors"])
+    assert result["status"] == "rights_blocked"
+    assert result["events"] == []
+    assert result["rights"]["source_id"] == "sofascore_prematch"
+    assert result["network_opened"] is False
+    assert result["errors"] == []
+    assert routes.calls == []
 
 
-def test_sofascore_fetch_maps_schedule_event_and_keeps_lineups():
+def test_sofascore_fetch_is_rights_blocked_before_schedule_lookup():
     schedule = json.dumps(
         {
             "events": [
@@ -254,8 +307,28 @@ def test_sofascore_fetch_maps_schedule_event_and_keeps_lineups():
 
     result = fetch_sofascore_prematch([fixture], now=AS_OF, opener=routes)
 
-    assert result["status"] == "available"
-    assert result["events"][0]["event"]["event_id"] == "777"
-    assert result["events"][0]["lineups"]["confirmed"] is True
-    assert result["events"][0]["source"]["raw_sha256"] == hashlib.sha256(schedule).hexdigest()
-    assert any("scheduled-events/2026-08-11" in call[0] for call in routes.calls)
+    assert result["status"] == "rights_blocked"
+    assert result["events"] == []
+    assert result["errors"] == []
+    assert routes.calls == []
+
+
+def test_sofascore_rights_gate_precedes_schedule_failure_handling():
+    routes = _Routes({"/sport/football/scheduled-events/2026-08-11": OSError("403")})
+    fixtures = [
+        {
+            "id": f"espn:sofa-{index}",
+            "kickoff_at": "2026-08-11T12:00:00+00:00",
+            "status": "upcoming",
+            "home_team": f"Home {index}",
+            "away_team": f"Away {index}",
+        }
+        for index in range(3)
+    ]
+
+    result = fetch_sofascore_prematch(fixtures, now=AS_OF, opener=routes)
+
+    assert result["status"] == "rights_blocked"
+    assert result["events"] == []
+    assert result["errors"] == []
+    assert routes.calls == []

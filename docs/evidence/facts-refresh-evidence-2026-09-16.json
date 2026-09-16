@@ -1,0 +1,140 @@
+{
+  "auditable_projection": {
+    "path": "docs/evidence/facts-refresh-projection-2026-09-16.json",
+    "sha256": "04fabb78cb553104fa39529227ec7015c1f72e84c5f38f574b5d8926db0bfcc8"
+  },
+  "full_snapshot": {
+    "path": "volatile scratch output retained for this run only",
+    "sha256": "5411a541ee59396f1f0781e867d5bef932508f7148ec3cb16257bb12a0aa9816"
+  },
+  "observed_at": "2026-09-15T21:42:50.038371+00:00",
+  "raw_archive": {
+    "latest_records": [
+      {
+        "raw_sha256": "8a10a8af352fbe1f298fdf948117522d08bf0d8953af109ce46e348194430aef",
+        "record_sha256": "5059b868e68384828c319c4f41d9a1793fb26037b3cfcd3c3a8d001027cffe98",
+        "retrieved_at": "2026-09-15T21:42:50.038371+00:00",
+        "size_bytes": 18015,
+        "source_id": "openfootball:deutschland:2026-27:1-bundesliga",
+        "url": "https://raw.githubusercontent.com/openfootball/deutschland/master/2026-27/1-bundesliga.txt"
+      },
+      {
+        "raw_sha256": "623cf5bdfeb96cbb2b058e113ba17f800b789f72caefd4800ebb422a7c15a6d1",
+        "record_sha256": "30a16439e37c19e032458a23691aea3e47cebadf0111e923eba8d8f7648dff99",
+        "retrieved_at": "2026-09-15T21:42:50.038371+00:00",
+        "size_bytes": 23221,
+        "source_id": "openfootball:espana:2026-27:1-liga",
+        "url": "https://raw.githubusercontent.com/openfootball/espana/master/2026-27/1-liga.txt"
+      },
+      {
+        "raw_sha256": "826a5bf648a4fe10d99bd7b03c96134f50658411e9cb973c9cfcc2753fdcedda",
+        "record_sha256": "5a25bb91e811892364336aebd44c4e1ced1de97d7dc5e4629ffc644d0ebfd882",
+        "retrieved_at": "2026-09-15T21:42:50.038371+00:00",
+        "size_bytes": 75671,
+        "source_id": "openfootball:football.json:2026-27:en.2",
+        "url": "https://raw.githubusercontent.com/openfootball/football.json/master/2026-27/en.2.json"
+      },
+      {
+        "raw_sha256": "1feef8cdd2e7c3aeadbe05154083ec3f87cb1f8c90af6cd26b0d63f5711c9380",
+        "record_sha256": "d0ccf1631f27f225c5529309d1aa7219b1c755ff5b15b527ac17387e80fa9385",
+        "retrieved_at": "2026-09-15T21:42:50.038371+00:00",
+        "size_bytes": 54565,
+        "source_id": "openfootball:football.json:2026-27:en.1",
+        "url": "https://raw.githubusercontent.com/openfootball/football.json/master/2026-27/en.1.json"
+      },
+      {
+        "raw_sha256": "bf4142f96c92bde7e0dacd8cb59fa071edce6b89ce3e7dd3b8ab51f40b9248ca",
+        "record_sha256": "bc77f383824aa834c3e68fa5aa1da8575d56b1d76b06f32c6b1b8d3a55e6a051",
+        "retrieved_at": "2026-09-15T21:42:50.038371+00:00",
+        "size_bytes": 21362,
+        "source_id": "openfootball:italy:2026-27:1-seriea",
+        "url": "https://raw.githubusercontent.com/openfootball/italy/master/2026-27/1-seriea.txt"
+      },
+      {
+        "raw_sha256": "99884bc3bd1fec6ed69d03a613eb739f14426fe2ddaec83ea5fd10224a196513",
+        "record_sha256": "e99e7bb5162ddd77c822da3f8946e46f40b3dad19b4cd0e6158ad62ecae789c7",
+        "retrieved_at": "2026-09-15T21:42:50.038371+00:00",
+        "size_bytes": 17749,
+        "source_id": "openfootball:europe:netherlands:2026-27-nl1",
+        "url": "https://raw.githubusercontent.com/openfootball/europe/master/netherlands/2026-27_nl1.txt"
+      },
+      {
+        "raw_sha256": "eeaf54cf2737fd32b92b7ccc6d37f643702c1c091f1dd93be7b2cacd6582f188",
+        "record_sha256": "c620089eb399ac54c758d338a61a32279c49ab3035442d7ab6e481507b07341f",
+        "retrieved_at": "2026-09-15T21:42:50.038371+00:00",
+        "size_bytes": 18853,
+        "source_id": "openfootball:europe:portugal:2026-27-pt1",
+        "url": "https://raw.githubusercontent.com/openfootball/europe/master/portugal/2026-27_pt1.txt"
+      },
+      {
+        "raw_sha256": "16fafb2278e99bf41f9aa6753e9e8ae19f8eb2702151fe1379ad07fc4abe41f3",
+        "record_sha256": "b8228f80b80d1ba4c62bf642168f221eea1d12382d2aa7efb99521dca292f020",
+        "retrieved_at": "2026-09-15T21:42:50.038371+00:00",
+        "size_bytes": 17969,
+        "source_id": "openfootball:europe:france:2026-27-fr1",
+        "url": "https://raw.githubusercontent.com/openfootball/europe/master/france/2026-27_fr1.txt"
+      }
+    ],
+    "manifest": "manifest.jsonl",
+    "manifest_record_count": 5524,
+    "manifest_sha256": "53378b7cad46c004f90be86e18c77a3cfc1e92346f05d1ba5afb69c79a7365fc",
+    "root": "/media/hetaisheng/044A81D94A81C83E/soccerdata-live-runtime/openfootball-raw"
+  },
+  "refresh_summary": {
+    "as_of": "2026-09-15T21:42:50.038371+00:00",
+    "finished": 289,
+    "fixtures": 1257,
+    "lane": "facts_only",
+    "live": 0,
+    "model_lane": "not_run",
+    "output": "/home/hetaisheng/.pi-desktop/scratch/113c2832-31dc-4c94-9e10-546f6ccd6d01/real-facts-refresh/current.json",
+    "provider_statuses": {
+      "bundesliga_official": "rights_blocked",
+      "cfl_official": "rights_blocked",
+      "crawl4ai": "rights_blocked",
+      "espn": "rights_blocked",
+      "espn_injuries": "rights_blocked",
+      "espn_markets": "rights_blocked",
+      "espn_rosters": "rights_blocked",
+      "fixture_feed": "ok",
+      "fotmob": "rights_blocked",
+      "geocoding": "rights_blocked",
+      "laliga_official": "rights_blocked",
+      "ligue1_official": "rights_blocked",
+      "met_norway_weather": "partial",
+      "news": "rights_blocked",
+      "oddstorm": "rights_blocked",
+      "openfootball_current": "ok",
+      "openligadb": "ok",
+      "premier_league_official": "rights_blocked",
+      "serie_a_official": "rights_blocked",
+      "sofascore": "rights_blocked",
+      "sports_lottery": "rights_blocked",
+      "understat": "rights_blocked",
+      "weather": "rights_blocked",
+      "wikidata_entities": "partial"
+    },
+    "publication": "facts_sync_required",
+    "raw_archive": "/media/hetaisheng/044A81D94A81C83E/soccerdata-live-runtime/openfootball-raw",
+    "schema_version": "matchline.facts_snapshot_refresh.v1",
+    "status": "ok",
+    "upcoming": 968
+  },
+  "schema_version": "matchline.facts_refresh_evidence.v1",
+  "source_research_input": {
+    "path": "docs/evidence/source-research-input-2026-09-16-r2.json",
+    "sha256": "62ef79fabb6f6ab2a06df4682878f1a913feac259d2643f385033a39e3833662"
+  },
+  "source_probe": {
+    "path": "docs/evidence/source-probe-evidence-2026-09-16-r2.json",
+    "sha256": "a48fbec92745ae8a2434e48eab1e753475f3a2095af94c9765eaea6c7064755c",
+    "row_count": 4
+  },
+  "source_research_report": {
+    "json_path": "docs/evidence/source-research-2026-09-16-r2.json",
+    "json_sha256": "ea283846a64b3af5b2df3698fcb7645c8a5c8f4d2cca5a36ba40c7a14dc1118c",
+    "markdown_path": "docs/source-research-2026-09-16-r2.md",
+    "markdown_sha256": "6b8ef0d6d238a1cb2dcc2f7aeb98d3c7d47e9f255033a6568a9d52c478827e52",
+    "source_count": 47
+  }
+}

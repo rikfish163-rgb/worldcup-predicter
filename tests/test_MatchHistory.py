@@ -1,8 +1,12 @@
 """Unittests for class soccerdata.MatchHistory."""
 
 import pandas as pd
+import pytest
 
 from soccerdata.match_history import MatchHistory
+
+
+pytestmark = pytest.mark.external
 
 
 def test_read_games(match_epl_5y: MatchHistory) -> None:

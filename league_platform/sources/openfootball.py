@@ -64,6 +64,9 @@ class OpenFootballSource:
             message=f"最近一场数据为 {latest.date().isoformat()}，仅适合历史分析与回测。",
             quality={
                 "row_count": len(matches),
+                "date_only_kickoff_rows": sum(
+                    match.kickoff_time_quality == "date_only" for match in matches
+                ),
                 "duplicate_fixture_rate": 0.0,
                 "score_completeness": 1.0,
                 "odds_completeness": 0.0,
@@ -76,7 +79,6 @@ class OpenFootballSource:
         season = str(year)
         source_sha256 = hashlib.sha256(path.read_bytes()).hexdigest()
         current_date = None
-        current_time = "12:00"
         matches = []
         for line_number, line in enumerate(path.read_text(encoding="utf-8-sig").splitlines(), 1):
             date_match = DATE_RE.match(line)
@@ -85,15 +87,18 @@ class OpenFootballSource:
                 current_date = datetime.strptime(
                     f"{explicit_year or year}-{month}-{day}", "%Y-%b-%d"
                 ).date()
-                current_time = "12:00"
                 continue
             match = MATCH_RE.match(line)
             if not match or current_date is None:
                 continue
             time_value, home, away, home_goals, away_goals, ht_home, ht_away = match.groups()
-            if time_value:
-                current_time = time_value
-            hour, minute = (int(value) for value in current_time.split(":"))
+            kickoff_time_quality = "exact" if time_value else "date_only"
+            # The source gives a date but sometimes omits the time for one or
+            # more matches on that date.  Midnight is only an ordering anchor;
+            # the explicit quality flag prevents callers from treating it as
+            # an observed kickoff time.  Walk-forward code batches the entire
+            # affected calendar date to avoid leaking same-day results.
+            hour, minute = (int(value) for value in time_value.split(":")) if time_value else (0, 0)
             kickoff = datetime(
                 current_date.year,
                 current_date.month,
@@ -115,6 +120,7 @@ class OpenFootballSource:
                     competition_id="csl",
                     season=season,
                     kickoff_at=kickoff,
+                    kickoff_time_quality=kickoff_time_quality,
                     home_team=home,
                     away_team=away,
                     home_team_id=home_id,
@@ -132,6 +138,7 @@ class OpenFootballSource:
                     provider_fixture_id=f"{path.name}:{line_number}",
                     source_name="OpenFootball",
                     source_license_status="CC0-1.0",
+                    kickoff_time_source="OpenFootball",
                 )
             )
         return matches

@@ -1,0 +1,12 @@
+[Unit]
+Description=Archive Matchline runtime recovery snapshot every hour
+
+[Timer]
+OnBootSec=20min
+OnUnitInactiveSec=60min
+AccuracySec=30s
+Persistent=true
+Unit=matchline-runtime-archive.service
+
+[Install]
+WantedBy=timers.target

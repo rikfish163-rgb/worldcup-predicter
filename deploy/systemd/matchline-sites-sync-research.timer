@@ -1,0 +1,12 @@
+[Unit]
+Description=Synchronize verified Matchline evidence every 15 minutes
+
+[Timer]
+OnBootSec=7min
+OnUnitActiveSec=15min
+Persistent=true
+AccuracySec=30s
+Unit=matchline-sites-sync-research.service
+
+[Install]
+WantedBy=timers.target

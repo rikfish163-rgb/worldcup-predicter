@@ -40,7 +40,10 @@ jobs:
 
       - name: Sanity-check imports
         run: |
-          python -c "from wc_analysis import elo_model, backtest_v2, fusion_predictor, standings; print('✅ Existing WC core modules importable')"
+          # The legacy v2 ensemble modules were archived during the Matchline
+          # mainline cleanup.  Keep this job limited to the small compatibility
+          # surface that still exists and is covered by tests.
+          python -c "from wc_analysis import elo_model, predict, standings, worldcup_0622_analysis; print('✅ WC compatibility modules importable')"
 
       - name: Run wc_analysis tests
         run: |
@@ -55,7 +58,6 @@ jobs:
       - name: Verify scraper script works
         run: |
           python -c "import wc_analysis.scrape_sporttery; print('✅ Scrape script importable')"
-          python -c "import wc_analysis.relay_sporttery" || true
 
   matchline:
     name: Matchline platform
@@ -95,10 +97,10 @@ jobs:
             python -c "import json; json.load(open('$f'))" && echo "  ✅ $f"
           done
 
-      - name: Check site HTML exists
+      - name: Check mainline platform assets exist
         run: |
-          test -f wc_analysis/site/index.html && echo "✅ site/index.html present"
-          test -f wc_analysis/site/backtest.html && echo "✅ site/backtest.html present"
+          test -f league_platform/site/index.html && echo "✅ legacy read-only shell present"
+          test -f docs/evidence/README.md && echo "✅ evidence entrypoint present"
 
       - name: Markdown lint (basic)
         run: |

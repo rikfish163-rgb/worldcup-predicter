@@ -1,6 +1,10 @@
 """Unittests for class soccerdata.WhoScored."""
 
 import pandas as pd
+import pytest
+
+
+pytestmark = pytest.mark.external
 
 # Unittests -------------------------------------------------------------------
 

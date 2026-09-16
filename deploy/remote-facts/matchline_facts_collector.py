@@ -463,6 +463,32 @@ def _source_status(
     }
     return result
 
+def _rights_blocked_status(
+    *,
+    source_id: str,
+    name: str,
+    url: str,
+    retrieved_at: str,
+    license_url: str | None = None,
+    terms_url: str | None = None,
+    error_code: str = "provider_permission_required",
+) -> dict[str, object]:
+    """Return a non-network status for a source without verified rights."""
+
+    return _source_status(
+        source_id=source_id,
+        name=name,
+        url=url,
+        retrieved_at=retrieved_at,
+        status="rights_blocked",
+        record_count=None,
+        license_url=license_url,
+        terms_url=terms_url,
+        http_status=None,
+        error_code=error_code,
+        body=b"",
+    )
+
 
 def _non_negative_int(value: object, *, maximum: int = 999) -> int | None:
     if isinstance(value, bool):
@@ -726,9 +752,66 @@ def _openfootball_score(value: object) -> dict[str, int] | None:
     return {"home": home, "away": away}
 
 
-def _openfootball_id(source_id: str, scheduled_date: str, home: str, away: str, round_name: str | None) -> str:
-    token = "|".join((source_id, scheduled_date, home, away, round_name or ""))
-    return f"openfootball:{hashlib.sha256(token.encode('utf-8')).hexdigest()[:24]}"
+def _normalise_openfootball_identity(value: str) -> str:
+    """Match the canonical parser's identity normalisation.
+
+    The VPS facts bridge and the local prospective runner must mint the same
+    fixture id for the same OpenFootball row.  Identity is intentionally
+    independent of kickoff date/time so a provider reschedule does not create
+    a second fixture.
+    """
+
+    import unicodedata
+
+    return " ".join(unicodedata.normalize("NFKC", value).casefold().split())
+
+
+def _openfootball_canonical_source_id(config: Mapping[str, str]) -> str:
+    """Return the source id used by ``league_platform.live_sources``.
+
+    The server-facing configs use operational names (for example
+    ``openfootball_current_premier_league``), while the canonical parser uses
+    the upstream repository/season slug.  Keeping this mapping explicit makes
+    the cross-host id contract auditable and avoids fuzzy joins in the UI.
+    """
+
+    url = str(config.get("url", ""))
+    season = str(config.get("season", ""))
+    if "/football.json/" in url:
+        filename = url.rsplit("/", 1)[-1]
+        competition_file = filename.removesuffix(".json")
+        return f"openfootball:football.json:{season}:{competition_file}"
+    if "/england/" in url:
+        filename = url.rsplit("/", 1)[-1].removesuffix(".txt")
+        return f"openfootball:england:{season}:{filename}"
+    if "/deutschland/" in url:
+        return f"openfootball:deutschland:{season}:1-bundesliga"
+    if "/espana/" in url:
+        return f"openfootball:espana:{season}:1-liga"
+    if "/italy/" in url:
+        return f"openfootball:italy:{season}:1-seriea"
+    if "/europe/master/france/" in url:
+        return f"openfootball:europe:france:{season}-fr1"
+    if "/europe/master/netherlands/" in url:
+        return f"openfootball:europe:netherlands:{season}-nl1"
+    if "/europe/master/portugal/" in url:
+        return f"openfootball:europe:portugal:{season}-pt1"
+    raise ValueError(f"unsupported OpenFootball source URL: {url}")
+
+
+def _openfootball_id(config: Mapping[str, str], scheduled_date: str, home: str, away: str, round_name: str | None) -> str:
+    canonical_source_id = _openfootball_canonical_source_id(config)
+    identity_parts = [
+        canonical_source_id,
+        str(config["season"]),
+        _normalise_openfootball_identity(home),
+        _normalise_openfootball_identity(away),
+    ]
+    normalised_round = _normalise_openfootball_identity(round_name or "")
+    if any(marker in normalised_round for marker in ("playoff", "semi-final", "semifinal", "final")):
+        identity_parts.append(f"postseason:{normalised_round}")
+    token = "|".join(identity_parts)
+    return f"openfootball:{config['competitionId']}:{hashlib.sha256(token.encode('utf-8')).hexdigest()[:24]}"
 
 
 def _openfootball_row(
@@ -743,7 +826,7 @@ def _openfootball_row(
     score: dict[str, int] | None,
 ) -> dict[str, object]:
     row: dict[str, object] = {
-        "id": _openfootball_id(config["sourceId"], scheduled_date.isoformat(), home, away, round_name),
+        "id": _openfootball_id(config, scheduled_date.isoformat(), home, away, round_name),
         "provider": "OpenFootball",
         "sourceId": config["sourceId"],
         "sourceUrl": config["url"],
@@ -1009,10 +1092,22 @@ def _collect_football_data_source(
     config: Mapping[str, str],
     season: int,
     retrieved_at: str,
+    *,
+    rights_verified: bool = False,
 ) -> dict[str, object]:
     season_code = f"{season % 100:02d}{(season + 1) % 100:02d}"
     url = f"https://www.football-data.co.uk/mmz4281/{season_code}/{config['code']}.csv"
     source_id = f"football_data_current_{config['code'].lower()}"
+    if not rights_verified:
+        return _rights_blocked_status(
+            source_id=source_id,
+            name=f"Football-Data.co.uk {config['name']}",
+            url=url,
+            retrieved_at=retrieved_at,
+            license_url=FOOTBALL_DATA_DISCLAIMER_URL,
+            terms_url=FOOTBALL_DATA_DISCLAIMER_URL,
+            error_code="current_collection_rights_unverified",
+        )
     status, body = _http_payload(url, headers={"Accept": "text/csv, */*"})
     if status != 200 or not body:
         return _source_status(
@@ -1048,7 +1143,12 @@ def _collect_football_data_source(
 
 
 def collect_football_data(season: int, retrieved_at: str) -> list[dict[str, object]]:
-    """Probe the current-season CSV sidecar and return only health metadata."""
+    """Keep the unlicensed current CSV sidecar fail-closed.
+
+    ``_collect_football_data_source(..., rights_verified=True)`` remains a
+    parser fixture hook for isolated tests; production collection never has a
+    rights grant and therefore returns metadata without network I/O.
+    """
 
     return [_collect_football_data_source(config, season, retrieved_at) for config in FOOTBALL_DATA_SOURCES]
 
@@ -1168,30 +1268,14 @@ def collect_met(retrieved_at: str, coordinates: Mapping[str, object] | None) -> 
 
 
 def probe_provider(source_id: str, name: str, url: str, retrieved_at: str) -> dict[str, object]:
-    status, body, _ = _http_json(url)
-    if status in {401, 403, 451}:
-        state = "blocked"
-        error = "provider_policy_or_access_block"
-    elif status == 200:
-        state = "reachable_not_admitted"
-        error = "adapter_not_enabled_in_this_collector"
-    elif status == 0:
-        state = "unavailable"
-        error = "transport_error"
-    else:
-        state = "failed"
-        error = "http_error"
-    return _source_status(
+    """Return a rights block; diagnostics must not probe restricted providers."""
+
+    return _rights_blocked_status(
         source_id=source_id,
         name=name,
         url=url,
         retrieved_at=retrieved_at,
-        status=state,
-        record_count=None,
-        license_url=None,
-        http_status=status or None,
-        error_code=error,
-        body=body,
+        error_code="provider_permission_required",
     )
 
 

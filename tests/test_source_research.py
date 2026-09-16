@@ -349,3 +349,38 @@ def test_future_snapshot_and_field_contract_drift_are_rejected():
     report["sources"][0]["field_coverage"]["declared"] = ["tampered_field"]
     with pytest.raises(ValueError, match="field declaration"):
         validate_source_research_report(report)
+def test_success_probe_does_not_erase_partial_runtime_diagnostics():
+    snapshot = _snapshot()
+    snapshot["source_registry"][0]["runtime"] = {
+        "status": "partial",
+        "record_count": 2,
+        "error_count": 2,
+        "errors": [{"reason": "one_source_timed_out"}, {"reason": "one_source_malformed"}],
+        "raw_sha256": _DIGEST,
+    }
+    probe = {
+        "schema_version": "matchline.source_probe_evidence.v1",
+        "probes": [
+            {
+                "source_id": "openfootball_current",
+                "attempted": True,
+                "state": "success",
+                "status": "ok",
+                "network_opened": True,
+                "status_codes": [200],
+                "content_types": ["text/plain"],
+                "raw_hashes": [_DIGEST],
+            }
+        ],
+    }
+    report = build_source_research_report(
+        snapshot,
+        snapshot_sha256="a" * 64,
+        observed_at="2026-09-16T00:01:00+00:00",
+        probe_evidence=probe,
+    )
+    row = next(item for item in report["sources"] if item["id"] == "openfootball_current")
+    assert row["observed_http"]["state"] == "success"
+    assert row["failure_or_status"]["state"] == "partial"
+    assert row["failure_or_status"]["runtime_error_count"] == 2
+    assert len(row["failure_or_status"]["runtime_errors"]) == 2

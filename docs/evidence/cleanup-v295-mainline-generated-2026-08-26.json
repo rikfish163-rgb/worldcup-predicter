@@ -1,0 +1,32 @@
+{
+  "schema": "matchline.cleanup_receipt.v1",
+  "cleanup_id": "v295-mainline-generated-2026-08-26",
+  "completed_at": "2026-08-26T22:09:38+08:00",
+  "scope": "reproducible local verification residue only",
+  "policy": "moved byte-for-byte to the external recovery archive; no business data, runtime evidence, active model lock, D1 data, deployment, or running service was changed",
+  "archive_root": "/media/hetaisheng/044A81D94A81C83E/soccerdata-iteration-archive-2026-08-26/cache/cleanup-v295-mainline-generated-2026-08-26",
+  "moved": [
+    {
+      "source": "matchline_sites/tsconfig.tsbuildinfo",
+      "destination": "sites/tsconfig.tsbuildinfo",
+      "size_bytes": 300694,
+      "sha256": "882277913b83b921ac562da89305fd100828252825c0695544ac079e5aee43d1",
+      "classification": "TypeScript incremental compiler cache"
+    },
+    {
+      "source": "logs/info.log",
+      "destination": "logs/info.log",
+      "size_bytes": 2366,
+      "sha256": "2674f0aa45609bd7968daa67b5510a8d6317fce5400542c876e81c4d09c5732d",
+      "classification": "local configuration-loader log; not read by the Matchline runtime"
+    }
+  ],
+  "verification": {
+    "source_paths_absent": true,
+    "archive_hashes_recomputed": true,
+    "active_sites_service_restarted": false,
+    "d1_written": false,
+    "public_deployment": false,
+    "active_lock_changed": false
+  }
+}

@@ -1,0 +1,12 @@
+[Unit]
+Description=Refresh the isolated MET Norway weather cache every hour
+
+[Timer]
+OnBootSec=17min
+OnUnitActiveSec=60min
+Persistent=true
+AccuracySec=30s
+Unit=matchline-met-weather-cache.service
+
+[Install]
+WantedBy=timers.target

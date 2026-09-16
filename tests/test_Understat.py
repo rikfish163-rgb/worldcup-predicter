@@ -6,6 +6,9 @@ import pytest
 from soccerdata.understat import Understat
 
 
+pytestmark = pytest.mark.external
+
+
 def test_read_leagues(understat_epl_1516: Understat) -> None:
     leagues = understat_epl_1516.read_leagues()
     assert isinstance(leagues, pd.DataFrame)

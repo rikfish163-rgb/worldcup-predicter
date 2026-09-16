@@ -1,0 +1,59 @@
+{
+  "schema": "matchline.cleanup_receipt.v1",
+  "cleanup_id": "v300-final-residue-2026-08-26",
+  "completed_at": "2026-08-26T23:24:00+08:00",
+  "scope": "retire unused template assets and reconcile the evidence index",
+  "policy": "recoverable byte-preserving moves only; no historical data, runtime truth, active model lock, D1 data, deployment, or running service was changed",
+  "archive_root": "/media/hetaisheng/044A81D94A81C83E/soccerdata-iteration-archive-2026-08-26/retired-public-assets-2026-08-26",
+  "moved": [
+    {
+      "path": "matchline_sites/public/file.svg",
+      "archive_path": "file.svg",
+      "bytes": 391,
+      "sha256": "2b67812c325c199a02536cdbeea0c593a72f707d323b72ee3e08dbab06753bd4",
+      "reason": "unused starter asset; no source or rendered page reference"
+    },
+    {
+      "path": "matchline_sites/public/globe.svg",
+      "archive_path": "globe.svg",
+      "bytes": 1035,
+      "sha256": "b614b9bf183925957661ac851498fe1d8029fd43a62fbfed86f9e2624a57e7cf",
+      "reason": "unused starter asset; no source or rendered page reference"
+    },
+    {
+      "path": "matchline_sites/public/window.svg",
+      "archive_path": "window.svg",
+      "bytes": 385,
+      "sha256": "644768c4aaeb4767bce293344eeb0c125fb804a94d801440424072202d85e3a1",
+      "reason": "unused starter asset; no source or rendered page reference"
+    },
+    {
+      "path": "matchline_sites/dist/client/{file,globe,window}.svg",
+      "archive_path": "dist-client/",
+      "reason": "ignored build copies of the retired starter assets"
+    }
+  ],
+  "reconciled": [
+    {
+      "path": "docs/evidence/README.md",
+      "sha256": "2c779149a29e6890dfd1f6ffa3390d590770f6fe57142e6a5ef7eb9c0753c4c1",
+      "change": "index now lists cleanup receipts v293 through v298 accurately"
+    }
+  ],
+  "verification": {
+    "empty_project_dirs_removed": ["logs", "wc_analysis/site"],
+    "temporary_residue_scan": "no project pyc, tsbuildinfo, tmp, bak, orig, tilde, or log files",
+    "public_page_asset_refs": ["/favicon.svg", "/matchline-social.png"],
+    "outer_diff_check": "pass",
+    "nested_diff_check": "pass",
+    "active_service_restart": false,
+    "d1_written": false,
+    "public_deploy": false,
+    "active_model_lock_changed": false
+  },
+  "notes": [
+    "The ignored dist build remains in place for reproducibility; only unused starter copies were removed.",
+    "The nested Sites process was not restarted; it was not running at the final audit.",
+    "The current v259 lock remains hash-inconsistent and blocked; no lock was refreshed or promoted."
+  ]
+}

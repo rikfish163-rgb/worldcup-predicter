@@ -1,0 +1,15 @@
+[Unit]
+Description=Run Matchline causal prospective cycle every 15 minutes
+
+[Timer]
+# The first run is delayed after the user manager starts; subsequent runs are
+# measured from the last deactivation of the oneshot service.  Using the
+# inactive edge is required because a Type=oneshot service is not active while
+# the timer waits for its next run.
+OnBootSec=5min
+OnUnitInactiveSec=15min
+Persistent=true
+Unit=matchline-prospective-cycle.service
+
+[Install]
+WantedBy=timers.target

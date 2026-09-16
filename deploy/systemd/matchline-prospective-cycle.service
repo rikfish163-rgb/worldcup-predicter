@@ -1,0 +1,86 @@
+[Unit]
+Description=Matchline causal prospective data cycle
+Wants=network-online.target
+After=network-online.target
+RequiresMountsFor=/media/hetaisheng/044A81D94A81C83E/soccerdata-live-runtime
+
+[Service]
+Type=oneshot
+WorkingDirectory=/home/hetaisheng/soccerdata
+Environment=PYTHONDONTWRITEBYTECODE=1
+Environment=PYTHONUNBUFFERED=1
+Environment=TMPDIR=/dev/shm
+# Keep the executable on the local ext4 filesystem, but load the optional
+# Crawl4AI package tree from the external runtime volume.  The old project
+# venv is an NTFS executable and can remain in D state before Python starts;
+# PYTHONPATH avoids executing anything from that filesystem while retaining
+# the browser dependency for the multi-source capture layer.
+Environment=PYTHONPATH=/media/hetaisheng/044A81D94A81C83E/soccerdata-live-runtime/python-deps-no-deps
+# Browser and parser caches are disposable for this public-source cycle. Keep
+# them on tmpfs so a Crawl4AI/Playwright run cannot consume the full project
+# filesystem before the external append-only ledger is written.
+Environment=XDG_CACHE_HOME=/dev/shm/matchline-xdg-cache
+Environment=XDG_CONFIG_HOME=/dev/shm/matchline-xdg-config
+Environment=XDG_STATE_HOME=/dev/shm/matchline-xdg-state
+Environment=MATCHLINE_RUNTIME_DIR=/media/hetaisheng/044A81D94A81C83E/soccerdata-live-runtime
+Environment=MATCHLINE_OPENFOOTBALL_RAW_ARCHIVE_DIR=/media/hetaisheng/044A81D94A81C83E/soccerdata-live-runtime/openfootball-raw
+Environment=MATCHLINE_PROSPECTIVE_LOCK=/home/hetaisheng/soccerdata/docs/evidence/prospective-model-lock-current.json
+# The formal lane receives the approved active lock through an operator-owned
+# environment file. Keep the template default empty: deriving approval from
+# the candidate/current path would let an isolated candidate masquerade as
+# the approved lock, while an empty value fails closed in prospective_cycle.
+Environment=MATCHLINE_PROSPECTIVE_APPROVED_LOCK=
+EnvironmentFile=-/etc/matchline/matchline-runtime.env
+EnvironmentFile=-%h/.config/matchline/matchline-runtime.env
+ExecStart=/usr/bin/python3 -m league_platform.prospective_cycle --runtime-dir=${MATCHLINE_RUNTIME_DIR} --openfootball-raw-archive-dir=${MATCHLINE_OPENFOOTBALL_RAW_ARCHIVE_DIR} --lock=${MATCHLINE_PROSPECTIVE_LOCK} --approved-lock=${MATCHLINE_PROSPECTIVE_APPROVED_LOCK} --crawl4ai-config /home/hetaisheng/soccerdata/config/crawl4ai_operator_public.json --enable-wikidata
+# Keep the repository's historical evidence read-only. The wrapper replays the
+# fixed durable OpenFootball history receipt before replacing the mutable
+# runtime pointer, then retains one immutable content-addressed report.
+ExecStartPost=/bin/bash /home/hetaisheng/soccerdata/deploy/systemd/run-matchline-strict-report.sh
+ExecStartPost=/usr/bin/python3 -m league_platform.runtime_evidence --runtime-dir=${MATCHLINE_RUNTIME_DIR} --lock=${MATCHLINE_PROSPECTIVE_LOCK}
+ExecStartPost=/usr/bin/python3 -m league_platform.build_offline_bundle --live-path ${MATCHLINE_RUNTIME_DIR}/current.json --live-overlay ${MATCHLINE_RUNTIME_DIR}/live_overlay.json --openfootball-raw-archive-dir ${MATCHLINE_OPENFOOTBALL_RAW_ARCHIVE_DIR} --evidence-dir /home/hetaisheng/soccerdata/docs/evidence --runtime-evidence-dir ${MATCHLINE_RUNTIME_DIR} --output ${MATCHLINE_RUNTIME_DIR}/offline_full.js --compact-output ${MATCHLINE_RUNTIME_DIR}/offline_snapshot.json --compact-js-output ${MATCHLINE_RUNTIME_DIR}/league-platform-offline_data.js --strict-report ${MATCHLINE_RUNTIME_DIR}/strict-backtest-current.json
+# Re-emit runtime evidence after all runtime-only writes, then validate the
+# research gate. Build a current fail-closed platform receipt first; the old
+# static v16 all-pass pointer must never clear a newer strict report or model
+# lock. The separate read-model lane owns any local Sites rebuild, so absent or
+# stale build/test/publication proof remains not_verified/blocked here.
+ExecStartPost=/usr/bin/python3 -m league_platform.runtime_evidence --runtime-dir=${MATCHLINE_RUNTIME_DIR} --lock=${MATCHLINE_PROSPECTIVE_LOCK}
+ExecStartPost=/usr/bin/python3 -m league_platform.platform_verification \
+  --strict-report ${MATCHLINE_RUNTIME_DIR}/strict-backtest-current.json \
+  --prospective-lock ${MATCHLINE_PROSPECTIVE_LOCK} \
+  --cycle ${MATCHLINE_RUNTIME_DIR}/prospective-cycle-latest.json \
+  --evaluation ${MATCHLINE_RUNTIME_DIR}/prospective-evaluation-current.json \
+  --offline-snapshot ${MATCHLINE_RUNTIME_DIR}/offline_snapshot.json \
+  --sites-build-evidence /home/hetaisheng/soccerdata/matchline_sites/.runtime/sites-build-resource.json \
+  --test-evidence /home/hetaisheng/soccerdata/docs/evidence/platform-test-evidence-current.json \
+  --publication-audit /home/hetaisheng/soccerdata/docs/evidence/publication-audit-current.json \
+  --live-snapshot ${MATCHLINE_RUNTIME_DIR}/current.json \
+  --publication-diagnostic ${MATCHLINE_RUNTIME_DIR}/current.publication.json \
+  --runtime-root ${MATCHLINE_RUNTIME_DIR} \
+  --test-evidence-root /home/hetaisheng/soccerdata/docs/evidence \
+  --code-root /home/hetaisheng/soccerdata \
+  --output ${MATCHLINE_RUNTIME_DIR}/platform-verification-current.json \
+  --archive-dir ${MATCHLINE_RUNTIME_DIR}/platform-verifications
+ExecStartPost=/usr/bin/python3 -m league_platform.maturity_validator \
+  --strict-report ${MATCHLINE_RUNTIME_DIR}/strict-backtest-current.json \
+  --platform-verification ${MATCHLINE_RUNTIME_DIR}/platform-verification-current.json \
+  --prospective-lock ${MATCHLINE_PROSPECTIVE_LOCK} \
+  --cycle ${MATCHLINE_RUNTIME_DIR}/prospective-cycle-latest.json \
+  --evaluation ${MATCHLINE_RUNTIME_DIR}/prospective-evaluation-current.json \
+  --live-snapshot ${MATCHLINE_RUNTIME_DIR}/current.json \
+  --prediction-archive ${MATCHLINE_RUNTIME_DIR}/prospective_predictions.jsonl \
+  --offline-snapshot ${MATCHLINE_RUNTIME_DIR}/offline_snapshot.json \
+  --sites-build-evidence /home/hetaisheng/soccerdata/matchline_sites/.runtime/sites-build-resource.json \
+  --test-evidence /home/hetaisheng/soccerdata/docs/evidence/platform-test-evidence-current.json \
+  --publication-audit /home/hetaisheng/soccerdata/docs/evidence/publication-audit-current.json \
+  --publication-diagnostic ${MATCHLINE_RUNTIME_DIR}/current.publication.json \
+  --runtime-root ${MATCHLINE_RUNTIME_DIR} \
+  --repository-root /home/hetaisheng/soccerdata \
+  --output ${MATCHLINE_RUNTIME_DIR}/maturity-gate-current.json
+# The sync phase fans out across several public providers and the Crawl4AI
+# capture engine.  A normal cycle is bounded well below this value, but the
+# previous 15-minute cutoff killed a legitimate archive replay before it could
+# persist evidence.  Source-level timeouts still isolate individual pages;
+# this is only the outer transaction deadline.
+TimeoutStartSec=30min
+TimeoutStopSec=60s

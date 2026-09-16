@@ -1,0 +1,11 @@
+[Unit]
+Description=Publish Matchline research ledger every 15 minutes
+
+[Timer]
+OnBootSec=10min
+OnUnitInactiveSec=15min
+Persistent=true
+Unit=matchline-sites-publish.service
+
+[Install]
+WantedBy=timers.target

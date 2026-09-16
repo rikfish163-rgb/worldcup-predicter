@@ -1,0 +1,118 @@
+{
+  "schema_version": "1.0.0",
+  "generated_at": "2026-08-23T17:59:03.908961+00:00",
+  "prediction_archive": "/dev/shm/matchline-live-runtime/prospective_predictions.jsonl",
+  "snapshot_archive": "/dev/shm/matchline-live-runtime/archive",
+  "status": "pending_prospective_window",
+  "scored_n": 0,
+  "pending_n": 10,
+  "archive_conflicts": 0,
+  "legacy_model_records": 787,
+  "superseded_model_records": 769,
+  "stale_lock_records": 18,
+  "result_conflicts": 0,
+  "result_conflict_predictions": 0,
+  "invalid_records": [],
+  "target_metrics": {},
+  "league_target_counts": {},
+  "results_not_used_for_selection": true,
+  "sample_requirements_met": false,
+  "all_required_targets_scored": false,
+  "prediction_freezes_verified": false,
+  "freeze_stage_counts": {},
+  "lock_promotion": {
+    "status": "not_promoted",
+    "reason": "runtime_only_no_repository_writes"
+  },
+  "publication": null,
+  "degraded": false,
+  "storage": {
+    "status": "ok",
+    "required_free_bytes": 1073741824,
+    "checked": [
+      {
+        "path": "/dev/shm/matchline-live-runtime/current.json",
+        "filesystem": "/dev/shm/matchline-live-runtime/current.json",
+        "free_bytes": 11780644864,
+        "required_free_bytes": 1073741824,
+        "status": "ok"
+      },
+      {
+        "path": "/dev/shm/matchline-live-runtime/archive",
+        "filesystem": "/dev/shm/matchline-live-runtime/archive",
+        "free_bytes": 11780644864,
+        "required_free_bytes": 1073741824,
+        "status": "ok"
+      },
+      {
+        "path": "/dev/shm/matchline-live-runtime/intelligence/observations.jsonl",
+        "filesystem": "/dev/shm/matchline-live-runtime/intelligence/observations.jsonl",
+        "free_bytes": 11780644864,
+        "required_free_bytes": 1073741824,
+        "status": "ok"
+      },
+      {
+        "path": "/dev/shm/matchline-live-runtime/prospective_predictions.jsonl",
+        "filesystem": "/dev/shm/matchline-live-runtime/prospective_predictions.jsonl",
+        "free_bytes": 11780644864,
+        "required_free_bytes": 1073741824,
+        "status": "ok"
+      },
+      {
+        "path": "/dev/shm/matchline-live-runtime/runtime-only-cycle-latest.json",
+        "filesystem": "/dev/shm/matchline-live-runtime/runtime-only-cycle-latest.json",
+        "free_bytes": 11780644864,
+        "required_free_bytes": 1073741824,
+        "status": "ok"
+      },
+      {
+        "path": "/dev/shm/matchline-live-runtime/runtime-only-cycle.jsonl",
+        "filesystem": "/dev/shm/matchline-live-runtime/runtime-only-cycle.jsonl",
+        "free_bytes": 11780644864,
+        "required_free_bytes": 1073741824,
+        "status": "ok"
+      },
+      {
+        "path": "/dev/shm/matchline-live-runtime/prospective-cycle.lock",
+        "filesystem": "/dev/shm/matchline-live-runtime/prospective-cycle.lock",
+        "free_bytes": 11780644864,
+        "required_free_bytes": 1073741824,
+        "status": "ok"
+      },
+      {
+        "path": "/dev/shm/matchline-live-runtime/runtime-only-cycle-progress.json",
+        "filesystem": "/dev/shm/matchline-live-runtime/runtime-only-cycle-progress.json",
+        "free_bytes": 11780644864,
+        "required_free_bytes": 1073741824,
+        "status": "ok"
+      },
+      {
+        "path": "/dev/shm/matchline-live-runtime/runtime-only-evaluation-current.json",
+        "filesystem": "/dev/shm/matchline-live-runtime/runtime-only-evaluation-current.json",
+        "free_bytes": 11780644864,
+        "required_free_bytes": 1073741824,
+        "status": "ok"
+      },
+      {
+        "path": "/dev/shm/matchline-live-runtime/prospective_market_baselines.jsonl",
+        "filesystem": "/dev/shm/matchline-live-runtime/prospective_market_baselines.jsonl",
+        "free_bytes": 11780644864,
+        "required_free_bytes": 1073741824,
+        "status": "ok"
+      },
+      {
+        "path": "/dev/shm/matchline-live-runtime/oddstorm_history.jsonl",
+        "filesystem": "/dev/shm/matchline-live-runtime/oddstorm_history.jsonl",
+        "free_bytes": 11780644864,
+        "required_free_bytes": 1073741824,
+        "status": "ok"
+      }
+    ],
+    "blocked_paths": [],
+    "runtime_only": true,
+    "repository_check_skipped": true,
+    "read_only_paths": [
+      "docs/evidence/prospective-model-lock-current.json"
+    ]
+  }
+}

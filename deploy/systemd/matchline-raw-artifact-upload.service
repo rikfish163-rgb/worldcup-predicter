@@ -1,0 +1,27 @@
+[Unit]
+Description=Upload verified Matchline OpenFootball raw evidence to Sites R2 and D1
+Wants=network-online.target
+After=network-online.target matchline-openfootball-history-refresh.service
+RequiresMountsFor=/media/hetaisheng/044A81D94A81C83E/soccerdata-live-runtime
+ConditionPathExists=%h/.config/matchline/matchline-sites.env
+
+[Service]
+Type=oneshot
+WorkingDirectory=/home/hetaisheng/soccerdata
+Environment=PYTHONDONTWRITEBYTECODE=1
+Environment=TMPDIR=/dev/shm
+Environment=MATCHLINE_OPENFOOTBALL_RAW_ARCHIVE_DIR=/media/hetaisheng/044A81D94A81C83E/soccerdata-live-runtime/openfootball-raw
+Environment=MATCHLINE_RESEARCH_FIXTURE_SNAPSHOT=/dev/shm/matchline-live-runtime/current.json
+EnvironmentFile=%h/.config/matchline/matchline-sites.env
+EnvironmentFile=-/etc/matchline/matchline-runtime.env
+# This lane archives source evidence only. It neither reads nor advances a
+# model lock, and the endpoint is idempotent by raw SHA and observation ID.
+ExecStart=/usr/bin/python3 -m league_platform.publish_raw_artifacts \
+  --archive-root ${MATCHLINE_OPENFOOTBALL_RAW_ARCHIVE_DIR} \
+  --endpoint ${MATCHLINE_RAW_ARTIFACT_ENDPOINT}
+ExecStartPost=/usr/bin/python3 -m league_platform.publish_research_fixtures \
+  --snapshot ${MATCHLINE_RESEARCH_FIXTURE_SNAPSHOT} \
+  --archive-root ${MATCHLINE_OPENFOOTBALL_RAW_ARCHIVE_DIR} \
+  --endpoint ${MATCHLINE_RESEARCH_FIXTURE_ENDPOINT}
+TimeoutStartSec=30min
+TimeoutStopSec=60s

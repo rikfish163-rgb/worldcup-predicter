@@ -30,7 +30,7 @@ def test_legacy_mutation_routes_require_configured_bearer_token(monkeypatch):
 
 
 def test_legacy_network_helpers_keep_tls_verification_and_loopback_binding():
-    sporttery_server = next(Path("wc_analysis").glob("**/sporttery_server.py")).read_text()
+    sporttery_server = Path("wc_analysis/sporttery_server.py").read_text()
     assert 'HTTPServer(("127.0.0.1", port)' in sporttery_server
     assert 'HTTPServer(("0.0.0.0", port)' not in sporttery_server
     for path in (Path("wc_analysis/build_groups.py"), Path("wc_analysis/fetch_pinnacle.py")):
@@ -44,10 +44,19 @@ def test_legacy_remote_reads_are_bounded_and_html_is_escaped():
         "&lt;script&gt;alert(&quot;x&quot;)&lt;/script&gt;"
     )
     predict_source = Path("wc_analysis/predict.py").read_text()
-    sporttery_source = next(Path("wc_analysis").glob("**/sporttery_server.py")).read_text()
+    sporttery_source = Path("wc_analysis/sporttery_server.py").read_text()
     assert "Content-Security-Policy" in predict_source
     assert "json.loads(r.read())" not in predict_source
     assert "json.loads(r.read())" not in sporttery_source
+
+
+def test_legacy_server_does_not_reference_removed_mutation_entrypoints():
+    predict_source = Path("wc_analysis/predict.py").read_text()
+    assert "from generate_top3 import" not in predict_source
+    assert "from self_evolving_loop import" not in predict_source
+    assert "run_evolution(write=True)" not in predict_source
+    assert "backtest_v2" not in predict_source
+    assert '"status":"deprecated"' in predict_source
 
 
 def test_weighted_mean_uses_newer_matches_more_heavily():

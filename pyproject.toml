@@ -42,6 +42,9 @@ dependencies = [
 socceraction = [
     "socceraction",
 ]
+crawl4ai = [
+    "crawl4ai>=0.9,<1.0",
+]
 
 # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ URLs ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ #
 [project.urls]
@@ -143,6 +146,10 @@ known-first-party = ["soccerdata", "tests"]
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 log_file = "./logs/pytest.log"
+markers = [
+    "external: reaches a live third-party football data source (opt in with --run-external)",
+    "fails_gha: upstream source test known to be unreliable in hosted CI",
+]
 addopts = """
 --tb=long
 --code-highlight=yes

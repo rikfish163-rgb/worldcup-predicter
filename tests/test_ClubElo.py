@@ -10,6 +10,9 @@ import pytest
 from soccerdata import ClubElo
 
 
+pytestmark = pytest.mark.external
+
+
 class TestReadByDate:
     """Tests for ClubElo.read_by_date"""
 

@@ -1,0 +1,11 @@
+[Unit]
+Description=Refresh Matchline durable OpenFootball historical raw evidence daily
+
+[Timer]
+OnCalendar=daily
+RandomizedDelaySec=30min
+Persistent=true
+Unit=matchline-openfootball-history-refresh.service
+
+[Install]
+WantedBy=timers.target

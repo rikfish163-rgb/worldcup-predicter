@@ -1,0 +1,11 @@
+[Unit]
+Description=Run Matchline external runtime-only data cycle every 15 minutes
+
+[Timer]
+OnBootSec=8min
+OnUnitInactiveSec=15min
+Persistent=true
+Unit=matchline-prospective-cycle-runtime-only.service
+
+[Install]
+WantedBy=timers.target

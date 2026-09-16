@@ -1,0 +1,27 @@
+[Unit]
+Description=Upload probability-free Matchline prospective audit evidence to Sites D1
+Wants=network-online.target
+After=network-online.target matchline-prospective-cycle-runtime-only.service
+ConditionPathExists=%h/.config/matchline/matchline-sites.env
+
+[Service]
+Type=oneshot
+WorkingDirectory=/home/hetaisheng/soccerdata
+Environment=PYTHONDONTWRITEBYTECODE=1
+Environment=TMPDIR=/dev/shm
+Environment=MATCHLINE_RUNTIME_DIR=/dev/shm/matchline-live-runtime
+Environment=MATCHLINE_PROSPECTIVE_LOCK=/home/hetaisheng/soccerdata/docs/evidence/prospective-model-lock-current.json
+EnvironmentFile=%h/.config/matchline/matchline-sites.env
+EnvironmentFile=-/etc/matchline/matchline-runtime.env
+EnvironmentFile=-%h/.config/matchline/matchline-runtime.env
+# This lane publishes counts, stage identities, timestamps and gate booleans
+# only. It cannot upload probabilities or create a complete site publication.
+ExecStart=/usr/bin/python3 -m league_platform.publish_prospective_audit \
+  --lock ${MATCHLINE_PROSPECTIVE_LOCK} \
+  --cycle ${MATCHLINE_RUNTIME_DIR}/runtime-only-cycle-latest.json \
+  --evaluation ${MATCHLINE_RUNTIME_DIR}/runtime-only-evaluation-current.json \
+  --live-snapshot ${MATCHLINE_RUNTIME_DIR}/current.json \
+  --prediction-archive ${MATCHLINE_RUNTIME_DIR}/prospective_predictions.jsonl \
+  --endpoint ${MATCHLINE_PROSPECTIVE_AUDIT_ENDPOINT}
+TimeoutStartSec=3min
+TimeoutStopSec=30s

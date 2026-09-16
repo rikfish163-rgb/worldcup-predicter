@@ -1,0 +1,59 @@
+[Unit]
+Description=Matchline external runtime-only prospective data cycle
+Wants=network-online.target
+Requires=matchline-runtime-restore.service
+After=network-online.target matchline-runtime-restore.service
+OnSuccess=matchline-prospective-audit-upload.service
+RequiresMountsFor=/media/hetaisheng/044A81D94A81C83E/soccerdata-live-runtime
+RequiresMountsFor=/media/hetaisheng/044A81D94A81C83E/matchline-runtime-critical-checkpoints
+
+[Service]
+Type=oneshot
+WorkingDirectory=/home/hetaisheng/soccerdata
+Environment=PYTHONDONTWRITEBYTECODE=1
+Environment=PYTHONUNBUFFERED=1
+Environment=TMPDIR=/dev/shm
+# The executable stays on local ext4.  Only the optional Crawl4AI package
+# tree and append-only runtime artifacts live on the configured external root.
+Environment=PYTHONPATH=/media/hetaisheng/044A81D94A81C83E/soccerdata-live-runtime/python-deps-no-deps
+Environment=XDG_CACHE_HOME=/dev/shm/matchline-runtime-only-xdg-cache
+Environment=XDG_CONFIG_HOME=/dev/shm/matchline-runtime-only-xdg-config
+Environment=XDG_STATE_HOME=/dev/shm/matchline-runtime-only-xdg-state
+# The operator may override this with a writable persistent ext4/XFS root.
+# The current NTFS mount is read-only, so the active user unit temporarily
+# points at a tmpfs mirror; this is explicitly volatile and must not be called
+# durable production storage.
+Environment=MATCHLINE_RUNTIME_DIR=/dev/shm/matchline-live-runtime
+Environment=MATCHLINE_RUNTIME_PERSISTENCE=volatile_tmpfs
+Environment=MATCHLINE_CHECKPOINT_DIR=/media/hetaisheng/044A81D94A81C83E/matchline-runtime-critical-checkpoints
+Environment=MATCHLINE_OPENFOOTBALL_RAW_ARCHIVE_DIR=/media/hetaisheng/044A81D94A81C83E/soccerdata-live-runtime/openfootball-raw
+Environment=MATCHLINE_HISTORY_RUNTIME_ROOT=/media/hetaisheng/044A81D94A81C83E/soccerdata-live-runtime
+# Keep the active runtime lane on the explicitly rebound candidate lock. A
+# lock-listed code change must create a new candidate and update this value;
+# the cycle then fails closed instead of silently using the superseded default.
+Environment=MATCHLINE_PROSPECTIVE_LOCK=/home/hetaisheng/soccerdata/docs/evidence/prospective-model-lock-current.json
+EnvironmentFile=-/etc/matchline/matchline-runtime.env
+EnvironmentFile=-%h/.config/matchline/matchline-runtime.env
+# This lane only produces append-only runtime data and receipts.  It does not
+# run strict_report, Sites builds, D1 writes or model-lock promotion.  The
+# cycle's shared lock serializes current/archive writes with the strict lane.
+ExecStart=/usr/bin/python3 -m league_platform.prospective_cycle --runtime-dir=${MATCHLINE_RUNTIME_DIR} --openfootball-raw-archive-dir=${MATCHLINE_OPENFOOTBALL_RAW_ARCHIVE_DIR} --lock=${MATCHLINE_PROSPECTIVE_LOCK} --runtime-only --crawl4ai-config /home/hetaisheng/soccerdata/config/crawl4ai_operator_public.json --enable-wikidata --min-free-bytes=1073741824
+# The runtime-only lane uses dedicated pointer names. Mirror bounded canonical
+# pointers inside the same runtime root so the local read model never falls
+# back to stale repository evidence and this data-only lane stays data-only.
+ExecStartPost=/usr/bin/python3 -m league_platform.runtime_evidence --runtime-dir=${MATCHLINE_RUNTIME_DIR} --lock=${MATCHLINE_PROSPECTIVE_LOCK} --cycle ${MATCHLINE_RUNTIME_DIR}/runtime-only-cycle-latest.json --evaluation ${MATCHLINE_RUNTIME_DIR}/runtime-only-evaluation-current.json --audit-output-dir ${MATCHLINE_RUNTIME_DIR} --mirror-target-dir ${MATCHLINE_RUNTIME_DIR}
+# Refresh the strict report against the active candidate lock. The report
+# verifier reads the durable history receipt/raw archive from
+# MATCHLINE_HISTORY_RUNTIME_ROOT and mirrors only the bounded pointer into
+# MATCHLINE_RUNTIME_DIR for the Sites read model.
+ExecStartPost=/bin/bash /home/hetaisheng/soccerdata/deploy/systemd/run-matchline-strict-report.sh
+# Persist the small prediction, market and gate ledgers after the complete
+# cycle/evidence write. The high-volume intelligence history remains covered
+# by the verified hourly full archive. Retention prevents content-addressed
+# generations from growing without bound. A failed checkpoint fails the unit.
+ExecStartPost=/usr/bin/python3 -m league_platform.runtime_checkpoint create --runtime-dir=${MATCHLINE_RUNTIME_DIR} --checkpoint-root=${MATCHLINE_CHECKPOINT_DIR} --retain=4
+# The append-only result-admission replay is CPU-bound on the retained
+# snapshot ledger. Keep the evidence gate fail-closed, but allow one complete
+# cycle to finish instead of terminating it mid-evaluation.
+TimeoutStartSec=90min
+TimeoutStopSec=60s

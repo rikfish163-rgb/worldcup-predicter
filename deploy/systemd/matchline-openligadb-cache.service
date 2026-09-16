@@ -13,6 +13,6 @@ Environment=PYTHONUNBUFFERED=1
 EnvironmentFile=%h/.config/matchline/matchline-sites.env
 EnvironmentFile=-/etc/matchline/matchline-runtime.env
 EnvironmentFile=-%h/.config/matchline/matchline-runtime.env
-ExecStart=/home/hetaisheng/soccerdata/.venv/bin/python -m league_platform.publish_openligadb_cache
+ExecStart=/home/hetaisheng/soccerdata/.venv/bin/python -m league_platform.publish_openligadb_cache --league all
 TimeoutStartSec=90s
 TimeoutStopSec=30s

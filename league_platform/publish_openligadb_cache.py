@@ -26,6 +26,7 @@ MAX_ROWS = 2_000
 MAX_RESPONSE_BODY_BYTES = 1024 * 1024
 DEFAULT_ENDPOINT = "https://matchline-intelligence.willif57kbkd.chatgpt.site/api/v1/openligadb"
 TOKEN_ENV = "MATCHLINE_INGEST_TOKEN"
+OPENLIGADB_LEAGUES = ("bl1", "bl2", "bl3")
 
 
 class _NoRedirect(urllib.request.HTTPRedirectHandler):
@@ -56,8 +57,10 @@ def current_season(now: datetime | None = None) -> int:
     return reference.year if reference.month >= 7 else reference.year - 1
 
 
-def source_url_for_season(season: int) -> str:
-    return f"https://{OPENLIGADB_HOST}/getmatchdata/bl1/{season}"
+def source_url_for_season(season: int, league: str = "bl1") -> str:
+    if league not in OPENLIGADB_LEAGUES:
+        raise ValueError("OpenLigaDB league is not allowlisted")
+    return f"https://{OPENLIGADB_HOST}/getmatchdata/{league}/{season}"
 
 
 def normalized_endpoint(value: str) -> str:
@@ -75,9 +78,9 @@ def normalized_endpoint(value: str) -> str:
     return urllib.parse.urlunsplit(parsed)
 
 
-def fetch_payload(season: int, *, timeout: float = 30.0) -> list[object]:
+def fetch_payload(season: int, league: str = "bl1", *, timeout: float = 30.0) -> list[object]:
     request = urllib.request.Request(
-        source_url_for_season(season),
+        source_url_for_season(season, league),
         method="GET",
         headers={
             "Accept": "application/json",
@@ -110,14 +113,18 @@ def build_cache_payload(
     payload: Sequence[object],
     *,
     season: int,
+    league: str = "bl1",
     retrieved_at: str | None = None,
 ) -> bytes:
+    if league not in OPENLIGADB_LEAGUES:
+        raise ValueError("OpenLigaDB league is not allowlisted")
     retrieved = retrieved_at or datetime.now(timezone.utc).isoformat(timespec="milliseconds").replace("+00:00", "Z")
     body = canonical_json_bytes({
+        "league": league,
         "schema": CACHE_SCHEMA,
         "season": season,
         "retrievedAt": retrieved,
-        "sourceUrl": source_url_for_season(season),
+        "sourceUrl": source_url_for_season(season, league),
         "payload": list(payload),
     })
     if len(body) > MAX_REQUEST_BYTES:
@@ -168,6 +175,12 @@ def upload_cache(
 def _parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--endpoint", default=os.environ.get("MATCHLINE_OPENLIGADB_CACHE_ENDPOINT", DEFAULT_ENDPOINT))
+    parser.add_argument(
+        "--league",
+        choices=("all", *OPENLIGADB_LEAGUES),
+        default=os.environ.get("MATCHLINE_OPENLIGADB_LEAGUE", "all"),
+        help="league to refresh, or all three allowlisted leagues (default)",
+    )
     parser.add_argument("--timeout", type=float, default=60.0)
     return parser
 
@@ -175,23 +188,31 @@ def _parser() -> argparse.ArgumentParser:
 def main(argv: Sequence[str] | None = None) -> int:
     args = _parser().parse_args(argv)
     season = current_season()
-    payload = fetch_payload(season, timeout=args.timeout)
-    body = build_cache_payload(payload, season=season)
-    result = upload_cache(
-        body,
-        endpoint=args.endpoint,
-        token=os.environ.get(TOKEN_ENV, ""),
-        timeout=args.timeout,
-    )
+    leagues = OPENLIGADB_LEAGUES if args.league == "all" else (args.league,)
+    results = []
+    for league in leagues:
+        payload = fetch_payload(season, league, timeout=args.timeout)
+        body = build_cache_payload(payload, season=season, league=league)
+        result = upload_cache(
+            body,
+            endpoint=args.endpoint,
+            token=os.environ.get(TOKEN_ENV, ""),
+            timeout=args.timeout,
+        )
+        results.append({
+            "league": league,
+            "status": result.get("status"),
+            "schema": result.get("schema"),
+            "retrievedAt": result.get("retrievedAt"),
+            "rowCount": result.get("rowCount"),
+            "sizeBytes": result.get("sizeBytes"),
+            "sha256": result.get("sha256"),
+            "key": result.get("key"),
+        })
     print(json.dumps({
-        "status": result.get("status"),
-        "schema": result.get("schema"),
-        "season": result.get("season"),
-        "retrievedAt": result.get("retrievedAt"),
-        "rowCount": result.get("rowCount"),
-        "sizeBytes": result.get("sizeBytes"),
-        "sha256": result.get("sha256"),
-        "key": result.get("key"),
+        "status": "ok",
+        "season": season,
+        "leagues": results,
     }, ensure_ascii=False, sort_keys=True))
     return 0
 

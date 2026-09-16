@@ -37,7 +37,18 @@ def _elo_predictions(
     ratings: dict[str, float] = defaultdict(lambda: 1500.0)
     rows = []
     ordered = sorted(matches, key=lambda match: (match.kickoff_at, match.id))
-    for _, group in groupby(ordered, key=lambda match: match.kickoff_at):
+    date_only_dates = {
+        match.kickoff_at.date()
+        for match in ordered
+        if match.kickoff_time_quality == "date_only"
+    }
+    def batch_key(match: Match):
+        return (
+            ("calendar_date", match.kickoff_at.date())
+            if match.kickoff_at.date() in date_only_dates
+            else ("timestamp", match.kickoff_at)
+        )
+    for _, group in groupby(ordered, key=batch_key):
         batch = list(group)
         pending = []
         for match in batch:

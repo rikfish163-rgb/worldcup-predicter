@@ -9,6 +9,7 @@ from typing import Literal
 
 SourceStatus = Literal["fresh", "delayed", "stale", "unavailable"]
 MatchStatus = Literal["upcoming", "live", "finished", "postponed", "cancelled"]
+KickoffTimeQuality = Literal["exact", "date_only"]
 
 
 @dataclass(frozen=True, slots=True)
@@ -44,6 +45,26 @@ class Match:
     provider_fixture_id: str
     source_name: str
     source_license_status: str
+    kickoff_time_quality: KickoffTimeQuality = "exact"
+    kickoff_time_source: str = "provider"
+    kickoff_time_observed_at: str | None = None
+    # For live result snapshots, the provider observation can occur after the
+    # kickoff.  Keeping it separate from kickoff_at lets causal replays delay
+    # the state update until the result was actually available.
+    result_observed_at: str | None = None
+    market_time_basis: str = "unavailable"
+    # Keep opening and closing snapshots separately.  ``market_probability``
+    # remains the historical compatibility field and prefers closing odds,
+    # but stage-aware audits must never silently treat a closing quote as a
+    # 24-hour quote.
+    market_opening_probability: ProbabilitySet | None = None
+    market_closing_probability: ProbabilitySet | None = None
+    handicap_line: float | None = None
+    handicap_probability: dict[str, float] | None = None
+    total_line: float | None = None
+    total_probability: dict[str, float] | None = None
+    total_opening_probability: dict[str, float] | None = None
+    total_closing_probability: dict[str, float] | None = None
 
     def to_dict(self) -> dict:
         payload = asdict(self)

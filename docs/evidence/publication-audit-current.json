@@ -1,0 +1,153 @@
+{
+  "schema_version": "matchline.publication_audit.v1",
+  "checked_at": "2026-08-21T14:35:17.308623+00:00",
+  "status": "blocked",
+  "public_url": "https://predict.hetaisheng.ccwu.cc",
+  "max_lag_seconds": 1800,
+  "errors": [
+    "public_model_hash:missing",
+    "public_snapshot_behind_local"
+  ],
+  "checks": {
+    "public_read_model_reachable": true,
+    "model_lock_match": false,
+    "snapshot_time_comparable": true,
+    "snapshot_lag_seconds": 322427,
+    "snapshot_within_lag_budget": false,
+    "production_allowed_by_public_gate": false,
+    "public_contract_routes_ok": true
+  },
+  "local": {
+    "as_of": "2026-08-21T14:23:27.648684+00:00",
+    "as_of_valid": true,
+    "model_version_sha256": "2e9085e4c5c8fa26414bd4946056d2d0eb5f6da24e8a3a1a0cb68548aa45d47b",
+    "production_ready": false,
+    "snapshot_schema": "matchline.offline_snapshot.v1"
+  },
+  "public": {
+    "mode": "d1",
+    "status": "ok",
+    "generated_at": "2026-08-21T14:34:55.083Z",
+    "as_of": "2026-08-17T20:49:40.385Z",
+    "model_version_sha256": null,
+    "gate_status": "pending_prospective_window",
+    "production_ready": false,
+    "production_allowed": false
+  },
+  "public_sources": {
+    "status": "ok",
+    "run_count": 50,
+    "latest_finished_at": "2026-08-17T20:49:40.385000+00:00",
+    "providers": [
+      {
+        "provider": "Matchline lineup poll",
+        "status": "degraded",
+        "finished_at": "2026-08-17T20:49:40.385Z"
+      },
+      {
+        "provider": "Legacy anti-WAF relay",
+        "status": "forbidden",
+        "finished_at": "2026-08-17T20:49:40.385Z"
+      },
+      {
+        "provider": "FotMob",
+        "status": "blocked_by_robots",
+        "finished_at": "2026-08-17T20:49:40.385Z"
+      },
+      {
+        "provider": "Lazq",
+        "status": "quarantined",
+        "finished_at": "2026-08-17T20:49:40.385Z"
+      },
+      {
+        "provider": "Crawl4AI",
+        "status": "degraded",
+        "finished_at": "2026-08-17T20:49:40.385Z"
+      },
+      {
+        "provider": "SoFIFA",
+        "status": "blocked_by_robots",
+        "finished_at": "2026-08-17T20:49:40.385Z"
+      },
+      {
+        "provider": "ClubElo",
+        "status": "quarantined",
+        "finished_at": "2026-08-17T20:49:40.385Z"
+      },
+      {
+        "provider": "WhoScored",
+        "status": "ok",
+        "finished_at": "2026-08-17T20:49:40.385Z"
+      },
+      {
+        "provider": "FBref",
+        "status": "quarantined",
+        "finished_at": "2026-08-17T20:49:40.385Z"
+      },
+      {
+        "provider": "MatchHistory",
+        "status": "training_only",
+        "finished_at": "2026-08-17T20:49:40.385Z"
+      },
+      {
+        "provider": "OpenLigaDB",
+        "status": "ok",
+        "finished_at": "2026-08-17T20:49:40.385Z"
+      },
+      {
+        "provider": "OddStorm",
+        "status": "ok",
+        "finished_at": "2026-08-17T20:49:40.385Z"
+      },
+      {
+        "provider": "Open-Meteo",
+        "status": "ok",
+        "finished_at": "2026-08-17T20:49:40.385Z"
+      },
+      {
+        "provider": "Public RSS",
+        "status": "ok",
+        "finished_at": "2026-08-17T20:49:40.385Z"
+      },
+      {
+        "provider": "SofaScore",
+        "status": "failed",
+        "finished_at": "2026-08-17T20:49:40.385Z"
+      },
+      {
+        "provider": "Official lineups",
+        "status": "degraded",
+        "finished_at": "2026-08-17T20:49:40.385Z"
+      },
+      {
+        "provider": "Understat",
+        "status": "ok",
+        "finished_at": "2026-08-17T20:49:40.385Z"
+      },
+      {
+        "provider": "ESPN",
+        "status": "ok",
+        "finished_at": "2026-08-17T20:49:40.385Z"
+      },
+      {
+        "provider": "中国体育彩票",
+        "status": "ok",
+        "finished_at": "2026-08-17T20:49:40.385Z"
+      },
+      {
+        "provider": "OddStorm public bookmaker comparison",
+        "status": "ok",
+        "finished_at": "2026-08-17T20:49:24.339Z"
+      }
+    ]
+  },
+  "public_preflight": {
+    "status": "ready_for_data_review",
+    "reachable": true,
+    "deployment_ready": true,
+    "all_expected_routes_ok": true,
+    "failed_routes": []
+  },
+  "deployment_required": true,
+  "interpretation": "Do not call the public site current; publish or repair the read model before presenting it as live."
+}

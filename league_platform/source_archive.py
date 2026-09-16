@@ -29,14 +29,18 @@ DEFAULT_ARCHIVE_DIR = Path("data/live/archive")
 MANIFEST_NAME = "snapshots.jsonl"
 DEFAULT_MAX_BYTES = 16 * 1024 * 1024
 _HASH_LENGTH = 64
+_DERIVED_METADATA_VERSION = "2"
 _PROVIDER_KEYS = ("espn", "espn_markets", "understat")
-_OPTIONAL_PROVIDER_KEYS = ("news", "weather", "sofascore")
+_OPTIONAL_PROVIDER_KEYS = ("news", "weather", "sofascore", "crawl4ai", "espn_rosters")
 _PROVIDER_RECORD_KEYS = (
     "fixtures",
     "events",
     "markets",
     "odds",
     "team_features",
+    "team_status",
+    "incidents",
+    "match_stats",
     "features",
     "xg",
     "items",
@@ -46,9 +50,14 @@ _PROVIDER_RECORD_KEYS = (
     "forecast",
     "observations",
     "weather",
+    "geocodes",
     "matches",
     "records",
+    "lines",
+    "lineups",
     "data",
+    "pages",
+    "rosters",
 )
 
 
@@ -286,6 +295,13 @@ def summarize_snapshot(payload: Mapping[str, Any]) -> dict[str, Any]:
         for key in _PROVIDER_KEYS
     }
     provider_counts = {key: len(records) for key, records in records_by_provider.items()}
+    market_section = _provider_section(payload, "espn_markets")
+    if isinstance(market_section, Mapping) and isinstance(market_section.get("team_status"), list):
+        provider_status["espn_team_status"] = "ok" if market_section["team_status"] else "missing"
+        provider_counts["espn_team_status"] = len(market_section["team_status"])
+    if isinstance(market_section, Mapping) and isinstance(market_section.get("incidents"), list):
+        provider_status["espn_incidents"] = "ok" if market_section["incidents"] else "missing"
+        provider_counts["espn_incidents"] = len(market_section["incidents"])
     for key in _OPTIONAL_PROVIDER_KEYS:
         section = _provider_section(payload, key)
         if section is not None:
@@ -318,6 +334,9 @@ def summarize_snapshot(payload: Mapping[str, Any]) -> dict[str, Any]:
 
     provider_errors: dict[str, int] = {}
     for key in provider_status:
+        if key == "espn_team_status":
+            provider_errors[key] = 0
+            continue
         section = _provider_section(payload, key)
         errors = section.get("errors") if section else None
         provider_errors[key] = len(errors) if isinstance(errors, list) else 0
@@ -326,7 +345,7 @@ def summarize_snapshot(payload: Mapping[str, Any]) -> dict[str, Any]:
         key in payload for key in ("fixtures", "markets", "odds", "team_features", "xg", "xg_features")
     ) or any(
         isinstance(payload.get(key), Mapping)
-        and any(name in payload[key] for name in ("fixtures", "markets", "team_features", "features", "xg"))
+        and any(name in payload[key] for name in ("fixtures", "markets", "team_features", "features", "xg", "incidents"))
         for key in _PROVIDER_KEYS
     )
     if (
@@ -342,6 +361,7 @@ def summarize_snapshot(payload: Mapping[str, Any]) -> dict[str, Any]:
         "xg_team_features": len(xg),
     }
     return {
+        "derived_metadata_version": _DERIVED_METADATA_VERSION,
         "provider_status": provider_status,
         "provider_errors": provider_errors,
         "provider_counts": provider_counts,
@@ -402,6 +422,9 @@ def _validate_record(record: Any) -> dict[str, Any]:
         if alias in record and record[alias] != record["content_sha256"]:
             raise SnapshotArchiveError(f"archive manifest {alias} does not match content hash")
     _safe_relative_path(record["raw_path"])
+    derived_version = record.get("derived_metadata_version")
+    if derived_version is not None and derived_version != _DERIVED_METADATA_VERSION:
+        raise SnapshotArchiveError("archive manifest derived metadata version is unsupported")
     counts = record["counts"]
     if not isinstance(counts, dict) or any(
         not isinstance(counts.get(key), int) or isinstance(counts.get(key), bool) or counts[key] < 0
@@ -497,11 +520,17 @@ def _verify_raw(
     if payload_as_of.astimezone(timezone.utc) != expected_as_of.astimezone(timezone.utc):
         raise SnapshotArchiveError("archive manifest as_of does not match raw snapshot")
     expected = summarize_snapshot(payload)
-    for key in ("counts", "provider_status", "provider_errors"):
-        if key in record and record[key] != expected[key]:
-            raise SnapshotArchiveError(f"archive manifest {key} does not match raw snapshot")
-    if "provider_counts" in record and record["provider_counts"] != expected["provider_counts"]:
-        raise SnapshotArchiveError("archive manifest provider_counts does not match raw snapshot")
+    # ``provider_status``/counts are derived metadata, not the immutable raw
+    # evidence.  Their semantics have changed over the lifetime of the local
+    # archive (for example geocoding rows were later counted explicitly).
+    # Versioned records remain strict; pre-version manifests are accepted for
+    # compatibility after the raw hash and as-of checks above.
+    if record.get("derived_metadata_version") == _DERIVED_METADATA_VERSION:
+        for key in ("counts", "provider_status", "provider_errors"):
+            if key in record and record[key] != expected[key]:
+                raise SnapshotArchiveError(f"archive manifest {key} does not match raw snapshot")
+        if "provider_counts" in record and record["provider_counts"] != expected["provider_counts"]:
+            raise SnapshotArchiveError("archive manifest provider_counts does not match raw snapshot")
     if "content_size" in record and record["content_size"] != len(raw):
         raise SnapshotArchiveError("archive manifest content_size does not match raw snapshot")
     return raw

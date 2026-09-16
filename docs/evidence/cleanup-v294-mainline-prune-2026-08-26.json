@@ -1,0 +1,59 @@
+{
+  "schema_version": "matchline.cleanup.v1",
+  "cleaned_at": "2026-08-26T21:59:30+08:00",
+  "scope": "remove_retired_evidence_from_active_mainline",
+  "result": "mainline_evidence_reduced_without_data_loss",
+  "moved_to_recoverable_archive": [
+    {
+      "path": "docs/evidence/lock-migration-v287-readiness-2026-08-26.json",
+      "archive_path": "/media/hetaisheng/044A81D94A81C83E/soccerdata-iteration-archive-2026-08-26/docs-mainline-history-2026-08-26/retired-evidence-v294/lock-migration-v287-readiness-2026-08-26.json",
+      "bytes": 3586,
+      "sha256": "2404c2faaf3acd9ef38f3c74af34dcbe7b87d928e2a28c395d64786a55760e69",
+      "reason": "superseded v287 migration receipt; not read by any current runtime or publisher"
+    },
+    {
+      "path": ".pytest_cache/",
+      "archive_path": "/media/hetaisheng/044A81D94A81C83E/soccerdata-iteration-archive-2026-08-26/cache/cleanup-v294-generated-residue-2026-08-26/pytest_cache/",
+      "reason": "reproducible test cache; not a runtime or evidence input"
+    },
+    {
+      "path": "logs/pytest.log",
+      "archive_path": "/media/hetaisheng/044A81D94A81C83E/soccerdata-iteration-archive-2026-08-26/cache/cleanup-v294-generated-residue-2026-08-26/pytest.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "reason": "empty transient test log"
+    },
+    {
+      "path": "logs/error.log",
+      "archive_path": "/media/hetaisheng/044A81D94A81C83E/soccerdata-iteration-archive-2026-08-26/cache/cleanup-v294-generated-residue-2026-08-26/error.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "reason": "empty transient error log"
+    }
+  ],
+  "active_evidence_retained": [
+    "docs/evidence/prospective-model-lock-current.json",
+    "docs/evidence/prospective-cycle-latest.json",
+    "docs/evidence/prospective-evaluation-current.json",
+    "docs/evidence/maturity-gate-current.json",
+    "docs/evidence/publication-audit-current.json",
+    "docs/evidence/model-selection-audit-current.json",
+    "docs/evidence/cleanup-v293-mainline-clean-2026-08-26.json"
+  ],
+  "verification": {
+    "retired_file_absent_from_active_evidence": true,
+    "archive_sha256_rechecked": true,
+    "no_runtime_data_deleted": true,
+    "no_active_lock_changed": true,
+    "no_d1_write": true,
+    "no_public_deploy": true,
+    "no_service_restart": true,
+    "python_publisher_and_raw_archive_regression": "63 passed",
+    "sites_rights_and_ingress_regression": "28 passed",
+    "active_lock_unchanged_validation": "8 mismatches; intentionally still blocked"
+  },
+  "notes": [
+    "The active model lock remains pending and hash-inconsistent; this cleanup does not activate or rewrite it.",
+    "The external archive remains the recovery boundary for retired iteration evidence."
+  ]
+}

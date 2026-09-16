@@ -1,0 +1,130 @@
+{
+  "captured_scope": "合规固定端点探测；仅访问已允许的 CC0/CC-BY/OpenLigaDB 端点；不包含受限来源请求，不包含代理、UA轮换、WAF/robots绕过或页面枚举。",
+  "probes": [
+    {
+      "adapter_run": {
+        "final_url": "https://api.met.no/weatherapi/locationforecast/2.0/compact?lat=40.4361&lon=-3.5994",
+        "record_count": 1,
+        "request_count": 1,
+        "user_agent": "MatchlineResearch/1.0 (+https://predict.hetaisheng.ccwu.cc)"
+      },
+      "attempted": true,
+      "content_bytes": 40072,
+      "content_encoding": null,
+      "content_sha256": "4dae057565bdad83783710a03e32066d04bc5ecc7b72380047b9365fdb0a11fc",
+      "content_types": [
+        "application/json"
+      ],
+      "error_count": 0,
+      "evidence": [
+        "https://api.met.no/weatherapi/locationforecast/2.0/compact?lat=40.4361&lon=-3.5994"
+      ],
+      "network_opened": true,
+      "raw_hashes": [
+        "4dae057565bdad83783710a03e32066d04bc5ecc7b72380047b9365fdb0a11fc"
+      ],
+      "record_count": 1,
+      "request_started_at": "2026-09-15T21:50:42.370609+00:00",
+      "response_observed_at": "2026-09-15T21:50:43.451300+00:00",
+      "source_id": "met_norway_weather",
+      "state": "success",
+      "status": "ok",
+      "status_codes": [
+        200
+      ],
+      "wire_bytes": 40072,
+      "wire_sha256": "4dae057565bdad83783710a03e32066d04bc5ecc7b72380047b9365fdb0a11fc"
+    },
+    {
+      "attempted": true,
+      "content_bytes": 54565,
+      "content_encoding": null,
+      "content_sha256": "1feef8cdd2e7c3aeadbe05154083ec3f87cb1f8c90af6cd26b0d63f5711c9380",
+      "content_types": [
+        "text/plain; charset=utf-8"
+      ],
+      "error_count": 0,
+      "evidence": [
+        "https://raw.githubusercontent.com/openfootball/football.json/master/2026-27/en.1.json"
+      ],
+      "network_opened": true,
+      "raw_hashes": [
+        "1feef8cdd2e7c3aeadbe05154083ec3f87cb1f8c90af6cd26b0d63f5711c9380"
+      ],
+      "record_count": null,
+      "request_started_at": "2026-09-15T19:41:55.871267+00:00",
+      "response_observed_at": "2026-09-15T19:41:56.531521+00:00",
+      "source_id": "openfootball_current",
+      "state": "success",
+      "status": "ok",
+      "status_codes": [
+        200
+      ],
+      "wire_bytes": 54565,
+      "wire_sha256": "1feef8cdd2e7c3aeadbe05154083ec3f87cb1f8c90af6cd26b0d63f5711c9380"
+    },
+    {
+      "attempted": true,
+      "content_bytes": 278640,
+      "content_encoding": null,
+      "content_sha256": "1d64d3f9473abf28dfc0db3f3e6a9f2257562982580774eefa32e10768156508",
+      "content_types": [
+        "application/json; charset=utf-8"
+      ],
+      "error_count": 0,
+      "evidence": [
+        "https://api.openligadb.de/getmatchdata/bl1/2026"
+      ],
+      "network_opened": true,
+      "raw_hashes": [
+        "1d64d3f9473abf28dfc0db3f3e6a9f2257562982580774eefa32e10768156508"
+      ],
+      "record_count": null,
+      "request_started_at": "2026-09-15T19:41:56.531658+00:00",
+      "response_observed_at": "2026-09-15T19:42:01.441288+00:00",
+      "source_id": "openligadb_secondary_results",
+      "state": "success",
+      "status": "ok",
+      "status_codes": [
+        200
+      ],
+      "wire_bytes": 278640,
+      "wire_sha256": "1d64d3f9473abf28dfc0db3f3e6a9f2257562982580774eefa32e10768156508"
+    },
+    {
+      "adapter_run": {
+        "final_url": "https://www.wikidata.org/w/api.php?action=wbgetentities&ids=Q1369687&props=claims%7Clabels%7Cdescriptions&languages=en&format=json",
+        "record_count": 1,
+        "request_count": 1,
+        "user_agent": "MatchlineResearch/1.0 (+https://predict.hetaisheng.ccwu.cc)"
+      },
+      "attempted": true,
+      "content_bytes": 27910,
+      "content_encoding": null,
+      "content_sha256": "518ff4b174ceff21bb71e268d98766f278b43f819fc77d79ccdf69954592dfe0",
+      "content_types": [
+        "application/json; charset=utf-8"
+      ],
+      "error_count": 0,
+      "evidence": [
+        "https://www.wikidata.org/w/api.php?action=wbgetentities&ids=Q1369687&props=claims%7Clabels%7Cdescriptions&languages=en&format=json"
+      ],
+      "network_opened": true,
+      "raw_hashes": [
+        "518ff4b174ceff21bb71e268d98766f278b43f819fc77d79ccdf69954592dfe0"
+      ],
+      "record_count": 1,
+      "request_started_at": "2026-09-15T21:50:32.799127+00:00",
+      "response_observed_at": "2026-09-15T21:50:42.370501+00:00",
+      "source_id": "wikidata_entities",
+      "state": "success",
+      "status": "ok",
+      "status_codes": [
+        200
+      ],
+      "wire_bytes": 27910,
+      "wire_sha256": "518ff4b174ceff21bb71e268d98766f278b43f819fc77d79ccdf69954592dfe0"
+    }
+  ],
+  "schema_version": "matchline.source_probe_evidence.v1"
+}

@@ -1,0 +1,117 @@
+{
+  "schema_version": "matchline.cleanup.v1",
+  "cleaned_at": "2026-08-26T21:20:22+08:00",
+  "scope": "consolidate_iteration_receipts",
+  "result": "mainline_kept_small_and_recoverable",
+  "archive_root": "/media/hetaisheng/044A81D94A81C83E/soccerdata-iteration-archive-2026-08-26/cache/cleanup-v293-history-2026-08-26",
+  "archived_iteration_receipts": [
+    {
+      "name": "cleanup-v285-mainline-clean-2026-08-26.json",
+      "bytes": 20318,
+      "sha256": "4b8e398c25bd70aa1da4cb3c5caa9b60d5c629c4b0e4585cec996554e5d4c1d6"
+    },
+    {
+      "name": "cleanup-v286-runtime-residue-2026-08-26.json",
+      "bytes": 5595,
+      "sha256": "7cdae73fda7f5ee680aee4e35b4c4008c5c54c410391a862d92a5a31edbc1f98"
+    },
+    {
+      "name": "cleanup-v287-working-tree-residue-2026-08-26.json",
+      "bytes": 12997,
+      "sha256": "e03894a6f7e560089bba106cf548197a3d022521c702533caab85f4610d72893"
+    },
+    {
+      "name": "cleanup-v288-mainline-prune-2026-08-26.json",
+      "bytes": 1519,
+      "sha256": "dcc83c246c52c1fc979241e4972068575ac1618f02df138c3a280573ff9c3c9b"
+    },
+    {
+      "name": "cleanup-v289-space-recovery-2026-08-26.json",
+      "bytes": 1291,
+      "sha256": "b18baac897049bf85a310d2e1e4c95b70f9adadab97b28ce6b037918eddd9b27"
+    },
+    {
+      "name": "cleanup-v290-typecheck-cache-2026-08-26.json",
+      "bytes": 1163,
+      "sha256": "38f269d8c48d914f7ec2c7d14a9bb84362ffd94a044572291006d4eb11fcd973"
+    },
+    {
+      "name": "cleanup-v291-post-verification-2026-08-26.json",
+      "bytes": 2647,
+      "sha256": "e87bb5ac4159b81566574e20e157f12b3a636f1fe9b21a892cd78f1a3c25d902"
+    },
+    {
+      "name": "cleanup-v292-doc-prune-2026-08-26.json",
+      "bytes": 1806,
+      "sha256": "fda07c9c026626b1e5ed01ba2dfefa29b42f4f524ff5b0257d02a9ce59d73f51"
+    }
+  ],
+  "retained_mainline_evidence": [
+    "docs/evidence/prospective-model-lock-current.json",
+    "docs/evidence/lock-migration-v287-readiness-2026-08-26.json",
+    "docs/evidence/prospective-cycle-latest.json",
+    "docs/evidence/prospective-evaluation-current.json",
+    "docs/evidence/maturity-gate-current.json",
+    "docs/evidence/publication-audit-current.json",
+    "docs/evidence/model-selection-audit-current.json"
+  ],
+  "preserved_active_runtime": [
+    "matchline_sites/.runtime/",
+    "matchline_sites/.wrangler/",
+    "matchline_sites/dist/",
+    "/dev/shm/matchline-live-runtime/",
+    "/media/hetaisheng/044A81D94A81C83E/soccerdata-live-runtime/openfootball-raw/"
+  ],
+  "removed_empty_directories": [
+    "wc_analysis/site/"
+  ],
+  "verification": {
+    "python_non_external": {
+      "passed": 1314,
+      "skipped": 72,
+      "failed": 0,
+      "warnings": 4,
+      "log_sha256": "8be09c8690269b62bdc9c2e61c1531642e03188d5d156d25bed0eedcb600ac2c"
+    },
+    "sites_node": {
+      "passed": 405,
+      "failed": 0,
+      "cancelled": 0,
+      "log_archive": "/media/hetaisheng/044A81D94A81C83E/soccerdata-iteration-archive-2026-08-26/verification/cleanup-v293-mainline-clean-2026-08-26/matchline-sites-full-current.log",
+      "log_sha256": "0235aa3677a1170d0d164b6adc1ffd813bc3803fc8577a51e39ddf51ee3cbacf"
+    },
+    "build_assets": {
+      "referenced_assets": 48,
+      "status": "pass"
+    },
+    "outer_diff_check": "pass",
+    "sites_diff_check": "pass",
+    "local_sites_service": "active"
+  },
+  "archived_temporary_validation_logs": [
+    {
+      "name": "matchline-full-pytest.log",
+      "bytes": 775,
+      "sha256": "8be09c8690269b62bdc9c2e61c1531642e03188d5d156d25bed0eedcb600ac2c"
+    },
+    {
+      "name": "matchline-sites-full-current.log",
+      "bytes": 85320,
+      "sha256": "0235aa3677a1170d0d164b6adc1ffd813bc3803fc8577a51e39ddf51ee3cbacf"
+    },
+    {
+      "name": "matchline-systemd-verify.txt",
+      "bytes": 734,
+      "sha256": "a00e4912b60319791c6d2637541993bed8e37bd0760afec3f3f372afee35e1fc"
+    }
+  ],
+  "explicit_non_actions": [
+    "no_git_reset_or_clean",
+    "no_commit_or_push",
+    "no_D1_write",
+    "no_public_deploy",
+    "no_active_service_restart",
+    "no_historical_data_deletion"
+  ],
+  "follow_up": "The active lock remains pending and hash-inconsistent; candidate v287 remains isolated until explicitly approved."
+}

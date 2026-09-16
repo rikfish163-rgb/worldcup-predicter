@@ -12,11 +12,11 @@ from __future__ import annotations
 import hashlib
 import json
 import math
-import urllib.error
-import urllib.request
-from datetime import datetime, timedelta, timezone
+from datetime import datetime, timezone
 from typing import Callable
 from urllib.parse import urlencode, urlparse
+
+from league_platform.source_rights import SourceId, rights_blocked_envelope
 
 
 OPEN_METEO_HOST = "api.open-meteo.com"
@@ -25,7 +25,12 @@ OPEN_METEO_SOURCE_NAME = "Open-Meteo"
 DEFAULT_TIMEOUT_SECONDS = 10.0
 MAX_TIMEOUT_SECONDS = 30.0
 MAX_CONTENT_BYTES = 5 * 1024 * 1024
-DEFAULT_HORIZON_DAYS = 16
+# The public forecast endpoint's practical range is today plus the next
+# fifteen days.  Keeping one day of margin avoids issuing requests at the
+# provider's inclusive boundary, which otherwise returns HTTP 400 and looks
+# like a source failure rather than an unavailable forecast.
+DEFAULT_HORIZON_DAYS = 15
+MAX_CONCURRENT_REQUESTS = 8
 
 HOURLY_FIELDS = (
     "temperature_2m",
@@ -68,42 +73,6 @@ def _validate_url(url: str) -> None:
         raise ValueError("Open-Meteo URL is not allowlisted")
 
 
-def _safe_opener():
-    class _NoRedirect(urllib.request.HTTPRedirectHandler):
-        def redirect_request(self, *_args, **_kwargs):
-            raise urllib.error.URLError("redirects are disabled for live source fetches")
-
-    return urllib.request.build_opener(_NoRedirect())
-
-
-def _read_limited(
-    opener: Callable[..., object] | object,
-    request: urllib.request.Request,
-    *,
-    timeout: float,
-    max_bytes: int,
-    expected_host: str,
-    expected_path: str,
-) -> bytes:
-    open_method = getattr(opener, "open", None)
-    if open_method is None:
-        open_method = opener
-    response = open_method(request, timeout=timeout)  # type: ignore[operator]
-    with response:
-        final_url = getattr(response, "geturl", lambda: request.full_url)()
-        parsed = urlparse(final_url)
-        if (
-            parsed.scheme != "https"
-            or parsed.hostname != expected_host
-            or parsed.path != expected_path
-        ):
-            raise ValueError("live source redirected to a non-allowlisted URL")
-        payload = response.read(max_bytes + 1)
-    if not isinstance(payload, bytes):
-        raise TypeError("live source response must be bytes")
-    if len(payload) > max_bytes:
-        raise ValueError("Open-Meteo response exceeded 5 MiB")
-    return payload
 
 
 def _coordinate_pair(fixture: dict) -> tuple[float, float] | None:
@@ -239,109 +208,18 @@ def fetch_open_meteo_weather(
     timeout: float = DEFAULT_TIMEOUT_SECONDS,
     opener: Callable[..., object] | object | None = None,
 ) -> dict:
-    """Fetch weather for upcoming fixtures with per-fixture error isolation.
+    """Return the v260 rights block before inspecting fixtures or the opener."""
 
-    Fixtures should contain ``kickoff_at`` and venue coordinates under
-    ``latitude``/``longitude`` (or ``venue``).  Records outside the horizon or
-    without coordinates are returned as explicit errors.  The adapter never
-    falls back to a cached or synthetic weather value.
-    """
-
-    if not isinstance(horizon_days, int) or horizon_days < 0:
-        raise ValueError("horizon_days must be a non-negative integer")
-    if not isinstance(max_fixtures, int) or max_fixtures < 0:
-        raise ValueError("max_fixtures must be a non-negative integer")
-    timeout = _validated_timeout(timeout)
     reference_time = now or datetime.now(timezone.utc)
     if reference_time.tzinfo is None:
         reference_time = reference_time.replace(tzinfo=timezone.utc)
     reference_time = reference_time.astimezone(timezone.utc)
-    cutoff = reference_time + timedelta(days=horizon_days)
-    fetcher = opener if opener is not None else _safe_opener()
-    weather: list[dict] = []
-    errors: list[dict] = []
-    observation_times: list[datetime] = []
-
-    candidates = []
-    for index, fixture in enumerate(fixtures):
-        fixture_id = str(fixture.get("id", fixture.get("fixture_id", index)))
-        try:
-            kickoff = _utc_datetime(fixture["kickoff_at"], field="kickoff_at")
-        except (KeyError, TypeError, ValueError) as exc:
-            errors.append({"fixture_id": fixture_id, "stage": "input", "error": str(exc)})
-            continue
-        if fixture.get("status") not in (None, "upcoming"):
-            errors.append(
-                {
-                    "fixture_id": fixture_id,
-                    "stage": "input",
-                    "error": "weather is only requested for upcoming fixtures",
-                }
-            )
-            continue
-        if kickoff < reference_time or kickoff > cutoff:
-            errors.append(
-                {
-                    "fixture_id": fixture_id,
-                    "stage": "horizon",
-                    "error": "fixture kickoff is outside the weather horizon",
-                }
-            )
-            continue
-        coordinates = _coordinate_pair(fixture)
-        if coordinates is None:
-            errors.append(
-                {
-                    "fixture_id": fixture_id,
-                    "stage": "coordinates",
-                    "error": "venue coordinates are unavailable or invalid",
-                }
-            )
-            continue
-        candidates.append((fixture_id, kickoff, *coordinates))
-
-    for fixture_id, kickoff, latitude, longitude in candidates[:max_fixtures]:
-        url = _weather_url(latitude, longitude, kickoff)
-        request = urllib.request.Request(
-            url,
-            headers={"Accept": "application/json", "User-Agent": "Matchline/1.0"},
-        )
-        try:
-            payload = _read_limited(
-                fetcher,
-                request,
-                timeout=timeout,
-                max_bytes=MAX_CONTENT_BYTES,
-                expected_host=OPEN_METEO_HOST,
-                expected_path=OPEN_METEO_PATH,
-            )
-            observed_at = reference_time if now is not None else datetime.now(timezone.utc)
-            weather.append(
-                parse_open_meteo_payload(
-                    payload,
-                    fixture_id=fixture_id,
-                    kickoff_at=kickoff,
-                    retrieved_at=observed_at,
-                    url=url,
-                )
-            )
-            observation_times.append(observed_at)
-        except Exception as exc:  # source-level isolation is part of the contract
-            errors.append({"fixture_id": fixture_id, "stage": "fetch", "url": url, "error": str(exc)})
-
-    for fixture_id, *_ in candidates[max_fixtures:]:
-        errors.append(
-            {"fixture_id": fixture_id, "stage": "limit", "error": "fixture fetch limit exceeded"}
-        )
-    weather.sort(key=lambda item: item["kickoff_at"])
-    return {
-        "provider": OPEN_METEO_SOURCE_NAME,
-        "retrieved_at": max(observation_times, default=reference_time).isoformat(),
-        "horizon_days": horizon_days,
-        "requested_fixtures": min(len(candidates), max_fixtures),
-        "weather": weather,
-        "errors": errors,
-    }
+    return rights_blocked_envelope(
+        SourceId.OPEN_METEO_WEATHER,
+        provider=OPEN_METEO_SOURCE_NAME,
+        checked_at=reference_time.isoformat(),
+        empty_fields=("weather",),
+    )
 
 
 # A descriptive alias for callers that prefer the API's forecast terminology.

@@ -28,6 +28,15 @@ LEAGUES = (
         "E0",
         "PL",
     ),
+    League(
+        "championship",
+        "英冠",
+        "EFL Championship",
+        "英格兰",
+        "Europe/London",
+        "E1",
+        "ELC",
+    ),
     League("la-liga", "西甲", "La Liga", "西班牙", "Europe/Madrid", "SP1", "PD"),
     League(
         "bundesliga",

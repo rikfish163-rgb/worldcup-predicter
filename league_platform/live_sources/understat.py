@@ -4,12 +4,13 @@ from __future__ import annotations
 
 import hashlib
 import gzip
-import http.cookiejar
 import io
 import json
-import urllib.request
 from collections import defaultdict
 from datetime import datetime, timezone
+from urllib.parse import urlparse
+
+from league_platform.source_rights import SourceId, rights_blocked_envelope
 
 
 UNDERSTAT_SLUGS = {
@@ -20,6 +21,7 @@ UNDERSTAT_SLUGS = {
     "ligue-1": "Ligue_1",
 }
 MAX_CONTENT_BYTES = 20 * 1024 * 1024
+UNDERSTAT_HOST = "understat.com"
 
 
 def decode_understat_payload(payload: bytes, *, max_bytes: int = MAX_CONTENT_BYTES) -> bytes:
@@ -36,6 +38,20 @@ def decode_understat_payload(payload: bytes, *, max_bytes: int = MAX_CONTENT_BYT
                 raise ValueError("Understat decompressed payload exceeded size limit")
             chunks.append(chunk)
     return b"".join(chunks)
+
+
+def _validate_response_url(url: str) -> None:
+    parsed = urlparse(url)
+    if (
+        parsed.scheme != "https"
+        or parsed.hostname != UNDERSTAT_HOST
+        or parsed.username is not None
+        or parsed.password is not None
+        or parsed.port not in (None, 443)
+    ):
+        raise ValueError("Understat response redirected to a non-allowlisted URL")
+
+
 
 
 def aggregate_understat_payload(
@@ -100,69 +116,15 @@ def aggregate_understat_payload(
 
 
 def fetch_understat_features(*, now: datetime | None = None, opener=None) -> dict:
+    """Return the v260 rights block before constructing an Understat opener."""
+
     reference_time = now or datetime.now(timezone.utc)
     if reference_time.tzinfo is None:
         reference_time = reference_time.replace(tzinfo=timezone.utc)
-    season_start = reference_time.year - 1
-    if opener is None:
-        cookie_jar = http.cookiejar.CookieJar()
-        opener = urllib.request.build_opener(urllib.request.HTTPCookieProcessor(cookie_jar))
-    observations = []
-    errors = []
-    try:
-        opener.open(
-            urllib.request.Request(
-                "https://understat.com/",
-                headers={"User-Agent": "Matchline/1.0"},
-            ),
-            timeout=30,
-        ).close()
-    except Exception as exc:
-        return {
-            "provider": "Understat",
-            "retrieved_at": reference_time.isoformat(),
-            "season_start": season_start,
-            "team_features": [],
-            "errors": [{"stage": "cookie_bootstrap", "error": str(exc)}],
-        }
-    observation_times = []
-    for competition_id, slug in UNDERSTAT_SLUGS.items():
-        url = f"https://understat.com/getLeagueData/{slug}/{season_start}"
-        request = urllib.request.Request(  # noqa: S310 - fixed HTTPS Understat host
-            url,
-            headers={
-                "Accept": "application/json",
-                "Accept-Encoding": "identity",
-                "Referer": f"https://understat.com/league/{slug}/{season_start}",
-                "User-Agent": "Matchline/1.0",
-                "X-Requested-With": "XMLHttpRequest",
-            },
-        )
-        try:
-            with opener.open(request, timeout=30) as response:
-                payload = response.read(20 * 1024 * 1024 + 1)
-            if len(payload) > 20 * 1024 * 1024:
-                raise RuntimeError("Understat response exceeded 20 MiB")
-            observed_at = reference_time if now is not None else datetime.now(timezone.utc)
-            observation_times.append(observed_at)
-            wire_sha256 = hashlib.sha256(payload).hexdigest()
-            payload = decode_understat_payload(payload)
-            rows = aggregate_understat_payload(
-                payload,
-                competition_id=competition_id,
-                retrieved_at=observed_at,
-                url=url,
-            )
-            for row in rows:
-                row["source"]["wire_sha256"] = wire_sha256
-                row["source"]["content_sha256"] = row["source"].pop("raw_sha256")
-            observations.extend(rows)
-        except Exception as exc:  # source-level isolation is part of the contract
-            errors.append({"competition_id": competition_id, "error": str(exc)})
-    return {
-        "provider": "Understat",
-        "retrieved_at": max(observation_times, default=reference_time).isoformat(),
-        "season_start": season_start,
-        "team_features": observations,
-        "errors": errors,
-    }
+    reference_time = reference_time.astimezone(timezone.utc)
+    return rights_blocked_envelope(
+        SourceId.UNDERSTAT_XG,
+        provider="Understat",
+        checked_at=reference_time.isoformat(),
+        empty_fields=("observations",),
+    )

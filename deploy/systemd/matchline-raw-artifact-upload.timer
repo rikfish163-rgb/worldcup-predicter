@@ -1,0 +1,12 @@
+[Unit]
+Description=Upload new Matchline raw source evidence every 15 minutes
+
+[Timer]
+OnBootSec=5min
+OnUnitActiveSec=15min
+Persistent=true
+AccuracySec=30s
+Unit=matchline-raw-artifact-upload.service
+
+[Install]
+WantedBy=timers.target

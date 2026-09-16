@@ -1,8 +1,35 @@
-"""Pytest fixtures for soccerdata package."""
+"""Pytest fixtures and explicit external-network test controls."""
+
+import os
 
 import pytest
 
 import soccerdata as sd
+
+
+def pytest_addoption(parser: pytest.Parser) -> None:
+    parser.addoption(
+        "--run-external",
+        action="store_true",
+        default=False,
+        help="run tests that contact live third-party football data sources",
+    )
+
+
+def pytest_collection_modifyitems(config: pytest.Config, items: list[pytest.Item]) -> None:
+    """Keep network failures explicit without making the default suite hang."""
+
+    enabled = config.getoption("--run-external") or os.environ.get(
+        "SOCCERDATA_RUN_EXTERNAL_TESTS", ""
+    ).lower() in {"1", "true", "yes"}
+    if enabled:
+        return
+    skip_external = pytest.mark.skip(
+        reason="external network test disabled; rerun with --run-external to probe the source",
+    )
+    for item in items:
+        if "external" in item.keywords:
+            item.add_marker(skip_external)
 
 
 @pytest.fixture

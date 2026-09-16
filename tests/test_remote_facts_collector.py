@@ -178,6 +178,27 @@ def test_openfootball_collector_fetches_all_fixed_current_leagues(monkeypatch):
     assert all(row["score"] == {"home": 2, "away": 1} or row["score"] == {"home": 1, "away": 0} for row in rows)
 
 
+def test_openfootball_ids_match_the_canonical_local_identity_contract():
+    config = collector.OPENFOOTBALL_CURRENT_SOURCES[0]
+    # This is the same stable identity emitted by
+    # league_platform.live_sources.openfootball_live._fixture_id.  Date and
+    # kickoff are deliberately absent so a reschedule cannot mint a new id.
+    assert collector._openfootball_id(
+        config,
+        "2026-09-06",
+        "Arsenal FC",
+        "Chelsea FC",
+        "Matchday 3",
+    ) == "openfootball:premier-league:fa9e5908fbcace047ac2375e"
+
+
+def test_openfootball_postseason_ids_keep_the_round_phase():
+    config = collector.OPENFOOTBALL_CURRENT_SOURCES[1]
+    regular = collector._openfootball_id(config, "2026-05-01", "Alpha FC", "Beta FC", "Matchday 40")
+    playoff = collector._openfootball_id(config, "2026-05-01", "Alpha FC", "Beta FC", "Playoff Final")
+    assert regular != playoff
+
+
 def test_openfootball_history_covers_three_seasons_and_eight_leagues():
     sources = collector.OPENFOOTBALL_HISTORY_SOURCES
     assert len(sources) == 24
@@ -262,7 +283,10 @@ def test_football_data_sidecar_keeps_only_parseable_fixture_counts(monkeypatch):
         return 200, csv_body
 
     monkeypatch.setattr(collector, "_http_payload", fake_http_payload)
-    sources = collector.collect_football_data(2026, "2026-09-03T00:00:00Z")
+    sources = [
+        collector._collect_football_data_source(config, 2026, "2026-09-03T00:00:00Z", rights_verified=True)
+        for config in collector.FOOTBALL_DATA_SOURCES
+    ]
 
     assert len(sources) == len(collector.FOOTBALL_DATA_SOURCES) == 8
     assert len(calls) == 8
@@ -273,13 +297,13 @@ def test_football_data_sidecar_keeps_only_parseable_fixture_counts(monkeypatch):
     assert all("FTHG" not in source and "PSH" not in source for source in sources)
     assert all("2627" in url for url in calls)
 
-
 def test_football_data_sidecar_records_transport_failure_without_zero(monkeypatch):
     monkeypatch.setattr(collector, "_http_payload", lambda _url, **_kwargs: (0, b""))
     source = collector._collect_football_data_source(
         collector.FOOTBALL_DATA_SOURCES[0],
         2026,
         "2026-09-03T00:00:00Z",
+        rights_verified=True,
     )
 
     assert source["status"] == "unavailable"
@@ -305,3 +329,38 @@ def test_openfootball_txt_rolls_year_forward_after_explicit_year(monkeypatch):
 
     assert [row["scheduledDate"] for row in rows] == ["2027-01-08", "2027-01-09"]
     assert [row["kickoffAt"] for row in rows] == ["2027-01-08T19:00:00Z", "2027-01-09T14:00:00Z"]
+
+def test_unverified_football_data_sidecar_is_blocked_without_network(monkeypatch):
+    calls: list[str] = []
+
+    def fail_http(*args, **kwargs):
+        calls.append(str(args[0] if args else kwargs))
+        raise AssertionError("unverified Football-Data source must not open network")
+
+    monkeypatch.setattr(collector, "_http_payload", fail_http)
+    sources = collector.collect_football_data(2026, "2026-09-03T00:00:00Z")
+
+    assert calls == []
+    assert len(sources) == 8
+    assert all(source["status"] == "rights_blocked" for source in sources)
+    assert all(source["recordCount"] is None for source in sources)
+    assert all(source["errorCode"] == "current_collection_rights_unverified" for source in sources)
+
+
+def test_restricted_provider_diagnostic_is_non_network(monkeypatch):
+    def fail_http(*args, **kwargs):
+        raise AssertionError("restricted provider diagnostic must not open network")
+
+    monkeypatch.setattr(collector, "_http_json", fail_http)
+    result = collector.probe_provider(
+        "espn_public_api",
+        "ESPN public API (diagnostic only)",
+        "https://site.api.espn.com/apis/site/v2/sports/soccer/eng.1/scoreboard?limit=1",
+        "2026-09-03T00:00:00Z",
+    )
+
+    assert result["status"] == "rights_blocked"
+    assert result["recordCount"] is None
+    assert result["httpStatus"] is None
+    assert result["rawSha256"] is None
+    assert result["errorCode"] == "provider_permission_required"

@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="zh-CN" data-theme="dark">
+<html lang="zh-CN" data-theme="light" data-product-direction="swiss-operational">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -12,8 +12,9 @@
       rel="icon"
       href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%233987e5'/%3E%3Cpath d='M8 23V9h3.2l4.8 7.4L20.8 9H24v14h-3.2v-8.6L16 21.6l-4.8-7.2V23z' fill='%23fff'/%3E%3C/svg%3E"
     />
-    <link rel="stylesheet" href="/styles.css" />
-    <script src="/app.js" defer></script>
+    <link rel="stylesheet" href="styles.css" />
+    <script src="offline_data.js" defer></script>
+    <script src="app.js" defer></script>
   </head>
   <body>
     <a class="skip-link" href="#workspace">跳到主要内容</a>
@@ -25,7 +26,7 @@
           <span class="brand-mark" aria-hidden="true">M</span>
           <span>
             <span class="brand-name">赛线 Matchline</span>
-            <span class="brand-sub">Model audit</span>
+            <span class="brand-sub">Data / audit</span>
           </span>
         </a>
 
@@ -43,6 +44,13 @@
               <path d="M3 10h18M8 3v4M16 3v4" stroke-linecap="round" />
             </svg>
             赛程与结果
+          </a>
+          <a class="rail-link" href="#match-center">
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <circle cx="12" cy="12" r="8" />
+              <path d="M12 7v5l3 2" stroke-linecap="round" stroke-linejoin="round" />
+            </svg>
+            实时比赛
           </a>
           <a class="rail-link" href="#stability">
             <svg viewBox="0 0 24 24" aria-hidden="true">
@@ -75,7 +83,7 @@
       <div>
         <header class="topbar">
           <span class="topbar-title">模型审计台</span>
-          <span class="topbar-sub">六联赛 · 逐场留痕</span>
+          <span class="topbar-sub">实时数据与回测隔离</span>
           <span class="topbar-spacer"></span>
           <div class="topbar-status">
             <span class="chip" id="gate-chip">
@@ -110,11 +118,11 @@
           <!-- ---------------------------------------------------- overview -->
           <section class="panel hero" id="overview" aria-labelledby="overview-title">
             <div class="hero-read">
-              <p class="eyebrow">留出赛季 2324 · 严格时间序列</p>
+            <p class="eyebrow">扩展留出 17,212 场 · 严格时间序列</p>
               <p class="hero-figure" id="hero-figure">
                 <span class="num">—</span>
               </p>
-              <h1 class="hero-claim" id="overview-title">读取模型与市场的差距</h1>
+              <h1 class="hero-claim" id="overview-title">把模型与市场的差距说清楚</h1>
               <p class="hero-lede" id="hero-lede">
                 在同一批已完赛比赛上，用同一套指标对照模型概率与博彩市场的去水概率。
               </p>
@@ -124,8 +132,8 @@
             <div class="hero-chart">
               <div class="chart-top">
                 <div>
-                  <h2 class="chart-title">校准阶梯 · 每个联赛的 Brier 分数</h2>
-                  <p class="chart-note">越靠左越准。市场是参照轨，模型与它的距离就是差距。</p>
+                <h2 class="chart-title">六联赛校准概览</h2>
+                <p class="chart-note">Brier 越低越好；市场是参照，差距直接呈现。</p>
                 </div>
                 <div class="legend" id="ladder-legend">
                   <span class="legend-item"><span class="swatch swatch--model"></span>模型</span>
@@ -176,17 +184,17 @@
           <!-- ------------------------------------------------------- tiles -->
           <section class="tiles" aria-label="平台摘要">
             <article class="tile">
-              <span class="tile-label">已核验完赛</span>
+              <span class="tile-label">已核验比赛</span>
               <strong class="tile-value" id="tile-matches">—</strong>
               <span class="tile-foot" id="tile-matches-foot">本地历史结果</span>
             </article>
             <article class="tile">
-              <span class="tile-label">当前赛程</span>
+              <span class="tile-label">当前快照</span>
               <strong class="tile-value" id="tile-fixtures">—</strong>
               <span class="tile-foot" id="tile-fixtures-foot">来自当前快照</span>
             </article>
             <article class="tile">
-              <span class="tile-label">已评估联赛</span>
+              <span class="tile-label">模型评估</span>
               <strong class="tile-value" id="tile-models">—</strong>
               <span class="tile-foot" id="tile-models-foot">滚动验证完成</span>
             </article>
@@ -202,7 +210,7 @@
             <div class="panel" id="fixtures">
               <div class="panel-head">
                 <div>
-                  <p class="eyebrow">Fixtures</p>
+                  <p class="eyebrow">比赛数据</p>
                   <h2 id="fixtures-title">赛程与结果</h2>
                 </div>
                 <p id="fixture-count">正在加载</p>
@@ -248,16 +256,45 @@
             <div class="panel" id="sources">
               <div class="panel-head">
                 <div>
-                  <p class="eyebrow">Source health</p>
+                  <p class="eyebrow">数据层</p>
                   <h2>数据来源状态</h2>
                 </div>
               </div>
               <div class="panel-body">
                 <div id="source-list"></div>
               </div>
+              <div class="panel-head source-registry-head">
+                <div>
+                  <p class="eyebrow">轮询登记</p>
+                  <h3>公开来源运行状态</h3>
+                </div>
+                <p>策略与本周期观测分开记录；未授权来源不会被自动启用。</p>
+              </div>
+              <div class="panel-body">
+                <div id="source-registry-summary" class="source-registry-summary" aria-live="polite"></div>
+                <div id="source-registry-list"></div>
+              </div>
+              <div class="panel-body source-substatus" id="independent-market-status"></div>
               <div class="panel-head" style="border-top: 1px solid var(--line)">
                 <div>
-                  <p class="eyebrow">Roles</p>
+                  <p class="eyebrow">前瞻链路</p>
+                  <h2>下一冻结机会</h2>
+                </div>
+                <p>没有到达时间窗前不生成强结论</p>
+              </div>
+              <div class="panel-body source-substatus" id="prospective-freeze-status"></div>
+              <div class="panel-head" style="border-top: 1px solid var(--line)">
+                <div>
+                  <p class="eyebrow">体彩入口</p>
+                  <h2>当前可售赛程</h2>
+                </div>
+              </div>
+              <div class="panel-body">
+                <div id="lottery-sales-list"></div>
+              </div>
+              <div class="panel-head" style="border-top: 1px solid var(--line)">
+                <div>
+                  <p class="eyebrow">职责边界</p>
                   <h2>各数据源职责</h2>
                 </div>
               </div>
@@ -267,11 +304,25 @@
             </div>
           </section>
 
+          <!-- ----------------------------------------------- match center -->
+          <section class="panel" id="match-center" aria-labelledby="match-center-title">
+            <div class="panel-head">
+              <div>
+                <p class="eyebrow">实时数据</p>
+                <h2 id="match-center-title">比赛事件与统计</h2>
+              </div>
+              <p id="match-center-meta">等待当前事件快照</p>
+            </div>
+            <div class="panel-body">
+              <div id="live-match-center"></div>
+            </div>
+          </section>
+
           <!-- --------------------------------------------------- stability -->
           <section class="panel" id="stability" aria-labelledby="stability-title">
             <div class="panel-head">
               <div>
-                <p class="eyebrow">Walk-forward folds</p>
+                <p class="eyebrow">验证层</p>
                 <h2 id="stability-title">滚动验证：单个平均值靠不住</h2>
               </div>
               <p id="folds-scale">留出赛季按时间切成 4 折，每折只用此前的比赛训练。</p>
@@ -285,7 +336,7 @@
           <section class="panel" id="method" aria-labelledby="method-title">
             <div class="panel-head">
               <div>
-                <p class="eyebrow">Method</p>
+                <p class="eyebrow">方法说明</p>
                 <h2 id="method-title">方法与口径</h2>
               </div>
               <p>预测必须晚于数据，验证必须早于结论。</p>
@@ -320,6 +371,22 @@
         </main>
       </div>
     </div>
+
+    <div class="match-drawer-scrim" id="match-drawer-scrim" hidden></div>
+    <aside class="match-drawer" id="match-drawer" aria-labelledby="match-drawer-title" aria-hidden="true" hidden>
+      <div class="match-drawer-head">
+        <div>
+          <p class="eyebrow">单场研究工作台</p>
+          <h2 id="match-drawer-title">比赛详情</h2>
+        </div>
+        <button class="icon-button" id="match-drawer-close" type="button" aria-label="关闭比赛详情">
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M5 5l14 14M19 5L5 19" stroke-linecap="round" />
+          </svg>
+        </button>
+      </div>
+      <div class="match-drawer-body" id="match-drawer-content"></div>
+    </aside>
 
     <div class="tooltip" id="tooltip" role="tooltip" aria-hidden="true"></div>
   </body>

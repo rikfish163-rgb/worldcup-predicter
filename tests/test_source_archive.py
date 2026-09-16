@@ -83,6 +83,18 @@ def test_archive_records_provider_degradation_and_counts(tmp_path: Path):
         "xg": 3,
         "xg_team_features": 3,
     }
+    assert record["derived_metadata_version"] == "2"
+
+
+def test_versioned_derived_metadata_remains_strict(tmp_path: Path):
+    archive_dir = tmp_path / "archive"
+    archive_source_snapshot(_snapshot("2026-08-10T09:00:00+00:00"), archive_dir, now=NOW)
+    manifest = archive_dir / "snapshots.jsonl"
+    record = json.loads(manifest.read_text(encoding="utf-8").splitlines()[0])
+    record["provider_status"]["espn"] = "tampered"
+    manifest.write_text(json.dumps(record, ensure_ascii=False) + "\n", encoding="utf-8")
+    with pytest.raises(SnapshotArchiveError, match="provider_status"):
+        read_snapshot_archive(archive_dir, now=NOW)
 
 
 def test_archive_keeps_optional_top_level_provider_status_and_errors(tmp_path: Path):
@@ -97,6 +109,25 @@ def test_archive_keeps_optional_top_level_provider_status_and_errors(tmp_path: P
         "errors": [],
         "observations": [{"fixture_id": "1"}],
     }
+    payload["espn_markets"]["team_status"] = [{"fixture_id": "1"}]
+    payload["geocoding"] = {
+        "provider": "Open-Meteo Geocoding",
+        "errors": [],
+        "geocodes": [{"fixture_id": "1", "latitude": 51.5, "longitude": -0.1}],
+    }
+    payload["oddstorm"] = {
+        "provider": "OddStorm public bookmaker comparison",
+        "errors": [],
+        "status": "available",
+        "lines": [{"match_id": "13410978"}, {"match_id": "13410978"}],
+    }
+    payload["premier_league_official"] = {
+        "provider": "Premier League official",
+        "status": "ok",
+        "errors": [],
+        "fixtures": [{"id": "premierleague:2645195"}],
+        "lineups": [{"fixture_id": "premierleague:2645195"}],
+    }
 
     record = archive_source_snapshot(payload, tmp_path, now=NOW)
 
@@ -104,6 +135,12 @@ def test_archive_keeps_optional_top_level_provider_status_and_errors(tmp_path: P
     assert record["provider_status"]["weather"] == "ok"
     assert record["provider_errors"]["news"] == 1
     assert record["provider_counts"]["weather"] == 1
+    assert record["provider_counts"]["geocoding"] == 1
+    assert record["provider_counts"]["espn_team_status"] == 1
+    assert record["provider_status"]["oddstorm"] == "available"
+    assert record["provider_counts"]["oddstorm"] == 2
+    assert record["provider_status"]["premier_league_official"] == "ok"
+    assert record["provider_counts"]["premier_league_official"] == 1
 
 
 @pytest.mark.parametrize(

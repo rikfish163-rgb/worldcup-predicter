@@ -1,0 +1,37 @@
+{
+  "schema": "matchline.cleanup_receipt.v1",
+  "cleanup_id": "v297-final-audit-tmp-2026-08-26",
+  "completed_at": "2026-08-26T22:39:00+08:00",
+  "scope": "move identifiable audit/build scratch files out of the project boundary",
+  "policy": "recoverable byte-preserving move only; no business data, runtime evidence, model lock, D1 data, deployment, or active service was changed",
+  "archive_root": "/media/hetaisheng/044A81D94A81C83E/soccerdata-iteration-archive-2026-08-26/tmp/final-audit-2026-08-26",
+  "moved_files": [
+    "bench.json",
+    "benchmark-now.json",
+    "cleanup-v277-check.out",
+    "fig00-vector-build.log",
+    "jtext_east_paper_build.log",
+    "main_zh_build.log",
+    "match-detail.json",
+    "match-one.json",
+    "matches-current.json",
+    "matches-now.json",
+    "matches-refresh.json",
+    "matches.json",
+    "memory-rollout-refs",
+    "memory-skill-refs",
+    "memory_summary_refs.txt",
+    "prospective-now.json",
+    "prospective.json",
+    "service.json"
+  ],
+  "total_bytes": 747589,
+  "verification": {
+    "source_paths_absent": true,
+    "archive_hashes_recomputed": true,
+    "no_active_service_restart": true,
+    "no_d1_write": true,
+    "no_public_deploy": true,
+    "no_historical_data_deletion": true
+  }
+}

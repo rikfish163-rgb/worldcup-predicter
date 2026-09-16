@@ -4,22 +4,35 @@ from __future__ import annotations
 
 import hashlib
 import json
+import math
+import urllib.error
 import urllib.request
 from datetime import datetime, timedelta, timezone
 from typing import Callable
+from urllib.parse import urlparse
+
+from league_platform.source_rights import SourceId, rights_blocked_envelope
 
 
 ESPN_CODES = {
     "premier-league": "eng.1",
+    "championship": "eng.2",
     "la-liga": "esp.1",
     "bundesliga": "ger.1",
     "serie-a": "ita.1",
     "ligue-1": "fra.1",
     "csl": "chn.1",
 }
+ESPN_HOST = "site.api.espn.com"
+ESPN_ALLOWED_HOSTS = {"site.api.espn.com", "site.web.api.espn.com"}
+ESPN_PATH_PREFIX = "/apis/site/v2/"
+ESPN_TERMS_URL = "https://disneytermsofuse.com/english/"
+ESPN_RIGHTS_STATUS = "blocked_pending_express_written_permission"
 STATUS_MAP = {
     "STATUS_SCHEDULED": "upcoming",
     "STATUS_IN_PROGRESS": "live",
+    "STATUS_FIRST_HALF": "live",
+    "STATUS_SECOND_HALF": "live",
     "STATUS_HALFTIME": "live",
     "STATUS_FULL_TIME": "finished",
     "STATUS_FINAL_AET": "finished",
@@ -27,6 +40,107 @@ STATUS_MAP = {
     "STATUS_POSTPONED": "postponed",
     "STATUS_CANCELED": "cancelled",
 }
+RESULT_SCOPE_MAP = {
+    "STATUS_FULL_TIME": "regulation_90",
+    "STATUS_FINAL_AET": "extra_time",
+    "STATUS_FINAL_PEN": "penalties",
+}
+
+
+def _espn_rights_block(*, provider: str, checked_at: datetime) -> dict:
+    """Return the shared fail-closed policy envelope before any I/O."""
+
+    return {
+        "provider": provider,
+        "retrieved_at": None,
+        "checked_at": checked_at.astimezone(timezone.utc).isoformat(),
+        "status": "rights_blocked",
+        "errors": [],
+        "access_allowed": False,
+        "network_opened": False,
+        "rights_status": ESPN_RIGHTS_STATUS,
+        "authorization_required": "express_written_permission",
+        "terms_url": ESPN_TERMS_URL,
+        "model_eligible": False,
+        "enters_model": False,
+        "model_exclusion_reason": "provider_rights_blocked",
+    }
+
+
+def _validate_response_url(url: str) -> None:
+    parsed = urlparse(url)
+    if (
+        parsed.scheme != "https"
+        or parsed.hostname not in ESPN_ALLOWED_HOSTS
+        or parsed.username is not None
+        or parsed.password is not None
+        or parsed.port not in (None, 443)
+        or not parsed.path.startswith(ESPN_PATH_PREFIX)
+    ):
+        raise ValueError("ESPN response redirected to a non-allowlisted URL")
+
+
+class _NoRedirect(urllib.request.HTTPRedirectHandler):
+    def redirect_request(self, *_args, **_kwargs):
+        raise urllib.error.URLError("ESPN redirected; redirects are disabled")
+
+
+def _safe_opener():
+    return urllib.request.build_opener(_NoRedirect())
+
+
+def _read_limited(
+    opener: Callable[..., object] | object,
+    request: urllib.request.Request,
+    *,
+    max_bytes: int,
+) -> bytes:
+    open_method = getattr(opener, "open", None) or opener
+    response = open_method(request, timeout=30)  # type: ignore[operator]
+    with response:
+        final_url = getattr(response, "geturl", lambda: request.full_url)()
+        _validate_response_url(str(final_url))
+        payload = response.read(max_bytes + 1)
+    if not isinstance(payload, bytes):
+        raise TypeError("ESPN response must be bytes")
+    if len(payload) > max_bytes:
+        raise ValueError("ESPN response exceeded 10 MiB")
+    return payload
+
+
+def _venue_record(competition: dict) -> dict | None:
+    venue = competition.get("venue")
+    if not isinstance(venue, dict):
+        return None
+    address = venue.get("address") if isinstance(venue.get("address"), dict) else {}
+    record = {
+        "provider_venue_id": str(venue["id"]) if venue.get("id") is not None else None,
+        "name": venue.get("fullName") or venue.get("name"),
+        "city": address.get("city") or venue.get("city"),
+        "country": address.get("country") or venue.get("country"),
+        "country_code": address.get("countryCode") or venue.get("countryCode"),
+    }
+    coordinates = venue.get("coordinates") or venue.get("geo")
+    if isinstance(coordinates, dict):
+        latitude = coordinates.get("latitude", coordinates.get("lat"))
+        longitude = coordinates.get("longitude", coordinates.get("lon"))
+        try:
+            latitude = float(latitude)
+            longitude = float(longitude)
+        except (TypeError, ValueError):
+            latitude = longitude = None
+        if (
+            latitude is not None
+            and longitude is not None
+            and math.isfinite(latitude)
+            and math.isfinite(longitude)
+            and -90 <= latitude <= 90
+            and -180 <= longitude <= 180
+        ):
+            record["latitude"] = latitude
+            record["longitude"] = longitude
+    cleaned = {key: value for key, value in record.items() if value not in (None, "")}
+    return cleaned or None
 
 
 def parse_espn_payload(
@@ -42,7 +156,8 @@ def parse_espn_payload(
             continue
         home = competitors["home"]
         away = competitors["away"]
-        status = STATUS_MAP.get(event["status"]["type"]["name"], "upcoming")
+        status_name = event["status"]["type"]["name"]
+        status = STATUS_MAP.get(status_name, "upcoming")
         score = None
         if status == "finished":
             score = {
@@ -59,7 +174,12 @@ def parse_espn_payload(
                 "away_team": away["team"]["displayName"],
                 "home_provider_team_id": str(home["team"]["id"]),
                 "away_provider_team_id": str(away["team"]["id"]),
+                "venue": _venue_record(competition),
                 "status": status,
+                # Keep the settlement scope explicit.  A finished cup match
+                # can be decided in extra time or penalties; those scores are
+                # display-only for Matchline's 90-minute result contract.
+                "result_scope": RESULT_SCOPE_MAP.get(status_name),
                 "score": score,
                 "source": {
                     "name": "ESPN",
@@ -78,17 +198,48 @@ def fetch_espn_fixtures(
     now: datetime | None = None,
     horizon_days: int = 45,
     lookback_days: int = 45,
-    opener: Callable[..., object] = urllib.request.urlopen,
+    opener: Callable[..., object] | object | None = None,
+    authorization_reference: str | None = None,
 ) -> dict:
     reference_time = now or datetime.now(timezone.utc)
     if reference_time.tzinfo is None:
         reference_time = reference_time.replace(tzinfo=timezone.utc)
+    return {
+        **rights_blocked_envelope(
+            SourceId.ESPN_SCHEDULE_SUMMARY,
+            provider="ESPN",
+            checked_at=reference_time.astimezone(timezone.utc).isoformat(),
+            empty_fields=("fixtures",),
+            authorization_reference=authorization_reference,
+        ),
+        "authorization_required": "express_written_permission",
+        "terms_url": ESPN_TERMS_URL,
+        "enters_model": False,
+        "model_exclusion_reason": "provider_rights_blocked",
+        "horizon_days": horizon_days,
+        "lookback_days": lookback_days,
+    }
+    # Retained below as a parser/reference implementation only.  Policy v260
+    # deliberately returns above before constructing an opener or request.
+    authorization_reference = (
+        authorization_reference.strip()
+        if isinstance(authorization_reference, str) and authorization_reference.strip()
+        else None
+    )
+    if authorization_reference is None:
+        return {
+            **_espn_rights_block(provider="ESPN", checked_at=reference_time),
+            "horizon_days": horizon_days,
+            "lookback_days": lookback_days,
+            "fixtures": [],
+        }
     start = reference_time - timedelta(days=lookback_days)
     end = reference_time + timedelta(days=horizon_days)
     date_range = f"{start:%Y%m%d}-{end:%Y%m%d}"
     fixtures = []
     errors = []
     observation_times = []
+    fetcher = opener if opener is not None else _safe_opener()
     for competition_id, code in ESPN_CODES.items():
         url = (
             "https://site.api.espn.com/apis/site/v2/sports/soccer/"
@@ -99,10 +250,7 @@ def fetch_espn_fixtures(
             headers={"Accept": "application/json", "User-Agent": "Matchline/1.0"},
         )
         try:
-            with opener(request, timeout=30) as response:  # noqa: S310
-                payload = response.read(10 * 1024 * 1024 + 1)
-            if len(payload) > 10 * 1024 * 1024:
-                raise RuntimeError("ESPN response exceeded 10 MiB")
+            payload = _read_limited(fetcher, request, max_bytes=10 * 1024 * 1024)
             observed_at = reference_time if now is not None else datetime.now(timezone.utc)
             observation_times.append(observed_at)
             fixtures.extend(
@@ -123,4 +271,7 @@ def fetch_espn_fixtures(
         "lookback_days": lookback_days,
         "fixtures": fixtures,
         "errors": errors,
+        "access_allowed": True,
+        "rights_status": "operator_authorization_reference_supplied",
+        "authorization_reference": authorization_reference,
     }

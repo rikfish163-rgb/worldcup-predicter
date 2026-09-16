@@ -2,6 +2,11 @@
 data/
 logs/
 config/
+# Keep the reviewed, single-source browser operator config shareable while
+# leaving the rest of the local configuration directory ignored.
+!config/
+config/*
+!config/crawl4ai_operator_public.json
 notebooks/data
 notebooks_priv
 
@@ -75,7 +80,35 @@ pickle
 SoccerData*.html*
 SoccerData终极指南*
 downloaded_files/
+matchline_sites/public/live_overlay.json
+matchline_sites/.runtime/
 
 # Local relay temp
 /tmp/
 wc_analysis/data/*.log
+
+# Matchline iteration/build residue. Runtime data, evidence, and the served
+# Sites bundle stay explicit; these local-only artifacts are reproducible.
+output/
+.wrangler/
+*.tsbuildinfo
+/.playwright-cli/
+matchline_sites/.playwright-cli/
+matchline_sites/logs/
+docs/evidence/.prospective-cycle-latest.json.*.tmp
+
+# The old wc_analysis compatibility layer may still create these files when
+# someone runs a historical replay manually. They are not Matchline inputs,
+# so keep them out of the active worktree without hiding current fixtures.
+wc_analysis/site/
+wc_analysis/outputs/
+wc_analysis/data/elo_cache_0622/
+wc_analysis/data/ensemble_model.pkl
+wc_analysis/data/model_pytorch.pt
+wc_analysis/data/odds_raw*.json
+wc_analysis/data/odds_parsed_0622.json
+wc_analysis/data/odds_parsed_fresh.json
+wc_analysis/data/pinnacle_history.json
+wc_analysis/data/reconcile_0623_0624.json
+wc_analysis/data/worldcup_0622_report.json
+wc_analysis/data/xg_model.pkl

@@ -1,0 +1,33 @@
+[Unit]
+Description=Matchline live-only display overlay capture
+Wants=network-online.target
+Requires=matchline-runtime-restore.service
+After=network-online.target matchline-runtime-restore.service
+RequiresMountsFor=/media/hetaisheng/044A81D94A81C83E/soccerdata-live-runtime
+
+[Service]
+Type=oneshot
+WorkingDirectory=/home/hetaisheng/soccerdata
+Environment=PYTHONDONTWRITEBYTECODE=1
+Environment=PYTHONUNBUFFERED=1
+Environment=TMPDIR=/dev/shm
+Environment=XDG_CACHE_HOME=/dev/shm/matchline-live-overlay-xdg-cache
+Environment=XDG_CONFIG_HOME=/dev/shm/matchline-live-overlay-xdg-config
+Environment=XDG_STATE_HOME=/dev/shm/matchline-live-overlay-xdg-state
+Environment=MATCHLINE_RUNTIME_DIR=/dev/shm/matchline-live-runtime
+Environment=MATCHLINE_RUNTIME_PERSISTENCE=volatile_tmpfs
+EnvironmentFile=-/etc/matchline/matchline-runtime.env
+# This lane only imports the standard library and Matchline's own adapters.
+# Keep it independent from a damaged/full project virtualenv: a hanging
+# interpreter startup prevents the storage preflight from failing closed.
+# The default production provider is rights-blocked before network access and
+# writes only bounded empty overlay assets, so reserve 256 MiB here while the
+# library and heavier runtime/archive lanes retain their 512 MiB/1 GiB guards.
+ExecStart=/usr/bin/python3 -m league_platform.live_overlay \
+  --live-path ${MATCHLINE_RUNTIME_DIR}/current.json \
+  --output ${MATCHLINE_RUNTIME_DIR}/live_overlay.json \
+  --archive-dir ${MATCHLINE_RUNTIME_DIR}/archive/live_overlay \
+  --min-free-bytes=268435456 \
+  --lookback-minutes 180
+TimeoutStartSec=90s
+TimeoutStopSec=15s

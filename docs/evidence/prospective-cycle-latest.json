@@ -1,0 +1,533 @@
+{
+  "schema_version": "1.0.0",
+  "started_at": "2026-08-23T17:54:22.021293+00:00",
+  "finished_at": "2026-08-23T17:59:50.881768+00:00",
+  "status": "pending_prospective_window",
+  "runtime_only": true,
+  "sync": {
+    "as_of": "2026-08-23T17:56:25.977035+00:00",
+    "fixtures": 419,
+    "markets": 40,
+    "snapshot_sha256": "2397e4ce1304e4e62f18b595b47c4c6bf74f0790eab9a127721bc347fb9cc5ad"
+  },
+  "capture": {
+    "as_of": "2026-08-23T17:56:25.977035+00:00",
+    "current_status": "fresh",
+    "upcoming_fixtures": 304,
+    "window_filtered": 0,
+    "lineup_observed": 1,
+    "predictions": 10,
+    "blocked": 8,
+    "blocked_diagnostics": {
+      "count": 8,
+      "by_reason": {
+        "fixture_first_observed_after_freeze_cutoff": 4,
+        "no_freeze_cutoff_observed_before_as_of": 4
+      },
+      "items": [
+        {
+          "reason": "no_freeze_cutoff_observed_before_as_of",
+          "competition_id": "bundesliga",
+          "next_fixture_id": "espn:401884817",
+          "next_kickoff_at": "2026-08-28T18:30:00+00:00",
+          "next_freeze_stage": "t_minus_24h",
+          "next_freeze_cutoff_at": "2026-08-27T18:30:00+00:00"
+        },
+        {
+          "reason": "no_freeze_cutoff_observed_before_as_of",
+          "competition_id": "championship",
+          "next_fixture_id": "espn:401880305",
+          "next_kickoff_at": "2026-08-28T19:00:00+00:00",
+          "next_freeze_stage": "t_minus_24h",
+          "next_freeze_cutoff_at": "2026-08-27T19:00:00+00:00"
+        },
+        {
+          "reason": "no_freeze_cutoff_observed_before_as_of",
+          "competition_id": "csl",
+          "next_fixture_id": "espn:401861459",
+          "next_kickoff_at": "2026-08-28T11:35:00+00:00",
+          "next_freeze_stage": "t_minus_24h",
+          "next_freeze_cutoff_at": "2026-08-27T11:35:00+00:00"
+        },
+        {
+          "reason": "fixture_first_observed_after_freeze_cutoff",
+          "fixture_id": "espn:401882913",
+          "competition_id": "la-liga",
+          "freeze_stage": "t_minus_24h",
+          "freeze_cutoff_at": "2026-08-22T19:30:00+00:00",
+          "kickoff_at": "2026-08-23T19:30:00+00:00",
+          "kickoff_time_observed_at": "2026-08-23T17:54:37.237969+00:00"
+        },
+        {
+          "reason": "fixture_first_observed_after_freeze_cutoff",
+          "fixture_id": "espn:401876487",
+          "competition_id": "ligue-1",
+          "freeze_stage": "t_minus_24h",
+          "freeze_cutoff_at": "2026-08-22T18:45:00+00:00",
+          "kickoff_at": "2026-08-23T18:45:00+00:00",
+          "kickoff_time_observed_at": "2026-08-23T17:54:37.139572+00:00"
+        },
+        {
+          "reason": "no_freeze_cutoff_observed_before_as_of",
+          "competition_id": "premier-league",
+          "next_fixture_id": "espn:401879318",
+          "next_kickoff_at": "2026-08-24T19:00:00+00:00",
+          "next_freeze_stage": "t_minus_24h",
+          "next_freeze_cutoff_at": "2026-08-23T19:00:00+00:00"
+        },
+        {
+          "reason": "fixture_first_observed_after_freeze_cutoff",
+          "fixture_id": "espn:401874748",
+          "competition_id": "serie-a",
+          "freeze_stage": "t_minus_24h",
+          "freeze_cutoff_at": "2026-08-22T18:45:00+00:00",
+          "kickoff_at": "2026-08-23T18:45:00+00:00",
+          "kickoff_time_observed_at": "2026-08-23T17:54:37.121790+00:00"
+        },
+        {
+          "reason": "fixture_first_observed_after_freeze_cutoff",
+          "fixture_id": "espn:401874932",
+          "competition_id": "serie-a",
+          "freeze_stage": "t_minus_24h",
+          "freeze_cutoff_at": "2026-08-22T18:45:00+00:00",
+          "kickoff_at": "2026-08-23T18:45:00+00:00",
+          "kickoff_time_observed_at": "2026-08-23T17:54:37.466086+00:00"
+        }
+      ]
+    },
+    "archive": "/dev/shm/matchline-live-runtime/prospective_predictions.jsonl",
+    "feature_archive": {
+      "candidate_count": 768,
+      "attached_count": 5,
+      "lineup_discovery_attached_count": 5,
+      "lineup_replay_attached_count": 4,
+      "lineup_event_overlay_count": 1,
+      "selected_stage_features": 10,
+      "errors": [],
+      "replayed_candidate_count": 5,
+      "candidate_pruned": true,
+      "candidate_pruning_reason": "latest_predecessor_per_due_cutoff_and_latest_lineup_pointer",
+      "selected_fixture_observations": 10
+    },
+    "live_results": {
+      "candidate_rows": 39621,
+      "deduplicated_matches": 125,
+      "conflicts": [],
+      "conflict_count": 0,
+      "invalid_snapshots": 0,
+      "reference": "2026-08-23T17:56:25.977035+00:00"
+    },
+    "appended": 10,
+    "skipped_duplicate": 0,
+    "conflicts": 0
+  },
+  "evaluation": {
+    "schema_version": "1.0.0",
+    "generated_at": "2026-08-23T17:59:03.908961+00:00",
+    "prediction_archive": "/dev/shm/matchline-live-runtime/prospective_predictions.jsonl",
+    "snapshot_archive": "/dev/shm/matchline-live-runtime/archive",
+    "status": "pending_prospective_window",
+    "scored_n": 0,
+    "pending_n": 10,
+    "archive_conflicts": 0,
+    "legacy_model_records": 787,
+    "superseded_model_records": 769,
+    "stale_lock_records": 18,
+    "result_conflicts": 0,
+    "result_conflict_predictions": 0,
+    "invalid_records": [],
+    "target_metrics": {},
+    "league_target_counts": {},
+    "results_not_used_for_selection": true,
+    "sample_requirements_met": false,
+    "all_required_targets_scored": false,
+    "prediction_freezes_verified": false,
+    "freeze_stage_counts": {}
+  },
+  "lock_promotion": {
+    "status": "not_promoted",
+    "reason": "runtime_only_no_repository_writes"
+  },
+  "market_audit": {
+    "appended": 6,
+    "skipped_duplicate": 649,
+    "conflicts": 0,
+    "diagnostics": 108,
+    "diagnostic_reasons": {
+      "market_unavailable_at_lineup_stage": 15,
+      "market_feature_source_missing": 93
+    },
+    "diagnostic_items": [
+      {
+        "line": 109,
+        "reason": "market_unavailable_at_lineup_stage",
+        "fixture_id": "espn:401861501"
+      },
+      {
+        "line": 124,
+        "reason": "market_unavailable_at_lineup_stage",
+        "fixture_id": "espn:401861501"
+      },
+      {
+        "line": 128,
+        "reason": "market_unavailable_at_lineup_stage",
+        "fixture_id": "espn:401861501"
+      },
+      {
+        "line": 143,
+        "reason": "market_unavailable_at_lineup_stage",
+        "fixture_id": "espn:401861449"
+      },
+      {
+        "line": 144,
+        "reason": "market_unavailable_at_lineup_stage",
+        "fixture_id": "espn:401861450"
+      },
+      {
+        "line": 145,
+        "reason": "market_unavailable_at_lineup_stage",
+        "fixture_id": "espn:401861451"
+      },
+      {
+        "line": 146,
+        "reason": "market_unavailable_at_lineup_stage",
+        "fixture_id": "espn:401861452"
+      },
+      {
+        "line": 161,
+        "reason": "market_unavailable_at_lineup_stage",
+        "fixture_id": "espn:401861449"
+      },
+      {
+        "line": 162,
+        "reason": "market_unavailable_at_lineup_stage",
+        "fixture_id": "espn:401861450"
+      },
+      {
+        "line": 163,
+        "reason": "market_unavailable_at_lineup_stage",
+        "fixture_id": "espn:401861451"
+      },
+      {
+        "line": 164,
+        "reason": "market_unavailable_at_lineup_stage",
+        "fixture_id": "espn:401861452"
+      },
+      {
+        "line": 174,
+        "reason": "market_unavailable_at_lineup_stage",
+        "fixture_id": "espn:401861451"
+      },
+      {
+        "line": 175,
+        "reason": "market_unavailable_at_lineup_stage",
+        "fixture_id": "espn:401861452"
+      },
+      {
+        "line": 225,
+        "reason": "market_unavailable_at_lineup_stage",
+        "fixture_id": "espn:401882926"
+      },
+      {
+        "line": 235,
+        "reason": "market_unavailable_at_lineup_stage",
+        "fixture_id": "espn:401882918"
+      },
+      {
+        "line": 590,
+        "reason": "market_feature_source_missing",
+        "fixture_id": "espn:401861502"
+      },
+      {
+        "line": 591,
+        "reason": "market_feature_source_missing",
+        "fixture_id": "espn:401861502"
+      },
+      {
+        "line": 592,
+        "reason": "market_feature_source_missing",
+        "fixture_id": "espn:401861458"
+      },
+      {
+        "line": 593,
+        "reason": "market_feature_source_missing",
+        "fixture_id": "espn:401861458"
+      },
+      {
+        "line": 594,
+        "reason": "market_feature_source_missing",
+        "fixture_id": "espn:401861503"
+      },
+      {
+        "line": 595,
+        "reason": "market_feature_source_missing",
+        "fixture_id": "espn:401876493"
+      },
+      {
+        "line": 596,
+        "reason": "market_feature_source_missing",
+        "fixture_id": "espn:401879297"
+      },
+      {
+        "line": 597,
+        "reason": "market_feature_source_missing",
+        "fixture_id": "espn:401879320"
+      },
+      {
+        "line": 598,
+        "reason": "market_feature_source_missing",
+        "fixture_id": "espn:401882915"
+      },
+      {
+        "line": 599,
+        "reason": "market_feature_source_missing",
+        "fixture_id": "espn:401876492"
+      },
+      {
+        "line": 600,
+        "reason": "market_feature_source_missing",
+        "fixture_id": "espn:401879319"
+      },
+      {
+        "line": 601,
+        "reason": "market_feature_source_missing",
+        "fixture_id": "espn:401874930"
+      },
+      {
+        "line": 602,
+        "reason": "market_feature_source_missing",
+        "fixture_id": "espn:401874946"
+      },
+      {
+        "line": 603,
+        "reason": "market_feature_source_missing",
+        "fixture_id": "espn:401882911"
+      },
+      {
+        "line": 604,
+        "reason": "market_feature_source_missing",
+        "fixture_id": "espn:401874748"
+      },
+      {
+        "line": 605,
+        "reason": "market_feature_source_missing",
+        "fixture_id": "espn:401874932"
+      },
+      {
+        "line": 606,
+        "reason": "market_feature_source_missing",
+        "fixture_id": "espn:401876487"
+      },
+      {
+        "line": 607,
+        "reason": "market_feature_source_missing",
+        "fixture_id": "espn:401882913"
+      },
+      {
+        "line": 612,
+        "reason": "market_feature_source_missing",
+        "fixture_id": "espn:401861502"
+      },
+      {
+        "line": 613,
+        "reason": "market_feature_source_missing",
+        "fixture_id": "espn:401861502"
+      },
+      {
+        "line": 614,
+        "reason": "market_feature_source_missing",
+        "fixture_id": "espn:401861458"
+      },
+      {
+        "line": 615,
+        "reason": "market_feature_source_missing",
+        "fixture_id": "espn:401861458"
+      },
+      {
+        "line": 616,
+        "reason": "market_feature_source_missing",
+        "fixture_id": "espn:401861503"
+      },
+      {
+        "line": 618,
+        "reason": "market_feature_source_missing",
+        "fixture_id": "espn:401876493"
+      },
+      {
+        "line": 620,
+        "reason": "market_feature_source_missing",
+        "fixture_id": "espn:401879297"
+      },
+      {
+        "line": 622,
+        "reason": "market_feature_source_missing",
+        "fixture_id": "espn:401879320"
+      },
+      {
+        "line": 624,
+        "reason": "market_feature_source_missing",
+        "fixture_id": "espn:401882915"
+      },
+      {
+        "line": 625,
+        "reason": "market_feature_source_missing",
+        "fixture_id": "espn:401876492"
+      },
+      {
+        "line": 626,
+        "reason": "market_feature_source_missing",
+        "fixture_id": "espn:401879319"
+      },
+      {
+        "line": 627,
+        "reason": "market_feature_source_missing",
+        "fixture_id": "espn:401874930"
+      },
+      {
+        "line": 628,
+        "reason": "market_feature_source_missing",
+        "fixture_id": "espn:401874946"
+      },
+      {
+        "line": 629,
+        "reason": "market_feature_source_missing",
+        "fixture_id": "espn:401882911"
+      },
+      {
+        "line": 630,
+        "reason": "market_feature_source_missing",
+        "fixture_id": "espn:401874748"
+      },
+      {
+        "line": 631,
+        "reason": "market_feature_source_missing",
+        "fixture_id": "espn:401874932"
+      },
+      {
+        "line": 632,
+        "reason": "market_feature_source_missing",
+        "fixture_id": "espn:401876487"
+      }
+    ],
+    "matched_rows": 655
+  },
+  "oddstorm_history": {
+    "status": "available",
+    "snapshot_as_of": "2026-08-23T17:56:25.977035+00:00",
+    "captured_at": "2026-08-23T17:56:29.966880+00:00",
+    "candidate_count": 208,
+    "selected_count": 24,
+    "rotation_offset": 120,
+    "fetched_count": 24,
+    "history_rows": 1,
+    "appended": 1,
+    "read_diagnostics": [],
+    "fetch_errors": [],
+    "output": "/dev/shm/matchline-live-runtime/oddstorm_history.jsonl"
+  },
+  "publication": null,
+  "degraded": false,
+  "storage": {
+    "status": "ok",
+    "required_free_bytes": 1073741824,
+    "checked": [
+      {
+        "path": "/dev/shm/matchline-live-runtime/current.json",
+        "filesystem": "/dev/shm/matchline-live-runtime/current.json",
+        "free_bytes": 11780644864,
+        "required_free_bytes": 1073741824,
+        "status": "ok"
+      },
+      {
+        "path": "/dev/shm/matchline-live-runtime/archive",
+        "filesystem": "/dev/shm/matchline-live-runtime/archive",
+        "free_bytes": 11780644864,
+        "required_free_bytes": 1073741824,
+        "status": "ok"
+      },
+      {
+        "path": "/dev/shm/matchline-live-runtime/intelligence/observations.jsonl",
+        "filesystem": "/dev/shm/matchline-live-runtime/intelligence/observations.jsonl",
+        "free_bytes": 11780644864,
+        "required_free_bytes": 1073741824,
+        "status": "ok"
+      },
+      {
+        "path": "/dev/shm/matchline-live-runtime/prospective_predictions.jsonl",
+        "filesystem": "/dev/shm/matchline-live-runtime/prospective_predictions.jsonl",
+        "free_bytes": 11780644864,
+        "required_free_bytes": 1073741824,
+        "status": "ok"
+      },
+      {
+        "path": "/dev/shm/matchline-live-runtime/runtime-only-cycle-latest.json",
+        "filesystem": "/dev/shm/matchline-live-runtime/runtime-only-cycle-latest.json",
+        "free_bytes": 11780644864,
+        "required_free_bytes": 1073741824,
+        "status": "ok"
+      },
+      {
+        "path": "/dev/shm/matchline-live-runtime/runtime-only-cycle.jsonl",
+        "filesystem": "/dev/shm/matchline-live-runtime/runtime-only-cycle.jsonl",
+        "free_bytes": 11780644864,
+        "required_free_bytes": 1073741824,
+        "status": "ok"
+      },
+      {
+        "path": "/dev/shm/matchline-live-runtime/prospective-cycle.lock",
+        "filesystem": "/dev/shm/matchline-live-runtime/prospective-cycle.lock",
+        "free_bytes": 11780644864,
+        "required_free_bytes": 1073741824,
+        "status": "ok"
+      },
+      {
+        "path": "/dev/shm/matchline-live-runtime/runtime-only-cycle-progress.json",
+        "filesystem": "/dev/shm/matchline-live-runtime/runtime-only-cycle-progress.json",
+        "free_bytes": 11780644864,
+        "required_free_bytes": 1073741824,
+        "status": "ok"
+      },
+      {
+        "path": "/dev/shm/matchline-live-runtime/runtime-only-evaluation-current.json",
+        "filesystem": "/dev/shm/matchline-live-runtime/runtime-only-evaluation-current.json",
+        "free_bytes": 11780644864,
+        "required_free_bytes": 1073741824,
+        "status": "ok"
+      },
+      {
+        "path": "/dev/shm/matchline-live-runtime/prospective_market_baselines.jsonl",
+        "filesystem": "/dev/shm/matchline-live-runtime/prospective_market_baselines.jsonl",
+        "free_bytes": 11780644864,
+        "required_free_bytes": 1073741824,
+        "status": "ok"
+      },
+      {
+        "path": "/dev/shm/matchline-live-runtime/oddstorm_history.jsonl",
+        "filesystem": "/dev/shm/matchline-live-runtime/oddstorm_history.jsonl",
+        "free_bytes": 11780644864,
+        "required_free_bytes": 1073741824,
+        "status": "ok"
+      }
+    ],
+    "blocked_paths": [],
+    "runtime_only": true,
+    "repository_check_skipped": true,
+    "read_only_paths": [
+      "docs/evidence/prospective-model-lock-current.json"
+    ]
+  },
+  "artifacts": {
+    "live_snapshot": "/dev/shm/matchline-live-runtime/current.json",
+    "progress": "/dev/shm/matchline-live-runtime/runtime-only-cycle-progress.json",
+    "prediction_archive": "/dev/shm/matchline-live-runtime/prospective_predictions.jsonl",
+    "market_audit_output": "/dev/shm/matchline-live-runtime/prospective_market_baselines.jsonl",
+    "model_lock": "docs/evidence/prospective-model-lock-current.json",
+    "model_version_sha256": "82d182e4409ff9564f6722ef77b6351580651970ea98d13880fa542b0d05d63d",
+    "prediction_archive_sha256": "c46c8cdaad7f2e58569c5ae053c73b775da2ef06fb7a8f09112b71290fe3feb2",
+    "evaluation_evidence": "/dev/shm/matchline-live-runtime/runtime-only-evaluation-current.json",
+    "evaluation_evidence_sha256": "fe34c5df6f6843b993635f66ca64dcc99d13cd2c71d8508f11fbfb48989f77e9",
+    "market_audit_output_sha256": "1612bed493b43ba856c26cbe9b65fe23b950b356008781aa057f6731c71ec57d",
+    "oddstorm_history_output": "/dev/shm/matchline-live-runtime/oddstorm_history.jsonl",
+    "oddstorm_history_output_sha256": "98123ca05e00e186874ebb0b62f713bf04326553c5698648a7d1098eb747cf53"
+  }
+}

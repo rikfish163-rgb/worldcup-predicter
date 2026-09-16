@@ -14,11 +14,11 @@ import json
 import math
 import re
 import unicodedata
-import urllib.error
-import urllib.request
-from datetime import datetime, timedelta, timezone
+from datetime import datetime, timezone
 from typing import Callable
 from urllib.parse import urlparse
+
+from league_platform.source_rights import SourceId, rights_blocked_envelope
 
 
 SOFASCORE_HOST = "api.sofascore.com"
@@ -77,35 +77,6 @@ def _validate_api_url(url: str, *, path_pattern: str) -> None:
         raise ValueError("SofaScore API path is not allowlisted")
 
 
-def _safe_opener():
-    class _NoRedirect(urllib.request.HTTPRedirectHandler):
-        def redirect_request(self, *_args, **_kwargs):
-            raise urllib.error.URLError("redirects are disabled for live source fetches")
-
-    return urllib.request.build_opener(_NoRedirect())
-
-
-def _read_limited(
-    opener: Callable[..., object] | object,
-    request: urllib.request.Request,
-    *,
-    timeout: float,
-    max_bytes: int,
-    expected_path_prefix: str,
-) -> bytes:
-    open_method = getattr(opener, "open", None)
-    if open_method is None:
-        open_method = opener
-    response = open_method(request, timeout=timeout)  # type: ignore[operator]
-    with response:
-        final_url = getattr(response, "geturl", lambda: request.full_url)()
-        _validate_url(final_url, path_prefix=expected_path_prefix)
-        payload = response.read(max_bytes + 1)
-    if not isinstance(payload, bytes):
-        raise TypeError("live source response must be bytes")
-    if len(payload) > max_bytes:
-        raise ValueError("SofaScore response exceeded 10 MiB")
-    return payload
 
 
 def _source(*, url: str, retrieved_at: datetime, payload: bytes) -> dict:
@@ -233,12 +204,28 @@ def _player_row(row: object) -> dict:
     if not isinstance(row, dict):
         return {}
     player = row.get("player") if isinstance(row.get("player"), dict) else row
+    expected_minutes = None
+    for candidate in (
+        row.get("expectedMinutes"),
+        row.get("expected_minutes"),
+        row.get("minutes"),
+    ):
+        try:
+            numeric = float(candidate)
+        except (TypeError, ValueError):
+            continue
+        if math.isfinite(numeric) and 0 <= numeric <= 120:
+            expected_minutes = round(numeric, 2)
+            break
     result = {
         "player_id": str(player["id"]) if player.get("id") is not None else None,
         "name": player.get("name") or player.get("shortName"),
         "position": row.get("position") or player.get("position"),
         "starter": row.get("starter"),
         "substitute": row.get("substitute"),
+        "status": row.get("status")
+        or ("starter" if row.get("starter") is True else "substitute" if row.get("substitute") is True else None),
+        "expected_minutes": expected_minutes,
     }
     return {key: value for key, value in result.items() if value is not None}
 
@@ -250,6 +237,7 @@ def _missing_player(row: object) -> dict:
     result = {
         "player_id": str(player["id"]) if player.get("id") is not None else None,
         "name": player.get("name") or player.get("shortName"),
+        "position": row.get("position") or player.get("position"),
         "reason": row.get("reason") or row.get("description"),
         "status": row.get("status"),
     }
@@ -388,187 +376,18 @@ def fetch_sofascore_prematch(
     timeout: float = DEFAULT_TIMEOUT_SECONDS,
     opener: Callable[..., object] | object | None = None,
 ) -> dict:
-    """Fetch SofaScore event context for upcoming fixtures.
+    """Return the v260 rights block before inspecting fixtures or the opener."""
 
-    Existing fixtures may provide ``sofascore_event_id``.  For fixtures
-    without one, the adapter queries the fixed date-schedule endpoint and
-    matches only identical normalised home/away names within six hours.  A
-    lineup endpoint failure leaves event metadata available but marks
-    lineups/injuries unavailable and adds a source-level error.
-    """
-
-    if not isinstance(horizon_days, int) or horizon_days < 0:
-        raise ValueError("horizon_days must be a non-negative integer")
-    if not isinstance(max_fixtures, int) or max_fixtures < 0:
-        raise ValueError("max_fixtures must be a non-negative integer")
-    timeout = _validated_timeout(timeout)
     reference_time = now or datetime.now(timezone.utc)
     if reference_time.tzinfo is None:
         reference_time = reference_time.replace(tzinfo=timezone.utc)
     reference_time = reference_time.astimezone(timezone.utc)
-    cutoff = reference_time + timedelta(days=horizon_days)
-    fetcher = opener if opener is not None else _safe_opener()
-    errors: list[dict] = []
-    events: list[dict] = []
-    observation_times: list[datetime] = []
-    candidates: list[tuple[str, dict, datetime]] = []
-    for index, fixture in enumerate(fixtures):
-        fixture_id = str(fixture.get("id", fixture.get("fixture_id", index)))
-        try:
-            kickoff = _utc_datetime(fixture["kickoff_at"], field="kickoff_at")
-        except (KeyError, TypeError, ValueError) as exc:
-            errors.append({"fixture_id": fixture_id, "stage": "input", "error": str(exc)})
-            continue
-        if fixture.get("status") not in (None, "upcoming"):
-            errors.append(
-                {
-                    "fixture_id": fixture_id,
-                    "stage": "input",
-                    "error": "SofaScore pre-match context is only requested for upcoming fixtures",
-                }
-            )
-            continue
-        if kickoff < reference_time or kickoff > cutoff:
-            errors.append(
-                {
-                    "fixture_id": fixture_id,
-                    "stage": "horizon",
-                    "error": "fixture kickoff is outside the SofaScore horizon",
-                }
-            )
-            continue
-        candidates.append((fixture_id, fixture, kickoff))
-    candidates.sort(key=lambda item: item[2])
-    limited = candidates[:max_fixtures]
-    for fixture_id, _, _ in candidates[max_fixtures:]:
-        errors.append(
-            {"fixture_id": fixture_id, "stage": "limit", "error": "fixture fetch limit exceeded"}
-        )
-
-    direct_events: dict[str, dict] = {}
-    unresolved: list[tuple[str, dict, datetime]] = []
-    for fixture_id, fixture, kickoff in limited:
-        event_id = _event_id_from_fixture(fixture)
-        if event_id is None:
-            unresolved.append((fixture_id, fixture, kickoff))
-            continue
-        url = _event_url(event_id)
-        request = urllib.request.Request(
-            url,
-            headers={"Accept": "application/json", "User-Agent": "Matchline/1.0"},
-        )
-        try:
-            payload = _read_limited(
-                fetcher,
-                request,
-                timeout=timeout,
-                max_bytes=MAX_CONTENT_BYTES,
-                expected_path_prefix="/api/v1/event/",
-            )
-            observed_at = reference_time if now is not None else datetime.now(timezone.utc)
-            direct_events[fixture_id] = parse_sofascore_event_payload(
-                payload, retrieved_at=observed_at, url=url
-            )
-            observation_times.append(observed_at)
-        except Exception as exc:  # source-level isolation is part of the contract
-            errors.append({"fixture_id": fixture_id, "stage": "event", "url": url, "error": str(exc)})
-
-    scheduled_by_date: dict[str, list[dict]] = {}
-    for _, _, kickoff in unresolved:
-        scheduled_by_date.setdefault(kickoff.strftime("%Y-%m-%d"), [])
-    for date in scheduled_by_date:
-        url = _schedule_url(datetime.strptime(date, "%Y-%m-%d").replace(tzinfo=timezone.utc))
-        request = urllib.request.Request(
-            url,
-            headers={"Accept": "application/json", "User-Agent": "Matchline/1.0"},
-        )
-        try:
-            payload = _read_limited(
-                fetcher,
-                request,
-                timeout=timeout,
-                max_bytes=MAX_CONTENT_BYTES,
-                expected_path_prefix="/api/v1/sport/football/scheduled-events/",
-            )
-            observed_at = reference_time if now is not None else datetime.now(timezone.utc)
-            scheduled_by_date[date] = parse_sofascore_scheduled_events_payload(
-                payload, retrieved_at=observed_at, url=url
-            )
-            observation_times.append(observed_at)
-        except Exception as exc:  # source-level isolation is part of the contract
-            errors.append({"stage": "schedule", "date": date, "url": url, "error": str(exc)})
-            scheduled_by_date[date] = []
-
-    for fixture_id, fixture, kickoff in unresolved:
-        date_events = scheduled_by_date.get(kickoff.strftime("%Y-%m-%d"), [])
-        event = _match_event(fixture, date_events)
-        if event is None:
-            errors.append(
-                {
-                    "fixture_id": fixture_id,
-                    "stage": "event_match",
-                    "error": "no matching SofaScore scheduled event",
-                }
-            )
-            continue
-        direct_events[fixture_id] = event
-
-    for fixture_id, fixture, _ in limited:
-        event = direct_events.get(fixture_id)
-        if event is None:
-            continue
-        event_id = event["event_id"]
-        lineup_url = _lineups_url(event_id)
-        request = urllib.request.Request(
-            lineup_url,
-            headers={"Accept": "application/json", "User-Agent": "Matchline/1.0"},
-        )
-        lineup_data: dict | None = None
-        try:
-            payload = _read_limited(
-                fetcher,
-                request,
-                timeout=timeout,
-                max_bytes=MAX_CONTENT_BYTES,
-                expected_path_prefix="/api/v1/event/",
-            )
-            observed_at = reference_time if now is not None else datetime.now(timezone.utc)
-            lineup_data = parse_sofascore_lineups_payload(
-                payload,
-                event_id=event_id,
-                fixture_id=fixture_id,
-                retrieved_at=observed_at,
-                url=lineup_url,
-            )
-            observation_times.append(observed_at)
-        except Exception as exc:  # unavailable lineup data must not drop event metadata
-            errors.append(
-                {"fixture_id": fixture_id, "stage": "lineups", "url": lineup_url, "error": str(exc)}
-            )
-
-        observation = {
-            "fixture_id": fixture_id,
-            "event": event,
-            "lineups": lineup_data["lineups"] if lineup_data else None,
-            "injuries": lineup_data["injuries"] if lineup_data else None,
-            "lineups_source": lineup_data["source"] if lineup_data else None,
-            # Event source and lineup source each carry the hash of the exact
-            # response that produced them; neither is collapsed or discarded.
-            "source": event["source"],
-        }
-        events.append(observation)
-
-    events.sort(key=lambda item: item["event"]["kickoff_at"])
-    status = "available" if events and not errors else "degraded" if events else "unavailable"
-    return {
-        "provider": SOFASCORE_SOURCE_NAME,
-        "retrieved_at": max(observation_times, default=reference_time).isoformat(),
-        "horizon_days": horizon_days,
-        "requested_fixtures": len(limited),
-        "events": events,
-        "errors": errors,
-        "status": status,
-    }
+    return rights_blocked_envelope(
+        SourceId.SOFASCORE_PREMATCH,
+        provider=SOFASCORE_SOURCE_NAME,
+        checked_at=reference_time.isoformat(),
+        empty_fields=("events",),
+    )
 
 
 # Explicit plural alias for code that calls the source by its result shape.

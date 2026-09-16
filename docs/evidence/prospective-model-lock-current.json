@@ -1,0 +1,537 @@
+{
+  "schema_version": "1.0.0",
+  "status": "pending_prospective_window",
+  "locked_at": "2026-08-25T22:07:58+00:00",
+  "evaluation_window_started_at": "2026-08-25T22:07:59+00:00",
+  "evaluation_window": "v277-mainline-lock: Bind the current rights-gated OpenFootball raw-admission implementation after the v272 candidate drifted; supersede the old pending window without rewriting its append-only evidence.; v272-weather-display-only-coordinates: Add medium-confidence Wikidata venue coordinates to MET Norway display evidence; weather remains explicitly non-model and historical rows stay append-only.; v271-runtime-lock-recovery-and-wikidata-mainline: Replace stale v265 service candidate after explicit model-file drift; preserve all prior locks and start a fresh pending window.; v265-legacy-archive-runtime-gate: Classify pre-window archive rows by their non-current model digest so legacy evidence stays auditable without blocking the active lock; current-lock corruption remains fail-closed.; v264-partial-strict-cutoff-projection: Rebind the independent prospective window after lock-bound strict report projection fixes; no fitted parameter change.; v263-runtime-only-pointer-fallback: Rebind the independent prospective window after the runtime-only workbench pointer fix; no fitted parameter change.; v262-bundle-rights-diagnostics: Refresh the independent window after verified OpenFootball raw replay and public bundle rights diagnostics; no fitted parameter change.; v261-raw-publication-admission: Rebind the explicit prospective window after raw archive publication admission and publisher trust-boundary changes; preserve v260 as historical evidence.; v260-openfootball-verified-history-admission: Create a new prospective window after the v259 model-file drift audit. Bind formal history training to the durable OpenFootball raw archive and v260 source-rights policy; do not reuse superseded rows or refresh the old lock.; v259-lock-window-causal-identity: Exclude predictions observed before the active lock window before pending counts and logical-freeze deduplication; separate same-model-hash rows across explicit prospective windows.; v258-durable-ledger-checkpoint-after-reboot-loss: The host reboot at 2026-08-24T18:37Z cleared the ad-hoc v257 tmpfs runtime. Its nine unscored freeze records were not covered by the canonical recovery manifest and are not reconstructable from hashes alone. Supersede that window without using any result for selection; keep all prediction formulas and fitted parameters unchanged, and require an immediate durable critical-ledger checkpoint for the new runtime.; v257-rights-runtime-projection: Preserve checked_at, rights_status, terms_url and network/access authorization state from the rights-blocked ESPN injury envelope into the runtime source registry and bounded offline source-health projection. This is audit/display metadata only; no endpoint, model feature, fitted parameter or probability formula changes. The superseded v256 isolated cycle wrote zero formal predictions and zero scored outcomes.; v256-openfootball-transient-retry: Retry each allowlisted OpenFootball current source at most once for transient transport failures such as a TLS EOF or timeout. Do not retry HTTP policy responses, redirects, payload validation or parser failures; retain exact URL, TLS policy, size bounds and source lineage. The superseded v255 isolated cycle wrote zero formal predictions and zero scored outcomes.; v255-espn-injury-network-audit: Add an explicit network_opened=false field to the default rights-blocked ESPN injury envelope so source health can distinguish a policy block from a failed or attempted request. No endpoint, model feature, fitted parameter or probability formula changes. The superseded v254 isolated cycle wrote zero formal predictions and zero scored outcomes.; v254-oddstorm-role-truthfulness: Replace the current independent Asian market role label with an explicit OddStorm authorization-blocked and baseline-unavailable statement. Keep legacy role values replayable, preserve all append-only rows, and leave fitted parameters and probability formulas unchanged. The superseded v253 isolated cycle wrote zero formal predictions and zero scored outcomes.; v253-oddstorm-rights-fail-closed: Fail closed OddStorm page/history network and current serving before I/O unless an express written authorization reference exists, because the provider terms prohibit automated scraping, mirroring, redistribution and resale. Preserve prior rows as append-only audit evidence, remove them from the current read model, and keep fitted parameters and probability formulas unchanged.; v252-openligadb-odbl-live-overlay: Add ODbL display-only Bundesliga live observations with strict canonical/provider identity, retain provider-scoped OpenFootball IDs, and keep kickoff-window-only rows non-live; no fitted parameter or pre-match probability change.; v251-csl-official-venue-weather: CFL official venue labels now resolve only exact explicit-city labels or three manually reviewed first-party venue-city references; current snapshot validation rejects altered provenance before geocoding and weather features.; v250-seriea-official-venue-weather: Parse stadiumName, stadiumId and cityName from the already allowlisted Serie A official header, attach them only through the exact competition/canonical-team overlay while retaining the OpenFootball row identity, and feed verified city/country into the existing geocoding/weather lane. v249 produced zero formal predictions and zero scored outcomes; fitted parameters and probability formulas are unchanged.; v249-freeze-cutoff-after-model-lock: Require every clock or lineup freeze cutoff to be at or after the active prospective evaluation window start. The strict builder emits a structured block and the immutable archive independently rejects older cutoffs, preventing a model version locked after a freeze from backfilling that stage. v247 had one unscored legacy row; v248 wrote zero predictions, and no result was used for selection.; v248-laliga-espanyol-canonical-join: Unify the competition-scoped LaLiga official join token after canonical identity resolution so RCD Espanyol de Barcelona, Espanol and Espanyol converge on one exact provider bridge. This prevents a valid official lineup from being missed without fuzzy matching. Probability formulas and fitted parameters are unchanged; the v247 archive contains one unscored row and no result was used for selection.; v247-causal-schedule-revision-guard: Bind each freeze stage to the exact schedule fields in its archived predecessor; require the archived kickoff to equal the current kickoff and the field observation to exist before the cutoff, otherwise block a post-freeze revision. Emit the stage-specific kickoff observation clock. Probability formulas and fitted parameters are unchanged. The superseded v246 isolated capture wrote one unscored row; no result was used for selection.; v246-premier-league-official-schedule-fields: Use the first-party Premier League schedule as field-level authority after an exact competition/team-pair join while preserving OpenFootball canonical IDs, row source and lineage; update kickoff observation clocks, 3/7-day windows and source-backed venue. Real audit matched 71 upcoming fixtures, corrected 43 kickoffs and attached 71 venues. No fitted parameter or probability-formula change, but freezes and probabilities may change through corrected times. Superseded v245 scored zero.; v245-current-historical-team-identity: Map current provider team names to explicit competition-scoped historical identities, expose audit resolution, and include canonical variants in exact Sports Lottery joins. This restores historical/xG state and attaches all five covered official lottery fixtures without fuzzy matching. Probability formulas and fitted parameters are unchanged, but generated probabilities may change because correct historical state now attaches. Superseded v244 scored zero.; v244-multisource-degraded-replay: Allow a provider-neutral fixture snapshot to declare a configured source that contributed zero rows during an explicit unavailable or degraded cycle, while validating provider identity, exact contributed row counts, status and error counts. This restores causal replay of honest partial outages without admitting unknown or relabelled rows. Probability formulas and fitted parameters are unchanged, and the superseded v243 window had zero scored outcomes.; v243-cfl-archive-fallback: Recover the newest verified non-empty CFL source from the append-only snapshot archive when the serving pointer already contains a transient failure, bounded to two hours and a path-confined archive manifest. Reused rows remain explicit stale evidence with original hashes, rights state and observation clocks plus the current transport error. Probability formulas and fitted parameters are unchanged, and the superseded v242 window had zero scored outcomes.; v242-cfl-source-resilience: Add one bounded retry for transient CFL transport failures and carry a verified non-empty CFL source for at most two hours as explicit stale evidence after a failed check. TLS validation, redirects, rights state, row hashes and original observation clocks remain unchanged; HTTP policy and parse failures are not retried. Probability formulas and fitted parameters are unchanged, and the superseded v241 window had zero scored outcomes.; v241-cfl-official-current-fixture-feed: Add the CFL first-party public frontend API as the 2026 CSL canonical schedule/result source, preserve provider-scoped fixture/team IDs, exact kickoff, dual clocks, raw hashes and reuse-rights-unverified state, and merge it with OpenFootball without relabelling either fact source. Probability formulas and fitted parameters are unchanged; the superseded v240 window had no scored outcome.; v240-openfootball-canonical-rights-fail-closed: Replace unlicensed ESPN current schedules with fixed CC0 OpenFootball sources, keep date-only rows quarantined, fail closed all ESPN current adapters and unknown-rights Crawl4AI sources before network access, and preserve all earlier prediction rows as legacy audit evidence. Probability formulas and fitted parameters are unchanged.; v239-espn-injury-rights-fail-closed: After reviewing the current Disney terms linked by ESPN, make the new ESPN injury lane fail closed before network access unless an operator supplies an express written authorization reference. Mark the source forbidden by default, preserve prior v238 observations as append-only audit evidence, and keep probabilities and fitted parameters unchanged; the superseded v238 window had 10 pending and zero scored results.; v238-structured-espn-injury-observation-lane: Add a bounded ESPN league injury-report observation lane, exact provider-team joins, append-only team/player evidence, and explicit observed-empty semantics. Reports remain display/validation-only with no probability or parameter change; missing team buckets are unknown, provider terms require review, and the superseded v237 window had 18 pending and zero scored results.; v237-cross-provider-lineup-semantic-identity: Use complete unique fixture-local shirt-number sets, canonical player IDs, normalized provider names and same-provider IDs in descending confidence order so official and reliable fallback feeds can confirm the same 11+11 XI without provider-ID or ordering conflicts. Preserve true player changes as conflicts, retain all raw source evidence, keep player impact validation-only, and supersede the zero-scored v236 window.; v236-complete-high-coverage-semantics: Require every declared pre-match evidence feature to be present before research or Sites coverage can be labelled high; missing features remain explicit and downgrade the report to medium. Probability formulas and fitted parameters are unchanged, v235 rows remain append-only legacy, and no v235 result was scored.; v235-lineup-confirmation-event-identity: Require the confirming provider payload itself to carry a complete bilateral 11+11 XI and bind fingerprint, player shadow, and displayed provenance to that exact event; the v234 false conflict remains append-only, and no v234 result was scored.; v234-causal-lineup-event-overlay: Overlay only the exact confirmed-lineup provider response at its trusted pre-kickoff retrieval time onto the latest predecessor snapshot; prefer player-bearing evidence and fingerprint raw ESPN team_status XIs. Player impact remains validation-only and probabilities are unchanged. The superseded v233 window had zero scored results and all rows remain append-only legacy evidence.; v233-archived-fixture-observation-and-seven-league-gates: Use cutoff-bounded archived fixture snapshots as causal identity evidence so later polls do not erase a genuinely observed freeze, while still blocking stages with no pre-cutoff fixture proof. Derive prospective sample gates, live-result replay and progress requirements from the seven-league catalog. The superseded v232 window produced zero predictions and zero scored results; prior rows remain append-only legacy evidence.; v232-fixture-first-observation-freeze-gate: Reject any clock or lineup freeze whose canonical fixture kickoff was first observed after that freeze cutoff; missing or future observation clocks fail closed. The superseded v231 window had zero scored results, and all prior rows remain append-only legacy evidence.; v231-championship-causal-expansion: Add the EFL Championship as a first-class model competition using 11 SHA-pinned Football-Data seasons, ESPN eng.2 current fixtures, exact Sports Lottery competition/team identity, and fail-closed catalog-expansion snapshot compatibility. The superseded v230 window had zero scored results; all rows remain append-only legacy evidence. No market-only or synthetic prediction is admitted.; v230-sports-lottery-current-sales-aliases: Add competition-scoped explicit Chinese team aliases for five current Sports Lottery fixtures so exact kickoff, competition and home-away identity joins attach official odds to canonical ESPN fixtures instead of duplicate display-only rows. No fuzzy matching, fitted parameter, probability formula or scored outcome is used; the superseded v229 window had zero scored results.; v229-official-poll-alias-bridge: Use the existing competition-scoped explicit team alias registry when mapping provider-native official lineup poll plans to canonical fixtures, including the official Brighton and Hove Albion display name. This corrects per-fixture scheduling diagnostics without fuzzy matching, probability changes, fitted-parameter changes, or scored outcomes in the superseded window.; v228-intelligence-polling-publication-state: Record the audited Bundesliga official publication-state parser, exact German umlaut slug identity, post-T90 15-minute official-lineup retry until a confirmed XI, rotating 24-hour/7-day news leads, and honest unconfirmed-lineup source status. Prior rows remain append-only; no probability formula or fitted parameter changed, and the previous window had zero scored outcomes.; v222-strict-player-shadow-ledger: Attach the validation-only player availability shadow to each strict freeze-stage row using only the stage snapshot and its pre-cutoff player-source timestamp; no probability formula, model feature admission, replacement value, or impact delta is changed.; v221-player-availability-shadow: Add a time-truncated, validation-only player availability shadow with explicit observed_at and cutoff gates; it records roster and expected-minute coverage but remains model_eligible=false with no probability impact or replacement-value estimate.; v216-provider-poll-plan-identity-bridge: Map provider-native fixture IDs in official poll schedules back to canonical fixture IDs in per-fixture diagnostics using the existing exact source identity bridge; prevent carried polls from being displayed as due. No probability formula, feature admission, lineup eligibility, or model parameter changed.; v215-premier-league-team-display-aliases: Add explicit Premier League aliases for Brighton and Hove Albion and AFC Bournemouth so official display names join the canonical ESPN fixture by exact kickoff/team pair; no fuzzy matching, probability formula, feature admission, lineup eligibility, or model parameter changed.; v214-premier-league-opening-matchweek-window: Include one extra preceding official Premier League matchweek because the public service matchweek numbering is not guaranteed to align with a calendar-week estimate; keep the request bounded and preserve strict kickoff/team joins. No probability formula, feature admission, lineup eligibility, or model parameter changed.; v213-official-fixture-join-diagnostics: Add bounded strict official-schedule-to-canonical-fixture join diagnostics and explicit LaLiga team aliases for observability; no probability formula, feature admission, lineup eligibility, or model parameter changed. The failed stale-lock cycle produced no prediction or result row.; v197-crawl4ai-kickoff-guard: Quarantine public-page records with missing or invalid source kickoff instead of aborting the multi-source sync; no probability formula or feature admission change.; v191-prediction-contract-replay: Add an explicit total-goals settlement line to the frozen prediction contract and researcher card output; refresh the strict replay inventory after the output-contract implementation. The failed pre-capture run produced no scored result, and all superseded rows remain append-only legacy evidence.; v166-ligue1-official-match-api: Add the allowlisted Ligue 1 first-party calendar/game-week/match-detail adapter with strict native ID, kickoff, team and pre-kickoff XI gates; Crawl4AI remains a shared fetch runtime and the new official source is display/audit-only until its causal evidence is eligible.; v165-current-source-boundary-lock-recovery: Refresh the explicit model-file inventory after the audited source registry, public-source identity, Sports Lottery aliases, and Crawl4AI execution-layer boundary updates; no probability formula or model feature admission change.; v158-official-lineup-id-join-scheduler: Map provider-specific official lineup IDs to current fixtures by exact kickoff/team identity and use per-fixture poll history before legacy global timestamps; no probability formula or feature admission changed.; v157-espn-roster-fanout: Increase the bounded public ESPN team-roster fan-out for the next 72 hours from the legacy 40-team request to a hard-capped 96-team request; roster evidence remains display/audit-only, does not authorize confirmed lineups, and never enters model features.; v152-fixture-lineage-read-model: preserve Crawl4AI declared fact-source and entry/detail page lineage in fixture evidence and Sites read model; no probability logic changed; v141-lineup-diagnostic-request-consistency: Align the aggregate official-lineup diagnostics requested/state flags with the stage-aware poll schedule when official fixture refresh succeeds but lineup polling is explicitly not due.; v140-stage-aware-lineup-poll-schedule: Poll each official lineup fixture once per causal stage, retry source failures, carry prior observations explicitly, and skip not-due providers without weakening source or model-admission contracts.; v139-parallel-official-lineup-hosts: Schedule the independent LaLiga, Bundesliga and Serie A official lineup hosts concurrently while retaining each adapter own same-host delay, allowlist, timestamps, failures and model-admission rules.; v138-seriea-canonical-match-centre: Use the official /serie-a match-centre path directly because the bare host returns a headerless 307; keep the HTTPS allowlisted redirect guard and preserve display-only incomplete lineups.; v135-cold-start-history-prior: Explicitly shrink insufficient team-history state to a traceable league prior without synthetic results; preserve research-only status and suppress low-coverage numerical conclusions in the read model.; v132-explicit-team-identity-aliases: Add explicit competition-scoped team aliases for current promoted names and expose the canonical identity in future prediction evidence; no fuzzy matching and no probability fallback.; v128-causal-fixture-plan-audit: Bounded per-fixture lineup polling plans are now retained for every candidate in the 48-hour window; this is operational audit metadata only, with no probability, feature-admission, or model-parameter change.; v117-capture-replay-deadline: Bound the large append-only feature replay to manifest-indexed latest predecessors per due freeze cutoff, add durable cycle-stage heartbeat, and extend the outer systemd deadline so legitimate multi-source cycles are not killed before evidence is persisted.; v112-independent-probability-ledger: Separate pre-market independent probabilities from market-informed display matrices and lock the causal historical Understat xG dependency; default production probabilities remain unchanged.; v108-geocoding-coordinate-cache: Reuse previously verified Open-Meteo venue coordinates by exact city/country key and request only unseen venues; retain source hashes, explicit cache counts and unresolved errors without changing model features or weather semantics.; v107-lineup-publication-state: Official lineup poll diagnostics now distinguish an empty provider envelope from an available lineup; add an explicit available_lineup_count while preserving display-only model boundaries and append-only legacy rows.; v101-laliga-public-match-directory: Use the official public LaLiga match directory to discover near-term match pages that are absent from the home-page card window; lineup observations remain page-validated and display-only until causal gates pass.; v97-oddstorm-stale-fallback: Bounded OddStorm stale-cache fallback now reads the append-only snapshot archive after transient empty or redirect failures; preserve old rows and restart the prospective window before capture.; v96-understat-identity: Explicit provider-title aliases changed causal Understat-to-ESPN team attachment; preserve append-only old rows and start a new window before scoring.; v80-crawl-admission-ledger: Retain bounded Crawl4AI fixture admission metadata in the immutable observation payload and match read model; no model parameters or feature values changed.; v78-lineup-poll-stage-schedule: Added bounded causal lineup poll stage schedule, next due metadata and operator visibility; no probability logic changed.; v77-espn-participant-id-type-guard: Hardened display-only ESPN participant ID parsing to accept only bounded string or integer provider IDs; no pre-match feature or probability logic changed.; v76-espn-event-participant-ids: Preserved bounded provider participant IDs in display-only ESPN incidents so Sites can stably associate event participants with player evidence; no pre-match feature or probability logic changed.; v75-espn-event-location-display: Added bounded provider-declared ESPN event coordinates to display-only incidents and the single-match research view; no pre-match feature or probability logic changed.; v74-factor-trace-audit-ledger: Added bounded sequential factor-trace audit output and Sites projection; probabilities and causal feature admission are unchanged, while the new audit module and strict renderer are hash-locked before the next prospective window.; v73-crawl4ai-public-fixture-context-joins: Extend declared Crawl4AI public-page contracts to strict LaLiga and Premier League canonical fixture joins; preserve display-only model boundary and source-specific time semantics.; v72-crawl4ai-declared-fact-source-id: Add an optional operator-declared factual source_id plus explicit Crawl4AI capture_engine and capture_role fields to append-only browser evidence; preserve runtime-only engine semantics, display-only admission, and frozen model probabilities.; v71-legacy-crawl4ai-role-replay: Allow the legacy Crawl4AI role label used by append-only raw snapshots to replay; preserve the current runtime-only fact-source boundary and do not change model features or probabilities.; v70-sports-lottery-atm-malaga-alias: Added explicit LaLiga ATM/MAL and Chinese-name aliases so the official Sports Lottery row joins the existing ESPN fixture without creating a duplicate; no fuzzy matching or model probability change.; v69-crawl4ai-stale-provenance: Stale Crawl4AI pages now retain explicit capture-engine provenance and the ingestion audit payload records engine role separately from declared fact-source identity.; v68-crawl4ai-engine-source-identity: Crawl4AI is an execution engine; declared page fact-source identity and capture-engine provenance are now locked separately.; v67-sports-lottery-sales-ledger: added a bounded official Sports Lottery sales ledger, competition-scoped aliases and read-only odds projections; sales rows remain display-only and are excluded from model features; v66-espn-public-team-roster-display-evidence: added bounded public ESPN team-roster polling for next-72-hour teams; roster rows retain hashes and timestamps, remain display/audit-only, and never authorize confirmed lineups or model features; v65-player-evidence-ledger: append-only player evidence binding changed the locked ingestion and intelligence inventory; 2026/27 season results after the v63 Crawl4AI exact WhoScored-to-ESPN fixture association and display-only market-evidence migration, v62 append-only intelligence-ledger quarantine and recoverable-fragment audit migration, v61 strict Crawl4AI TLS runtime compatibility migration, v59 Crawl4AI source-specific fixture-evidence display migration, v58 display-only ESPN period/result/player-evidence migration, v57 explicit Crawl4AI operator-config and sync-boundary lock migration, v56 team-pair RSS lead-query display-only lock migration, v55 display-only player-statistics lock migration, v54 display-only match-center and lineup-publication diagnostic migration, v52 append-only result projection and explicit 90-minute settlement scope, v51 explicit stage-evaluation ledger and D1 publication contract, v50 display-only ESPN boxscore match-statistics archive and Sites match-analysis card, v49 public ESPN incident timeline and display-only live-event ingestion migration, v48 ledger-index migration, v47 lineup-fingerprint migration, v46 source-registry observability correction, v45 historical replay correction, v44 browser-rendered public-page contract correction, v43 public-source ingestion and append-only intelligence-ledger integration, v42 prospective evaluator secondary-result merge correction, v41 Serie A official public SDP header/lineups API source migration, v40 LaLiga official public webview lineup-API fallback, v39 LaLiga official display-name identity-bridge correction, v38 Premier League official-fixture native-id lineup-join correction, v37 explicit venue-label geocoding correction, v36 LaLiga localized-path and official-team-join correction, v35 cross-lock freeze-conflict correction, v34 lineup-observation feature-snapshot boundary correction, v33 lineup-confirmation feature-snapshot boundary correction, v32 canonical market-probability output correction, v31 Sports Lottery probability-contract validation correction, v30 lottery-alias freeze-version migration, v29 Sports Lottery explicit Chinese-name/abbreviation join correction, v28 Bundesliga official-lineup join correction, v27 fixture-identity conflict quarantine, v26 invalid-halftime quarantine, v25 OpenLigaDB enrichment, and v24 ledger-write-lock; advanced before any v63 result was scored",
+  "model_name": "strict_dynamic_elo_scoreline_v3_causal_rho",
+  "model_version_sha256": "ffcbaddb0184596dd1015b3306e16dfe14d107658eec3a7c73a0d0658f203cda",
+  "freeze_model_name": "strict_dynamic_elo_scoreline_stage_replay_v9_cross_provider_lineup_identity",
+  "model_files": [
+    {
+      "path": "league_platform/strict_backtest.py",
+      "sha256": "8c37bc4c6bc827c1a19dd098cdd126543aa34c261a1d6b1fb60f3ad4a02011bc"
+    },
+    {
+      "path": "league_platform/model_factors.py",
+      "sha256": "085e83b993ad4fa5f14bdeba3fd1f5e53c1ebda39700aea28de8719272b1505d"
+    },
+    {
+      "path": "league_platform/model.py",
+      "sha256": "cd2ef20a704a9d2ef37a8a54e95386aa320f1883f69aace15e98d66e3ab3b3b0"
+    },
+    {
+      "path": "league_platform/dixon_coles.py",
+      "sha256": "8b43dcd600c4028dc134272fd1ee2d0abd2c1d07baa160f0c9155f3fd42e42ee"
+    },
+    {
+      "path": "league_platform/targets.py",
+      "sha256": "9edf9c7114ad2219cd98ea41664f426ffae07b7de3e1894f983f5ac4934a4c8a"
+    },
+    {
+      "path": "league_platform/metrics.py",
+      "sha256": "b2e765613e44742a63d23bc47c3e12f54dcf6bcd2e3524fef19442e0b0e145b9"
+    },
+    {
+      "path": "league_platform/prospective_archive.py",
+      "sha256": "7327f446dccad095dac4e43be0341c48c437d075dc721b584d9bd40be9af718d"
+    },
+    {
+      "path": "league_platform/capture_prospective.py",
+      "sha256": "84404970e3943a6c82cc3469dd2efe3e59b9d80a0522748a0a40be9bd193d306"
+    },
+    {
+      "path": "league_platform/live_sources/espn_market.py",
+      "sha256": "66978377aac045e720d48e8514b3494878da08a03332abdd46eaa061b7dbf72a"
+    },
+    {
+      "path": "league_platform/live_sources/espn.py",
+      "sha256": "19acc6feefa5626b9507f640c73ea6ae13dabe302451ca1963da6d40f95c4a24"
+    },
+    {
+      "path": "league_platform/live_sources/premier_league.py",
+      "sha256": "b4d1968c56150776773abd1e875e04bf1a94f7499348fdf34aeb026c10ac879e"
+    },
+    {
+      "path": "league_platform/live_sources/geocoding.py",
+      "sha256": "255b7165350cad6c04a778dc0b45d015bfc8a8b7e3ae569af76fb076da4e13c5"
+    },
+    {
+      "path": "league_platform/live_sources/laliga.py",
+      "sha256": "df5d345bcb61d3c1353f3c4cdebdb4ca3ead80d365486a729aabd0ce78bbe6b3"
+    },
+    {
+      "path": "league_platform/live_sources/seriea.py",
+      "sha256": "18c722cabeabbaad3e4dbe15cae0ca2a312baeb1fe44ee1608edc877759f58b2"
+    },
+    {
+      "path": "league_platform/live_sources/bundesliga.py",
+      "sha256": "a0186b7c8b00a832cd216c150322b3d95ca7e91445df69a41fc1e8ed6d0d8e6a"
+    },
+    {
+      "path": "league_platform/live_sources/__init__.py",
+      "sha256": "75e848dee91e30d0324f0cb4ef998e249abe5d33066ee79b678b076695d540a8"
+    },
+    {
+      "path": "league_platform/sync_live.py",
+      "sha256": "ffbcbeda923273275ba02ce7cfc45c318f5b1aa1199346340634cd208a8da78e"
+    },
+    {
+      "path": "league_platform/current.py",
+      "sha256": "4e0123b96f05006865ba68529898195dfd767f6984c1eb94bfa5d5c2eab44c95"
+    },
+    {
+      "path": "league_platform/future.py",
+      "sha256": "31b75f876ac500f4cc3d352976473d3e3fe7937214f88a737b340cb91c1152d3"
+    },
+    {
+      "path": "league_platform/ingestion.py",
+      "sha256": "5dff2014fee8d19129ee80921fc33ec28b63f5bfebdf662102c90dcd4f775c99"
+    },
+    {
+      "path": "league_platform/intelligence.py",
+      "sha256": "34a6c0db411143f69f477c365a79060ab0a409240825a0a116f963ed80476d6d"
+    },
+    {
+      "path": "league_platform/prospective_evaluation.py",
+      "sha256": "929b972a8ae01943d69698651501e5d8634c5dcf38c22d144cc6c7c1386242ec"
+    },
+    {
+      "path": "league_platform/domain.py",
+      "sha256": "7bb42fec0324834c580896869aca98bf483b1d8b54366f2e6dd4401865b4cfff"
+    },
+    {
+      "path": "league_platform/sources/live_results.py",
+      "sha256": "c8e5c9479cb7b37ee6fa75dde884ef110686ebf478bec6342ded1638befb8d83"
+    },
+    {
+      "path": "league_platform/identity.py",
+      "sha256": "6bc68489f950b49588cab9710c9dcbab50c5f4a2bfc5348b1f3d0cbf58771513"
+    },
+    {
+      "path": "league_platform/historical_xg.py",
+      "sha256": "eec2572c92ab5a60cf06f3811c79d61b8d9ba5ebf1fe7ad7183db2c1d9f49bb8"
+    },
+    {
+      "path": "league_platform/live_sources/espn_roster.py",
+      "sha256": "3808b74e1995b68e5a91f385d0b21f4ff73b4f3eb52ae2754e975efde5140689"
+    },
+    {
+      "path": "league_platform/live_sources/ligue1.py",
+      "sha256": "f6d75c4fa35cf0bc95d1349c94f496130d151347226724ac1a387232fb52157c"
+    },
+    {
+      "path": "league_platform/source_registry.py",
+      "sha256": "50fb639d08845012b5f5c3634351841016fad02184bed42b21ab670c7e8248f2"
+    },
+    {
+      "path": "league_platform/player_shadow.py",
+      "sha256": "4270e31ebd074207f2683580842e77c14df318f866c645d989f073b3edbb2bf5"
+    },
+    {
+      "path": "league_platform/catalog.py",
+      "sha256": "054ede0584f8f11cc282eba2a793fcaa8b7436ea4dddbbab38a25c1a1d2e6dbe"
+    },
+    {
+      "path": "league_platform/data_manifest.json",
+      "sha256": "ae54abff6e93dcbba6b682037ede8be17404a4da0d4caee80b7592d06f67dbb3"
+    },
+    {
+      "path": "league_platform/live_sources/espn_injuries.py",
+      "sha256": "33d3d9c5359da421a3ab2946ee533247c4b6e7f53faf800522edcef1756ce860"
+    },
+    {
+      "path": "league_platform/player_evidence.py",
+      "sha256": "e7a6c5538a4ca0eb2ccf9437326149fbcabb3d80e16d0ce7e9b7b2888567bd92"
+    },
+    {
+      "path": "league_platform/fixture_feed.py",
+      "sha256": "c2ab79cb0dfe85b5caa291d878d8882bc260acbc854b763271366dfcc115714c"
+    },
+    {
+      "path": "league_platform/live_sources/openfootball_live.py",
+      "sha256": "341a371886b0db34ee9e6f76151e74c29444e906eef086924b5c94027643ba06"
+    },
+    {
+      "path": "league_platform/live_sources/openligadb.py",
+      "sha256": "55eb298947d9b0339947413cac5c530bcd645792677a79cfc053b8f2ad92490d"
+    },
+    {
+      "path": "league_platform/live_sources/cfl_official.py",
+      "sha256": "995865db27f9b094633f39d937163ceced9a358c797d4d8ad7d09e358edfc535"
+    },
+    {
+      "path": "league_platform/live_sources/oddstorm.py",
+      "sha256": "aa251a4ac5bd475bdc9dc1aab1babbbd45a9f3c913a809e2a24b9295f05fd512"
+    },
+    {
+      "path": "league_platform/oddstorm_history_archive.py",
+      "sha256": "cfc10681c7ef2e7a64877e81b36abe2421e0419e6e28111baf038d03a837ae38"
+    },
+    {
+      "path": "league_platform/prospective_lock.py",
+      "sha256": "3666c3b199cdc7a315ccc415297e7f2176c1ec4b0c560eb55fa9353f48b8dd2e"
+    },
+    {
+      "path": "league_platform/source_rights.py",
+      "sha256": "2520e3c3268ed30899f0ab23bac0f414de3dd631526cd1c8f64e95332a626146"
+    },
+    {
+      "path": "league_platform/openfootball_raw_archive.py",
+      "sha256": "7d743434c2faa1608ae8bf8a2f4054c863bc0115e4baf5b7773c877df17a1e62"
+    },
+    {
+      "path": "league_platform/openfootball_history_sync.py",
+      "sha256": "bf4805260ccd2eb82cbece1913e2a91eb79bc6bc4a448a4a210f947445f9d110"
+    },
+    {
+      "path": "league_platform/sources/openfootball_verified.py",
+      "sha256": "51b7d2eadd36e85d44bd15cb527199f9200f90ddd2df284b1f818379b6d84db4"
+    },
+    {
+      "path": "league_platform/model_admission.py",
+      "sha256": "829492471b5f0be2c5b42b660a8f526d3b19ed896a8c2f5337987e06a5a6b359"
+    },
+    {
+      "path": "league_platform/strict_report.py",
+      "sha256": "6fbc8fff7284b3c2b001b6a3ced4173dc0dcc23ecaaf4f88520ee7a1f4ded307"
+    },
+    {
+      "path": "league_platform/store.py",
+      "sha256": "0613ea2cd2332e30214409bd45f477f3adf98301298f9736059bfa285b04b244"
+    },
+    {
+      "path": "league_platform/runtime_paths.py",
+      "sha256": "c5b5bbc0205212403fbe507c4e14cc89e5964d4829605a260b2276faee9123c6"
+    },
+    {
+      "path": "league_platform/prospective_cycle.py",
+      "sha256": "c03a466c6f636e4f4c618aa69b0d088c8cdeb2861b782602564462267637280b"
+    },
+    {
+      "path": "league_platform/platform_verification.py",
+      "sha256": "48aa159598dc7bb4661c9b37f509340927ef442b98b835a46c404d0adca7fade"
+    },
+    {
+      "path": "league_platform/maturity_validator.py",
+      "sha256": "c478902dc2ab587420178caa1cc170c206ebcef308bdae965aace053578abaca"
+    }
+  ],
+  "results_not_used_for_selection": true,
+  "sample_requirements_met": false,
+  "all_required_targets_scored": false,
+  "prediction_freezes_verified": false,
+  "notes": [
+    "2021/22 through 2025/26 evidence remains development-only because candidate reports repeatedly inspected that period.",
+    "The prospective window was advanced from 2026-08-22 to 2026-08-13T18:20:00Z before any prediction or result was archived; the new start remains strictly after locked_at.",
+    "This v3 lock supersedes the earlier v2 lock before any prospective result was scored; it adds causal Dixon-Coles rho replay to every freeze stage while retaining fixed, causally bounded live xG and market blending only when each source observation is before the stage cutoff.",
+    "The freeze archive uses strict stage-replay predictions with a separate freeze_model_name; this lock still does not authorize production and cannot clear the gate until the prospective window is complete and independently scored.",
+    "Window enforcement rejects fixture kickoffs before evaluation_window_started_at both during capture and append validation.",
+    "Post-lock operational correction: the archive digest now excludes kickoff_time_observed_at, which is observation bookkeeping rather than frozen model content; strict model parameter files and freeze model name are unchanged. The lock manifest was refreshed before any prospective result was scored.",
+    "v4 lock migration before any prospective result was scored: causal market features now export normalized market_probability, exact source retrieval time, freeze-bound time basis, and probability_delta_model_minus_market; malformed or post-cutoff market payloads remain unavailable. Existing v3 archive rows are preserved as historical records.",
+    "Append-only lock migration keeps superseded rows for audit but emits the same immutable payload under the new lock hash; the current evaluator counts only the current freeze model and lock hash and reports legacy_model_records separately.",
+    "Conflicting post-kickoff result snapshots are retained but their fixtures are excluded from scoring; result_conflict_predictions is reported and prevents a passed prospective evaluation.",
+    "Pre-result metadata correction: combined multi-competition prospective results now report the locked v4 freeze model name instead of the legacy v3 label; no scored prospective result existed before this lock migration.",
+    "Pre-result observability correction: prospective capture now archives structured blocked reasons and counts without changing prediction eligibility or probability values.",
+    "Pre-result observability correction: blocked reasons produced while combining competitions now retain competition_id, so cutoff and history blocks can be audited per competition.",
+    "Pre-result observability correction: single-competition prospective blocks now carry the same competition_id field as combined blocks.",
+    "Pre-result traceability correction: every frozen prediction now carries team names, stable team IDs, provider fixture ID, source name/file, and source response SHA-256; lock migration occurred before any prospective result was scored.",
+    "v5 traceable freeze model name separates the enriched prediction schema from all prior v4 rows; no result was scored under the superseded locks.",
+    "v6 pre-result migration: finished ESPN observations from immutable live snapshots now enter prospective training only at their recorded result_observed_at; conflicting score snapshots are quarantined. Prior v5 rows remain audit-only.",
+    "v7 pre-result migration: archived-feature replay now uses a lightweight fixture-only platform base before defensive source attachment, preventing repeated deep copies of the full historical model snapshot. No v7 result has been scored; prior v6 rows remain audit-only.",
+    "v7 pre-result migration: OpenLigaDB Bundesliga finished results are admitted only as a strict secondary observation joined to an existing ESPN fixture; unmatched rows are skipped and final-score conflicts are quarantined.",
+    "v7 pre-result migration: stable freeze digests now exclude source hashes, observation timestamps and other audit-only fields; repeated polling with identical frozen probabilities is idempotent while probability changes remain hard conflicts.",
+    "v7 pre-result migration: a conflict-only row produced by the old audit digest can be followed by a clean canonical row without deleting the original; genuine probability conflicts remain preserved and blocking.",
+    "v7 pre-result memory correction: archived feature snapshots are now processed in chronological order without retaining the full attached-snapshot list; frozen selections and cutoff semantics are unchanged.",
+    "v7 pre-result memory correction: prospective capture now drops the full rendered historical snapshot before current-source attachment and model replay; history and frozen feature semantics are unchanged.",
+    "v8 pre-result source migration: ESPN event-summary rosters can become a reliable-public-provider confirmed_lineup only with exactly eleven explicit starters per side and a pre-kickoff observed_at; ordinary or post-kickoff rosters remain display-only. Current-source validation, feature replay, ingestion and intelligence conflict semantics were hash-locked before the next prospective cycle.",
+    "v9 pre-result source migration: LaLiga public Match Centre pages are now an official lineup candidate source. The adapter is bounded to the 48-hour window, serially respects the 30-second crawl delay, requires strict kickoff/team joins and complete pre-kickoff XIs, and keeps incomplete or post-kickoff pages audit-only. No prospective result was scored before this lock migration.",
+    "v10 pre-result observability correction: current-data provider_errors now includes the LaLiga official adapter, preserving source failures in the attached audit payload. No prospective result was scored before this lock migration.",
+    "v11 pre-result source migration: Bundesliga public Match Centre matchday and lineup pages are now an official lineup candidate source. The adapter uses a bounded 48-hour window, strict host/path and kickoff/team joins, complete pre-kickoff XIs only, and keeps unresolved or post-kickoff pages audit-only. No prospective result was scored before this lock migration.",
+    "v12 pre-result validation correction: ESPN confirmed-lineup timestamps are accepted from the team-status record's top-level retrieved_at when the nested source record carries only URL/hash provenance. This fixes a real first-confirmed-XI boundary failure without changing eligibility or probabilities. No prospective result was scored before this lock migration.",
+    "v13 pre-result result-chain correction: per-event ESPN summary status and score now refresh a lagging scoreboard fixture; live or halftime scores remain ineligible for final-result scoring, finished summaries require two non-negative scores, and the canonical fixture source retains provider identity with summary provenance. No prospective result was scored before this lock migration.",
+    "v14 pre-result status correction: ESPN first-half and second-half summary states are normalized to live, closing the real provider-status gap observed on a current CSL event; no score becomes a final result until a finished state with two valid scores. No prospective result was scored before this lock migration.",
+    "v15 pre-result polling correction: live ESPN fixtures are also queried through their event summaries for status and score repair, while in-play odds and rosters are excluded from pre-match market/model inputs. No prospective result was scored before this lock migration.",
+    "v16 pre-result evaluation correction: historical strict walk-forward rows now replay the same causally bounded 30% market fusion used by the frozen prospective model when the historical provider explicitly declares a pre-kickoff market basis; market comparison remains unchanged in scope and no production probability was retroactively selected. No prospective result was scored before this lock migration.",
+    "v17 pre-result result-observation migration: ESPN event summaries now preserve the first-period score after halftime/second-half/full-time status, enabling causal half/full scoring while rejecting provisional first-half linescores. No prospective result was scored before this lock migration; prior v16 rows remain audit-only.",
+    "v18 pre-result result-ledger correction: identical final scores with missing versus present halftime metadata are merged instead of treated as result conflicts; contradictory final or halftime scores remain quarantined. No prospective result was scored before this lock migration.",
+    "v19 pre-result live-result correction: the canonical live-results loader now applies the same final-score and halftime-enrichment conflict semantics as prospective evaluation, preventing identical 0-0 snapshots with incomplete halftime metadata from poisoning the cycle. No prospective result was scored before this lock migration.",
+    "v20 pre-result lineup-clock migration: the confirmed ESPN lineup selector now accepts the normalized team-status row's top-level retrieved_at when the nested source contains only URL/hash provenance. Old v19 rows remain legacy and no prospective result was scored before this new lock/window.",
+    "v21 pre-result idempotent-freeze migration: lineup_confirmation logical keys now ignore repeated observation timestamps while retaining them for audit; same-content polls are deduplicated, changed content remains a same-stage conflict, and v20 rows are preserved as legacy. No prospective result was scored before this new lock/window.",
+    "v22 pre-result lineup-stage clock migration: the future prediction adapter now carries the normalized ESPN top-level retrieved_at into the eligible lineup feature, so confirmed pre-kickoff XIs reach lineup_confirmation instead of remaining at t_minus_90m. No probability or prospective result was scored before this new lock/window.",
+    "v23 pre-result source-conflict migration: resolve_observations now quarantines every unresolved payload conflict from model use, while retaining the priority winner and all candidates for audit. No probability payload changed and no v23 result was scored before this lock/window.",
+    "v24 pre-result ledger migration: ObservationLedger now serializes cross-process appends with a sibling lock and fsync; malformed historical lines are retained and surfaced through read diagnostics instead of being silently rewritten. No prediction probability changed and no v24 result was scored before this lock/window.",
+    "v25 pre-result live-result correction: an OpenLigaDB secondary observation now preserves its own halftime score, enriching an ESPN fixture when ESPN omits halftime data while allowing genuine halftime disagreements to be quarantined. No v25 result was scored before this lock/window.",
+    "v26 pre-result live-result correction: halftime metadata is accepted only when both values are non-negative and do not exceed the corresponding final score; malformed halftime payloads are ignored, while valid source conflicts remain blocking. No v26 result was scored before this lock/window.",
+    "v27 pre-result live-result correction: observations sharing a provider fixture ID but disagreeing on competition, exact kickoff, or canonical team identity are quarantined with all source observations retained; no v27 result was scored before this lock/window.",
+    "v28 pre-result current-source correction: Bundesliga official lineup observations are now joined into current_features using the same strict kickoff/team-pair identity boundary already used for Premier League and LaLiga; no prediction probability or prospective result was scored before this lock/window.",
+    "v29 pre-result current-source correction: Sports Lottery Chinese team names and provider abbreviations are mapped only through explicit competition-scoped aliases, then joined by exact kickoff and both team names; unmatched leagues and ambiguous rows remain quarantined. No v29 result was scored before this lock/window.",
+    "v30 pre-result freeze-version migration: the validated v29 alias correction is now represented by a distinct freeze_model_name, so stale no-handicap rows and the newly enriched handicap rows cannot share one independent evaluation lock. v29 rows and conflicts remain append-only audit records; no v30 result was scored before this lock/window.",
+    "v31 pre-result input-contract correction: Sports Lottery probability maps now require allowlisted outcome keys, finite non-negative values, and a unit sum (within rounding tolerance); empty maps remain explicit unavailable markets. No v31 result was scored before this lock/window.",
+    "v32 pre-result output-contract correction: provider h/d/a Sports Lottery 1X2 probabilities are converted to the platform home/draw/away keys at the future-prediction boundary; raw source payloads remain unchanged and no v32 result was scored before this lock/window.",
+    "v33 pre-result lineup-stage correction: when a confirmed, model-eligible lineup is observed, capture now selects the newest complete archived feature snapshot that existed no later than that lineup observation; later polls cannot be borrowed backward into lineup_confirmation. No v33 result was scored before this lock/window.",
+    "v34 pre-result lineup-observation correction: lineup discovery and feature replay are separated so a provider response whose archive as_of is later than its embedded observed_at can still replay the newest earlier causal snapshot; no v34 result was scored before this lock/window.",
+    "v35 pre-result archive correction: freeze conflicts are compared only within the current model-lock identity, so a changed prediction payload from a validated pre-result migration is preserved as a clean current record while superseded rows remain audit-only; no v35 result was scored before this lock/window.",
+    "v36 pre-result source correction: the LaLiga adapter now accepts the official localized /[locale]/partido/ Match Centre path and a narrow Racing Santander/Racing Club page-join alias; no v36 result was scored before this lock/window.",
+    "v37 pre-result source correction: Open-Meteo geocoding now accepts only two explicit ESPN venue-label normalizations (Tiexi New District Sports Centre/Liaoning to a Shenyang query and Stade Louis II/Monaco/France to Monaco/MC); original labels and canonical query provenance remain stored, unknown labels still fail closed, and no v37 result was scored before this lock/window.",
+    "v38 pre-result source correction: Premier League official fixture rows now retain the provider numeric match id and the lineup fetcher accepts that id from strict source provenance, so official pre-kickoff lineups are no longer silently skipped; no v38 result was scored before this lock/window.",
+    "v39 pre-result source correction: LaLiga official display-name aliases are now an explicit competition-scoped identity bridge (including Racing Santander, Villarreal, Espanyol, Levante, Deportivo and Elche); exact kickoff and provider fixture joins remain required, and no v39 result was scored before this lock migration.",
+    "v39 pre-result metadata correction: the evaluation-window description now names the v39 source correction and the no-result boundary explicitly; model files, probabilities and the prospective start timestamp are unchanged.",
+    "v40 pre-result source migration: the LaLiga adapter now falls back to the official public webview lineup API using the website-published runtime subscription key only in memory, with HTTPS host/path allowlisting, redirect rejection, response-size limits and raw-response hashing. Empty or incomplete API lineups remain display/audit-only and never enter the model; the v40 lock was advanced after the stale-hash cycle failed closed and before any v40 result was scored.",
+    "v41 pre-result source migration: the Serie A adapter now discovers official public Match Centre routes and validates the public SDP header/lineups API by native season/match IDs, exact kickoff, strict team identity, HTTPS host/path allowlists, redirect rejection, response-size limits, raw-response hashes and retrieved_at fallback. Complete pre-kickoff XIs alone are model-eligible; incomplete or post-kickoff observations remain display/audit-only. The v41 lock was advanced before any v41 result was scored.",
+    "v42 pre-result evaluator correction: prospective evaluation now applies the same strict OpenLigaDB secondary join and halftime validation already used by the live-results loader. Secondary observations can enrich a missing halftime score only after exact Bundesliga kickoff/team identity matching; score or halftime conflicts remain quarantined, and no prediction probability changed. The v42 lock was advanced before any v42 result was scored.",
+    "v43 pre-result ingestion correction: the public Crawl4AI source adapter and append-only intelligence ledger integration are now included in the lock inventory. Raw page captures remain display-only until a source parser and entity match make them model-eligible; no v42 result was scored before this lock migration.",
+    "v44 pre-result contract correction: current snapshots now explicitly accept the browser_rendered_public_pages role emitted by the allowlisted Crawl4AI adapter. The previous v43 cycle failed closed before capture because the role was present in the snapshot but absent from the replay contract; no v43 result was scored.",
+    "v45 pre-result replay correction: historical snapshots are now accepted through an allowlisted combination of known optional source roles, so legitimate intermediate snapshots (for example Premier League plus LaLiga before later providers landed) are replayed instead of being discarded. The v44 cycle appended five predictions but no result was scored; those rows remain superseded audit records.",
+    "v46 pre-result observability correction: each live snapshot now carries the declarative public-source registry with bounded per-cycle health counts and explicit robots/quarantine/forbidden statuses. Registry metadata is display/audit-only and does not authorize a source or alter model features; the lock was migrated before any prospective result was scored.",
+    "v47 pre-result lineup-freeze correction: confirmed lineup predictions now carry a fingerprint of the complete XI, while repeated polls with the same XI are idempotent even when market observations change. A changed XI remains a preserved same-stage conflict; the lock was migrated before any prospective result was scored.",
+    "v48 pre-result ledger-index migration: ObservationLedger now maintains a sibling digest index to avoid rescanning the append-only intelligence ledger on every poll. The historical JSONL remains the source of truth, malformed lines remain diagnostic, and no prospective result was scored before this lock migration.",
+    "v49 pre-result display-only incident migration: the public ESPN event-summary plays/keyEvents stream is archived as bounded live_event observations and surfaced in the match detail timeline. These observations are explicitly excluded from pre-match features and probability generation; the existing archive remains preserved as superseded audit history and no v49 result was scored before this lock migration.",
+    "v50 pre-result display-only match-statistics migration: the public ESPN event-summary boxscore is archived as bounded match_stat observations and surfaced in the match detail analysis card. Numeric statistics are allowlisted, provenance is retained, and every row is explicitly excluded from pre-match features and probability generation; the v49 archive remains preserved as superseded audit history and no v50 result was scored before this lock migration.",
+    "v52 pre-result result-publication migration: finished ESPN snapshots now carry an explicit regulation_90, extra_time, or penalties scope; only regulation_90 scores are projected into the Sites outcomes table from the immutable intelligence ledger. Identical replay is idempotent, conflicting scores are quarantined, extra-time/penalty results remain raw display evidence, and all pre-migration rows remain preserved as superseded audit history. The stale model-file inventory was refreshed before any v52 result was scored.",
+    "v53 pre-result display-only replay migration: ESPN summaries for at most 24 finished fixtures in the preceding 48 hours are replayed alongside the active window. Incidents and allowlisted boxscore statistics remain display/audit-only; recent finished rows never contribute markets, lineups, or pre-match model features. The lock inventory was refreshed after the adapter change and before the next prospective capture.",
+    "v54 pre-result display-only migration: the legacy match center now projects live and recent finished ESPN incidents/statistics with explicit clock/period/status fields, while LaLiga lineup observations distinguish confirmed, partial, not_published and post_kickoff_observation. These fields remain outside current_features and probability generation; the Crawl4AI 403 probe remains isolated without bypass, all prior records remain append-only audit history, and this lock was advanced before any v54 result was scored.",
+    "v55 pre-result display-only migration: ESPN player-level boxscore statistics are retained as bounded match_stat display evidence with an explicit non-model boundary. The player parser change is hash-locked before any v55 result is scored; prior v54 rows remain preserved as legacy audit records, and the Crawl4AI source-failure policy is unchanged.",
+    "v56 pre-result display-only migration: public RSS queries are now bounded to the nearest upcoming team pairs (up to six) so the news adapter produces more relevant leads for the match-center. RSS candidates remain append-only evidence and enters_model=false until a source-specific fact verifier proves entity, publication time and freeze-cutoff eligibility; no probability payload changed. The sync_live model-file hash was refreshed before this new prospective window.",
+    "v57 pre-result operational boundary migration: sync_live now accepts an explicit Crawl4AI operator configuration path while keeping the default browser source not_configured; the change is display/audit-only, does not alter probability generation, and preserves robots, license and time-cutoff gates. The stale sync_live hash was refreshed before any v57 result was captured or scored; prior v56 records remain append-only audit history.",
+    "v58 pre-result display-only migration: the ESPN event-summary parser now keeps bounded period/result/player evidence and explicit source provenance while preserving the non-model boundary for live, post-match and player statistics. The changed espn_market.py inventory hash was refreshed before any v58 result was captured or scored; prior v57 records remain append-only audit history.",
+    "v59 pre-result display-only migration: Crawl4AI WhoScored public league pages now retain a bounded source-specific fixture-card extraction (date/time labels, teams, match link and displayed 1X2 odds) in the append-only evidence path and Sites source panel. The parser never infers a timezone, never enters the model, and still requires a strict fixture join, license review and freeze-time proof before any future admission. The ingestion.py inventory hash was refreshed after the failed stale-lock cycle while the freeze model name remained unchanged because this is display-only evidence; prior v58 records remain preserved as legacy audit records.",
+    "v60 pre-result security migration: the installed Crawl4AI 0.9.2 launch path was audited without starting a browser and found to emit certificate-bypass flags despite ignore_https_errors=false. The adapter now blocks before robots/browser calls, legacy browser pages without TLS attestation are quarantined in runtime projection, and the current.py inventory hash was refreshed after the failed stale-lock cycle. No v60 prediction or result was scored; prior browser captures remain append-only historical evidence only.",
+    "v62 pre-result intelligence-ledger quarantine migration: a historical pre-lock interleaved JSONL line is preserved byte-for-byte and recorded in an append-only quarantine manifest with its line hash and one recoverable complete fragment. Recovered fragments remain audit-only and excluded from model input and publication; the lock advanced after the stale-hash cycle failed closed and before any v62 result was scored.",
+    "v63 pre-result display-only migration: Crawl4AI WhoScored fixture cards are now joined to canonical ESPN fixtures only with an explicit competition/team/date-time match (Europe/London source parsing and a 15-minute tolerance). Joined odds are retained as auditable public comparison evidence, never admitted to model probabilities, and unmatched or conflicting cards remain quarantined. The stale-hash cycle failed closed before this lock refresh; the three v62 pending predictions are preserved as legacy records and recaptured under the unchanged freeze-model logic before any v63 result is scored.",
+    "v64 pre-result operational lock refresh: sync_live now includes the empty-fixture handoff guard and publication diagnostic, which preserve the last non-empty snapshot when a provider returns an empty fixture set. The guard is outside probability computation but is inventory-locked for reproducibility; the previous three pending rows remain append-only legacy records, no result was scored under the prior lock, and the next cycle must recapture them under this refreshed hash.",
+    "v65-player-evidence-ledger explicit lock migration: append-only player evidence binding changed the locked ingestion and intelligence inventory Previous archive rows remain append-only legacy records and are excluded from the new independent window.",
+    "v66-espn-public-team-roster-display-evidence explicit lock migration: added bounded public ESPN team-roster polling for next-72-hour teams; roster rows retain hashes and timestamps, remain display/audit-only, and never authorize confirmed lineups or model features Previous archive rows remain append-only legacy records and are excluded from the new independent window.",
+    "v67-sports-lottery-sales-ledger explicit lock migration: added a bounded official Sports Lottery sales ledger, competition-scoped aliases and read-only odds projections; sales rows remain display-only and are excluded from model features Previous archive rows remain append-only legacy records and are excluded from the new independent window.",
+    "v68-crawl4ai-engine-source-identity explicit lock migration: Crawl4AI is an execution engine; declared page fact-source identity and capture-engine provenance are now locked separately. Previous archive rows remain append-only legacy records and are excluded from the new independent window.",
+    "v69-crawl4ai-stale-provenance explicit lock migration: Stale Crawl4AI pages now retain explicit capture-engine provenance and the ingestion audit payload records engine role separately from declared fact-source identity. Previous archive rows remain append-only legacy records and are excluded from the new independent window.",
+    "v70-sports-lottery-atm-malaga-alias explicit lock migration: Added explicit LaLiga ATM/MAL and Chinese-name aliases so the official Sports Lottery row joins the existing ESPN fixture without creating a duplicate; no fuzzy matching or model probability change. Previous archive rows remain append-only legacy records and are excluded from the new independent window.",
+    "v71-legacy-crawl4ai-role-replay explicit lock migration: Allow the legacy Crawl4AI role label used by append-only raw snapshots to replay; preserve the current runtime-only fact-source boundary and do not change model features or probabilities. Previous archive rows remain append-only legacy records and are excluded from the new independent window.",
+    "v72-crawl4ai-declared-fact-source-id explicit lock migration: Add an optional operator-declared factual source_id plus explicit Crawl4AI capture_engine and capture_role fields to append-only browser evidence; preserve runtime-only engine semantics, display-only admission, and frozen model probabilities. Previous archive rows remain append-only legacy records and are excluded from the new independent window.",
+    "v73-crawl4ai-public-fixture-context-joins explicit lock migration: Extend declared Crawl4AI public-page contracts to strict LaLiga and Premier League canonical fixture joins; preserve display-only model boundary and source-specific time semantics. Previous archive rows remain append-only legacy records and are excluded from the new independent window.",
+    "v74-factor-trace-audit-ledger explicit lock migration: Added bounded sequential factor-trace audit output and Sites projection; probabilities and causal feature admission are unchanged, while the new audit module and strict renderer are hash-locked before the next prospective window. Previous archive rows remain append-only legacy records and are excluded from the new independent window.",
+    "v75-espn-event-location-display explicit lock migration: Added bounded provider-declared ESPN event coordinates to display-only incidents and the single-match research view; no pre-match feature or probability logic changed. Previous archive rows remain append-only legacy records and are excluded from the new independent window.",
+    "v76-espn-event-participant-ids explicit lock migration: Preserved bounded provider participant IDs in display-only ESPN incidents so Sites can stably associate event participants with player evidence; no pre-match feature or probability logic changed. Previous archive rows remain append-only legacy records and are excluded from the new independent window.",
+    "v77-espn-participant-id-type-guard explicit lock migration: Hardened display-only ESPN participant ID parsing to accept only bounded string or integer provider IDs; no pre-match feature or probability logic changed. Previous archive rows remain append-only legacy records and are excluded from the new independent window.",
+    "v78-lineup-poll-stage-schedule explicit lock migration: Added bounded causal lineup poll stage schedule, next due metadata and operator visibility; no probability logic changed. Previous archive rows remain append-only legacy records and are excluded from the new independent window.",
+    "v80-crawl-admission-ledger explicit lock migration: Retain bounded Crawl4AI fixture admission metadata in the immutable observation payload and match read model; no model parameters or feature values changed. Previous archive rows remain append-only legacy records and are excluded from the new independent window.",
+    "v96-understat-identity explicit lock migration: Explicit provider-title aliases changed causal Understat-to-ESPN team attachment; preserve append-only old rows and start a new window before scoring. Previous archive rows remain append-only legacy records and are excluded from the new independent window.",
+    "v97-oddstorm-stale-fallback explicit lock migration: Bounded OddStorm stale-cache fallback now reads the append-only snapshot archive after transient empty or redirect failures; preserve old rows and restart the prospective window before capture. Previous archive rows remain append-only legacy records and are excluded from the new independent window.",
+    "v101-laliga-public-match-directory explicit lock migration: Use the official public LaLiga match directory to discover near-term match pages that are absent from the home-page card window; lineup observations remain page-validated and display-only until causal gates pass. Previous archive rows remain append-only legacy records and are excluded from the new independent window.",
+    "v107-lineup-publication-state explicit lock migration: Official lineup poll diagnostics now distinguish an empty provider envelope from an available lineup; add an explicit available_lineup_count while preserving display-only model boundaries and append-only legacy rows. Previous archive rows remain append-only legacy records and are excluded from the new independent window.",
+    "v108-geocoding-coordinate-cache explicit lock migration: Reuse previously verified Open-Meteo venue coordinates by exact city/country key and request only unseen venues; retain source hashes, explicit cache counts and unresolved errors without changing model features or weather semantics. Previous archive rows remain append-only legacy records and are excluded from the new independent window.",
+    "v112-independent-probability-ledger explicit lock migration: Separate pre-market independent probabilities from market-informed display matrices and lock the causal historical Understat xG dependency; default production probabilities remain unchanged. Previous archive rows remain append-only legacy records and are excluded from the new independent window.",
+    "v117-capture-replay-deadline explicit lock migration: Bound the large append-only feature replay to manifest-indexed latest predecessors per due freeze cutoff, add durable cycle-stage heartbeat, and extend the outer systemd deadline so legitimate multi-source cycles are not killed before evidence is persisted. Previous archive rows remain append-only legacy records and are excluded from the new independent window.",
+    "v128-causal-fixture-plan-audit explicit lock migration: Bounded per-fixture lineup polling plans are now retained for every candidate in the 48-hour window; this is operational audit metadata only, with no probability, feature-admission, or model-parameter change. Previous archive rows remain append-only legacy records and are excluded from the new independent window.",
+    "v132-explicit-team-identity-aliases explicit lock migration: Add explicit competition-scoped team aliases for current promoted names and expose the canonical identity in future prediction evidence; no fuzzy matching and no probability fallback. Previous archive rows remain append-only legacy records and are excluded from the new independent window.",
+    "v135-cold-start-history-prior explicit lock migration: Explicitly shrink insufficient team-history state to a traceable league prior without synthetic results; preserve research-only status and suppress low-coverage numerical conclusions in the read model. Previous archive rows remain append-only legacy records and are excluded from the new independent window.",
+    "v138-seriea-canonical-match-centre explicit lock migration: Use the official /serie-a match-centre path directly because the bare host returns a headerless 307; keep the HTTPS allowlisted redirect guard and preserve display-only incomplete lineups. Previous archive rows remain append-only legacy records and are excluded from the new independent window.",
+    "v139-parallel-official-lineup-hosts explicit lock migration: Schedule the independent LaLiga, Bundesliga and Serie A official lineup hosts concurrently while retaining each adapter own same-host delay, allowlist, timestamps, failures and model-admission rules. Previous archive rows remain append-only legacy records and are excluded from the new independent window.",
+    "v140-stage-aware-lineup-poll-schedule explicit lock migration: Poll each official lineup fixture once per causal stage, retry source failures, carry prior observations explicitly, and skip not-due providers without weakening source or model-admission contracts. Previous archive rows remain append-only legacy records and are excluded from the new independent window.",
+    "v141-lineup-diagnostic-request-consistency explicit lock migration: Align the aggregate official-lineup diagnostics requested/state flags with the stage-aware poll schedule when official fixture refresh succeeds but lineup polling is explicitly not due. Previous archive rows remain append-only legacy records and are excluded from the new independent window.",
+    "v152-fixture-lineage-read-model explicit lock migration: preserve Crawl4AI declared fact-source and entry/detail page lineage in fixture evidence and Sites read model; no probability logic changed Previous archive rows remain append-only legacy records and are excluded from the new independent window.",
+    "v157-espn-roster-fanout explicit lock migration: Increase the bounded public ESPN team-roster fan-out for the next 72 hours from the legacy 40-team request to a hard-capped 96-team request; roster evidence remains display/audit-only, does not authorize confirmed lineups, and never enters model features. Previous archive rows remain append-only legacy records and are excluded from the new independent window.",
+    "v158-official-lineup-id-join-scheduler explicit lock migration: Map provider-specific official lineup IDs to current fixtures by exact kickoff/team identity and use per-fixture poll history before legacy global timestamps; no probability formula or feature admission changed. Previous archive rows remain append-only legacy records and are excluded from the new independent window.",
+    "v165-current-source-boundary-lock-recovery explicit lock migration: Refresh the explicit model-file inventory after the audited source registry, public-source identity, Sports Lottery aliases, and Crawl4AI execution-layer boundary updates; no probability formula or model feature admission change. Previous archive rows remain append-only legacy records and are excluded from the new independent window.",
+    "v166-ligue1-official-match-api explicit lock migration: Add the allowlisted Ligue 1 first-party calendar/game-week/match-detail adapter with strict native ID, kickoff, team and pre-kickoff XI gates; Crawl4AI remains a shared fetch runtime and the new official source is display/audit-only until its causal evidence is eligible. Previous archive rows remain append-only legacy records and are excluded from the new independent window.",
+    "v191-prediction-contract-replay explicit lock migration: Add an explicit total-goals settlement line to the frozen prediction contract and researcher card output; refresh the strict replay inventory after the output-contract implementation. The failed pre-capture run produced no scored result, and all superseded rows remain append-only legacy evidence. Previous archive rows remain append-only legacy records and are excluded from the new independent window.",
+    "v197-crawl4ai-kickoff-guard explicit lock migration: Quarantine public-page records with missing or invalid source kickoff instead of aborting the multi-source sync; no probability formula or feature admission change. Previous archive rows remain append-only legacy records and are excluded from the new independent window.",
+    "v213-official-fixture-join-diagnostics explicit lock migration: Add bounded strict official-schedule-to-canonical-fixture join diagnostics and explicit LaLiga team aliases for observability; no probability formula, feature admission, lineup eligibility, or model parameter changed. The failed stale-lock cycle produced no prediction or result row. Previous archive rows remain append-only legacy records and are excluded from the new independent window.",
+    "v214-premier-league-opening-matchweek-window explicit lock migration: Include one extra preceding official Premier League matchweek because the public service matchweek numbering is not guaranteed to align with a calendar-week estimate; keep the request bounded and preserve strict kickoff/team joins. No probability formula, feature admission, lineup eligibility, or model parameter changed. Previous archive rows remain append-only legacy records and are excluded from the new independent window.",
+    "v215-premier-league-team-display-aliases explicit lock migration: Add explicit Premier League aliases for Brighton and Hove Albion and AFC Bournemouth so official display names join the canonical ESPN fixture by exact kickoff/team pair; no fuzzy matching, probability formula, feature admission, lineup eligibility, or model parameter changed. Previous archive rows remain append-only legacy records and are excluded from the new independent window.",
+    "v216-provider-poll-plan-identity-bridge explicit lock migration: Map provider-native fixture IDs in official poll schedules back to canonical fixture IDs in per-fixture diagnostics using the existing exact source identity bridge; prevent carried polls from being displayed as due. No probability formula, feature admission, lineup eligibility, or model parameter changed. Previous archive rows remain append-only legacy records and are excluded from the new independent window.",
+    "v221-player-availability-shadow explicit lock migration: Add a time-truncated, validation-only player availability shadow with explicit observed_at and cutoff gates; it records roster and expected-minute coverage but remains model_eligible=false with no probability impact or replacement-value estimate. Previous archive rows remain append-only legacy records and are excluded from the new independent window.",
+    "v222-strict-player-shadow-ledger explicit lock migration: Attach the validation-only player availability shadow to each strict freeze-stage row using only the stage snapshot and its pre-cutoff player-source timestamp; no probability formula, model feature admission, replacement value, or impact delta is changed. Previous archive rows remain append-only legacy records and are excluded from the new independent window.",
+    "v228-intelligence-polling-publication-state explicit lock migration: Record the audited Bundesliga official publication-state parser, exact German umlaut slug identity, post-T90 15-minute official-lineup retry until a confirmed XI, rotating 24-hour/7-day news leads, and honest unconfirmed-lineup source status. Prior rows remain append-only; no probability formula or fitted parameter changed, and the previous window had zero scored outcomes. Previous archive rows remain append-only legacy records and are excluded from the new independent window.",
+    "v229-official-poll-alias-bridge explicit lock migration: Use the existing competition-scoped explicit team alias registry when mapping provider-native official lineup poll plans to canonical fixtures, including the official Brighton and Hove Albion display name. This corrects per-fixture scheduling diagnostics without fuzzy matching, probability changes, fitted-parameter changes, or scored outcomes in the superseded window. Previous archive rows remain append-only legacy records and are excluded from the new independent window.",
+    "v230-sports-lottery-current-sales-aliases explicit lock migration: Add competition-scoped explicit Chinese team aliases for five current Sports Lottery fixtures so exact kickoff, competition and home-away identity joins attach official odds to canonical ESPN fixtures instead of duplicate display-only rows. No fuzzy matching, fitted parameter, probability formula or scored outcome is used; the superseded v229 window had zero scored results. Previous archive rows remain append-only legacy records and are excluded from the new independent window.",
+    "v231-championship-causal-expansion explicit lock migration: Add the EFL Championship as a first-class model competition using 11 SHA-pinned Football-Data seasons, ESPN eng.2 current fixtures, exact Sports Lottery competition/team identity, and fail-closed catalog-expansion snapshot compatibility. The superseded v230 window had zero scored results; all rows remain append-only legacy evidence. No market-only or synthetic prediction is admitted. Previous archive rows remain append-only legacy records and are excluded from the new independent window.",
+    "v232-fixture-first-observation-freeze-gate explicit lock migration: Reject any clock or lineup freeze whose canonical fixture kickoff was first observed after that freeze cutoff; missing or future observation clocks fail closed. The superseded v231 window had zero scored results, and all prior rows remain append-only legacy evidence. Previous archive rows remain append-only legacy records and are excluded from the new independent window.",
+    "v233-archived-fixture-observation-and-seven-league-gates explicit lock migration: Use cutoff-bounded archived fixture snapshots as causal identity evidence so later polls do not erase a genuinely observed freeze, while still blocking stages with no pre-cutoff fixture proof. Derive prospective sample gates, live-result replay and progress requirements from the seven-league catalog. The superseded v232 window produced zero predictions and zero scored results; prior rows remain append-only legacy evidence. Previous archive rows remain append-only legacy records and are excluded from the new independent window.",
+    "v234-causal-lineup-event-overlay explicit lock migration: Overlay only the exact confirmed-lineup provider response at its trusted pre-kickoff retrieval time onto the latest predecessor snapshot; prefer player-bearing evidence and fingerprint raw ESPN team_status XIs. Player impact remains validation-only and probabilities are unchanged. The superseded v233 window had zero scored results and all rows remain append-only legacy evidence. Previous archive rows remain append-only legacy records and are excluded from the new independent window.",
+    "v235-lineup-confirmation-event-identity explicit lock migration: Require the confirming provider payload itself to carry a complete bilateral 11+11 XI and bind fingerprint, player shadow, and displayed provenance to that exact event; the v234 false conflict remains append-only, and no v234 result was scored. Previous archive rows remain append-only legacy records and are excluded from the new independent window.",
+    "v236-complete-high-coverage-semantics explicit lock migration: Require every declared pre-match evidence feature to be present before research or Sites coverage can be labelled high; missing features remain explicit and downgrade the report to medium. Probability formulas and fitted parameters are unchanged, v235 rows remain append-only legacy, and no v235 result was scored. Previous archive rows remain append-only legacy records and are excluded from the new independent window.",
+    "v237-cross-provider-lineup-semantic-identity explicit lock migration: Use complete unique fixture-local shirt-number sets, canonical player IDs, normalized provider names and same-provider IDs in descending confidence order so official and reliable fallback feeds can confirm the same 11+11 XI without provider-ID or ordering conflicts. Preserve true player changes as conflicts, retain all raw source evidence, keep player impact validation-only, and supersede the zero-scored v236 window. Previous archive rows remain append-only legacy records and are excluded from the new independent window.",
+    "v238-structured-espn-injury-observation-lane explicit lock migration: Add a bounded ESPN league injury-report observation lane, exact provider-team joins, append-only team/player evidence, and explicit observed-empty semantics. Reports remain display/validation-only with no probability or parameter change; missing team buckets are unknown, provider terms require review, and the superseded v237 window had 18 pending and zero scored results. Previous archive rows remain append-only legacy records and are excluded from the new independent window.",
+    "v239-espn-injury-rights-fail-closed explicit lock migration: After reviewing the current Disney terms linked by ESPN, make the new ESPN injury lane fail closed before network access unless an operator supplies an express written authorization reference. Mark the source forbidden by default, preserve prior v238 observations as append-only audit evidence, and keep probabilities and fitted parameters unchanged; the superseded v238 window had 10 pending and zero scored results. Previous archive rows remain append-only legacy records and are excluded from the new independent window.",
+    "v240-openfootball-canonical-rights-fail-closed explicit lock migration: Replace unlicensed ESPN current schedules with fixed CC0 OpenFootball sources, keep date-only rows quarantined, fail closed all ESPN current adapters and unknown-rights Crawl4AI sources before network access, and preserve all earlier prediction rows as legacy audit evidence. Probability formulas and fitted parameters are unchanged. Previous archive rows remain append-only legacy records and are excluded from the new independent window.",
+    "v241-cfl-official-current-fixture-feed explicit lock migration: Add the CFL first-party public frontend API as the 2026 CSL canonical schedule/result source, preserve provider-scoped fixture/team IDs, exact kickoff, dual clocks, raw hashes and reuse-rights-unverified state, and merge it with OpenFootball without relabelling either fact source. Probability formulas and fitted parameters are unchanged; the superseded v240 window had no scored outcome. Previous archive rows remain append-only legacy records and are excluded from the new independent window.",
+    "v242-cfl-source-resilience explicit lock migration: Add one bounded retry for transient CFL transport failures and carry a verified non-empty CFL source for at most two hours as explicit stale evidence after a failed check. TLS validation, redirects, rights state, row hashes and original observation clocks remain unchanged; HTTP policy and parse failures are not retried. Probability formulas and fitted parameters are unchanged, and the superseded v241 window had zero scored outcomes. Previous archive rows remain append-only legacy records and are excluded from the new independent window.",
+    "v243-cfl-archive-fallback explicit lock migration: Recover the newest verified non-empty CFL source from the append-only snapshot archive when the serving pointer already contains a transient failure, bounded to two hours and a path-confined archive manifest. Reused rows remain explicit stale evidence with original hashes, rights state and observation clocks plus the current transport error. Probability formulas and fitted parameters are unchanged, and the superseded v242 window had zero scored outcomes. Previous archive rows remain append-only legacy records and are excluded from the new independent window.",
+    "v244-multisource-degraded-replay explicit lock migration: Allow a provider-neutral fixture snapshot to declare a configured source that contributed zero rows during an explicit unavailable or degraded cycle, while validating provider identity, exact contributed row counts, status and error counts. This restores causal replay of honest partial outages without admitting unknown or relabelled rows. Probability formulas and fitted parameters are unchanged, and the superseded v243 window had zero scored outcomes. Previous archive rows remain append-only legacy records and are excluded from the new independent window.",
+    "v245-current-historical-team-identity explicit lock migration: Map current provider team names to explicit competition-scoped historical identities, expose audit resolution, and include canonical variants in exact Sports Lottery joins. This restores historical/xG state and attaches all five covered official lottery fixtures without fuzzy matching. Probability formulas and fitted parameters are unchanged, but generated probabilities may change because correct historical state now attaches. Superseded v244 scored zero. Previous archive rows remain append-only legacy records and are excluded from the new independent window.",
+    "v246-premier-league-official-schedule-fields explicit lock migration: Use the first-party Premier League schedule as field-level authority after an exact competition/team-pair join while preserving OpenFootball canonical IDs, row source and lineage; update kickoff observation clocks, 3/7-day windows and source-backed venue. Real audit matched 71 upcoming fixtures, corrected 43 kickoffs and attached 71 venues. No fitted parameter or probability-formula change, but freezes and probabilities may change through corrected times. Superseded v245 scored zero. Previous archive rows remain append-only legacy records and are excluded from the new independent window.",
+    "v247-causal-schedule-revision-guard explicit lock migration: Bind each freeze stage to the exact schedule fields in its archived predecessor; require the archived kickoff to equal the current kickoff and the field observation to exist before the cutoff, otherwise block a post-freeze revision. Emit the stage-specific kickoff observation clock. Probability formulas and fitted parameters are unchanged. The superseded v246 isolated capture wrote one unscored row; no result was used for selection. Previous archive rows remain append-only legacy records and are excluded from the new independent window.",
+    "v248-laliga-espanyol-canonical-join explicit lock migration: Unify the competition-scoped LaLiga official join token after canonical identity resolution so RCD Espanyol de Barcelona, Espanol and Espanyol converge on one exact provider bridge. This prevents a valid official lineup from being missed without fuzzy matching. Probability formulas and fitted parameters are unchanged; the v247 archive contains one unscored row and no result was used for selection. Previous archive rows remain append-only legacy records and are excluded from the new independent window.",
+    "v249-freeze-cutoff-after-model-lock explicit lock migration: Require every clock or lineup freeze cutoff to be at or after the active prospective evaluation window start. The strict builder emits a structured block and the immutable archive independently rejects older cutoffs, preventing a model version locked after a freeze from backfilling that stage. v247 had one unscored legacy row; v248 wrote zero predictions, and no result was used for selection. Previous archive rows remain append-only legacy records and are excluded from the new independent window.",
+    "v250-seriea-official-venue-weather explicit lock migration: Parse stadiumName, stadiumId and cityName from the already allowlisted Serie A official header, attach them only through the exact competition/canonical-team overlay while retaining the OpenFootball row identity, and feed verified city/country into the existing geocoding/weather lane. v249 produced zero formal predictions and zero scored outcomes; fitted parameters and probability formulas are unchanged. Previous archive rows remain append-only legacy records and are excluded from the new independent window.",
+    "v251-csl-official-venue-weather explicit lock migration: CFL official venue labels now resolve only exact explicit-city labels or three manually reviewed first-party venue-city references; current snapshot validation rejects altered provenance before geocoding and weather features. Previous archive rows remain append-only legacy records and are excluded from the new independent window.",
+    "v252-openligadb-odbl-live-overlay explicit lock migration: Add ODbL display-only Bundesliga live observations with strict canonical/provider identity, retain provider-scoped OpenFootball IDs, and keep kickoff-window-only rows non-live; no fitted parameter or pre-match probability change. Previous archive rows remain append-only legacy records and are excluded from the new independent window.",
+    "v253-oddstorm-rights-fail-closed explicit lock migration: Fail closed OddStorm page/history network and current serving before I/O unless an express written authorization reference exists, because the provider terms prohibit automated scraping, mirroring, redistribution and resale. Preserve prior rows as append-only audit evidence, remove them from the current read model, and keep fitted parameters and probability formulas unchanged. Previous archive rows remain append-only legacy records and are excluded from the new independent window.",
+    "v254-oddstorm-role-truthfulness explicit lock migration: Replace the current independent Asian market role label with an explicit OddStorm authorization-blocked and baseline-unavailable statement. Keep legacy role values replayable, preserve all append-only rows, and leave fitted parameters and probability formulas unchanged. The superseded v253 isolated cycle wrote zero formal predictions and zero scored outcomes. Previous archive rows remain append-only legacy records and are excluded from the new independent window.",
+    "v255-espn-injury-network-audit explicit lock migration: Add an explicit network_opened=false field to the default rights-blocked ESPN injury envelope so source health can distinguish a policy block from a failed or attempted request. No endpoint, model feature, fitted parameter or probability formula changes. The superseded v254 isolated cycle wrote zero formal predictions and zero scored outcomes. Previous archive rows remain append-only legacy records and are excluded from the new independent window.",
+    "v256-openfootball-transient-retry explicit lock migration: Retry each allowlisted OpenFootball current source at most once for transient transport failures such as a TLS EOF or timeout. Do not retry HTTP policy responses, redirects, payload validation or parser failures; retain exact URL, TLS policy, size bounds and source lineage. The superseded v255 isolated cycle wrote zero formal predictions and zero scored outcomes. Previous archive rows remain append-only legacy records and are excluded from the new independent window.",
+    "v257-rights-runtime-projection explicit lock migration: Preserve checked_at, rights_status, terms_url and network/access authorization state from the rights-blocked ESPN injury envelope into the runtime source registry and bounded offline source-health projection. This is audit/display metadata only; no endpoint, model feature, fitted parameter or probability formula changes. The superseded v256 isolated cycle wrote zero formal predictions and zero scored outcomes. Previous archive rows remain append-only legacy records and are excluded from the new independent window.",
+    "v258-durable-ledger-checkpoint-after-reboot-loss explicit lock migration: The host reboot at 2026-08-24T18:37Z cleared the ad-hoc v257 tmpfs runtime. Its nine unscored freeze records were not covered by the canonical recovery manifest and are not reconstructable from hashes alone. Supersede that window without using any result for selection; keep all prediction formulas and fitted parameters unchanged, and require an immediate durable critical-ledger checkpoint for the new runtime. Previous archive rows remain append-only legacy records and are excluded from the new independent window.",
+    "v259-lock-window-causal-identity explicit lock migration: Exclude predictions observed before the active lock window before pending counts and logical-freeze deduplication; separate same-model-hash rows across explicit prospective windows. Previous archive rows remain append-only legacy records and are excluded from the new independent window.",
+    "v260-openfootball-verified-history-admission explicit lock migration: Create a new prospective window after the v259 model-file drift audit. Bind formal history training to the durable OpenFootball raw archive and v260 source-rights policy; do not reuse superseded rows or refresh the old lock. Previous archive rows remain append-only legacy records and are excluded from the new independent window.",
+    "v261-raw-publication-admission explicit lock migration: Rebind the explicit prospective window after raw archive publication admission and publisher trust-boundary changes; preserve v260 as historical evidence. Previous archive rows remain append-only legacy records and are excluded from the new independent window.",
+    "v262-bundle-rights-diagnostics explicit lock migration: Refresh the independent window after verified OpenFootball raw replay and public bundle rights diagnostics; no fitted parameter change. Previous archive rows remain append-only legacy records and are excluded from the new independent window.",
+    "v263-runtime-only-pointer-fallback explicit lock migration: Rebind the independent prospective window after the runtime-only workbench pointer fix; no fitted parameter change. Previous archive rows remain append-only legacy records and are excluded from the new independent window.",
+    "v264-partial-strict-cutoff-projection explicit lock migration: Rebind the independent prospective window after lock-bound strict report projection fixes; no fitted parameter change. Previous archive rows remain append-only legacy records and are excluded from the new independent window.",
+    "v265-legacy-archive-runtime-gate explicit lock migration: Classify pre-window archive rows by their non-current model digest so legacy evidence stays auditable without blocking the active lock; current-lock corruption remains fail-closed. Previous archive rows remain append-only legacy records and are excluded from the new independent window.",
+    "v271-runtime-lock-recovery-and-wikidata-mainline explicit lock migration: Replace stale v265 service candidate after explicit model-file drift; preserve all prior locks and start a fresh pending window. Previous archive rows remain append-only legacy records and are excluded from the new independent window.",
+    "v272-weather-display-only-coordinates explicit lock migration: Add medium-confidence Wikidata venue coordinates to MET Norway display evidence; weather remains explicitly non-model and historical rows stay append-only. Previous archive rows remain append-only legacy records and are excluded from the new independent window.",
+    "v277-mainline-lock explicit lock migration: Bind the current rights-gated OpenFootball raw-admission implementation after the v272 candidate drifted; supersede the old pending window without rewriting its append-only evidence. Previous archive rows remain append-only legacy records and are excluded from the new independent window."
+  ],
+  "policy_version": "v260",
+  "observed_before": "2026-08-25T02:10:50+00:00",
+  "source_ids": [
+    "openfootball:deutschland:2015-16:1-bundesliga",
+    "openfootball:deutschland:2016-17:1-bundesliga",
+    "openfootball:deutschland:2017-18:1-bundesliga",
+    "openfootball:deutschland:2018-19:1-bundesliga",
+    "openfootball:deutschland:2019-20:1-bundesliga",
+    "openfootball:deutschland:2020-21:1-bundesliga",
+    "openfootball:deutschland:2021-22:1-bundesliga",
+    "openfootball:deutschland:2022-23:1-bundesliga",
+    "openfootball:deutschland:2023-24:1-bundesliga",
+    "openfootball:deutschland:2024-25:1-bundesliga",
+    "openfootball:deutschland:2025-26:1-bundesliga",
+    "openfootball:england:2015-16:1-premierleague",
+    "openfootball:england:2015-16:2-championship",
+    "openfootball:england:2016-17:1-premierleague",
+    "openfootball:england:2016-17:2-championship",
+    "openfootball:england:2017-18:1-premierleague",
+    "openfootball:england:2017-18:2-championship",
+    "openfootball:england:2018-19:1-premierleague",
+    "openfootball:england:2018-19:2-championship",
+    "openfootball:england:2019-20:1-premierleague",
+    "openfootball:england:2019-20:2-championship",
+    "openfootball:england:2020-21:1-premierleague",
+    "openfootball:england:2020-21:2-championship",
+    "openfootball:england:2021-22:1-premierleague",
+    "openfootball:england:2021-22:2-championship",
+    "openfootball:england:2022-23:1-premierleague",
+    "openfootball:england:2022-23:2-championship",
+    "openfootball:england:2023-24:1-premierleague",
+    "openfootball:england:2023-24:2-championship",
+    "openfootball:england:2024-25:1-premierleague",
+    "openfootball:england:2024-25:2-championship",
+    "openfootball:england:2025-26:1-premierleague",
+    "openfootball:england:2025-26:2-championship",
+    "openfootball:espana:2015-16:1-liga",
+    "openfootball:espana:2016-17:1-liga",
+    "openfootball:espana:2017-18:1-liga",
+    "openfootball:espana:2018-19:1-liga",
+    "openfootball:espana:2019-20:1-liga",
+    "openfootball:espana:2020-21:1-liga",
+    "openfootball:espana:2021-22:1-liga",
+    "openfootball:espana:2022-23:1-liga",
+    "openfootball:espana:2023-24:1-liga",
+    "openfootball:espana:2024-25:1-liga",
+    "openfootball:espana:2025-26:1-liga",
+    "openfootball:europe:2015-16:france-fr1",
+    "openfootball:europe:2016-17:france-fr1",
+    "openfootball:europe:2017-18:france-fr1",
+    "openfootball:europe:2018-19:france-fr1",
+    "openfootball:europe:2019-20:france-fr1",
+    "openfootball:europe:2020-21:france-fr1",
+    "openfootball:europe:2021-22:france-fr1",
+    "openfootball:europe:2022-23:france-fr1",
+    "openfootball:europe:2023-24:france-fr1",
+    "openfootball:europe:2024-25:france-fr1",
+    "openfootball:europe:2025-26:france-fr1",
+    "openfootball:italy:2015-16:1-seriea",
+    "openfootball:italy:2016-17:1-seriea",
+    "openfootball:italy:2017-18:1-seriea",
+    "openfootball:italy:2018-19:1-seriea",
+    "openfootball:italy:2019-20:1-seriea",
+    "openfootball:italy:2020-21:1-seriea",
+    "openfootball:italy:2021-22:1-seriea",
+    "openfootball:italy:2022-23:1-seriea",
+    "openfootball:italy:2023-24:1-seriea",
+    "openfootball:italy:2024-25:1-seriea",
+    "openfootball:italy:2025-26:1-seriea"
+  ],
+  "training_admission": {
+    "schema_version": "matchline.prospective_training_admission.v1",
+    "status": "training_admitted",
+    "policy_version": "v260",
+    "observed_before": "2026-08-25T02:10:50+00:00",
+    "source_ids": [
+      "openfootball:deutschland:2015-16:1-bundesliga",
+      "openfootball:deutschland:2016-17:1-bundesliga",
+      "openfootball:deutschland:2017-18:1-bundesliga",
+      "openfootball:deutschland:2018-19:1-bundesliga",
+      "openfootball:deutschland:2019-20:1-bundesliga",
+      "openfootball:deutschland:2020-21:1-bundesliga",
+      "openfootball:deutschland:2021-22:1-bundesliga",
+      "openfootball:deutschland:2022-23:1-bundesliga",
+      "openfootball:deutschland:2023-24:1-bundesliga",
+      "openfootball:deutschland:2024-25:1-bundesliga",
+      "openfootball:deutschland:2025-26:1-bundesliga",
+      "openfootball:england:2015-16:1-premierleague",
+      "openfootball:england:2015-16:2-championship",
+      "openfootball:england:2016-17:1-premierleague",
+      "openfootball:england:2016-17:2-championship",
+      "openfootball:england:2017-18:1-premierleague",
+      "openfootball:england:2017-18:2-championship",
+      "openfootball:england:2018-19:1-premierleague",
+      "openfootball:england:2018-19:2-championship",
+      "openfootball:england:2019-20:1-premierleague",
+      "openfootball:england:2019-20:2-championship",
+      "openfootball:england:2020-21:1-premierleague",
+      "openfootball:england:2020-21:2-championship",
+      "openfootball:england:2021-22:1-premierleague",
+      "openfootball:england:2021-22:2-championship",
+      "openfootball:england:2022-23:1-premierleague",
+      "openfootball:england:2022-23:2-championship",
+      "openfootball:england:2023-24:1-premierleague",
+      "openfootball:england:2023-24:2-championship",
+      "openfootball:england:2024-25:1-premierleague",
+      "openfootball:england:2024-25:2-championship",
+      "openfootball:england:2025-26:1-premierleague",
+      "openfootball:england:2025-26:2-championship",
+      "openfootball:espana:2015-16:1-liga",
+      "openfootball:espana:2016-17:1-liga",
+      "openfootball:espana:2017-18:1-liga",
+      "openfootball:espana:2018-19:1-liga",
+      "openfootball:espana:2019-20:1-liga",
+      "openfootball:espana:2020-21:1-liga",
+      "openfootball:espana:2021-22:1-liga",
+      "openfootball:espana:2022-23:1-liga",
+      "openfootball:espana:2023-24:1-liga",
+      "openfootball:espana:2024-25:1-liga",
+      "openfootball:espana:2025-26:1-liga",
+      "openfootball:europe:2015-16:france-fr1",
+      "openfootball:europe:2016-17:france-fr1",
+      "openfootball:europe:2017-18:france-fr1",
+      "openfootball:europe:2018-19:france-fr1",
+      "openfootball:europe:2019-20:france-fr1",
+      "openfootball:europe:2020-21:france-fr1",
+      "openfootball:europe:2021-22:france-fr1",
+      "openfootball:europe:2022-23:france-fr1",
+      "openfootball:europe:2023-24:france-fr1",
+      "openfootball:europe:2024-25:france-fr1",
+      "openfootball:europe:2025-26:france-fr1",
+      "openfootball:italy:2015-16:1-seriea",
+      "openfootball:italy:2016-17:1-seriea",
+      "openfootball:italy:2017-18:1-seriea",
+      "openfootball:italy:2018-19:1-seriea",
+      "openfootball:italy:2019-20:1-seriea",
+      "openfootball:italy:2020-21:1-seriea",
+      "openfootball:italy:2021-22:1-seriea",
+      "openfootball:italy:2022-23:1-seriea",
+      "openfootball:italy:2023-24:1-seriea",
+      "openfootball:italy:2024-25:1-seriea",
+      "openfootball:italy:2025-26:1-seriea"
+    ],
+    "training_admission_sha256": "2372975dc975b927260879fe2f538aed553b7dc03c648fee1beccfae5c1d2c12",
+    "raw_admission_sha256": "e74d85b9d28724ba08e0fca9cc710d1617aa174947d5c9edbc7f13a9ae00944a",
+    "source_manifest_sha256": "38f44201db8a4e5291a6118a2d791affab892d04d74b99feae6431b52cfe1e04",
+    "parser_contract_sha256": "51cf163b2ba26f9eedc3d6953257342c3a6374ca3e9f6804f8bb8ded541a7c31",
+    "raw_rows_sha256": "199d44089533db35eced23a991a8360fb447e36781fc9fb8eeb81e0cfaecca2b",
+    "domain_rows_sha256": "16b3959bbe20f3fc84cf4f0e990d834891e83e03bbd48fca0b816693b9afd4f5"
+  }
+}

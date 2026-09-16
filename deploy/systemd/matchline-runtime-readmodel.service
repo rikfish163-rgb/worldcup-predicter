@@ -1,0 +1,46 @@
+[Unit]
+Description=Matchline external offline Sites read model
+Wants=network-online.target
+Requires=matchline-runtime-restore.service
+# When the hourly archive and this projection are queued together, build only
+# after the archive manifest has advanced so Sites does not report the prior
+# recovery generation as if it covered the current cycle. After= alone does
+# not start the hourly archive on ordinary 15-minute read-model runs.
+After=network-online.target matchline-runtime-restore.service matchline-prospective-cycle-runtime-only.service matchline-runtime-archive.service matchline-live-overlay.service
+RequiresMountsFor=/media/hetaisheng/044A81D94A81C83E/soccerdata-live-runtime
+ConditionPathExists=/dev/shm/matchline-live-runtime/current.json
+ConditionPathExists=/dev/shm/matchline-live-runtime/strict-backtest-current.json
+
+[Service]
+Type=oneshot
+WorkingDirectory=/home/hetaisheng/soccerdata
+Environment=PYTHONDONTWRITEBYTECODE=1
+Environment=PYTHONUNBUFFERED=1
+Environment=TMPDIR=/dev/shm
+Environment=PYTHONPATH=/media/hetaisheng/044A81D94A81C83E/soccerdata-live-runtime/python-deps-no-deps
+Environment=XDG_CACHE_HOME=/dev/shm/matchline-readmodel-xdg-cache
+Environment=XDG_CONFIG_HOME=/dev/shm/matchline-readmodel-xdg-config
+Environment=XDG_STATE_HOME=/dev/shm/matchline-readmodel-xdg-state
+Environment=MATCHLINE_RUNTIME_DIR=/dev/shm/matchline-live-runtime
+Environment=MATCHLINE_RUNTIME_PERSISTENCE=volatile_tmpfs
+Environment=MATCHLINE_OPENFOOTBALL_RAW_ARCHIVE_DIR=/media/hetaisheng/044A81D94A81C83E/soccerdata-live-runtime/openfootball-raw
+Environment=MATCHLINE_PROSPECTIVE_LOCK=/home/hetaisheng/soccerdata/docs/evidence/prospective-model-lock-current.json
+EnvironmentFile=-/etc/matchline/matchline-runtime.env
+# Periodic projection is runtime evidence, not source code.  Keep every output
+# in the runtime root; an explicit Sites release packages a reviewed snapshot
+# after the publication/maturity gates pass.
+ExecStart=/usr/bin/python3 -m league_platform.build_offline_bundle \
+  --data-dir /home/hetaisheng/soccerdata/data/MatchHistory \
+  --live-path ${MATCHLINE_RUNTIME_DIR}/current.json \
+  --live-overlay ${MATCHLINE_RUNTIME_DIR}/live_overlay.json \
+  --strict-report ${MATCHLINE_RUNTIME_DIR}/strict-backtest-current.json \
+  --prospective-lock ${MATCHLINE_PROSPECTIVE_LOCK} \
+  --openfootball-raw-archive-dir ${MATCHLINE_OPENFOOTBALL_RAW_ARCHIVE_DIR} \
+  --runtime-archive-manifest /media/hetaisheng/044A81D94A81C83E/soccerdata-live-archive/recovery-snapshots/runtime-archive-manifest.json \
+  --evidence-dir /home/hetaisheng/soccerdata/docs/evidence \
+  --runtime-evidence-dir ${MATCHLINE_RUNTIME_DIR} \
+  --output ${MATCHLINE_RUNTIME_DIR}/offline_full.js \
+  --compact-output ${MATCHLINE_RUNTIME_DIR}/offline_snapshot.json \
+  --compact-js-output ${MATCHLINE_RUNTIME_DIR}/league-platform-offline_data.js
+TimeoutStartSec=10min
+TimeoutStopSec=30s

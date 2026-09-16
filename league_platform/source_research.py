@@ -1014,19 +1014,53 @@ def build_source_research_report(
             or len(merged_hashes) > 8
         )
         # A dated operator probe is a separate observation from the current
-        # snapshot. Prefer its explicit outcome for the report's observed
-        # HTTP state, while retaining the snapshot runtime key and status in
-        # the evidence payload.
+        # snapshot.  Use it to enrich HTTP evidence, but do not let a single
+        # successful endpoint probe erase a partial/degraded runtime or its
+        # explicit failure diagnostics.
         if isinstance(probe, Mapping):
             probe_state = str(probe.get("state") or "")
+            runtime_status = str(runtime.get("status") or "") if runtime is not None else ""
+            runtime_errors = runtime.get("errors") if isinstance(runtime, Mapping) else None
+            runtime_has_errors = bool(runtime_errors) if isinstance(runtime_errors, list) else False
+            runtime_error_count = runtime.get("error_count") if isinstance(runtime, Mapping) else None
+            runtime_has_errors = runtime_has_errors or (
+                isinstance(runtime_error_count, int) and runtime_error_count > 0
+            )
+            runtime_has_observation = runtime is not None and runtime_status not in {
+                "",
+                "not_observed",
+                "not_configured",
+            }
+            runtime_is_explicit_outage = runtime_status in {
+                "partial",
+                "degraded",
+                "unavailable",
+                "stale",
+                "observed_empty",
+            } or runtime_has_errors
             if probe_state == "success":
-                state, state_reason = "fresh", "dated operator probe admitted a valid response"
+                if not runtime_has_observation or not runtime_is_explicit_outage:
+                    state, state_reason = "fresh", "dated operator probe admitted a valid response"
+                else:
+                    state_reason = (
+                        f"{state_reason}; dated operator probe admitted a valid response "
+                        "but runtime diagnostics remain authoritative"
+                    )
             elif probe_state == "failed":
-                state, state_reason = "unavailable", "dated operator probe reached the source but parser/contract admission failed"
-        if state in {"rights_blocked", "forbidden", "blocked_by_robots", "quarantined", "future_disabled"} or state.startswith("blocked"):
-            observed_http.setdefault("attempted", False)
-            if observed_http.get("network_opened") is True and not isinstance(probe, Mapping):
-                raise ValueError(f"blocked source has network_opened=true: {source_id}")
+                if not runtime_has_observation:
+                    state, state_reason = (
+                        "unavailable",
+                        "dated operator probe reached the source but parser/contract admission failed",
+                    )
+                elif runtime_is_explicit_outage:
+                    state_reason = (
+                        f"{state_reason}; dated operator probe also failed parser/contract admission"
+                    )
+                else:
+                    state_reason = (
+                        f"{state_reason}; dated operator probe failed, while the captured runtime "
+                        "payload remains admitted"
+                    )
         terms = list(_TERMS.get(source_id, []))
         row_terms = row.get("terms_url")
         row_license = row.get("license_url")
@@ -1070,8 +1104,18 @@ def build_source_research_report(
                 "state": state,
                 "reason": state_reason,
                 "runtime_key": runtime_key,
-                "runtime_error_count": observed_http.get("error_count", 0),
-                "runtime_errors": observed_http.get("errors", []),
+                "runtime_error_count": (
+                    runtime.get("error_count")
+                    if isinstance(runtime, Mapping) and isinstance(runtime.get("error_count"), int)
+                    else len(runtime.get("errors", []))
+                    if isinstance(runtime, Mapping) and isinstance(runtime.get("errors"), list)
+                    else observed_http.get("error_count", 0)
+                ),
+                "runtime_errors": (
+                    [dict(item) for item in runtime.get("errors", [])[:5] if isinstance(item, Mapping)]
+                    if isinstance(runtime, Mapping) and isinstance(runtime.get("errors"), list)
+                    else observed_http.get("errors", [])
+                ),
             },
             "alternatives": _alternatives(source_id),
             "eligibility": eligibility,

@@ -6,6 +6,9 @@ import pytest
 from soccerdata.espn import ESPN
 
 
+pytestmark = pytest.mark.external
+
+
 def test_read_schedule(espn_seriea: ESPN) -> None:
     """It should return a dataframe with the schedule of the season."""
     assert isinstance(espn_seriea.read_schedule(), pd.DataFrame)

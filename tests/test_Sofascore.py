@@ -1,8 +1,12 @@
 """Unittests for class soccerdata.Sofascore."""
 
 import pandas as pd
+import pytest
 
 from soccerdata.sofascore import Sofascore
+
+
+pytestmark = pytest.mark.external
 
 
 def test_read_leagues(sofascore_epl_1516: Sofascore) -> None:

@@ -1,0 +1,53 @@
+[Unit]
+Description=Synchronize verified Matchline research evidence to Sites
+Wants=network-online.target
+After=network-online.target matchline-runtime-readmodel.service
+OnSuccess=matchline-sites-sync-private.service
+RequiresMountsFor=/media/hetaisheng/044A81D94A81C83E/soccerdata-live-runtime
+ConditionPathExists=%h/.config/matchline/matchline-sites.env
+ConditionPathExists=/dev/shm/matchline-live-runtime/current.json
+ConditionPathExists=/dev/shm/matchline-live-runtime/strict-backtest-current.json
+ConditionPathExists=/dev/shm/matchline-live-runtime/offline_snapshot.json
+
+[Service]
+Type=oneshot
+WorkingDirectory=/home/hetaisheng/soccerdata
+UMask=0077
+Environment=PYTHONDONTWRITEBYTECODE=1
+Environment=PYTHONUNBUFFERED=1
+Environment=TMPDIR=/dev/shm
+Environment=MATCHLINE_RUNTIME_DIR=/dev/shm/matchline-live-runtime
+Environment=MATCHLINE_OPENFOOTBALL_RAW_ARCHIVE_DIR=/media/hetaisheng/044A81D94A81C83E/soccerdata-live-runtime/openfootball-raw
+Environment=MATCHLINE_PROSPECTIVE_LOCK=/home/hetaisheng/soccerdata/docs/evidence/prospective-model-lock-current.json
+Environment=MATCHLINE_RESEARCH_FIXTURE_SNAPSHOT=/dev/shm/matchline-live-runtime/current.json
+Environment=MATCHLINE_SITES_SYNC_STATE_DIR=/media/hetaisheng/044A81D94A81C83E/soccerdata-live-runtime/sites-sync-state
+# Keep research-audit checkpoints separate from the legacy facts/private
+# receipts. The operator-managed EnvironmentFiles below may override these
+# explicit defaults after a verified state migration.
+Environment=MATCHLINE_RESEARCH_RECEIPT=/media/hetaisheng/044A81D94A81C83E/soccerdata-live-runtime/sites-sync-state/research-audit-completed.json
+Environment=MATCHLINE_RESEARCH_CURSOR=/media/hetaisheng/044A81D94A81C83E/soccerdata-live-runtime/sites-sync-state/research-audit-cursor.json
+EnvironmentFile=%h/.config/matchline/matchline-sites.env
+EnvironmentFile=-/etc/matchline/matchline-runtime.env
+EnvironmentFile=-%h/.config/matchline/matchline-runtime.env
+# Disable the legacy raw/audit uploader timers before enabling this timer. The
+# completed batch receipt makes an unchanged 15-minute run perform zero writes.
+ExecStart=/home/hetaisheng/soccerdata/.venv/bin/python -m league_platform.publish_sites_sync \
+  --lane research_audit \
+  --mode incremental \
+  --archive-root ${MATCHLINE_OPENFOOTBALL_RAW_ARCHIVE_DIR} \
+  --snapshot ${MATCHLINE_RESEARCH_FIXTURE_SNAPSHOT} \
+  --lock ${MATCHLINE_PROSPECTIVE_LOCK} \
+  --cycle ${MATCHLINE_RUNTIME_DIR}/runtime-only-cycle-latest.json \
+  --evaluation ${MATCHLINE_RUNTIME_DIR}/runtime-only-evaluation-current.json \
+  --live-snapshot ${MATCHLINE_RUNTIME_DIR}/current.json \
+  --prediction-archive ${MATCHLINE_RUNTIME_DIR}/prospective_predictions.jsonl \
+  --strict-report ${MATCHLINE_RUNTIME_DIR}/strict-backtest-current.json \
+  --offline-snapshot ${MATCHLINE_RUNTIME_DIR}/offline_snapshot.json \
+  --raw-endpoint ${MATCHLINE_RAW_ARTIFACT_ENDPOINT} \
+  --research-endpoint ${MATCHLINE_RESEARCH_FIXTURE_ENDPOINT} \
+  --audit-endpoint ${MATCHLINE_PROSPECTIVE_AUDIT_ENDPOINT} \
+  --structured-endpoint ${MATCHLINE_ARTIFACT_ENDPOINT} \
+  --receipt ${MATCHLINE_RESEARCH_RECEIPT} \
+  --cursor ${MATCHLINE_RESEARCH_CURSOR}
+TimeoutStartSec=30min
+TimeoutStopSec=60s

@@ -1,0 +1,11 @@
+[Unit]
+Description=Run Matchline live-only display overlay every minute
+
+[Timer]
+OnBootSec=6min
+OnUnitInactiveSec=60s
+Persistent=true
+Unit=matchline-live-overlay.service
+
+[Install]
+WantedBy=timers.target
