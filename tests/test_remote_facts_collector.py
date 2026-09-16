@@ -1,6 +1,9 @@
+import hashlib
+import json
 import importlib.util
 from pathlib import Path
 from urllib.parse import urlparse
+import pytest
 
 
 MODULE_PATH = Path(__file__).parents[1] / "deploy" / "remote-facts" / "matchline_facts_collector.py"
@@ -364,3 +367,66 @@ def test_restricted_provider_diagnostic_is_non_network(monkeypatch):
     assert result["httpStatus"] is None
     assert result["rawSha256"] is None
     assert result["errorCode"] == "provider_permission_required"
+
+
+def test_permitted_raw_response_archive_is_content_addressed_and_idempotent(tmp_path):
+    archive = collector.RawResponseArchive(tmp_path / "raw-archive")
+    payload = b"{\"matches\":[]}"
+    first = archive.store(
+        source_id="openligadb_secondary_results",
+        url="https://api.openligadb.de/getmatchdata/bl1/2026",
+        retrieved_at="2026-09-03T00:00:00Z",
+        payload=payload,
+    )
+    second = archive.store(
+        source_id="openligadb_secondary_results",
+        url="https://api.openligadb.de/getmatchdata/bl1/2026",
+        retrieved_at="2026-09-03T00:00:00Z",
+        payload=payload,
+    )
+
+    assert first["duplicate"] is False
+    assert second["duplicate"] is True
+    assert archive.manifest_record_count() == 1
+    raw_path = archive.root / first["raw_path"]
+    assert raw_path.read_bytes() == payload
+    manifest_row = json.loads(archive.manifest.read_text(encoding="utf-8"))
+    assert manifest_row["raw_sha256"] == hashlib.sha256(payload).hexdigest()
+    assert manifest_row["source_id"] == "openligadb_secondary_results"
+
+
+def test_openligadb_collection_archives_the_exact_successful_response(tmp_path, monkeypatch):
+    archive = collector.RawResponseArchive(tmp_path / "raw-archive")
+    payload = b"[{}]"
+    monkeypatch.setattr(
+        collector,
+        "_http_json",
+        lambda _url, **_kwargs: (200, payload, [_row(94000, "bl1")]),
+    )
+
+    sources, rows = collector.collect_openligadb(
+        2026,
+        "2026-09-03T00:00:00Z",
+        ["bl1"],
+        raw_archive=archive,
+    )
+
+    assert len(rows) == 1
+    assert sources[0]["rawSha256"] == hashlib.sha256(payload).hexdigest()
+    assert archive.manifest_record_count() == 1
+    manifest = json.loads(archive.manifest.read_text(encoding="utf-8"))
+    assert manifest["source_id"] == "openligadb_secondary_results"
+    assert (archive.root / manifest["raw_path"]).read_bytes() == payload
+
+
+def test_raw_response_archive_rejects_restricted_source_or_host(tmp_path):
+    archive = collector.RawResponseArchive(tmp_path / "raw-archive")
+    with pytest.raises(ValueError, match="allowlisted"):
+        archive.store(
+            source_id="espn_public_api",
+            url="https://site.api.espn.com/apis/site/v2/sports/soccer/eng.1/scoreboard",
+            retrieved_at="2026-09-03T00:00:00Z",
+            payload=b"restricted",
+        )
+    assert archive.manifest_record_count() == 0
+    assert not (archive.root / "raw").exists()

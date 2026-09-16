@@ -19,9 +19,13 @@ The collector fetches bounded, display-only facts from two independent lanes:
 
 It also records policy/transport diagnostics for Wikidata, MET Norway, ESPN,
 and SofaScore. It writes one atomically replaced JSON file and contains no
-prediction, odds, model, or market values. Provider payloads are hashed for
-lineage but are not copied into the cache. OpenFootball is CC0; OpenLigaDB is
-ODbL and remains a separately attributed, facts-only lane.
+prediction, odds, model, or market values. Successful responses from permitted
+OpenFootball, OpenLigaDB, Wikidata, and MET Norway requests are retained in a
+sibling `raw-archive/` directory as content-addressed bytes plus an append-only
+manifest; the facts cache itself contains normalized rows and hashes only.
+OpenFootball is CC0; OpenLigaDB is ODbL and remains a separately attributed,
+facts-only lane. Restricted or authorization-unclear sources never enter the
+raw archive.
 
 Run once:
 

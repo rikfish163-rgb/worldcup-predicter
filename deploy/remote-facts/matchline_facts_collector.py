@@ -2,16 +2,19 @@
 """Collect small, facts-only source snapshots on the Matchline VPS.
 
 This collector is intentionally independent from the legacy ``wc-predict``
-service.  It stores one bounded JSON document and never writes predictions,
-odds, model fields, or raw provider payloads.  The output is suitable for a
-later authenticated import into the Matchline Sites read model, but this
-script itself performs no remote POST.
+service.  It stores one bounded JSON document and never writes predictions or
+model fields.  Successful responses from permitted CC0/ODbL/CC-BY sources are
+additionally written to a separate bounded, content-addressed raw archive; the
+public envelope contains only normalized facts and hashes.  The output is
+suitable for a later authenticated import into the Matchline Sites read model,
+but this script itself performs no remote POST.
 """
 
 from __future__ import annotations
 
 import argparse
 import csv
+import fcntl
 import hashlib
 import io
 import json
@@ -33,9 +36,149 @@ MAX_RESPONSE_BYTES = 8 * 1024 * 1024
 MAX_OPENLIGADB_ROWS = 2_000
 MAX_OPENFOOTBALL_ROWS_PER_SOURCE = 2_000
 MAX_WIKIDATA_ENTITIES = 12
+RAW_ARCHIVE_SCHEMA = "matchline.remote.raw_response.v1"
+MAX_RAW_ARCHIVE_BYTES = MAX_RESPONSE_BYTES
+_RAW_ARCHIVE_HOSTS = {
+    "raw.githubusercontent.com": "openfootball",
+    "api.openligadb.de": "openligadb",
+    "www.wikidata.org": "wikidata_entities",
+    "api.met.no": "met_norway_weather",
+}
 # Wikimedia throttles generic/bare clients.  Keep the collector identifiable
 # without sending credentials or changing the facts-only boundary.
 USER_AGENT = "MatchlineFactsCollector/1.0 (+https://matchline-intelligence.willif57kbkd.chatgpt.site/; facts-only)"
+
+class RawResponseArchive:
+    """Content-addressed, append-only archive for permitted source responses."""
+
+    def __init__(self, root: Path | str):
+        candidate = Path(root).expanduser().resolve()
+        shm = Path("/dev/shm")
+        if shm.exists():
+            try:
+                candidate.relative_to(shm.resolve())
+            except ValueError:
+                pass
+            else:
+                raise ValueError("raw response archive must not be under /dev/shm")
+        self.root = candidate
+        self.manifest = candidate / "manifest.jsonl"
+        self.lock_path = candidate / "manifest.jsonl.lock"
+
+    @staticmethod
+    def _canonical(value: object) -> bytes:
+        return json.dumps(value, ensure_ascii=False, sort_keys=True, separators=(",", ":")).encode("utf-8")
+
+    @staticmethod
+    def _validate_url(source_id: str, url: str) -> None:
+        parsed = urllib.parse.urlparse(url)
+        if (
+            parsed.scheme != "https"
+            or not parsed.hostname
+            or parsed.username is not None
+            or parsed.password is not None
+            or parsed.fragment
+        ):
+            raise ValueError("raw response URL must be a credential-free HTTPS URL")
+        family = _RAW_ARCHIVE_HOSTS.get(parsed.hostname)
+        if family is None or (
+            family == "openfootball"
+            and not (source_id.startswith("openfootball_current_") or source_id.startswith("openfootball_history_"))
+        ) or (family == "openligadb" and not source_id.startswith("openligadb_secondary_results")) or source_id != family and family in {"wikidata_entities", "met_norway_weather"}:
+            raise ValueError("raw response source/host is not allowlisted")
+
+    def store(
+        self,
+        *,
+        source_id: str,
+        url: str,
+        retrieved_at: str,
+        payload: bytes,
+        status: int = 200,
+    ) -> dict[str, object]:
+        """Store one successful permitted response without duplicating its receipt."""
+
+        if not isinstance(source_id, str) or not source_id.strip():
+            raise ValueError("raw response source_id is required")
+        if not isinstance(url, str) or not url.strip():
+            raise ValueError("raw response URL is required")
+        self._validate_url(source_id, url)
+        if not isinstance(payload, bytes) or not payload or len(payload) > MAX_RAW_ARCHIVE_BYTES:
+            raise ValueError("raw response payload exceeds archive bounds")
+        if status != 200:
+            raise ValueError("raw response status must be 200")
+        digest = hashlib.sha256(payload).hexdigest()
+        relative = Path("raw") / "sha256" / digest[:2] / f"{digest}.raw"
+        target = self.root / relative
+        observation_id = hashlib.sha256(
+            self._canonical({
+                "source_id": source_id,
+                "url": url,
+                "retrieved_at": retrieved_at,
+                "raw_sha256": digest,
+            })
+        ).hexdigest()
+        record = {
+            "schema_version": RAW_ARCHIVE_SCHEMA,
+            "observation_id": observation_id,
+            "source_id": source_id,
+            "url": url,
+            "retrieved_at": retrieved_at,
+            "status": status,
+            "raw_sha256": digest,
+            "bytes": len(payload),
+            "raw_path": relative.as_posix(),
+        }
+        self.root.mkdir(parents=True, exist_ok=True)
+        if self.manifest.is_symlink() or self.lock_path.is_symlink() or target.is_symlink():
+            raise ValueError("raw response archive path must not contain symlinks")
+        target.parent.mkdir(parents=True, exist_ok=True)
+        if target.exists():
+            if target.read_bytes() != payload:
+                raise ValueError("raw response hash collision or corrupted archive object")
+        else:
+            descriptor, temporary_name = tempfile.mkstemp(prefix=f".{digest}.", dir=target.parent)
+            temporary = Path(temporary_name)
+            try:
+                with os.fdopen(descriptor, "wb") as stream:
+                    stream.write(payload)
+                    stream.flush()
+                    os.fsync(stream.fileno())
+                if target.exists():
+                    if target.read_bytes() != payload:
+                        raise ValueError("raw response hash collision or corrupted archive object")
+                    temporary.unlink(missing_ok=True)
+                else:
+                    os.replace(temporary, target)
+            finally:
+                temporary.unlink(missing_ok=True)
+        duplicate = False
+        with self.lock_path.open("a+", encoding="utf-8") as lock_stream:
+            fcntl.flock(lock_stream.fileno(), fcntl.LOCK_EX)
+            if self.manifest.is_file():
+                with self.manifest.open(encoding="utf-8") as manifest_stream:
+                    for line in manifest_stream:
+                        try:
+                            prior = json.loads(line)
+                        except json.JSONDecodeError:
+                            continue
+                        if isinstance(prior, Mapping) and prior.get("observation_id") == observation_id:
+                            duplicate = True
+                            break
+            if not duplicate:
+                with self.manifest.open("a", encoding="utf-8") as manifest_stream:
+                    manifest_stream.write(json.dumps(record, ensure_ascii=False, sort_keys=True, separators=(",", ":")) + "\n")
+                    manifest_stream.flush()
+                    os.fsync(manifest_stream.fileno())
+            fcntl.flock(lock_stream.fileno(), fcntl.LOCK_UN)
+        return {**record, "duplicate": duplicate}
+
+    def manifest_record_count(self) -> int:
+        if not self.manifest.is_file():
+            return 0
+        with self.manifest.open(encoding="utf-8") as stream:
+            return sum(1 for line in stream if line.strip())
+
 
 OPENFOOTBALL_LICENSE_URL = "https://github.com/openfootball/football.json/blob/master/LICENSE.md"
 
@@ -566,11 +709,21 @@ def _collect_openligadb_league(
     season: int,
     retrieved_at: str,
     shortcut: str,
+    *,
+    raw_archive: RawResponseArchive | None = None,
 ) -> tuple[dict[str, object], list[dict[str, object]]]:
     config = OPENLIGADB_LEAGUES[shortcut]
     url = f"https://api.openligadb.de/getmatchdata/{shortcut}/{season}"
     source_id = "openligadb_secondary_results" if shortcut == "bl1" else f"openligadb_secondary_results_{shortcut}"
     status, body, payload = _http_json(url)
+    if raw_archive is not None and status == 200 and body:
+        raw_archive.store(
+            source_id=source_id,
+            url=url,
+            retrieved_at=retrieved_at,
+            payload=body,
+            status=status,
+        )
     if status != 200 or not isinstance(payload, list):
         return (
             _source_status(
@@ -668,6 +821,8 @@ def collect_openligadb(
     season: int,
     retrieved_at: str,
     league_shortcuts: Sequence[str] = DEFAULT_OPENLIGADB_LEAGUES,
+    *,
+    raw_archive: RawResponseArchive | None = None,
 ) -> tuple[list[dict[str, object]], list[dict[str, object]]]:
     selected = tuple(dict.fromkeys(league_shortcuts))
     if not selected or any(shortcut not in OPENLIGADB_LEAGUES for shortcut in selected):
@@ -676,7 +831,9 @@ def collect_openligadb(
     rows: list[dict[str, object]] = []
     seen: set[str] = set()
     for shortcut in selected:
-        source, league_rows = _collect_openligadb_league(season, retrieved_at, shortcut)
+        source, league_rows = _collect_openligadb_league(
+            season, retrieved_at, shortcut, raw_archive=raw_archive
+        )
         sources.append(source)
         for row in league_rows:
             identity = f"{row['league']}:{row['providerMatchId']}"
@@ -975,9 +1132,19 @@ def _parse_openfootball_txt(payload: bytes, config: Mapping[str, str], source: M
 def _collect_openfootball_source(
     config: Mapping[str, str],
     retrieved_at: str,
+    *,
+    raw_archive: RawResponseArchive | None = None,
 ) -> tuple[dict[str, object], list[dict[str, object]]]:
     url = config["url"]
     status, body = _http_payload(url)
+    if raw_archive is not None and status == 200 and body:
+        raw_archive.store(
+            source_id=config["sourceId"],
+            url=url,
+            retrieved_at=retrieved_at,
+            payload=body,
+            status=status,
+        )
     if status != 200 or not body:
         return (
             _source_status(
@@ -1046,12 +1213,16 @@ def _collect_openfootball_source(
 def collect_openfootball(
     retrieved_at: str,
     configs: Sequence[Mapping[str, str]] = OPENFOOTBALL_CURRENT_SOURCES,
+    *,
+    raw_archive: RawResponseArchive | None = None,
 ) -> tuple[list[dict[str, object]], list[dict[str, object]]]:
     sources: list[dict[str, object]] = []
     rows: list[dict[str, object]] = []
     seen: set[str] = set()
     for config in configs:
-        source, source_rows = _collect_openfootball_source(config, retrieved_at)
+        source, source_rows = _collect_openfootball_source(
+            config, retrieved_at, raw_archive=raw_archive
+        )
         sources.append(source)
         for row in source_rows:
             row_id = str(row["id"])
@@ -1153,7 +1324,11 @@ def collect_football_data(season: int, retrieved_at: str) -> list[dict[str, obje
     return [_collect_football_data_source(config, season, retrieved_at) for config in FOOTBALL_DATA_SOURCES]
 
 
-def collect_wikidata(retrieved_at: str) -> tuple[dict[str, object], list[dict[str, object]]]:
+def collect_wikidata(
+    retrieved_at: str,
+    *,
+    raw_archive: RawResponseArchive | None = None,
+) -> tuple[dict[str, object], list[dict[str, object]]]:
     query = urllib.parse.urlencode({
         "action": "wbsearchentities",
         "search": "Bundesliga",
@@ -1163,6 +1338,14 @@ def collect_wikidata(retrieved_at: str) -> tuple[dict[str, object], list[dict[st
     })
     url = f"https://www.wikidata.org/w/api.php?{query}"
     status, body, payload = _http_json(url)
+    if raw_archive is not None and status == 200 and body:
+        raw_archive.store(
+            source_id="wikidata_entities",
+            url=url,
+            retrieved_at=retrieved_at,
+            payload=body,
+            status=status,
+        )
     entities: list[dict[str, object]] = []
     if status == 200 and isinstance(payload, Mapping) and isinstance(payload.get("search"), list):
         for value in payload["search"][:MAX_WIKIDATA_ENTITIES]:
@@ -1200,7 +1383,12 @@ def collect_wikidata(retrieved_at: str) -> tuple[dict[str, object], list[dict[st
     return source, entities
 
 
-def collect_met(retrieved_at: str, coordinates: Mapping[str, object] | None) -> tuple[dict[str, object], list[dict[str, object]]]:
+def collect_met(
+    retrieved_at: str,
+    coordinates: Mapping[str, object] | None,
+    *,
+    raw_archive: RawResponseArchive | None = None,
+) -> tuple[dict[str, object], list[dict[str, object]]]:
     if not coordinates:
         return (
             _source_status(
@@ -1232,6 +1420,14 @@ def collect_met(retrieved_at: str, coordinates: Mapping[str, object] | None) -> 
         url = f"{first_url}?{query}"
         status, body, payload = _http_json(url, headers={"User-Agent": f"{USER_AGENT} contact=matchline"})
         last_status, last_body = status, body
+        if raw_archive is not None and status == 200 and body:
+            raw_archive.store(
+                source_id="met_norway_weather",
+                url=url,
+                retrieved_at=retrieved_at,
+                payload=body,
+                status=status,
+            )
         if status != 200 or not isinstance(payload, Mapping):
             continue
         properties = payload.get("properties") if isinstance(payload.get("properties"), Mapping) else {}
@@ -1289,9 +1485,16 @@ def load_coordinates(raw: str | None) -> Mapping[str, object] | None:
     return value if isinstance(value, Mapping) else None
 
 
-def collect(*, season: int, coordinates: Mapping[str, object] | None) -> dict[str, object]:
+def collect(
+    *,
+    season: int,
+    coordinates: Mapping[str, object] | None,
+    raw_archive: RawResponseArchive | None = None,
+) -> dict[str, object]:
     retrieved_at = iso()
-    openfootball_sources, openfootball_matches = collect_openfootball(retrieved_at)
+    openfootball_sources, openfootball_matches = collect_openfootball(
+        retrieved_at, raw_archive=raw_archive
+    )
     # Historical rows are fetched into a separate bounded section.  The
     # public match board still reads only ``openfootball.matches`` (the
     # current season), while the team-research lane can use this completed
@@ -1299,15 +1502,17 @@ def collect(*, season: int, coordinates: Mapping[str, object] | None) -> dict[st
     openfootball_history_sources, openfootball_history_matches = collect_openfootball(
         retrieved_at,
         configs=OPENFOOTBALL_HISTORY_SOURCES,
+        raw_archive=raw_archive,
     )
     openligadb_sources, matches = collect_openligadb(
         season,
         retrieved_at,
         league_shortcuts=REMOTE_OPENLIGADB_LEAGUES,
+        raw_archive=raw_archive,
     )
     football_data_sources = collect_football_data(season, retrieved_at)
-    wikidata_source, entities = collect_wikidata(retrieved_at)
-    met_source, weather = collect_met(retrieved_at, coordinates)
+    wikidata_source, entities = collect_wikidata(retrieved_at, raw_archive=raw_archive)
+    met_source, weather = collect_met(retrieved_at, coordinates, raw_archive=raw_archive)
     sources = [
         *openfootball_sources,
         *openfootball_history_sources,
@@ -1400,18 +1605,28 @@ def parse_args(argv: Sequence[str] | None = None) -> argparse.Namespace:
     parser.add_argument("--output", default=os.environ.get("MATCHLINE_FACTS_OUTPUT", "/home/ubuntu/matchline-facts/current.json"))
     parser.add_argument("--season", type=int, default=current_season())
     parser.add_argument("--coordinates-json", default=os.environ.get("MATCHLINE_MET_COORDINATES"))
+    parser.add_argument("--raw-archive", default=os.environ.get("MATCHLINE_RAW_ARCHIVE_DIR"))
     return parser.parse_args(argv)
 
 
 def main(argv: Sequence[str] | None = None) -> int:
     args = parse_args(argv)
-    value = collect(season=args.season, coordinates=load_coordinates(args.coordinates_json))
-    digest = atomic_write(Path(args.output), value)
+    output_path = Path(args.output)
+    raw_archive_path = Path(args.raw_archive) if args.raw_archive else output_path.parent / "raw-archive"
+    raw_archive = RawResponseArchive(raw_archive_path)
+    value = collect(
+        season=args.season,
+        coordinates=load_coordinates(args.coordinates_json),
+        raw_archive=raw_archive,
+    )
+    digest = atomic_write(output_path, value)
     print(json.dumps({
         "status": "ok",
         "schema": CACHE_SCHEMA,
         "output": str(args.output),
         "sha256": digest,
+        "rawArchive": str(raw_archive_path),
+        "rawArchiveRecords": raw_archive.manifest_record_count(),
         "openfootball": len(value["openfootball"]["matches"]),
         "openligadb": len(value["openligadb"]["matches"]),
         "footballData": sum(
