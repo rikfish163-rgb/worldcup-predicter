@@ -8,7 +8,7 @@
 - 合规 facts 接入：VPS r7 已激活单一 systemd writer；最新 facts 读回为 `2026-09-16T11:17:43.000Z`，OpenFootball `2916` 条、OpenFootball history `8763` 条、OpenLigaDB `2240` 条、Wikidata `4` 个、MET `12` 条；payload 中预测/赔率均为 0。
 - 研究评估：真实前瞻账本 `scored_n=158`、`pending_n=180`，冲突 `0`，指标有效；仍为 research-only。
 - 生产门槛：**未满足，继续关闭**：`production_allowed=False`、`promotion_eligible=False`、样本门槛 `False`、冻结验证 `False`。
-- 发布：父仓库本地 `d30456c`；远端已确认到 `a53902e`，最新 `d30456c` 的远端 ref 查询因网络超时未能确认。Sites 本地 `9d424d0`，远端推送因缺少认证失败；Cloudflare deploy 因缺少 `CLOUDFLARE_API_TOKEN` 未执行。
+- 发布：父仓库最终提交 `05cd9362` 已由 GitHub 非 main ref 确认；其包含本轮 Matchline 代码与最终交接证据。Sites 本地 `9d424d0`，远端推送因缺少认证失败；Cloudflare deploy 因缺少 `CLOUDFLARE_API_TOKEN` 未执行。
 
 ## 证据索引
 
@@ -24,7 +24,7 @@
 | VPS archive/restore/rollback | `docs/evidence/vps-r7-archive-restore-rollback-2026-09-16.json` | `003fa198cccf9d90b42928a0ffb7673a8efac0e10fd9e09b9d49db9835f25ec2`；restore match `True`；upload HTTP `201` |
 | 前瞻评估 | `docs/evidence/prospective-evaluation-runtime-only-2026-09-16.json` | `2939bbf5eae7d95c70f8cfd6152b030faf8712ec0f2230eca9a5eec3c3d62b36` |
 | 评分审计 | `docs/evidence/prospective-audit-scored-2026-09-16.json` | `83b0518849ea5ab6055978b87aef7f4b72f1980247767887b5711c0cf7248df7` |
-| 机器验证摘要 | `docs/evidence/verification-summary-2026-09-16.json` | `7c84e9b1420546a3ca8c10f4826550b3a8e607d2d1589c117203af0e69580ea3` |
+| 机器验证摘要 | `docs/evidence/verification-summary-2026-09-16.json` | `f585f1504eed9ce66530ed0e4daca7cdac65ef740c44630cdbbf0dbb0ad390f3` |
 
 ## Acceptance criteria 逐条验收
 
@@ -118,7 +118,7 @@
 
 - Python 全套：`1516 passed, 72 skipped, 0 failed`；Sites `npm run typecheck` 通过，`npm test` `808 passed, 0 failed`；父/Sites `git diff --check` 通过；r7 systemd units `systemd-analyze verify` 通过。
 - VPS 已有真实 facts publish/readback：最新 facts readback HTTP 200，包含 finished OpenLigaDB 案例与 blocked source catalog 案例；formal probabilities false。
-- 父 GitHub 非 main 分支已存在 `a53902e`，但最新 `d30456c` 尚未从网络查询确认；Sites `9d424d0` 未推送（远端缺 Git 认证），Cloudflare deploy 未执行（token expired/missing）。
+- 父 GitHub 非 main 分支已确认 `05cd9362`；Sites `9d424d0` 未推送（远端缺 Git 认证），Cloudflare deploy 未执行（token expired/missing）。
 
 ### 8. 交接资料 — **Met**
 
@@ -133,7 +133,7 @@
 ## 仍未解决问题
 
 1. Sites 子仓库远端认证缺失，无法推送 `9d424d0`；Cloudflare API token 缺失，无法部署该 Sites 修复。
-2. 父分支最新 `d30456c` 的 GitHub ref 尚未在网络上确认（历史非 main ref `a53902e` 已确认）。
+2. Sites 子仓库 `9d424d0` 仍未推送；父仓库 `05cd9362` 已推送并可审阅。
 3. 正式生产门槛仍缺足够 untouched prospective samples、lineup confirmation replay 和独立 market baseline；正式概率必须继续关闭。
 4. 非 OpenFootball 来源尚需逐响应 durable raw archive/可回放证据，或明确接受 display-only hash/projection 边界。
 5. r7 release 已激活 facts-only writer，但 prospective audit 没有由 r7 facts publisher 写入 remote facts；线上 prospective status 因此继续显示 not published/closed，符合不伪造原则。
