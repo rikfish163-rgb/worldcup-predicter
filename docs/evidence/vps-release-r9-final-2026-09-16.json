@@ -1,0 +1,91 @@
+{
+  "active": true,
+  "archive_restore_rollback": {
+    "after_state": {
+      "r8": false,
+      "r9": true
+    },
+    "archive_sha256": "9609f4f59bc8820382d09e351c48a677cb6b5c11b1273be0ef45eb67d0d5802e",
+    "drill_sha256": "8a507ae7228986ae027ce72defb06ceb95835ba987b1f026a09c30833dd9f866",
+    "restore_matches_source": true,
+    "rollback_state": {
+      "r8": true,
+      "r9": false
+    },
+    "upload_ack": {
+      "httpStatus": 201,
+      "input": "/home/ubuntu/matchline-releases/matchline-research-20260916T2000Z-r9/current.json",
+      "inputSha256": "59218600357c088c703604641a2a07977bee88112550b698ff2287da58363379",
+      "openfootball": 2916,
+      "openligadb": 2240,
+      "retrievedAt": "2026-09-16T11:57:32Z",
+      "schema": "matchline.remote.facts.v1",
+      "status": "ok"
+    }
+  },
+  "collector_sha256": "7ba6345ec9030777424b494abf2998434e3c25161663683db710c21fbfe8329e",
+  "collector_summary": {
+    "factsOnly": true,
+    "footballData": 0,
+    "metNorway": 12,
+    "openfootball": 2916,
+    "openligadb": 2240,
+    "output": "/home/ubuntu/matchline-releases/matchline-research-20260916T2000Z-r9/current.json",
+    "rawArchive": "/home/ubuntu/matchline-releases/matchline-research-20260916T2000Z-r9/raw-archive",
+    "rawArchiveRecords": 55,
+    "schema": "matchline.remote.facts.v1",
+    "sha256": "59218600357c088c703604641a2a07977bee88112550b698ff2287da58363379",
+    "status": "ok",
+    "wikidata": 4
+  },
+  "coordinates_sha256": "105c93a0e77bba4281779c671cb64c892c3dd3cb9f393c3fadac8755219156d7",
+  "current_bytes": 11323291,
+  "current_sha256": "59218600357c088c703604641a2a07977bee88112550b698ff2287da58363379",
+  "facts_retrieved_at": "2026-09-16T11:57:32Z",
+  "latest_readback": {
+    "facts_as_of": "2026-09-16T11:57:32.000Z",
+    "facts_sha256": "576a617e7d29253cbdd5d0c1dae9ca334d16dccee79d55c6a7e42ee81f4c0fc5",
+    "prospective_sha256": "3783dc59c1bce9d710d45af914cb536937b99535003c4b654c44df440942ce57",
+    "prospective_status": "remote_facts",
+    "sources_as_of": "2026-09-16T11:57:32.000Z",
+    "sources_sha256": "b449a5c02ed6ab788d8b25431b1e2939206fca6ecc6ae051b29eec038fc0e4c0"
+  },
+  "previous_facts_root": "/home/ubuntu/matchline-facts",
+  "previous_release": "matchline-research-20260916T1230Z-r8",
+  "publisher_sha256": "237e816c90a7e95e85ae865de44ff06b86a1e2d98e168f6bfac4c7d8ea1009e4",
+  "publisher_summary": {
+    "httpStatus": 201,
+    "input": "/home/ubuntu/matchline-releases/matchline-research-20260916T2000Z-r9/current.json",
+    "inputSha256": "59218600357c088c703604641a2a07977bee88112550b698ff2287da58363379",
+    "openfootball": 2916,
+    "openligadb": 2240,
+    "retrievedAt": "2026-09-16T11:57:32Z",
+    "schema": "matchline.remote.facts.v1",
+    "status": "ok"
+  },
+  "raw_archive": {
+    "manifest_sha256": "1891af82ca343265b314195d6a9c745e952008f300e21e144fc55035c085a0c0",
+    "path": "raw-archive",
+    "raw_bytes": 4792065,
+    "record_count": 55
+  },
+  "release_id": "matchline-research-20260916T2000Z-r9",
+  "rollback": "sudo systemctl disable --now matchline-research-facts-cycle-r9.timer; sudo systemctl enable --now matchline-research-facts-cycle-r8.timer",
+  "schema_version": "matchline.release.v1",
+  "sites_commit": "9d424d0",
+  "source_catalog_summary": {
+    "crawl4aiCapturedPageCount": null,
+    "crawl4aiFanoutSourceCount": null,
+    "crawl4aiUnidentifiedPageCount": null,
+    "executionLayerCount": 0,
+    "factSourceCount": 54,
+    "freshRuntimeCount": 44,
+    "modelEligibleByDefaultCount": 0,
+    "registeredCount": 54,
+    "unidentifiedCount": 0
+  },
+  "source_catalog_unknown_count": 0,
+  "source_commit": "18c1bfa",
+  "systemd_timer": "matchline-research-facts-cycle-r9.timer",
+  "systemd_writer": "matchline-research-facts-cycle-r9.service"
+}

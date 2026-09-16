@@ -1,7 +1,7 @@
 {
   "commits": {
-    "parent_github_remote_observed": "c9d43bf85689e80514e1f8095139624b180f5c15",
-    "parent_local": "c9d43bf85689e80514e1f8095139624b180f5c15",
+    "parent_github_remote_observed": "18c1bfa5175ade8c39623ccebb1b0a9ce642b602",
+    "parent_local": "18c1bfa5175ade8c39623ccebb1b0a9ce642b602",
     "sites_local": "9d424d0e9a3dc6c2dfac02ca0696356f08625ed9",
     "sites_remote": "not_verified_missing_git_auth"
   },
@@ -83,12 +83,12 @@
     }
   },
   "runtime_reliability": {
-    "archive_sha256": "fd5ab2af3c7ad6615d60b943144531c91376c93c5eed55dfe099a238bc376881",
-    "drill": "docs/evidence/vps-r7-archive-restore-rollback-2026-09-16.json",
-    "drill_sha256": "003fa198cccf9d90b42928a0ffb7673a8efac0e10fd9e09b9d49db9835f25ec2",
+    "archive_sha256": "9609f4f59bc8820382d09e351c48a677cb6b5c11b1273be0ef45eb67d0d5802e",
+    "drill": "docs/evidence/vps-r9-archive-restore-rollback-2026-09-16.json",
+    "drill_sha256": "8a507ae7228986ae027ce72defb06ceb95835ba987b1f026a09c30833dd9f866",
     "restore_matches_source": true,
-    "rollback": "sudo systemctl disable --now matchline-research-facts-cycle-r7.timer; sudo systemctl enable --now matchline-research-facts-cycle.timer",
-    "single_writer_status": "systemd r7 timer active; system/user legacy facts timers disabled",
+    "rollback": "sudo systemctl disable --now matchline-research-facts-cycle-r9.timer; sudo systemctl enable --now matchline-research-facts-cycle-r8.timer",
+    "single_writer_status": "systemd r9 timer active; r7/r8/system legacy and user legacy facts timers disabled",
     "upload_http_status": 201
   },
   "schema_version": "matchline.goal_verification.v1",
@@ -103,6 +103,7 @@
     "unknown_values_rejected_by_validator": true
   },
   "tests": {
+    "collector_regression": "22 passed",
     "parent_git_diff_check": "passed for staged Matchline submission",
     "python_full": "PYTHONDONTWRITEBYTECODE=1 .venv/bin/python -m pytest -q",
     "python_full_failed": 0,
@@ -114,7 +115,7 @@
     "sites_git_diff_check": "passed",
     "sites_typecheck": "npm run typecheck",
     "sites_typecheck_status": "passed",
-    "systemd_verify": "passed for deployed r7 units"
+    "systemd_verify": "passed for deployed r9 units"
   },
   "vps_facts": {
     "blocked_source_ids": [
@@ -129,20 +130,25 @@
       "espn_public_api",
       "sofascore_public_api"
     ],
-    "current_sha256": "032ed049d7c222fed3b07a12e3dea5f8d347e59f91b34b67f015498dbbe7eb92",
-    "facts_readback_sha256": "b36eccddaab89177cb510b7bb5652b3d177744ceaae41d587d2fb788a57b430b",
-    "facts_retrieved_at": "2026-09-16T11:17:43Z",
+    "current_sha256": "59218600357c088c703604641a2a07977bee88112550b698ff2287da58363379",
+    "facts_readback_sha256": "576a617e7d29253cbdd5d0c1dae9ca334d16dccee79d55c6a7e42ee81f4c0fc5",
+    "facts_retrieved_at": "2026-09-16T11:57:32Z",
     "odds_in_payload": 0,
     "openfootball_history_matches": 8763,
     "openfootball_matches": 2916,
     "openligadb_matches": 2240,
     "predictions_in_payload": 0,
     "publish_http_status": 201,
-    "publish_input_sha256": "032ed049d7c222fed3b07a12e3dea5f8d347e59f91b34b67f015498dbbe7eb92",
-    "release_id": "matchline-research-20260916T1125Z-r7",
-    "release_manifest": "docs/evidence/vps-release-r7-final-2026-09-16.json",
-    "release_manifest_sha256": "29f0ca97a27d15e6c97fca40df95b0bb32e3c8550ab5b7cf9753a5d9719b48af",
-    "source_catalog_readback_sha256": "7208e2b7f5afa7666ce4fc3bc3b4ff9fc50bef77bc44dc1f63aeba9ea51460b3",
+    "publish_input_sha256": "59218600357c088c703604641a2a07977bee88112550b698ff2287da58363379",
+    "raw_archive": {
+      "manifest_sha256": "1891af82ca343265b314195d6a9c745e952008f300e21e144fc55035c085a0c0",
+      "raw_bytes": 4792065,
+      "record_count": 55
+    },
+    "release_id": "matchline-research-20260916T2000Z-r9",
+    "release_manifest": "docs/evidence/vps-release-r9-final-2026-09-16.json",
+    "release_manifest_sha256": "8dd8483cab44dedb1230238295796f0af96f2cd5976b73482ee44505517414b5",
+    "source_catalog_readback_sha256": "b449a5c02ed6ab788d8b25431b1e2939206fca6ecc6ae051b29eec038fc0e4c0",
     "source_catalog_unknown_count": 0,
     "weather_observations": 12,
     "wikidata_entities": 4

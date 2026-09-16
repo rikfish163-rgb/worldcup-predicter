@@ -5,10 +5,10 @@
 ## 当前结论
 
 - 来源审计：**满足**，`47` 条 registry/SourceId 并集来源，无未分类 `unknown`。
-- 合规 facts 接入：VPS r7 已激活单一 systemd writer；最新 facts 读回为 `2026-09-16T11:17:43.000Z`，OpenFootball `2916` 条、OpenFootball history `8763` 条、OpenLigaDB `2240` 条、Wikidata `4` 个、MET `12` 条；payload 中预测/赔率均为 0。
+- 合规 facts 接入：VPS r9 已激活单一 systemd writer；最新 facts 读回为 `2026-09-16T11:57:32.000Z`，OpenFootball `2916` 条、OpenFootball history `8763` 条、OpenLigaDB `2240` 条、Wikidata `4` 个、MET `12` 条；payload 中预测/赔率均为 0；另有 `55` 条允许来源 raw receipts。
 - 研究评估：真实前瞻账本 `scored_n=158`、`pending_n=180`，冲突 `0`，指标有效；仍为 research-only。
 - 生产门槛：**未满足，继续关闭**：`production_allowed=False`、`promotion_eligible=False`、样本门槛 `False`、冻结验证 `False`。
-- 发布：父仓库最终提交 `c9d43bf` 已由 GitHub 非 main ref 确认；其包含本轮 Matchline 代码与最终交接证据。Sites 本地 `9d424d0`，远端推送因缺少认证失败；Cloudflare deploy 因缺少 `CLOUDFLARE_API_TOKEN` 未执行。
+- 发布：父仓库代码提交 `18c1bfa` 已由 GitHub 非 main ref 确认；最终交接证据随后随该非 main 分支继续提交。Sites 本地 `9d424d0`，远端推送因缺少认证失败；Cloudflare deploy 因缺少 `CLOUDFLARE_API_TOKEN` 未执行。
 
 ## 证据索引
 
@@ -18,13 +18,13 @@
 | 逐源 Markdown | `docs/source-research-2026-09-16-r2.md` | `6b8ef0d6d238a1cb2dcc2f7aeb98d3c7d47e9f255033a6568a9d52c478827e52` |
 | r2 probes | `docs/evidence/source-probe-evidence-2026-09-16-r2.json` | `a48fbec92745ae8a2434e48eab1e753475f3a2095af94c9765eaea6c7064755c` |
 | 本地真实 facts refresh | `docs/evidence/facts-refresh-evidence-2026-09-16.json`、`facts-refresh-projection-2026-09-16.json` | `56157dead0506b9b6e15ec59cead14989ce441c7313570121f79ad6d071e0b2b` / `04fabb78cb553104fa39529227ec7015c1f72e84c5f38f574b5d8926db0bfcc8` |
-| VPS r7 release | `docs/evidence/vps-release-r7-final-2026-09-16.json` | `29f0ca97a27d15e6c97fca40df95b0bb32e3c8550ab5b7cf9753a5d9719b48af` |
-| VPS facts readback | `docs/evidence/vps-r7-facts-readback-2026-09-16.json` | `b36eccddaab89177cb510b7bb5652b3d177744ceaae41d587d2fb788a57b430b` |
-| VPS source catalog readback | `docs/evidence/vps-r7-source-catalog-readback-2026-09-16.json` | `7208e2b7f5afa7666ce4fc3bc3b4ff9fc50bef77bc44dc1f63aeba9ea51460b3`；unknown `0` |
-| VPS archive/restore/rollback | `docs/evidence/vps-r7-archive-restore-rollback-2026-09-16.json` | `003fa198cccf9d90b42928a0ffb7673a8efac0e10fd9e09b9d49db9835f25ec2`；restore match `True`；upload HTTP `201` |
+| VPS r9 release | `docs/evidence/vps-release-r9-final-2026-09-16.json` | `8dd8483cab44dedb1230238295796f0af96f2cd5976b73482ee44505517414b5` |
+| VPS facts readback | `docs/evidence/vps-r9-facts-readback-2026-09-16.json` | `576a617e7d29253cbdd5d0c1dae9ca334d16dccee79d55c6a7e42ee81f4c0fc5` |
+| VPS source catalog readback | `docs/evidence/vps-r9-source-catalog-readback-2026-09-16.json` | `b449a5c02ed6ab788d8b25431b1e2939206fca6ecc6ae051b29eec038fc0e4c0`；unknown `0` |
+| VPS raw archive/restore/rollback | `docs/evidence/vps-r9-archive-restore-rollback-2026-09-16.json` | `8a507ae7228986ae027ce72defb06ceb95835ba987b1f026a09c30833dd9f866`；55 receipts；restore match `True`；upload HTTP `201` |
 | 前瞻评估 | `docs/evidence/prospective-evaluation-runtime-only-2026-09-16.json` | `2939bbf5eae7d95c70f8cfd6152b030faf8712ec0f2230eca9a5eec3c3d62b36` |
 | 评分审计 | `docs/evidence/prospective-audit-scored-2026-09-16.json` | `83b0518849ea5ab6055978b87aef7f4b72f1980247767887b5711c0cf7248df7` |
-| 机器验证摘要 | `docs/evidence/verification-summary-2026-09-16.json` | `1431afa814431e43d6118d47f055e8ead6f84f46ee992795a3bc777b66937806` |
+| 机器验证摘要 | `docs/evidence/verification-summary-2026-09-16.json` | `58920b2689e18cfc9d458d5de25ad73d3093a0f06321c0cb7dca9bb61a5735c7` |
 
 ## Acceptance criteria 逐条验收
 
@@ -84,15 +84,15 @@
 | whoscored_public_pages | rights_unverified | rights_blocked | not_attempted | not opened | blocked_pending_rights_review / blocked / blocked |
 | wikidata_entities | verified_cc0_structured_data | degraded | success | opened | allowed_with_attribution_preference / conditional_exact_venue_chain / conditional_with_provenance |
 
-### 2. 可用来源真实接入 — **Unmet（已扩展但仍有边界）**
+### 2. 可用来源真实接入 — **Met**
 
-- OpenFootball 已从 durable raw archive 进入规范化 fixture/read model；OpenLigaDB 已进入隔离的事实展示/赛果二次核验；r7 VPS facts bridge 还实际发布了 Wikidata 与 MET 的规范化 facts projection。
-- 但 Wikidata/MET/部分 OpenLigaDB 上游响应在现有桥接中只保留 raw hash 与规范化输出，未形成与 OpenFootball 同等级的逐响应 durable raw archive；因此不把“已发布 facts”夸大为所有来源均满足 raw-archive-to-read-model 全链路。
-- 解析、时间边界、实体、重复/冲突、失败降级测试已在 Python/Sites 测试中覆盖；后续需补齐非 OpenFootball 上游 raw body durable archive 或取得等价可回放证据。
+- r9 生产 collector 对允许的 OpenFootball 当前/历史、OpenLigaDB 十个 allowlisted 赛事、Wikidata 和 MET Norway 成功响应写入独立 `raw-archive/`；共 `55` 条 receipt、`4,792,065` bytes，逐条 object hash、大小、路径和 manifest 均已验证。
+- 同一批响应被解析成 `2916` 条当前 OpenFootball、`8763` 条历史 OpenFootball、`2240` 条 OpenLigaDB、`4` 个 Wikidata、`12` 条 MET facts，并以 facts-only envelope HTTP 201 发布；线上 readback HTTP 200 的 as-of/hash 与 r9 一致。
+- OpenLigaDB 仍是隔离 display/post-match lane，Wikidata/MET 按各自 attribution/model eligibility 投影；22 项 collector/publisher 回归覆盖 raw archive 幂等、允许来源存档和受限来源零网络。
 
 ### 3. 受限来源处理 — **Met**
 
-- r7 source catalog unknown 数为 0；10 个受限例（8 个未核权 Football-Data current sidecar、ESPN、SofaScore）均为 `blocked`，`recordCount=null`、无 raw 成功哈希、无网络成功声明。
+- r9 source catalog unknown 数为 0；10 个受限例（8 个未核权 Football-Data current sidecar、ESPN、SofaScore）均为 `blocked`，`recordCount=null`、无 raw 成功哈希、无网络成功声明。
 - ESPN/SofaScore diagnostic 已改为无网络 rights block；未核权 Football-Data current collection 默认不发起 HTTP。受限来源不进入模型、预测或公开 facts rows。
 
 ### 4. 真实前瞻闭环 — **Met**
@@ -109,31 +109,31 @@
 
 ### 6. 运行可靠性 — **Met（针对本轮隔离 facts writer；完整研究 runtime 仍受生产门槛限制）**
 
-- VPS 最终状态只启用 `matchline-research-facts-cycle-r7.timer`；system-level 和 user-level legacy facts collector/publisher timers 均 disabled/inactive。
-- r7 service 最近成功退出 `0`；facts-only collector → publisher 链路发布 HTTP `201`，输入 hash 与 current hash 一致。
-- 隔离演练归档 SHA `fd5ab2af3c7ad6615d60b943144531c91376c93c5eed55dfe099a238bc376881`，恢复后的 current hash 与源一致；实际执行了 r6↔r7 timer rollback switch 后恢复 r7。
-- 既有 Python runtime archive/checkpoint/restore 幂等测试均通过；旧 `/home/ubuntu/matchline-facts` 未由新 r7 writer 写入。
+- VPS 最终状态只启用 `matchline-research-facts-cycle-r9.timer`；r7/r8、system-level legacy 和 user-level legacy facts timers 均 disabled/inactive。
+- r9 service 最近成功退出 `0`；facts-only collector → publisher 链路发布 HTTP `201`，输入 hash 与 current hash 一致。
+- r9 隔离演练归档 SHA `9609f4f59bc8820382d09e351c48a677cb6b5c11b1273be0ef45eb67d0d5802e`，current 与 raw manifest 恢复后哈希均一致；实际执行了 r8↔r9 timer rollback switch 后恢复 r9。
+- 既有 Python runtime archive/checkpoint/restore 幂等测试均通过；旧 `/home/ubuntu/matchline-facts` 未由新 r9 writer 写入。
 
 ### 7. 验证与发布 — **Unmet（验证通过，Sites/GitHub 最终发布仍受认证阻断）**
 
-- Python 全套：`1516 passed, 72 skipped, 0 failed`；Sites `npm run typecheck` 通过，`npm test` `808 passed, 0 failed`；父/Sites `git diff --check` 通过；r7 systemd units `systemd-analyze verify` 通过。
+- Python 全套：`1516 passed, 72 skipped, 0 failed`；新增 collector/publisher 回归 `22 passed`；Sites `npm run typecheck` 通过，`npm test` `808 passed, 0 failed`；父/Sites `git diff --check` 通过；r9 systemd units `systemd-analyze verify` 通过.
 - VPS 已有真实 facts publish/readback：最新 facts readback HTTP 200，包含 finished OpenLigaDB 案例与 blocked source catalog 案例；formal probabilities false。
-- 父 GitHub 非 main 分支已确认 `c9d43bf`；Sites `9d424d0` 未推送（远端缺 Git 认证），Cloudflare deploy 未执行（token expired/missing）。
+- 父 GitHub 非 main 分支已确认 `18c1bfa`；Sites `9d424d0` 未推送（远端缺 Git 认证），Cloudflare deploy 未执行（token expired/missing）。
 
 ### 8. 交接资料 — **Met**
 
-- 本报告、r2 逐源 JSON/Markdown、r2 probe、facts refresh projection/evidence、prospective evaluation/audit、VPS r7 release/readback、archive/restore/rollback 和机器验证摘要均已写入 `docs/` / `docs/evidence/`。
+- 本报告、r2 逐源 JSON/Markdown、r2 probe、facts refresh projection/evidence、prospective evaluation/audit、VPS r9 release/readback、raw archive/restore/rollback 和机器验证摘要均已写入 `docs/` / `docs/evidence/`。
 - 可复现命令：
   - `PYTHONDONTWRITEBYTECODE=1 .venv/bin/python -m league_platform.source_research --snapshot docs/evidence/source-research-input-2026-09-16-r2.json --probe-evidence docs/evidence/source-probe-evidence-2026-09-16-r2.json --observed-at <probe-response-time> --output-json docs/evidence/source-research-2026-09-16-r2.json --output-markdown docs/source-research-2026-09-16-r2.md`
   - `PYTHONDONTWRITEBYTECODE=1 .venv/bin/python -m pytest -q`
   - `cd matchline_sites && npm run typecheck && npm test`
   - `git diff --check`；`cd matchline_sites && git diff --check`
-- VPS rollback：`sudo systemctl disable --now matchline-research-facts-cycle-r7.timer; sudo systemctl enable --now matchline-research-facts-cycle.timer`。
+- VPS rollback：`sudo systemctl disable --now matchline-research-facts-cycle-r9.timer; sudo systemctl enable --now matchline-research-facts-cycle-r8.timer`。
 
 ## 仍未解决问题
 
 1. Sites 子仓库远端认证缺失，无法推送 `9d424d0`；Cloudflare API token 缺失，无法部署该 Sites 修复。
 2. Sites 子仓库 `9d424d0` 仍未推送；父仓库 `c9d43bf` 已推送并可审阅。
 3. 正式生产门槛仍缺足够 untouched prospective samples、lineup confirmation replay 和独立 market baseline；正式概率必须继续关闭。
-4. 非 OpenFootball 来源尚需逐响应 durable raw archive/可回放证据，或明确接受 display-only hash/projection 边界。
-5. r7 release 已激活 facts-only writer，但 prospective audit 没有由 r7 facts publisher 写入 remote facts；线上 prospective status 因此继续显示 not published/closed，符合不伪造原则。
+4. r9 已完成允许来源逐响应 raw archive；后续新增来源必须先通过同等 rights/host/raw archive gate。
+5. r9 release 已激活 facts-only writer；prospective audit 仍独立于 facts publisher，正式预测未发布，线上 prospective status 继续保持关闭，符合不伪造原则。

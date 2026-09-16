@@ -1,0 +1,1 @@
+{"httpStatus": 201, "input": "/home/ubuntu/matchline-releases/matchline-research-20260916T2000Z-r9/current.json", "inputSha256": "59218600357c088c703604641a2a07977bee88112550b698ff2287da58363379", "openfootball": 2916, "openligadb": 2240, "retrievedAt": "2026-09-16T11:57:32Z", "schema": "matchline.remote.facts.v1", "status": "ok"}
