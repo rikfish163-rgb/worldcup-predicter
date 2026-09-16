@@ -143,11 +143,13 @@
     "raw_archive": {
       "manifest_sha256": "1891af82ca343265b314195d6a9c745e952008f300e21e144fc55035c085a0c0",
       "raw_bytes": 4792065,
-      "record_count": 55
+      "record_count": 55,
+      "summary_path": "docs/evidence/vps-r9-raw-archive-summary-2026-09-16.json",
+      "summary_sha256": "b4736c0679ad50efc7f15b187113ee92f625f8e76e5b6b1eacf50282f7fd0b68"
     },
     "release_id": "matchline-research-20260916T2000Z-r9",
-    "release_manifest": "docs/evidence/vps-release-r9-final-2026-09-16.json",
-    "release_manifest_sha256": "8dd8483cab44dedb1230238295796f0af96f2cd5976b73482ee44505517414b5",
+    "release_manifest": "docs/evidence/vps-release-r9-final-v2-2026-09-16.json",
+    "release_manifest_sha256": "cbf4c299ac8750795c887e16f75dbffb4a3eaba0e0d88061952536c3f9bf6906",
     "source_catalog_readback_sha256": "b449a5c02ed6ab788d8b25431b1e2939206fca6ecc6ae051b29eec038fc0e4c0",
     "source_catalog_unknown_count": 0,
     "weather_observations": 12,

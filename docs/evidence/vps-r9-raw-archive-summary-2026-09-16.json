@@ -1,0 +1,419 @@
+{
+  "blocked_sources_present": false,
+  "integrity_verified": true,
+  "manifest_path": "raw-archive/manifest.jsonl",
+  "manifest_sha256": "1891af82ca343265b314195d6a9c745e952008f300e21e144fc55035c085a0c0",
+  "raw_bytes": 4792065,
+  "record_count": 55,
+  "release_id": "matchline-research-20260916T2000Z-r9",
+  "schema_version": "matchline.vps_raw_archive_summary.v1",
+  "sources": [
+    {
+      "bytes": 478490,
+      "records": 12,
+      "source_id": "met_norway_weather",
+      "unique_raw_hashes": 12,
+      "urls": [
+        "https://api.met.no/weatherapi/locationforecast/2.0/compact?lat=40.4168&lon=-3.7038",
+        "https://api.met.no/weatherapi/locationforecast/2.0/compact?lat=41.1579&lon=-8.6291",
+        "https://api.met.no/weatherapi/locationforecast/2.0/compact?lat=41.9028&lon=12.4964",
+        "https://api.met.no/weatherapi/locationforecast/2.0/compact?lat=45.7640&lon=4.8357",
+        "https://api.met.no/weatherapi/locationforecast/2.0/compact?lat=48.7758&lon=9.1829",
+        "https://api.met.no/weatherapi/locationforecast/2.0/compact?lat=48.8566&lon=2.3522",
+        "https://api.met.no/weatherapi/locationforecast/2.0/compact?lat=51.5074&lon=-0.1278",
+        "https://api.met.no/weatherapi/locationforecast/2.0/compact?lat=51.9244&lon=4.4777",
+        "https://api.met.no/weatherapi/locationforecast/2.0/compact?lat=52.4862&lon=-1.8904",
+        "https://api.met.no/weatherapi/locationforecast/2.0/compact?lat=52.5200&lon=13.4050",
+        "https://api.met.no/weatherapi/locationforecast/2.0/compact?lat=53.4084&lon=-2.9916",
+        "https://api.met.no/weatherapi/locationforecast/2.0/compact?lat=53.4808&lon=-2.2426"
+      ]
+    },
+    {
+      "bytes": 18015,
+      "records": 1,
+      "source_id": "openfootball_current_bundesliga",
+      "unique_raw_hashes": 1,
+      "urls": [
+        "https://raw.githubusercontent.com/openfootball/deutschland/master/2026-27/1-bundesliga.txt"
+      ]
+    },
+    {
+      "bytes": 75671,
+      "records": 1,
+      "source_id": "openfootball_current_championship",
+      "unique_raw_hashes": 1,
+      "urls": [
+        "https://raw.githubusercontent.com/openfootball/football.json/master/2026-27/en.2.json"
+      ]
+    },
+    {
+      "bytes": 17749,
+      "records": 1,
+      "source_id": "openfootball_current_eredivisie",
+      "unique_raw_hashes": 1,
+      "urls": [
+        "https://raw.githubusercontent.com/openfootball/europe/master/netherlands/2026-27_nl1.txt"
+      ]
+    },
+    {
+      "bytes": 23221,
+      "records": 1,
+      "source_id": "openfootball_current_la_liga",
+      "unique_raw_hashes": 1,
+      "urls": [
+        "https://raw.githubusercontent.com/openfootball/espana/master/2026-27/1-liga.txt"
+      ]
+    },
+    {
+      "bytes": 17969,
+      "records": 1,
+      "source_id": "openfootball_current_ligue_1",
+      "unique_raw_hashes": 1,
+      "urls": [
+        "https://raw.githubusercontent.com/openfootball/europe/master/france/2026-27_fr1.txt"
+      ]
+    },
+    {
+      "bytes": 54565,
+      "records": 1,
+      "source_id": "openfootball_current_premier_league",
+      "unique_raw_hashes": 1,
+      "urls": [
+        "https://raw.githubusercontent.com/openfootball/football.json/master/2026-27/en.1.json"
+      ]
+    },
+    {
+      "bytes": 18853,
+      "records": 1,
+      "source_id": "openfootball_current_primeira_liga",
+      "unique_raw_hashes": 1,
+      "urls": [
+        "https://raw.githubusercontent.com/openfootball/europe/master/portugal/2026-27_pt1.txt"
+      ]
+    },
+    {
+      "bytes": 21362,
+      "records": 1,
+      "source_id": "openfootball_current_serie_a",
+      "unique_raw_hashes": 1,
+      "urls": [
+        "https://raw.githubusercontent.com/openfootball/italy/master/2026-27/1-seriea.txt"
+      ]
+    },
+    {
+      "bytes": 21263,
+      "records": 1,
+      "source_id": "openfootball_history_bundesliga_2023_24",
+      "unique_raw_hashes": 1,
+      "urls": [
+        "https://raw.githubusercontent.com/openfootball/deutschland/master/2023-24/1-bundesliga.txt"
+      ]
+    },
+    {
+      "bytes": 24497,
+      "records": 1,
+      "source_id": "openfootball_history_bundesliga_2024_25",
+      "unique_raw_hashes": 1,
+      "urls": [
+        "https://raw.githubusercontent.com/openfootball/deutschland/master/2024-25/1-bundesliga.txt"
+      ]
+    },
+    {
+      "bytes": 45729,
+      "records": 1,
+      "source_id": "openfootball_history_bundesliga_2025_26",
+      "unique_raw_hashes": 1,
+      "urls": [
+        "https://raw.githubusercontent.com/openfootball/deutschland/master/2025-26/1-bundesliga.txt"
+      ]
+    },
+    {
+      "bytes": 37830,
+      "records": 1,
+      "source_id": "openfootball_history_championship_2023_24",
+      "unique_raw_hashes": 1,
+      "urls": [
+        "https://raw.githubusercontent.com/openfootball/england/master/2023-24/2-championship.txt"
+      ]
+    },
+    {
+      "bytes": 43948,
+      "records": 1,
+      "source_id": "openfootball_history_championship_2024_25",
+      "unique_raw_hashes": 1,
+      "urls": [
+        "https://raw.githubusercontent.com/openfootball/england/master/2024-25/2-championship.txt"
+      ]
+    },
+    {
+      "bytes": 43513,
+      "records": 1,
+      "source_id": "openfootball_history_championship_2025_26",
+      "unique_raw_hashes": 1,
+      "urls": [
+        "https://raw.githubusercontent.com/openfootball/england/master/2025-26/2-championship.txt"
+      ]
+    },
+    {
+      "bytes": 24509,
+      "records": 1,
+      "source_id": "openfootball_history_eredivisie_2023_24",
+      "unique_raw_hashes": 1,
+      "urls": [
+        "https://raw.githubusercontent.com/openfootball/europe/master/netherlands/2023-24_nl1.txt"
+      ]
+    },
+    {
+      "bytes": 24670,
+      "records": 1,
+      "source_id": "openfootball_history_eredivisie_2024_25",
+      "unique_raw_hashes": 1,
+      "urls": [
+        "https://raw.githubusercontent.com/openfootball/europe/master/netherlands/2024-25_nl1.txt"
+      ]
+    },
+    {
+      "bytes": 24529,
+      "records": 1,
+      "source_id": "openfootball_history_eredivisie_2025_26",
+      "unique_raw_hashes": 1,
+      "urls": [
+        "https://raw.githubusercontent.com/openfootball/europe/master/netherlands/2025-26_nl1.txt"
+      ]
+    },
+    {
+      "bytes": 25830,
+      "records": 1,
+      "source_id": "openfootball_history_la_liga_2023_24",
+      "unique_raw_hashes": 1,
+      "urls": [
+        "https://raw.githubusercontent.com/openfootball/espana/master/2023-24/1-liga.txt"
+      ]
+    },
+    {
+      "bytes": 30996,
+      "records": 1,
+      "source_id": "openfootball_history_la_liga_2024_25",
+      "unique_raw_hashes": 1,
+      "urls": [
+        "https://raw.githubusercontent.com/openfootball/espana/master/2024-25/1-liga.txt"
+      ]
+    },
+    {
+      "bytes": 50394,
+      "records": 1,
+      "source_id": "openfootball_history_la_liga_2025_26",
+      "unique_raw_hashes": 1,
+      "urls": [
+        "https://raw.githubusercontent.com/openfootball/espana/master/2025-26/1-liga.txt"
+      ]
+    },
+    {
+      "bytes": 24525,
+      "records": 1,
+      "source_id": "openfootball_history_ligue_1_2023_24",
+      "unique_raw_hashes": 1,
+      "urls": [
+        "https://raw.githubusercontent.com/openfootball/europe/master/france/2023-24_fr1.txt"
+      ]
+    },
+    {
+      "bytes": 24519,
+      "records": 1,
+      "source_id": "openfootball_history_ligue_1_2024_25",
+      "unique_raw_hashes": 1,
+      "urls": [
+        "https://raw.githubusercontent.com/openfootball/europe/master/france/2024-25_fr1.txt"
+      ]
+    },
+    {
+      "bytes": 41179,
+      "records": 1,
+      "source_id": "openfootball_history_ligue_1_2025_26",
+      "unique_raw_hashes": 1,
+      "urls": [
+        "https://raw.githubusercontent.com/openfootball/europe/master/france/2025-26_fr1.txt"
+      ]
+    },
+    {
+      "bytes": 26357,
+      "records": 1,
+      "source_id": "openfootball_history_premier_league_2023_24",
+      "unique_raw_hashes": 1,
+      "urls": [
+        "https://raw.githubusercontent.com/openfootball/england/master/2023-24/1-premierleague.txt"
+      ]
+    },
+    {
+      "bytes": 30316,
+      "records": 1,
+      "source_id": "openfootball_history_premier_league_2024_25",
+      "unique_raw_hashes": 1,
+      "urls": [
+        "https://raw.githubusercontent.com/openfootball/england/master/2024-25/1-premierleague.txt"
+      ]
+    },
+    {
+      "bytes": 51782,
+      "records": 1,
+      "source_id": "openfootball_history_premier_league_2025_26",
+      "unique_raw_hashes": 1,
+      "urls": [
+        "https://raw.githubusercontent.com/openfootball/england/master/2025-26/1-premierleague.txt"
+      ]
+    },
+    {
+      "bytes": 25093,
+      "records": 1,
+      "source_id": "openfootball_history_primeira_liga_2023_24",
+      "unique_raw_hashes": 1,
+      "urls": [
+        "https://raw.githubusercontent.com/openfootball/europe/master/portugal/2023-24_pt1.txt"
+      ]
+    },
+    {
+      "bytes": 25019,
+      "records": 1,
+      "source_id": "openfootball_history_primeira_liga_2024_25",
+      "unique_raw_hashes": 1,
+      "urls": [
+        "https://raw.githubusercontent.com/openfootball/europe/master/portugal/2024-25_pt1.txt"
+      ]
+    },
+    {
+      "bytes": 25060,
+      "records": 1,
+      "source_id": "openfootball_history_primeira_liga_2025_26",
+      "unique_raw_hashes": 1,
+      "urls": [
+        "https://raw.githubusercontent.com/openfootball/europe/master/portugal/2025-26_pt1.txt"
+      ]
+    },
+    {
+      "bytes": 25022,
+      "records": 1,
+      "source_id": "openfootball_history_serie_a_2023_24",
+      "unique_raw_hashes": 1,
+      "urls": [
+        "https://raw.githubusercontent.com/openfootball/italy/master/2023-24/1-seriea.txt"
+      ]
+    },
+    {
+      "bytes": 30442,
+      "records": 1,
+      "source_id": "openfootball_history_serie_a_2024_25",
+      "unique_raw_hashes": 1,
+      "urls": [
+        "https://raw.githubusercontent.com/openfootball/italy/master/2024-25/1-seriea.txt"
+      ]
+    },
+    {
+      "bytes": 46098,
+      "records": 1,
+      "source_id": "openfootball_history_serie_a_2025_26",
+      "unique_raw_hashes": 1,
+      "urls": [
+        "https://raw.githubusercontent.com/openfootball/italy/master/2025-26/1-seriea.txt"
+      ]
+    },
+    {
+      "bytes": 278640,
+      "records": 1,
+      "source_id": "openligadb_secondary_results",
+      "unique_raw_hashes": 1,
+      "urls": [
+        "https://api.openligadb.de/getmatchdata/bl1/2026"
+      ]
+    },
+    {
+      "bytes": 306793,
+      "records": 1,
+      "source_id": "openligadb_secondary_results_bl2",
+      "unique_raw_hashes": 1,
+      "urls": [
+        "https://api.openligadb.de/getmatchdata/bl2/2026"
+      ]
+    },
+    {
+      "bytes": 398484,
+      "records": 1,
+      "source_id": "openligadb_secondary_results_bl3",
+      "unique_raw_hashes": 1,
+      "urls": [
+        "https://api.openligadb.de/getmatchdata/bl3/2026"
+      ]
+    },
+    {
+      "bytes": 90680,
+      "records": 1,
+      "source_id": "openligadb_secondary_results_dfb",
+      "unique_raw_hashes": 1,
+      "urls": [
+        "https://api.openligadb.de/getmatchdata/dfb/2026"
+      ]
+    },
+    {
+      "bytes": 396124,
+      "records": 1,
+      "source_id": "openligadb_secondary_results_la1",
+      "unique_raw_hashes": 1,
+      "urls": [
+        "https://api.openligadb.de/getmatchdata/la1/2026"
+      ]
+    },
+    {
+      "bytes": 41659,
+      "records": 1,
+      "source_id": "openligadb_secondary_results_nla",
+      "unique_raw_hashes": 1,
+      "urls": [
+        "https://api.openligadb.de/getmatchdata/nla/2026"
+      ]
+    },
+    {
+      "bytes": 920727,
+      "records": 1,
+      "source_id": "openligadb_secondary_results_pl",
+      "unique_raw_hashes": 1,
+      "urls": [
+        "https://api.openligadb.de/getmatchdata/pl/2026"
+      ]
+    },
+    {
+      "bytes": 444646,
+      "records": 1,
+      "source_id": "openligadb_secondary_results_ucl",
+      "unique_raw_hashes": 1,
+      "urls": [
+        "https://api.openligadb.de/getmatchdata/ucl/2026"
+      ]
+    },
+    {
+      "bytes": 205810,
+      "records": 1,
+      "source_id": "openligadb_secondary_results_uel2026",
+      "unique_raw_hashes": 1,
+      "urls": [
+        "https://api.openligadb.de/getmatchdata/uel2026/2026"
+      ]
+    },
+    {
+      "bytes": 207502,
+      "records": 1,
+      "source_id": "openligadb_secondary_results_wm26",
+      "unique_raw_hashes": 1,
+      "urls": [
+        "https://api.openligadb.de/getmatchdata/wm26/2026"
+      ]
+    },
+    {
+      "bytes": 1985,
+      "records": 1,
+      "source_id": "wikidata_entities",
+      "unique_raw_hashes": 1,
+      "urls": [
+        "https://www.wikidata.org/w/api.php?action=wbsearchentities&search=Bundesliga&language=en&format=json&limit=4"
+      ]
+    }
+  ]
+}

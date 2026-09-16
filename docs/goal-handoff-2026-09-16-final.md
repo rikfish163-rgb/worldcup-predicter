@@ -18,13 +18,14 @@
 | 逐源 Markdown | `docs/source-research-2026-09-16-r2.md` | `6b8ef0d6d238a1cb2dcc2f7aeb98d3c7d47e9f255033a6568a9d52c478827e52` |
 | r2 probes | `docs/evidence/source-probe-evidence-2026-09-16-r2.json` | `a48fbec92745ae8a2434e48eab1e753475f3a2095af94c9765eaea6c7064755c` |
 | 本地真实 facts refresh | `docs/evidence/facts-refresh-evidence-2026-09-16.json`、`facts-refresh-projection-2026-09-16.json` | `56157dead0506b9b6e15ec59cead14989ce441c7313570121f79ad6d071e0b2b` / `04fabb78cb553104fa39529227ec7015c1f72e84c5f38f574b5d8926db0bfcc8` |
-| VPS r9 release | `docs/evidence/vps-release-r9-final-2026-09-16.json` | `8dd8483cab44dedb1230238295796f0af96f2cd5976b73482ee44505517414b5` |
+| VPS r9 release | `docs/evidence/vps-release-r9-final-v2-2026-09-16.json` | `cbf4c299ac8750795c887e16f75dbffb4a3eaba0e0d88061952536c3f9bf6906` |
 | VPS facts readback | `docs/evidence/vps-r9-facts-readback-2026-09-16.json` | `576a617e7d29253cbdd5d0c1dae9ca334d16dccee79d55c6a7e42ee81f4c0fc5` |
+| VPS raw archive summary | `docs/evidence/vps-r9-raw-archive-summary-2026-09-16.json` | `b4736c0679ad50efc7f15b187113ee92f625f8e76e5b6b1eacf50282f7fd0b68`；55 receipts；4,792,065 bytes |
 | VPS source catalog readback | `docs/evidence/vps-r9-source-catalog-readback-2026-09-16.json` | `b449a5c02ed6ab788d8b25431b1e2939206fca6ecc6ae051b29eec038fc0e4c0`；unknown `0` |
 | VPS raw archive/restore/rollback | `docs/evidence/vps-r9-archive-restore-rollback-2026-09-16.json` | `8a507ae7228986ae027ce72defb06ceb95835ba987b1f026a09c30833dd9f866`；55 receipts；restore match `True`；upload HTTP `201` |
 | 前瞻评估 | `docs/evidence/prospective-evaluation-runtime-only-2026-09-16.json` | `2939bbf5eae7d95c70f8cfd6152b030faf8712ec0f2230eca9a5eec3c3d62b36` |
 | 评分审计 | `docs/evidence/prospective-audit-scored-2026-09-16.json` | `83b0518849ea5ab6055978b87aef7f4b72f1980247767887b5711c0cf7248df7` |
-| 机器验证摘要 | `docs/evidence/verification-summary-2026-09-16.json` | `58920b2689e18cfc9d458d5de25ad73d3093a0f06321c0cb7dca9bb61a5735c7` |
+| 机器验证摘要 | `docs/evidence/verification-summary-2026-09-16.json` | `e6c35bfd3e03105d5baeb837018ff77217a601465c65843e8d75be19b8811dd0` |
 
 ## Acceptance criteria 逐条验收
 
@@ -86,7 +87,7 @@
 
 ### 2. 可用来源真实接入 — **Met**
 
-- r9 生产 collector 对允许的 OpenFootball 当前/历史、OpenLigaDB 十个 allowlisted 赛事、Wikidata 和 MET Norway 成功响应写入独立 `raw-archive/`；共 `55` 条 receipt、`4,792,065` bytes，逐条 object hash、大小、路径和 manifest 均已验证。
+- r9 生产 collector 对允许的 OpenFootball 当前/历史、OpenLigaDB 十个 allowlisted 赛事、Wikidata 和 MET Norway 成功响应写入独立 `raw-archive/`；共 `55` 条 receipt、`4,792,065` bytes，逐条 object hash、大小、路径和 manifest 均已验证；按来源汇总见 `vps-r9-raw-archive-summary-2026-09-16.json`。
 - 同一批响应被解析成 `2916` 条当前 OpenFootball、`8763` 条历史 OpenFootball、`2240` 条 OpenLigaDB、`4` 个 Wikidata、`12` 条 MET facts，并以 facts-only envelope HTTP 201 发布；线上 readback HTTP 200 的 as-of/hash 与 r9 一致。
 - OpenLigaDB 仍是隔离 display/post-match lane，Wikidata/MET 按各自 attribution/model eligibility 投影；22 项 collector/publisher 回归覆盖 raw archive 幂等、允许来源存档和受限来源零网络。
 
