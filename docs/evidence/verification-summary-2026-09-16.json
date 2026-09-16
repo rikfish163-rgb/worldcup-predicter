@@ -1,0 +1,150 @@
+{
+  "commits": {
+    "parent_github_remote_observed": "a53902ed17799c675e2d668bbd6891b543eba147",
+    "parent_local": "d30456c1450c39cc2a033ee5d5a1d8b4d3679348",
+    "sites_local": "9d424d0e9a3dc6c2dfac02ca0696356f08625ed9",
+    "sites_remote": "not_verified_missing_git_auth"
+  },
+  "goal_artifact": ".pi/goal/完成-matchline-研究闭环并建立合规数据源抓取能力-20260916-0219.md",
+  "observed_at": "2026-09-16T11:38:36.776930+00:00",
+  "prospective": {
+    "evaluation": "docs/evidence/prospective-evaluation-runtime-only-2026-09-16.json",
+    "evaluation_sha256": "2939bbf5eae7d95c70f8cfd6152b030faf8712ec0f2230eca9a5eec3c3d62b36",
+    "model_version_sha256": "357a2d4c1082552ef8515e4fee327e75243f5dca4aa69d0047b4ffba32fef584",
+    "pending_n": 180,
+    "prediction_freezes_verified": false,
+    "production_allowed": false,
+    "promotion_eligible": false,
+    "public_readback_gate": {
+      "allRequiredTargetsScored": null,
+      "modelVersionSha256": null,
+      "pendingN": null,
+      "predictionFreezesVerified": false,
+      "productionAllowed": false,
+      "resultConflicts": null,
+      "sampleRequirementsMet": null,
+      "scoredN": null,
+      "selectionGateStatus": "not_published_to_remote_facts",
+      "status": "not_published_to_remote_facts"
+    },
+    "public_readback_status": "remote_facts",
+    "result_admission_clean": false,
+    "result_conflicts": 0,
+    "results_not_used_for_selection": true,
+    "sample_requirements_met": false,
+    "scored_audit": "docs/evidence/prospective-audit-scored-2026-09-16.json",
+    "scored_audit_sha256": "83b0518849ea5ab6055978b87aef7f4b72f1980247767887b5711c0cf7248df7",
+    "scored_n": 158,
+    "target_metrics": {
+      "half_full": {
+        "log_loss": 1.9963039538900607,
+        "log_loss_ci": {
+          "level": 0.95,
+          "lower": 1.8620010338901762,
+          "mean": 1.9963039538900607,
+          "upper": 2.143052982192067
+        },
+        "sample_n": 144
+      },
+      "scoreline": {
+        "log_loss": 3.2783370695636336,
+        "log_loss_ci": {
+          "level": 0.95,
+          "lower": 3.104167922986745,
+          "mean": 3.2783370695636336,
+          "upper": 3.4514036470455505
+        },
+        "sample_n": 158,
+        "top5_hit": 0.3670886075949367
+      },
+      "three_way": {
+        "brier": 0.6755932108492435,
+        "ece": 0.13358338728172808,
+        "log_loss": 1.1188656582232166,
+        "log_loss_ci": {
+          "level": 0.95,
+          "lower": 1.048768204748016,
+          "mean": 1.1188656582232166,
+          "upper": 1.1952204578164727
+        },
+        "rps": 0.2336523288770993,
+        "sample_n": 158
+      },
+      "total_goals": {
+        "log_loss": 1.8581611888403249,
+        "log_loss_ci": {
+          "level": 0.95,
+          "lower": 1.772414210805834,
+          "mean": 1.8581611888403249,
+          "upper": 1.9532505829353577
+        },
+        "sample_n": 158
+      }
+    }
+  },
+  "runtime_reliability": {
+    "archive_sha256": "fd5ab2af3c7ad6615d60b943144531c91376c93c5eed55dfe099a238bc376881",
+    "drill": "docs/evidence/vps-r7-archive-restore-rollback-2026-09-16.json",
+    "drill_sha256": "003fa198cccf9d90b42928a0ffb7673a8efac0e10fd9e09b9d49db9835f25ec2",
+    "restore_matches_source": true,
+    "rollback": "sudo systemctl disable --now matchline-research-facts-cycle-r7.timer; sudo systemctl enable --now matchline-research-facts-cycle.timer",
+    "single_writer_status": "systemd r7 timer active; system/user legacy facts timers disabled",
+    "upload_http_status": 201
+  },
+  "schema_version": "matchline.goal_verification.v1",
+  "source_research": {
+    "markdown": "docs/source-research-2026-09-16-r2.md",
+    "markdown_sha256": "6b8ef0d6d238a1cb2dcc2f7aeb98d3c7d47e9f255033a6568a9d52c478827e52",
+    "probe": "docs/evidence/source-probe-evidence-2026-09-16-r2.json",
+    "probe_sha256": "a48fbec92745ae8a2434e48eab1e753475f3a2095af94c9765eaea6c7064755c",
+    "report": "docs/evidence/source-research-2026-09-16-r2.json",
+    "report_sha256": "ea283846a64b3af5b2df3698fcb7645c8a5c8f4d2cca5a36ba40c7a14dc1118c",
+    "source_count": 47,
+    "unknown_values_rejected_by_validator": true
+  },
+  "tests": {
+    "parent_git_diff_check": "passed for staged Matchline submission",
+    "python_full": "PYTHONDONTWRITEBYTECODE=1 .venv/bin/python -m pytest -q",
+    "python_full_failed": 0,
+    "python_full_passed": 1516,
+    "python_full_skipped": 72,
+    "sites_full": "npm test",
+    "sites_full_failed": 0,
+    "sites_full_passed": 808,
+    "sites_git_diff_check": "passed",
+    "sites_typecheck": "npm run typecheck",
+    "sites_typecheck_status": "passed",
+    "systemd_verify": "passed for deployed r7 units"
+  },
+  "vps_facts": {
+    "blocked_source_ids": [
+      "football_data_current_e0",
+      "football_data_current_e1",
+      "football_data_current_d1",
+      "football_data_current_sp1",
+      "football_data_current_i1",
+      "football_data_current_f1",
+      "football_data_current_n1",
+      "football_data_current_p1",
+      "espn_public_api",
+      "sofascore_public_api"
+    ],
+    "current_sha256": "032ed049d7c222fed3b07a12e3dea5f8d347e59f91b34b67f015498dbbe7eb92",
+    "facts_readback_sha256": "b36eccddaab89177cb510b7bb5652b3d177744ceaae41d587d2fb788a57b430b",
+    "facts_retrieved_at": "2026-09-16T11:17:43Z",
+    "odds_in_payload": 0,
+    "openfootball_history_matches": 8763,
+    "openfootball_matches": 2916,
+    "openligadb_matches": 2240,
+    "predictions_in_payload": 0,
+    "publish_http_status": 201,
+    "publish_input_sha256": "032ed049d7c222fed3b07a12e3dea5f8d347e59f91b34b67f015498dbbe7eb92",
+    "release_id": "matchline-research-20260916T1125Z-r7",
+    "release_manifest": "docs/evidence/vps-release-r7-final-2026-09-16.json",
+    "release_manifest_sha256": "29f0ca97a27d15e6c97fca40df95b0bb32e3c8550ab5b7cf9753a5d9719b48af",
+    "source_catalog_readback_sha256": "7208e2b7f5afa7666ce4fc3bc3b4ff9fc50bef77bc44dc1f63aeba9ea51460b3",
+    "source_catalog_unknown_count": 0,
+    "weather_observations": 12,
+    "wikidata_entities": 4
+  }
+}

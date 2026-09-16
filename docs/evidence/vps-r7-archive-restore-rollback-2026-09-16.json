@@ -1,0 +1,43 @@
+{
+  "after_restore_state": {
+    "r6_active": false,
+    "r6_enabled": false,
+    "r7_active": true,
+    "r7_enabled": true
+  },
+  "archive_bytes": 683661,
+  "archive_file": "r7-current.tar.gz",
+  "archive_sha256": "fd5ab2af3c7ad6615d60b943144531c91376c93c5eed55dfe099a238bc376881",
+  "before": {
+    "matchline-research-facts-cycle-r7.timer": {
+      "active": true,
+      "enabled": true
+    },
+    "matchline-research-facts-cycle.timer": {
+      "active": false,
+      "enabled": false
+    }
+  },
+  "old_facts_sha256": "94ca5ac094cf680c47a84ee758b27fbeb6e5da0ad20847d17e9dd6156c23204e",
+  "release_id": "matchline-research-20260916T1125Z-r7",
+  "restore_matches_source": true,
+  "restored_current_sha256": "032ed049d7c222fed3b07a12e3dea5f8d347e59f91b34b67f015498dbbe7eb92",
+  "rollback_state": {
+    "r6_active": true,
+    "r6_enabled": true,
+    "r7_active": false,
+    "r7_enabled": false
+  },
+  "schema_version": "matchline.vps_archive_restore_rollback_drill.v1",
+  "source_current_sha256": "032ed049d7c222fed3b07a12e3dea5f8d347e59f91b34b67f015498dbbe7eb92",
+  "upload_ack": {
+    "httpStatus": 201,
+    "input": "/home/ubuntu/matchline-releases/matchline-research-20260916T1125Z-r7/current.json",
+    "inputSha256": "032ed049d7c222fed3b07a12e3dea5f8d347e59f91b34b67f015498dbbe7eb92",
+    "openfootball": 2916,
+    "openligadb": 2240,
+    "retrievedAt": "2026-09-16T11:17:43Z",
+    "schema": "matchline.remote.facts.v1",
+    "status": "ok"
+  }
+}

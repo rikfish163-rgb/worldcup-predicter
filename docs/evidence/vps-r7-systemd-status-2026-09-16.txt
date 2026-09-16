@@ -1,0 +1,8 @@
+system:matchline-research-facts-cycle-r7.timer enabled=true active=true
+system:matchline-research-facts-cycle-r7.service enabled=true active=false
+system:matchline-research-facts-cycle.timer enabled=false active=false
+system:matchline-facts-collector.timer enabled=false active=false
+system:matchline-facts-publisher.timer enabled=false active=false
+user:matchline-facts-collector.timer enabled=false active=false
+user:matchline-facts-publisher.timer enabled=false active=false
+user:matchline-facts.timer enabled=false active=false

@@ -1,0 +1,542 @@
+{
+  "schema_version": "1.0.0",
+  "generated_at": "2026-09-15T21:02:14.398355+00:00",
+  "prediction_archive": "/dev/shm/matchline-live-runtime/prospective_predictions.jsonl",
+  "snapshot_archive": "/dev/shm/matchline-live-runtime/archive",
+  "status": "pending_prospective_window",
+  "scored_n": 158,
+  "pending_n": 180,
+  "archive_conflicts": 0,
+  "legacy_model_records": 848,
+  "superseded_model_records": 769,
+  "stale_lock_records": 79,
+  "result_conflicts": 0,
+  "result_conflict_predictions": 0,
+  "result_admission": {
+    "snapshots_checked": 1361,
+    "candidate_rows": 135159,
+    "admitted_rows": 86754,
+    "quarantined_rows": 42899,
+    "excluded_display_only_rows": 5506,
+    "verified_archive_replays": 3662,
+    "quarantine_reasons": {
+      "openfootball_archive_verification_failed": 742,
+      "provider_not_openfootball": 42157
+    },
+    "exclusion_reasons": {
+      "openligadb_display_only": 5506
+    }
+  },
+  "result_admission_clean": false,
+  "result_invalid_snapshots": 0,
+  "invalid_records": [],
+  "target_metrics": {
+    "three_way": {
+      "sample_n": 158,
+      "brier": 0.6755932108492435,
+      "log_loss": 1.1188656582232166,
+      "rps": 0.2336523288770993,
+      "ece": 0.13358338728172808,
+      "log_loss_ci": {
+        "mean": 1.1188656582232166,
+        "lower": 1.048768204748016,
+        "upper": 1.1952204578164727,
+        "level": 0.95
+      }
+    },
+    "total_goals": {
+      "sample_n": 158,
+      "log_loss": 1.8581611888403249,
+      "log_loss_ci": {
+        "mean": 1.8581611888403249,
+        "lower": 1.772414210805834,
+        "upper": 1.9532505829353577,
+        "level": 0.95
+      }
+    },
+    "scoreline": {
+      "sample_n": 158,
+      "log_loss": 3.2783370695636336,
+      "log_loss_ci": {
+        "mean": 3.2783370695636336,
+        "lower": 3.104167922986745,
+        "upper": 3.4514036470455505,
+        "level": 0.95
+      },
+      "top5_hit": 0.3670886075949367
+    },
+    "half_full": {
+      "sample_n": 144,
+      "log_loss": 1.9963039538900607,
+      "log_loss_ci": {
+        "mean": 1.9963039538900607,
+        "lower": 1.8620010338901762,
+        "upper": 2.143052982192067,
+        "level": 0.95
+      }
+    }
+  },
+  "league_target_counts": {
+    "bundesliga": {
+      "three_way": 26,
+      "total_goals": 26,
+      "scoreline": 26,
+      "half_full": 23
+    },
+    "serie-a": {
+      "three_way": 27,
+      "total_goals": 27,
+      "scoreline": 27,
+      "half_full": 27
+    },
+    "la-liga": {
+      "three_way": 27,
+      "total_goals": 27,
+      "scoreline": 27,
+      "half_full": 24
+    },
+    "premier-league": {
+      "three_way": 28,
+      "total_goals": 28,
+      "scoreline": 28,
+      "half_full": 22
+    },
+    "ligue-1": {
+      "three_way": 18,
+      "total_goals": 18,
+      "scoreline": 18,
+      "half_full": 18
+    },
+    "championship": {
+      "three_way": 32,
+      "total_goals": 32,
+      "scoreline": 32,
+      "half_full": 30
+    }
+  },
+  "target_sample_requirements": {
+    "three_way": {
+      "sample_n": 158,
+      "minimum_n": 1000,
+      "shortfall_n": 842,
+      "met": false
+    },
+    "total_goals": {
+      "sample_n": 158,
+      "minimum_n": 1000,
+      "shortfall_n": 842,
+      "met": false
+    },
+    "half_full": {
+      "sample_n": 144,
+      "minimum_n": 1000,
+      "shortfall_n": 856,
+      "met": false
+    },
+    "scoreline": {
+      "sample_n": 158,
+      "minimum_n": 5000,
+      "shortfall_n": 4842,
+      "met": false
+    }
+  },
+  "sample_thresholds": {
+    "three_way": 1000,
+    "total_goals": 1000,
+    "half_full": 1000,
+    "scoreline": 5000
+  },
+  "market_baseline_available": false,
+  "market_baseline_status": "unavailable_no_independent_market_baseline",
+  "market_baseline_sample_n": 0,
+  "results_not_used_for_selection": true,
+  "sample_requirements_met": false,
+  "all_required_targets_scored": true,
+  "prediction_freezes_verified": false,
+  "production_allowed": false,
+  "promotion_eligible": false,
+  "freeze_stage_counts": {
+    "openfootball:bundesliga:72a51641d41799204d13603c": [
+      "t_minus_6h",
+      "t_minus_90m"
+    ],
+    "openfootball:serie-a:72351b4ea44a678b3f46c89e": [
+      "t_minus_6h",
+      "t_minus_90m"
+    ],
+    "openfootball:la-liga:3a6b4fb136634c475cd663cb": [
+      "t_minus_6h",
+      "t_minus_90m"
+    ],
+    "openfootball:premier-league:3902e47f0e916d80f6ce3aa4": [
+      "t_minus_6h",
+      "t_minus_90m"
+    ],
+    "openfootball:ligue-1:fb2c713c6d19fca8d1086ef7": [
+      "t_minus_6h",
+      "t_minus_90m"
+    ],
+    "openfootball:serie-a:9dc47246dc0615688a21f4d4": [
+      "t_minus_24h",
+      "t_minus_6h",
+      "t_minus_90m"
+    ],
+    "openfootball:bundesliga:1d2f94b98dc575cae00d7a1a": [
+      "t_minus_24h",
+      "t_minus_6h",
+      "t_minus_90m"
+    ],
+    "openfootball:bundesliga:6c3599f8ae8c07788f08fcd5": [
+      "t_minus_24h",
+      "t_minus_6h",
+      "t_minus_90m"
+    ],
+    "openfootball:bundesliga:abf6d081510f90756fefdf8b": [
+      "t_minus_24h",
+      "t_minus_6h",
+      "t_minus_90m"
+    ],
+    "openfootball:bundesliga:c5e9fb65e8329a76c32c0a2a": [
+      "t_minus_24h",
+      "t_minus_6h",
+      "t_minus_90m"
+    ],
+    "openfootball:bundesliga:df54a9fff99f5755b95493a0": [
+      "t_minus_24h",
+      "t_minus_6h",
+      "t_minus_90m"
+    ],
+    "openfootball:championship:0801b6600c8356e09899f717": [
+      "t_minus_24h",
+      "t_minus_6h",
+      "t_minus_90m"
+    ],
+    "openfootball:championship:2287c9244aed4b3b035299c8": [
+      "t_minus_24h",
+      "t_minus_6h",
+      "t_minus_90m"
+    ],
+    "openfootball:championship:74c81d0ccff05a98cb28a60e": [
+      "t_minus_24h",
+      "t_minus_6h",
+      "t_minus_90m"
+    ],
+    "openfootball:championship:8d8e6f0e533e4a9f503510d2": [
+      "t_minus_24h",
+      "t_minus_6h",
+      "t_minus_90m"
+    ],
+    "openfootball:championship:bdcd5386b379e14eb273bb54": [
+      "t_minus_24h",
+      "t_minus_6h",
+      "t_minus_90m"
+    ],
+    "openfootball:championship:fca128a993a34a7ab24d20e2": [
+      "t_minus_24h",
+      "t_minus_6h",
+      "t_minus_90m"
+    ],
+    "openfootball:championship:fdd143e7c256814a76bd0835": [
+      "t_minus_24h",
+      "t_minus_6h",
+      "t_minus_90m"
+    ],
+    "openfootball:premier-league:138778bf2b4cd424d8809f10": [
+      "t_minus_24h",
+      "t_minus_6h",
+      "t_minus_90m"
+    ],
+    "openfootball:premier-league:25124cbd9249fe99dd9aa39c": [
+      "t_minus_24h",
+      "t_minus_6h",
+      "t_minus_90m"
+    ],
+    "openfootball:premier-league:9aceb2dfdd33c85580ed4b2b": [
+      "t_minus_24h",
+      "t_minus_6h",
+      "t_minus_90m"
+    ],
+    "openfootball:premier-league:9c416b3e1d68d854e9fa1e9b": [
+      "t_minus_24h",
+      "t_minus_6h",
+      "t_minus_90m"
+    ],
+    "openfootball:premier-league:f57bbac428ac3ceef2848027": [
+      "t_minus_24h",
+      "t_minus_6h",
+      "t_minus_90m"
+    ],
+    "openfootball:la-liga:ed7010d7129af7ec149a24e4": [
+      "t_minus_24h",
+      "t_minus_6h",
+      "t_minus_90m"
+    ],
+    "openfootball:ligue-1:f1e4c21b9d8f3ac6fc34bfe4": [
+      "t_minus_24h",
+      "t_minus_6h",
+      "t_minus_90m"
+    ],
+    "openfootball:ligue-1:1f91e19a656c8a0468cac991": [
+      "t_minus_90m"
+    ],
+    "openfootball:serie-a:72f086bced87802507c46a98": [
+      "t_minus_24h",
+      "t_minus_6h",
+      "t_minus_90m"
+    ],
+    "openfootball:bundesliga:46aaabdccf18cc9e2ded489f": [
+      "t_minus_24h",
+      "t_minus_6h",
+      "t_minus_90m"
+    ],
+    "openfootball:la-liga:26042f5dd5aa325c77d1fb74": [
+      "t_minus_24h",
+      "t_minus_6h",
+      "t_minus_90m"
+    ],
+    "openfootball:premier-league:18df11464e922b2ac0a1e4de": [
+      "t_minus_24h",
+      "t_minus_6h",
+      "t_minus_90m"
+    ],
+    "openfootball:ligue-1:085f68230572442a96a36ca5": [
+      "t_minus_24h",
+      "t_minus_6h"
+    ],
+    "openfootball:ligue-1:0cd0fbec0bef2c6ad0a381c6": [
+      "t_minus_24h",
+      "t_minus_6h"
+    ],
+    "openfootball:serie-a:8894b8ad72e5ca1a1af6062d": [
+      "t_minus_24h",
+      "t_minus_6h"
+    ],
+    "openfootball:championship:dca1f3687e2e7a3f5546f123": [
+      "t_minus_24h",
+      "t_minus_6h"
+    ],
+    "openfootball:la-liga:e8cfa9de9dd896ebd3e438cc": [
+      "t_minus_24h",
+      "t_minus_6h"
+    ],
+    "openfootball:championship:868bcd9e81e83ade39abf697": [
+      "t_minus_6h",
+      "t_minus_90m"
+    ],
+    "openfootball:championship:9c9338006a55c0d07dd4fcac": [
+      "t_minus_6h",
+      "t_minus_90m"
+    ],
+    "openfootball:championship:cf46517d04cdd14262328d72": [
+      "t_minus_6h",
+      "t_minus_90m"
+    ],
+    "openfootball:premier-league:fab4cf7d3700272dc2a6f316": [
+      "t_minus_6h",
+      "t_minus_90m"
+    ],
+    "openfootball:championship:dc77abea8a4d64d4457be2c3": [
+      "t_minus_24h",
+      "t_minus_6h",
+      "t_minus_90m"
+    ],
+    "openfootball:ligue-1:ec5c676e4f38476b9b601fca": [
+      "t_minus_24h",
+      "t_minus_6h",
+      "t_minus_90m"
+    ],
+    "openfootball:premier-league:408be85791eb2dc70e040d63": [
+      "t_minus_24h",
+      "t_minus_6h",
+      "t_minus_90m"
+    ],
+    "openfootball:serie-a:42f9acad0c8f6dfe787f9cba": [
+      "t_minus_24h",
+      "t_minus_6h",
+      "t_minus_90m"
+    ],
+    "openfootball:serie-a:abb22594a9a998122061efa0": [
+      "t_minus_24h",
+      "t_minus_6h",
+      "t_minus_90m"
+    ],
+    "openfootball:bundesliga:1d22ff2aae2c17006bc1be7c": [
+      "t_minus_24h",
+      "t_minus_6h",
+      "t_minus_90m"
+    ],
+    "openfootball:la-liga:fb2eb18870e11636c707c126": [
+      "t_minus_24h",
+      "t_minus_6h",
+      "t_minus_90m"
+    ],
+    "openfootball:ligue-1:11fed3818cc38ba2ab1b4d3b": [
+      "t_minus_24h",
+      "t_minus_6h",
+      "t_minus_90m"
+    ],
+    "openfootball:bundesliga:7a1a7f6e22478652ec1cdd84": [
+      "t_minus_24h",
+      "t_minus_6h",
+      "t_minus_90m"
+    ],
+    "openfootball:premier-league:fa9e5908fbcace047ac2375e": [
+      "t_minus_24h",
+      "t_minus_6h",
+      "t_minus_90m"
+    ],
+    "openfootball:serie-a:0ad51e784a9813ec185ffc12": [
+      "t_minus_24h",
+      "t_minus_6h",
+      "t_minus_90m"
+    ],
+    "openfootball:la-liga:b4d9284b85c2fc8bd62230fc": [
+      "t_minus_24h",
+      "t_minus_6h",
+      "t_minus_90m"
+    ],
+    "openfootball:la-liga:c8efb5aabf95c2848b3fc744": [
+      "t_minus_24h",
+      "t_minus_6h",
+      "t_minus_90m"
+    ],
+    "openfootball:ligue-1:79b43a9d6244b4cb8054eec4": [
+      "t_minus_24h",
+      "t_minus_6h"
+    ],
+    "openfootball:serie-a:72bbf76f5277d841ab632e11": [
+      "t_minus_24h",
+      "t_minus_6h"
+    ],
+    "openfootball:la-liga:f462996aee4c959ad78364fc": [
+      "t_minus_24h",
+      "t_minus_6h"
+    ],
+    "openfootball:serie-a:d4a9757091a186aefb090789": [
+      "t_minus_24h",
+      "t_minus_6h",
+      "t_minus_90m"
+    ],
+    "openfootball:la-liga:64e97add380e04c4fcd02cc7": [
+      "t_minus_24h",
+      "t_minus_6h",
+      "t_minus_90m"
+    ],
+    "openfootball:serie-a:1104e4c13893e3fd1a82b0c9": [
+      "t_minus_24h",
+      "t_minus_6h",
+      "t_minus_90m"
+    ],
+    "openfootball:la-liga:a66bd3a84a04f9f43ee2a9d0": [
+      "t_minus_24h",
+      "t_minus_6h",
+      "t_minus_90m"
+    ]
+  },
+  "lock_promotion": {
+    "status": "not_promoted",
+    "reason": "runtime_only_no_repository_writes"
+  },
+  "lock_identity": {
+    "model_version_sha256": "357a2d4c1082552ef8515e4fee327e75243f5dca4aa69d0047b4ffba32fef584",
+    "lock_identity_sha256": "40cf0716571b9235db3f316d0e82ee97ebf3e1ad297d5869b20a7f9246d3c663",
+    "locked_at": "2026-09-04T12:09:17+00:00",
+    "evaluation_window_started_at": "2026-09-04T12:09:18+00:00",
+    "path": "/media/hetaisheng/044A81D94A81C83E/soccerdata-live-runtime/candidate-locks/prospective-model-lock-v260-20260904T-luna-max-current-v2.json",
+    "sha256": "8578af943bf842f2e084bbfebfaac6cb5bd86023efdbceb06f6ee2f956b37fc6",
+    "bytes_sha256": "8578af943bf842f2e084bbfebfaac6cb5bd86023efdbceb06f6ee2f956b37fc6",
+    "lock_bytes_sha256": "8578af943bf842f2e084bbfebfaac6cb5bd86023efdbceb06f6ee2f956b37fc6",
+    "fingerprint": "40cf0716571b9235db3f316d0e82ee97ebf3e1ad297d5869b20a7f9246d3c663"
+  },
+  "publication": null,
+  "degraded": false,
+  "storage": {
+    "status": "ok",
+    "required_free_bytes": 1073741824,
+    "checked": [
+      {
+        "path": "/dev/shm/matchline-live-runtime/current.json",
+        "filesystem": "/dev/shm/matchline-live-runtime/current.json",
+        "free_bytes": 6262091776,
+        "required_free_bytes": 1073741824,
+        "status": "ok"
+      },
+      {
+        "path": "/dev/shm/matchline-live-runtime/archive",
+        "filesystem": "/dev/shm/matchline-live-runtime/archive",
+        "free_bytes": 6262091776,
+        "required_free_bytes": 1073741824,
+        "status": "ok"
+      },
+      {
+        "path": "/dev/shm/matchline-live-runtime/intelligence/observations.jsonl",
+        "filesystem": "/dev/shm/matchline-live-runtime/intelligence/observations.jsonl",
+        "free_bytes": 6262091776,
+        "required_free_bytes": 1073741824,
+        "status": "ok"
+      },
+      {
+        "path": "/dev/shm/matchline-live-runtime/prospective_predictions.jsonl",
+        "filesystem": "/dev/shm/matchline-live-runtime/prospective_predictions.jsonl",
+        "free_bytes": 6262091776,
+        "required_free_bytes": 1073741824,
+        "status": "ok"
+      },
+      {
+        "path": "/dev/shm/matchline-live-runtime/runtime-only-cycle-latest.json",
+        "filesystem": "/dev/shm/matchline-live-runtime/runtime-only-cycle-latest.json",
+        "free_bytes": 6262091776,
+        "required_free_bytes": 1073741824,
+        "status": "ok"
+      },
+      {
+        "path": "/dev/shm/matchline-live-runtime/runtime-only-cycle.jsonl",
+        "filesystem": "/dev/shm/matchline-live-runtime/runtime-only-cycle.jsonl",
+        "free_bytes": 6262091776,
+        "required_free_bytes": 1073741824,
+        "status": "ok"
+      },
+      {
+        "path": "/dev/shm/matchline-live-runtime/prospective-cycle.lock",
+        "filesystem": "/dev/shm/matchline-live-runtime/prospective-cycle.lock",
+        "free_bytes": 6262091776,
+        "required_free_bytes": 1073741824,
+        "status": "ok"
+      },
+      {
+        "path": "/dev/shm/matchline-live-runtime/runtime-only-cycle-progress.json",
+        "filesystem": "/dev/shm/matchline-live-runtime/runtime-only-cycle-progress.json",
+        "free_bytes": 6262091776,
+        "required_free_bytes": 1073741824,
+        "status": "ok"
+      },
+      {
+        "path": "/dev/shm/matchline-live-runtime/runtime-only-evaluation-current.json",
+        "filesystem": "/dev/shm/matchline-live-runtime/runtime-only-evaluation-current.json",
+        "free_bytes": 6262091776,
+        "required_free_bytes": 1073741824,
+        "status": "ok"
+      },
+      {
+        "path": "/dev/shm/matchline-live-runtime/prospective_market_baselines.jsonl",
+        "filesystem": "/dev/shm/matchline-live-runtime/prospective_market_baselines.jsonl",
+        "free_bytes": 6262091776,
+        "required_free_bytes": 1073741824,
+        "status": "ok"
+      },
+      {
+        "path": "/dev/shm/matchline-live-runtime/oddstorm_history.jsonl",
+        "filesystem": "/dev/shm/matchline-live-runtime/oddstorm_history.jsonl",
+        "free_bytes": 6262091776,
+        "required_free_bytes": 1073741824,
+        "status": "ok"
+      }
+    ],
+    "blocked_paths": [],
+    "runtime_only": true,
+    "repository_check_skipped": true,
+    "read_only_paths": [
+      "/media/hetaisheng/044A81D94A81C83E/soccerdata-live-runtime/candidate-locks/prospective-model-lock-v260-20260904T-luna-max-current-v2.json"
+    ]
+  }
+}
