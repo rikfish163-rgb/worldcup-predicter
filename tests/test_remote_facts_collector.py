@@ -342,7 +342,7 @@ def test_unverified_football_data_sidecar_is_blocked_without_network(monkeypatch
 
     assert calls == []
     assert len(sources) == 8
-    assert all(source["status"] == "rights_blocked" for source in sources)
+    assert all(source["status"] == "blocked" for source in sources)
     assert all(source["recordCount"] is None for source in sources)
     assert all(source["errorCode"] == "current_collection_rights_unverified" for source in sources)
 
@@ -359,7 +359,7 @@ def test_restricted_provider_diagnostic_is_non_network(monkeypatch):
         "2026-09-03T00:00:00Z",
     )
 
-    assert result["status"] == "rights_blocked"
+    assert result["status"] == "blocked"
     assert result["recordCount"] is None
     assert result["httpStatus"] is None
     assert result["rawSha256"] is None

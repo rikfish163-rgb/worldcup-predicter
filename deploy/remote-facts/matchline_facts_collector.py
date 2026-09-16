@@ -480,7 +480,7 @@ def _rights_blocked_status(
         name=name,
         url=url,
         retrieved_at=retrieved_at,
-        status="rights_blocked",
+        status="blocked",
         record_count=None,
         license_url=license_url,
         terms_url=terms_url,
