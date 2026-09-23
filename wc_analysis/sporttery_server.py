@@ -1,5 +1,10 @@
 #!/usr/bin/env python3
-"""HTTP server on 4090 that exposes latest sporttery data.
+"""Compatibility-only Sporttery helper retained for legacy safety tests.
+
+The Matchline mainline uses the rights-gated systemd ingestion path; this
+module is not a production scheduler, publisher, or data-source bypass.
+
+This HTTP server exposes the latest Sporttery data on a loopback listener.
 
 Run on 4090 with:
     python3 sporttery_server.py --port 8765

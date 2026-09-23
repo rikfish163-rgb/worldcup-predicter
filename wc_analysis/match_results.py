@@ -70,7 +70,7 @@ def update_historical() -> int:
     (审计修复2026-07-02: data/ 不是独立git仓库(无.git, 无upstream跟踪分支),
     git pull在这里实测每次都失败退出(returncode=1, "当前分支没有跟踪信息")。
     此前不检查returncode就静默继续, 返回值直接用len(df_new)(CSV总行数,
-    实测始终=49477)冒充"新增比赛数"——self_evolving_loop.py::step5_learn()
+    实测始终=49477)冒充"新增比赛数"——旧自进化入口曾每天调用此逻辑
     每天调用一次, 日志上一直打印一个和"新增"毫无关系的静态总行数, 而
     international_results.csv实际上从未真正更新过。
     这里只做最小诚实修复: 检查真实returncode, 失败时打真实原因+返回0(不再

@@ -23,7 +23,16 @@
   .venv/bin/python wc_analysis/predict.py --serve   # 启动本地服务+自动刷新
 """
 from __future__ import annotations
-import hashlib, hmac, html, json, math, urllib.request, time, sys, os
+
+import hashlib
+import hmac
+import html
+import json
+import math
+import os
+import sys
+import time
+import urllib.request
 from pathlib import Path
 from datetime import datetime, timedelta
 from urllib.parse import quote, unquote, urlparse
@@ -200,13 +209,10 @@ def fetch_sporttery() -> list[dict]:
     # 海外VPS会被WAF拦截, 优先读取由4090 relay 推送的最新缓存
     parsed_cache = DATA_DIR / "odds_parsed.json"
     fresh_cache = DATA_DIR / "odds_parsed_fresh.json"
-    relay_source = None  # 记录数据来源
-    
     # 优先读取 4090 relay 推送的"最新"缓存 (由 cron 每30分钟刷新)
     if fresh_cache.exists():
         age = time.time() - fresh_cache.stat().st_mtime
         if age < 3600:  # 1小时内的数据视为新鲜
-            relay_source = f"relay_4090({int(age/60)}分钟前)"
             return json.loads(fresh_cache.read_text(encoding="utf-8"))
     
     # 尝试直接抓取 (从中国IP可成功)
@@ -288,7 +294,7 @@ def get_elo(team_cn: str) -> float | None:
             if not cache.exists():
                 return None
     text = cache.read_text(encoding="utf-8")
-    lines = [l for l in text.strip().split("\n") if l.count("\t") >= 10]
+    lines = [line for line in text.strip().split("\n") if line.count("\t") >= 10]
     if not lines:
         return None
     last = lines[-1].split("\t")
@@ -475,7 +481,6 @@ def _predict_draw_prob(elo_h: float, elo_a: float, home_cn: str = None, away_cn:
             h_entry = TEAM_REGISTRY.elo_key(home_cn)
             a_entry = TEAM_REGISTRY.elo_key(away_cn)
             if h_entry and a_entry:
-                h_code, a_code = h_entry[1], a_entry[1]
                 h_stats = _get_team_style(home_cn)
                 a_stats = _get_team_style(away_cn)
                 if h_stats:
@@ -646,7 +651,7 @@ def weighted_goals_rate(team_cn: str, days_back: int = 365) -> tuple[float, floa
     if not cache.exists():
         return None
     text = cache.read_text(encoding="utf-8")
-    lines = [l for l in text.strip().split("\n") if l.count("\t") >= 10]
+    lines = [line for line in text.strip().split("\n") if line.count("\t") >= 10]
     if not lines:
         return None
 
@@ -1079,7 +1084,7 @@ def get_adjustments(home: str, away: str) -> tuple[float, float, list[str]]:
     # 该特征无任何真实战术数据: _get_team_style 仅用近25场比分结果反推"进攻型/防守型",
     # 混入友谊赛/各洲预选, 指标反映赛程强度而非风格; 分类逻辑自相矛盾(强攻击队被判为防守队);
     # 0.88 系数与 1.8/2.8/0.65 阈值均为无回测依据的拍脑袋值。带来噪声而非信号, 故移除。
-    # 如需恢复: 必须先用 backtest_v2 消融实验标定系数, 并改用真实 xG/控球/压迫数据。
+    # 如需恢复: 必须先做独立消融实验标定系数, 并改用真实 xG/控球/压迫数据。
 
     # 磨合度/经验因子 (自动量化 + 手动定性)
     # (审计修复) 淘汰赛阶段跳过"首次世界杯未磨合"等小组赛前提的手动惩罚:
@@ -1132,11 +1137,13 @@ def get_adjustments(home: str, away: str) -> tuple[float, float, list[str]]:
             avg_hum = sum(w[key]["humidity"]) / len(w[key]["humidity"])
             if max_temp > 33:
                 factor = 0.92
-                adj_h *= factor; adj_a *= factor
+                adj_h *= factor
+                adj_a *= factor
                 notes.append(f"高温{max_temp:.0f}°C (λ×{factor})")
             elif avg_hum > 85:
                 factor = 0.95
-                adj_h *= factor; adj_a *= factor
+                adj_h *= factor
+                adj_a *= factor
                 notes.append(f"高湿{avg_hum:.0f}% (λ×{factor})")
     return adj_h, adj_a, notes
 
@@ -1555,7 +1562,8 @@ def render_html(predictions: list[dict]) -> str:
     try:
         from odds_trend import get_trend
     except Exception:
-        get_trend = lambda *a, **k: []
+        def get_trend(*_args, **_kwargs):
+            return []
     # 记分牌数据: 当前进化参数 + 最近回测命中率 + 版本号(predictions.json mtime, 供前端轮询)
     _pf = DATA_DIR / "predictions.json"
     page_version = int(_pf.stat().st_mtime) if _pf.exists() else 0
@@ -1653,13 +1661,6 @@ def render_html(predictions: list[dict]) -> str:
             m_pct = _pct3(m.get("h", 0), m.get("d", 0), m.get("a", 0))
             mkt_row = f'''<tr><td class="row-label">市场</td>
             <td class="num">{m_pct[0]}%</td><td class="num">{m_pct[1]}%</td><td class="num">{m_pct[2]}%</td></tr>'''
-
-        # 常规盘胜率 (小字显示,仅供参考)
-        had_ref = ""
-        if p.get("had_posterior"):
-            hp = p["had_posterior"]
-            _hr_pct = _pct3(hp["h"], hp["d"], hp["a"])
-            had_ref = f'<div class="had-ref">常规盘参考: 主{_hr_pct[0]}% / 平{_hr_pct[1]}% / 客{_hr_pct[2]}%</div>'
 
         # 热门比分
         scores = p.get("top_scores", [])[:5]
@@ -2770,7 +2771,7 @@ def _append_prediction_log(predictions: list[dict]):
 # 独立线程处理, 见下方ThreadedHTTPServer)与_auto_refresh_loop(后台daemon线程,
 # 默认10min一轮)可能同时各自调用一遍run_pipeline(), 两者都会读旧文件→内存
 # 计算→整份写回, 存在竞态(后写入的覆盖先写入的, 或读到另一线程写了一半的
-# 半成品json)。push_odds.sh的curl --max-time 90超时后不会取消服务端仍在跑的
+# 半成品json)。旧版外部触发器在客户端超时后也不会取消服务端仍在跑的
 # run_pipeline(), 慢查询与下一轮cron/auto_refresh_loop重叠会放大这个风险。
 # 用一把全局锁保证任意时刻只有一次run_pipeline()在执行, 拿不到锁的请求直接
 # 返回"已有刷新在进行中"而不是并发跑一遍。
@@ -2890,40 +2891,14 @@ class RefreshHandler(SimpleHTTPRequestHandler):
                 self.end_headers()
                 self.wfile.write(b'{"ok":false,"error":"admin authorization required"}')
                 return
-            # Generate fresh top-3 predictions using TopPredictor (run in thread to avoid blocking)
-            def _run_top3():
-                try:
-                    from generate_top3 import generate_top3_predictions
-                    return generate_top3_predictions()
-                except Exception as e:
-                    return e
-            import threading
-            result = [None]
-            def _worker():
-                result[0] = _run_top3()
-            t = threading.Thread(target=_worker, daemon=True)
-            t.start()
-            t.join(timeout=90)  # wait up to 90s
-            if t.is_alive():
-                self.send_response(202)
-                self.send_header("Content-Type", "application/json")
-                self.send_header("Access-Control-Allow-Origin", "*")
-                self.end_headers()
-                self.wfile.write(b'{"ok":false,"status":"running","msg":"top3 generation in progress, check /data/top3_predictions.json"}')
-            elif isinstance(result[0], Exception):
-                self.send_response(500)
-                self.send_header("Content-Type", "application/json")
-                self.send_header("Access-Control-Allow-Origin", "*")
-                self.end_headers()
-                self.wfile.write(json.dumps({"error": str(result[0])}).encode("utf-8"))
-            else:
-                preds = result[0]
-                self.send_response(200)
-                self.send_header("Content-Type", "application/json")
-                self.send_header("Access-Control-Allow-Origin", "*")
-                self.end_headers()
-                self.wfile.write(json.dumps({"ok": True, "n": len(preds)},
-                                           ensure_ascii=False).encode("utf-8"))
+            # The former generator was moved to the external legacy archive.
+            # Keep the authenticated route explicit instead of importing a
+            # module that no longer belongs to the compatibility directory.
+            self.send_response(410)
+            self.send_header("Content-Type", "application/json")
+            self.send_header("Access-Control-Allow-Origin", "*")
+            self.end_headers()
+            self.wfile.write(b'{"ok":false,"status":"deprecated","msg":"top3 generation is retired; use Matchline research snapshots"}')
         else:
             super().do_GET()
 
@@ -2935,81 +2910,29 @@ class RefreshHandler(SimpleHTTPRequestHandler):
         if self.path == "/api/refresh":
             self._handle_refresh()
         elif self.path == "/api/retrain":
-            # Trigger model weight retraining (step5_learn)
             if not _admin_authorized(self.headers):
                 self.send_response(403)
                 self.send_header("Content-Type", "application/json")
                 self.end_headers()
                 self.wfile.write(b'{"ok":false,"error":"admin authorization required"}')
                 return
-            try:
-                from self_evolving_loop import step5_learn
-                step5_learn()
-                status = 200
-                payload = {"ok": True, "retrained": True}
-            except Exception as e:
-                status = 500
-                payload = {"ok": False, "error": str(e)}
-            self.send_response(status)
+            self.send_response(410)
             self.send_header("Content-Type", "application/json")
+            self.send_header("Access-Control-Allow-Origin", "*")
             self.end_headers()
-            self.wfile.write(json.dumps(payload, ensure_ascii=False).encode("utf-8"))
+            self.wfile.write(b'{"ok":false,"status":"deprecated","msg":"automatic legacy retraining is retired; use the locked Matchline model cycle"}')
         else:
             self.send_response(404)
             self.end_headers()
 
 
 def _auto_refresh_loop(interval: int = 600):
-    """后台定时刷新: 每 interval 秒重跑一次 pipeline, 保持页面数据新鲜.
-    每轮同时检测能否重训模型参数(防空转: 样本数没变化就跳过, 不在噪声里空转)。
-
-    (2026-07-02改动: 此前DC参数进化硬编码"每天14点一次", 用户反馈"场外因素/盘口
-    随时在变, 不该一天只用一个结果"。改为每轮循环(默认10min)都检测: 若已配对
-    样本数(真实完赛场次)相比上次检测有变化, 才重新跑一次诊断+调参; 样本数不变
-    则说明没有新的真实结果可学, 强行按固定时钟重算只会让参数在同一批数据的
-    浮点误差里空转, 没有信息增益还浪费算力, 因此跳过。
-    权重重训(step5_learn, 拉取最新历史比赛CSV)仍保留每日一次, 因为它的输入源
-    (international_results.csv)本身就是按天更新的GitHub仓库, 更高频没有意义。)"""
-    import datetime
-    last_retrain_date = None
-    last_evolution_n = None
+    """仅按固定间隔刷新兼容回放数据，不修改模型参数或训练产物。"""
     while True:
         time.sleep(interval)
         try:
             with _pipeline_lock:  # 与/api/refresh互斥, 避免同时跑两遍pipeline
                 run_pipeline()
-            now = datetime.datetime.now()
-
-            # DC核心参数(RHO/HOME_ADV/AVG_GOALS)自进化: 每轮都检测样本是否变化
-            try:
-                from evolve_groupstage import run_evolution
-                probe = run_evolution(write=False)  # 先廉价探测,不落盘
-                n = probe.get("n", 0)
-                if n != last_evolution_n:
-                    prev_n = last_evolution_n  # 修复: 打印前先存旧值, 否则日志会显示"29→29"
-                    r = run_evolution(write=True)  # 样本真的变了才重新写override
-                    last_evolution_n = n
-                    tag = f"首次运行→{n}" if prev_n is None else f"样本{prev_n}→{n}"
-                    if r.get("written"):
-                        ep = r["evolved_params"]
-                        print(f"[{now:%Y-%m-%d %H:%M:%S}] 🧬 DC参数进化({tag}, "
-                              f"命中{r['hit_rate']:.1%}): RHO={ep['rho']} HOME_ADV={ep['home_adv']} AVG_GOALS={ep['avg_goals']}")
-                    else:
-                        print(f"[{now:%Y-%m-%d %H:%M:%S}] 🧬 DC参数({tag})但: {r.get('reason')}")
-                # n未变时静默跳过, 不刷日志噪声
-            except Exception as e:
-                print(f"  ⚠ DC参数进化检测失败: {e}")
-
-            # 权重重训(拉取历史CSV, 按天更新的数据源, 保留每日一次即可)
-            if now.hour == 14 and (last_retrain_date is None or last_retrain_date != now.date()):
-                print(f"[{now:%Y-%m-%d %H:%M:%S}] 每日权重重训触发...")
-                try:
-                    from self_evolving_loop import step5_learn
-                    step5_learn()
-                    print(f"  ✅ 权重重训完成")
-                except Exception as e:
-                    print(f"  ⚠ 权重重训失败: {e}")
-                last_retrain_date = now.date()
         except Exception as e:
             print(f"  ⚠ 自动刷新失败: {e}")
 

@@ -18,7 +18,6 @@ Usage:
 
 from __future__ import annotations
 
-import json
 from math import exp, factorial
 from pathlib import Path
 
@@ -73,7 +72,7 @@ class TopPredictor:
 
     def _calibrate_draw(self, p_draw_dc: float, p_draw_lr: float,
                         elo_gap: float) -> float:
-        """Stronger draw calibration than backtest_v2 version."""
+        """Stronger draw calibration than the retired legacy experiment."""
         # When Elo gap is small, lean more on LR (which captures draw patterns)
         # When Elo gap is large, DC's low draw is correct
         if elo_gap < 50:
